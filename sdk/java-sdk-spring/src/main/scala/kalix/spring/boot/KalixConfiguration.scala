@@ -19,6 +19,7 @@ package kalix.spring.boot
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.javasdk.client.ComponentClient
+import kalix.javasdk.client.ComponentClientImpl
 import kalix.spring.impl.KalixSpringApplication
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -54,7 +55,7 @@ class KalixConfiguration(applicationContext: ApplicationContext) {
 
   @Bean
   def componentClient(kalixSpringApplication: KalixSpringApplication): ComponentClient =
-    kalixSpringApplication.componentClient
+    new ComponentClientImpl(kalixSpringApplication.kalixClient)
 
   @Bean
   def kalixReactiveWebServerFactory(kalixSpringApplication: KalixSpringApplication) =

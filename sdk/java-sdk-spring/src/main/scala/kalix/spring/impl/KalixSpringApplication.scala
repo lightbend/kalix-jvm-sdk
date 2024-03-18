@@ -19,10 +19,12 @@ package kalix.spring.impl
 import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
+
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters.CompletionStageOps
 import scala.jdk.OptionConverters.RichOption
+
 import akka.Done
 import com.typesafe.config.Config
 import io.opentelemetry.api.trace.Tracer
@@ -34,6 +36,7 @@ import kalix.javasdk.action.ActionProvider
 import kalix.javasdk.action.ReflectiveActionProvider
 import kalix.javasdk.annotations.ViewId
 import kalix.javasdk.client.ComponentClient
+import kalix.javasdk.client.ComponentClientImpl
 import kalix.javasdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
@@ -196,7 +199,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
   private val messageCodec = new JsonMessageCodec
   private[kalix] val kalixClient = new RestKalixClientImpl(messageCodec)
-  private[kalix] val componentClient = new ComponentClient(kalixClient)
 
   private val kalixBeanFactory = new DefaultListableBeanFactory(applicationContext)
 
@@ -311,7 +313,10 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
   private def componentClient(context: Context): ComponentClient = {
     kalixClient.setWebClient(webClientProvider(context).localWebClient)
-    componentClient
+    // Important!
+    // always new ComponentClient instance because we need to set the call context each time
+    // and we should not share state between call
+    new ComponentClientImpl(kalixClient)
   }
 
   /**
@@ -346,7 +351,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
           throw new BeanCreationException(
             s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on KalixClient")
 
-        case p if p == classOf[ComponentClient] =>
+        case p if p == classOf[ComponentClientImpl] =>
           throw new BeanCreationException(
             s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on ComponentClient")
 
@@ -377,7 +382,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         wiredInstance(clz) {
           case p if p == classOf[ActionCreationContext] => context
           case p if p == classOf[KalixClient]           => kalixClient(context)
-          case p if p == classOf[ComponentClient]       => componentClient(context)
+          case p if p == classOf[ComponentClientImpl]   => componentClient(context)
           case p if p == classOf[WebClientProvider]     => webClientProvider(context)
           case p if p == classOf[Tracer] =>
             context.getOpenTelemetryTracer.orElseGet(() =>
@@ -392,10 +397,10 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
         val workflow =
           wiredInstance(clz) {
-            case p if p == classOf[WorkflowContext]   => context
-            case p if p == classOf[KalixClient]       => kalixClient(context)
-            case p if p == classOf[ComponentClient]   => componentClient(context)
-            case p if p == classOf[WebClientProvider] => webClientProvider(context)
+            case p if p == classOf[WorkflowContext]     => context
+            case p if p == classOf[KalixClient]         => kalixClient(context)
+            case p if p == classOf[ComponentClientImpl] => componentClient(context)
+            case p if p == classOf[WebClientProvider]   => webClientProvider(context)
           }
 
         val workflowStateType: Class[S] =
