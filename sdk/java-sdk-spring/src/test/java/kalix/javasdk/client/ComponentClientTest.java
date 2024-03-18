@@ -58,7 +58,7 @@ class ComponentClientTest {
   @BeforeEach
   public void initEach() {
     restKalixClient = new RestKalixClientImpl(messageCodec);
-    componentClient = new ComponentClient(restKalixClient);
+    componentClient = new ComponentClientImpl(restKalixClient);
   }
 
   @Test

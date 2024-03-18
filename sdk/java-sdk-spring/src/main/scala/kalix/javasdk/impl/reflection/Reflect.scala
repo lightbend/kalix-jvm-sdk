@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.impl
+package kalix.javasdk.impl.reflection
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util
 
+import scala.annotation.tailrec
 import scala.reflect.ClassTag
+
+import kalix.javasdk.client.ComponentClientImpl
 
 /**
  * Class extension to facilitate some reflection common usages.
@@ -49,5 +53,33 @@ object Reflect {
 
     }
 
+  }
+
+  private implicit val stringArrayOrdering: Ordering[Array[String]] =
+    Ordering.fromLessThan(util.Arrays.compare[String](_, _) < 0)
+
+  implicit val methodOrdering: Ordering[Method] =
+    Ordering.by((m: Method) => (m.getName, m.getReturnType.getName, m.getParameterTypes.map(_.getName)))
+
+  def lookupComponentClientField(instance: Any): List[ComponentClientImpl] = {
+    // collect all ComponentClients in passed clz
+    // also scan superclasses as declaredFields only return fields declared in current class
+    @tailrec
+    def collectAll(currentClz: Class[_], acc: List[ComponentClientImpl]): List[ComponentClientImpl] = {
+      if (currentClz == classOf[Any]) acc // return when reach Object/Any
+      else {
+        val fields = currentClz.getDeclaredFields
+        val clients = // all client instances found in current class def
+          fields
+            .collect { case field if field.getType == classOf[ComponentClientImpl] => field }
+            .map { field =>
+              field.setAccessible(true)
+              field.get(instance).asInstanceOf[ComponentClientImpl]
+            }
+        collectAll(currentClz.getSuperclass, acc ++ clients)
+      }
+    }
+
+    collectAll(instance.getClass, List.empty)
   }
 }
