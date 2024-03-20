@@ -27,7 +27,6 @@ import kalix.javasdk.replicatedentity.ReplicatedMultiMap
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.protocol.replicated_entity.ReplicatedMultiMapDelta
 import kalix.protocol.replicated_entity.ReplicatedMultiMapEntryDelta
-import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedMultiMapImpl[K, V](
     anySupport: AnySupport,

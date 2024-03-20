@@ -20,7 +20,7 @@ import java.net.URI
 import java.util
 import java.util.concurrent.CompletionStage
 import java.util.function.Function
-
+import scala.language.existentials
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Promise

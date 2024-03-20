@@ -50,7 +50,7 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
 
   def this(effect: Action.Effect[T]) = this(effect.asInstanceOf[ActionEffectImpl.PrimaryEffect[T]])
 
-  private implicit val ec = ExecutionContext.Implicits.global
+  private implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
 
   /** @return true if the call had an effect with a reply, false if not */
   override def isReply(): Boolean = effect.isInstanceOf[ActionEffectImpl.ReplyEffect[T]]

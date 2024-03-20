@@ -17,10 +17,6 @@
 package kalix.codegen
 package java
 
-import _root_.java.nio.file.Files
-import _root_.java.nio.file.Path
-
-import com.google.common.base.Charsets
 import kalix.codegen.ModelBuilder.EventSourcedEntity
 import kalix.codegen.ModelBuilder.MessageTypeArgument
 import kalix.codegen.ModelBuilder.ReplicatedEntity

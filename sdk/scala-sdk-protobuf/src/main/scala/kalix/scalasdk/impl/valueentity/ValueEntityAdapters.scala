@@ -27,8 +27,9 @@ import kalix.scalasdk.valueentity.ValueEntityContext
 import kalix.scalasdk.valueentity.ValueEntityOptions
 import kalix.scalasdk.valueentity.ValueEntityProvider
 import com.google.protobuf.Descriptors
-
 import java.util.Optional
+
+import scala.annotation.nowarn
 import scala.collection.immutable.Set
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
@@ -95,6 +96,7 @@ private[scalasdk] final class JavaValueEntityOptionsAdapter(scalaSdkValueEntityO
   def passivationStrategy(): javasdk.PassivationStrategy =
     PassivationStrategyConverters.toJava(scalaSdkValueEntityOptions.passivationStrategy)
 
+  @nowarn
   def withPassivationStrategy(
       passivationStrategy: javasdk.PassivationStrategy): javasdk.valueentity.ValueEntityOptions =
     new JavaValueEntityOptionsAdapter(

@@ -36,8 +36,9 @@ import kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import kalix.scalasdk.impl.InternalContext
 import kalix.scalasdk.impl.MetadataConverters
 import kalix.scalasdk.impl.PassivationStrategyConverters
-
 import java.util.Optional
+
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters._
@@ -95,6 +96,7 @@ private[scalasdk] final class JavaEventSourcedEntityOptionsAdapter(
   def passivationStrategy(): javasdk.PassivationStrategy =
     PassivationStrategyConverters.toJava(scalaSdkEventSourcedEntityOptions.passivationStrategy)
 
+  @nowarn
   def withPassivationStrategy(passivationStrategy: javasdk.PassivationStrategy): JavaSdkEventSourcedEntityOptions =
     new JavaEventSourcedEntityOptionsAdapter(
       scalaSdkEventSourcedEntityOptions.withPassivationStrategy(

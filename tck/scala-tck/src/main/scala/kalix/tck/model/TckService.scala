@@ -16,7 +16,9 @@
 
 package kalix.tck.model
 
+import scala.annotation.nowarn
 import scala.concurrent.duration._
+
 import kalix.scalasdk.PassivationStrategy
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import kalix.scalasdk.valueentity.ValueEntityOptions
@@ -34,6 +36,7 @@ import kalix.tck.model.valueentity.{ ValueEntityConfiguredEntity, ValueEntityCon
  * This construction allows to regenerate the Main class automatically and use it as is.
  */
 object TckService {
+  @nowarn
   def createService() =
     Main
       .createKalix()

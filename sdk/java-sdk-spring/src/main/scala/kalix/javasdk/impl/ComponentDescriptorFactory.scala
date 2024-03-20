@@ -19,6 +19,9 @@ package kalix.javasdk.impl
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+
+import scala.annotation.nowarn
+
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination
@@ -132,7 +135,8 @@ private[impl] object ComponentDescriptorFactory {
   def hasTopicPublication(javaMethod: Method): Boolean =
     javaMethod.isPublic && javaMethod.hasAnnotation[Publish.Topic]
 
-  def readTypeIdValue(annotated: AnnotatedElement) =
+  @nowarn
+  def readTypeIdValue(annotated: AnnotatedElement): String =
     Option(annotated.getAnnotation(classOf[TypeId]))
       .map(_.value())
       .getOrElse {
@@ -382,6 +386,7 @@ private[impl] object ComponentDescriptorFactory {
   // TODO: add more validations here
   // we should let users know if components are missing required annotations,
   // eg: Workflow and Entities require @TypeId, View requires @Table and @Subscription
+  @nowarn
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
     if (component.getAnnotation(classOf[TypeId]) != null || component.getAnnotation(classOf[EntityType]) != null)
       EntityDescriptorFactory

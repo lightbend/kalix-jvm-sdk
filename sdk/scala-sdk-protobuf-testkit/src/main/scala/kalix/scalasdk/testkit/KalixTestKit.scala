@@ -16,6 +16,7 @@
 
 package kalix.scalasdk.testkit
 
+import scala.annotation.nowarn
 import scala.concurrent.ExecutionContext
 
 import akka.actor.ActorSystem
@@ -153,6 +154,7 @@ class KalixTestKit private (delegate: JTestKit) {
    *   mocked topic to read/publish messages from/to
    */
   @Deprecated
+  @nowarn
   def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic), delegate.getMessageCodec)
 
   /**
