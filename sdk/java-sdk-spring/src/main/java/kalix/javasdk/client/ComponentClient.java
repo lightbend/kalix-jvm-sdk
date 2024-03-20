@@ -16,7 +16,7 @@
 
 package kalix.javasdk.client;
 
-import kalix.spring.KalixClient;
+import kalix.spring.impl.KalixClient;
 
 import java.util.List;
 

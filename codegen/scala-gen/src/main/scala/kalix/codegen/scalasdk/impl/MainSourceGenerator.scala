@@ -18,8 +18,6 @@ package kalix.codegen.scalasdk.impl
 
 import kalix.codegen.File
 import kalix.codegen.ModelBuilder
-import kalix.codegen.ModelBuilder.StatefulComponent
-import kalix.codegen.ModelBuilder.Service
 import kalix.codegen._
 
 /**

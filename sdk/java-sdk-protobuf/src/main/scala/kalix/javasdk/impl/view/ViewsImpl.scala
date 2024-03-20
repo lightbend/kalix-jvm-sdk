@@ -22,9 +22,9 @@ import scala.util.control.NonFatal
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import kalix.javasdk.impl.{ Service, ViewFactory }
-import kalix.javasdk.{ Context, Metadata }
+import kalix.javasdk.Metadata
 import kalix.javasdk.impl._
-import kalix.javasdk.view.{ UpdateContext, View, ViewContext, ViewCreationContext, ViewOptions }
+import kalix.javasdk.view.{ UpdateContext, ViewContext, ViewCreationContext, ViewOptions }
 import kalix.protocol.{ view => pv }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -66,7 +66,7 @@ object ViewsImpl {
 }
 
 /** INTERNAL API */
-final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], rootContext: Context) extends pv.Views {
+final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) extends pv.Views {
   import ViewsImpl.log
 
   private final val services = _services.iterator.toMap
@@ -86,7 +86,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
     // and so on recursively.
     in.prefixAndTail(1)
       .flatMapConcat {
-        case (Seq(pv.ViewStreamIn(pv.ViewStreamIn.Message.Receive(receiveEvent), _)), tail) =>
+        case (Seq(pv.ViewStreamIn(pv.ViewStreamIn.Message.Receive(receiveEvent), _)), _) =>
           services.get(receiveEvent.serviceName) match {
             case Some(service: ViewService) =>
               if (!service.factory.isPresent)

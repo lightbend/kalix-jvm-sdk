@@ -20,7 +20,6 @@ import kalix.codegen.Imports
 import kalix.codegen.MessageType
 import kalix.codegen.ModelBuilder
 import kalix.codegen.PackageNaming
-import kalix.codegen.ClassMessageType
 import kalix.codegen.ProtoMessageType
 import kalix.codegen.SourceGeneratorUtils.CodeBlock
 import kalix.codegen.SourceGeneratorUtils.typeImport
@@ -47,7 +46,7 @@ object JavaGeneratorUtils {
       .map(_.map { imported => s"import $imported;" }.mkString("\n"))
       .mkString("\n\n")
 
-  def dataType(typeArgument: ModelBuilder.TypeArgument)(implicit imports: Imports): String =
+  def dataType(typeArgument: ModelBuilder.TypeArgument): String =
     typeArgument match {
       case ModelBuilder.MessageTypeArgument(messageType) =>
         messageType.fullName
@@ -68,7 +67,7 @@ object JavaGeneratorUtils {
         }
     }
 
-  def parameterizeDataType(replicatedData: ModelBuilder.ReplicatedData)(implicit imports: Imports): String = {
+  def parameterizeDataType(replicatedData: ModelBuilder.ReplicatedData): String = {
     val typeArguments =
       replicatedData match {
         // special case ReplicatedMap as heterogeneous with ReplicatedData values

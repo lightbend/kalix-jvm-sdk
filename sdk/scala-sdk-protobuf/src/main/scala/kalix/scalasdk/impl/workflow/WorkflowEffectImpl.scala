@@ -80,7 +80,7 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
       javasdkEffect: workflow.AbstractWorkflow.Effect.PersistenceEffectBuilder[S])
       extends PersistenceEffectBuilder[S] {
 
-    override def pause(): TransitionalEffect[Void] =
+    override def pause: TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.pause())
 
     override def transitionTo[I](stepName: String, input: I): TransitionalEffect[Void] =
@@ -89,7 +89,7 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
     override def transitionTo(stepName: String): TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.transitionTo(stepName))
 
-    override def end(): TransitionalEffect[Void] =
+    override def end: TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.end())
   }
 

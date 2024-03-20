@@ -72,7 +72,6 @@ import java.util.Optional
 import scala.jdk.OptionConverters._
 
 import kalix.javasdk.workflow.AbstractWorkflow
-import kalix.javasdk.workflow.Workflow
 import kalix.javasdk.workflow.AbstractWorkflow.WorkflowDef
 import kalix.javasdk.workflow.WorkflowContext
 import kalix.javasdk.workflow.WorkflowOptions

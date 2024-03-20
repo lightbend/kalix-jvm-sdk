@@ -46,7 +46,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.util.Optional
-import scala.collection.mutable
 import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -119,11 +118,7 @@ private[javasdk] object ActionsImpl {
 
 }
 
-private[javasdk] final class ActionsImpl(
-    _system: ActorSystem,
-    services: Map[String, ActionService],
-    rootContext: Context)
-    extends Actions {
+private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionService]) extends Actions {
 
   import ActionsImpl._
   import _system.dispatcher

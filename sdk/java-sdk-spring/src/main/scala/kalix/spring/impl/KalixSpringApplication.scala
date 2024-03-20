@@ -60,7 +60,7 @@ import kalix.javasdk.workflow.Workflow
 import kalix.javasdk.workflow.WorkflowContext
 import kalix.javasdk.workflow.WorkflowProvider
 import kalix.spring.BuildInfo
-import kalix.spring.KalixClient
+import kalix.spring.impl.KalixClient
 import kalix.spring.WebClientProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

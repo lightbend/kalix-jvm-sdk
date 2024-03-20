@@ -23,7 +23,6 @@ import kalix.javasdk.replicatedentity.ReplicatedCounterMap
 import kalix.protocol.replicated_entity.ReplicatedCounterMapDelta
 import kalix.protocol.replicated_entity.ReplicatedCounterMapEntryDelta
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
-import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedCounterMapImpl[K](
     anySupport: AnySupport,

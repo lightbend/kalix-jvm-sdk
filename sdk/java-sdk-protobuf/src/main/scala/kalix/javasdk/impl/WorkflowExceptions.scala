@@ -16,12 +16,7 @@
 
 package kalix.javasdk.impl
 
-import kalix.javasdk.eventsourcedentity
-import kalix.javasdk.valueentity
 import kalix.protocol.entity.Command
-import kalix.protocol.event_sourced_entity.EventSourcedInit
-import kalix.protocol.replicated_entity.ReplicatedEntityInit
-import kalix.protocol.value_entity.ValueEntityInit
 import kalix.protocol.workflow_entity.WorkflowEntityInit
 
 object WorkflowExceptions {

@@ -25,7 +25,6 @@ import kalix.javasdk.replicatedentity.ReplicatedRegisterMap
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.protocol.replicated_entity.ReplicatedRegisterMapDelta
 import kalix.protocol.replicated_entity.ReplicatedRegisterMapEntryDelta
-import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedRegisterMapImpl[K, V](
     anySupport: AnySupport,

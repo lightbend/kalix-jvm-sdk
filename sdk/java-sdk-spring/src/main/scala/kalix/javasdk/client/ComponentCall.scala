@@ -20,6 +20,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.util
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 import akka.http.scaladsl.model.HttpMethods
@@ -39,14 +40,14 @@ import kalix.javasdk.impl.reflection.RestServiceIntrospector.RestService
 import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.workflow.Workflow
-import kalix.spring.KalixClient
+import kalix.spring.impl.KalixClient
 import kalix.spring.impl.RestKalixClientImpl
 import org.springframework.web.bind.annotation.RequestMethod
 import reactor.core.publisher.Flux
 
 final class ComponentCall[A1, R](kalixClient: KalixClient, method: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -167,6 +168,7 @@ object ComponentCall {
     throw new IllegalStateException(s"HTTP $requestMethod not supported when calling $pathTemplate")
   }
 
+  @nowarn
   private def idVariables(ids: List[String], method: Method): Map[String, String] = {
 
     val declaringClass = method.getDeclaringClass
@@ -196,7 +198,7 @@ object ComponentCall {
 // format: off
 final class ComponentCall2[A1, A2, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -212,7 +214,7 @@ final class ComponentCall2[A1, A2, R](kalixClient: KalixClient, lambda: Method, 
 }
 final class ComponentCall3[A1, A2, A3, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -228,7 +230,7 @@ final class ComponentCall3[A1, A2, A3, R](kalixClient: KalixClient, lambda: Meth
 }
 final class ComponentCall4[A1, A2, A3, A4, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -244,7 +246,7 @@ final class ComponentCall4[A1, A2, A3, A4, R](kalixClient: KalixClient, lambda: 
 }
 final class ComponentCall5[A1, A2, A3, A4, A5, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -260,7 +262,7 @@ final class ComponentCall5[A1, A2, A3, A4, A5, R](kalixClient: KalixClient, lamb
 }
 final class ComponentCall6[A1, A2, A3, A4, A5, A6, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -276,7 +278,7 @@ final class ComponentCall6[A1, A2, A3, A4, A5, A6, R](kalixClient: KalixClient, 
 }
 final class ComponentCall7[A1, A2, A3, A4, A5, A6, A7, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -292,7 +294,7 @@ final class ComponentCall7[A1, A2, A3, A4, A5, A6, A7, R](kalixClient: KalixClie
 }
 final class ComponentCall8[A1, A2, A3, A4, A5, A6, A7, A8, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -308,7 +310,7 @@ final class ComponentCall8[A1, A2, A3, A4, A5, A6, A7, A8, R](kalixClient: Kalix
 }
 final class ComponentCall9[A1, A2, A3, A4, A5, A6, A7, A8, A9, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -324,7 +326,7 @@ final class ComponentCall9[A1, A2, A3, A4, A5, A6, A7, A8, A9, R](kalixClient: K
 }
 final class ComponentCall10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -340,7 +342,7 @@ final class ComponentCall10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R](kalixCli
 }
 final class ComponentCall11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -356,7 +358,7 @@ final class ComponentCall11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, R](kal
 }
 final class ComponentCall12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -372,7 +374,7 @@ final class ComponentCall12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, R
 }
 final class ComponentCall13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -388,7 +390,7 @@ final class ComponentCall13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
 }
 final class ComponentCall14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -404,7 +406,7 @@ final class ComponentCall14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
 }
 final class ComponentCall15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -420,7 +422,7 @@ final class ComponentCall15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
 }
 final class ComponentCall16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -436,7 +438,7 @@ final class ComponentCall16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
 }
 final class ComponentCall17[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -452,7 +454,7 @@ final class ComponentCall17[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
 }
 final class ComponentCall18[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -468,7 +470,7 @@ final class ComponentCall18[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
 }
 final class ComponentCall19[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -484,7 +486,7 @@ final class ComponentCall19[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
 }
 final class ComponentCall20[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 
@@ -500,7 +502,7 @@ final class ComponentCall20[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A
 }
 final class ComponentCall21[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, R](kalixClient: KalixClient, lambda: Method, ids: util.List[String]) {
 
-  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) {
+  def this(kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]) = {
     this(kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids)
   }
 

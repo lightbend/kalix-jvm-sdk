@@ -17,12 +17,10 @@
 package kalix.codegen.scalasdk
 
 import kalix.Annotations
-import kalix.codegen.scalasdk.impl.SourceGenerator
 import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse.Feature
 import kalix.codegen.{ File, ModelBuilder }
-import protocbridge.Artifact
 import protocgen.{ CodeGenApp, CodeGenRequest, CodeGenResponse }
 
 abstract class AbstractKalixGenerator extends CodeGenApp {

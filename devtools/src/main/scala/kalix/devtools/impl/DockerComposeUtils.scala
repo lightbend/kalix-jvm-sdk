@@ -21,8 +21,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 import scala.collection.mutable
-import scala.io.Source
-import scala.jdk.CollectionConverters._
 import scala.sys.process._
 
 import com.typesafe.config.Config

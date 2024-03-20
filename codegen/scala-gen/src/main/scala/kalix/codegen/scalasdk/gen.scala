@@ -17,7 +17,6 @@
 package kalix.codegen.scalasdk
 
 import protocbridge.{ Artifact, SandboxedJvmGenerator }
-import scalapb.GeneratorOption
 
 object gen {
   def apply(

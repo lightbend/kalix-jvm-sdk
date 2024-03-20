@@ -20,7 +20,6 @@ import kalix.codegen.File
 import kalix.codegen.Format
 import kalix.codegen.Imports
 import kalix.codegen.ModelBuilder
-import kalix.codegen.ClassMessageType
 import kalix.codegen.ProtoMessageType
 
 object ReplicatedEntitySourceGenerator {

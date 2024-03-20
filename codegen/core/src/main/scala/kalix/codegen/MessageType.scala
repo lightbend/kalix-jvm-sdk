@@ -191,8 +191,8 @@ object PackageNaming {
         if (existingNames.contains(name)) name + "OuterClass" else name
       }
 
-    val javaMultipleFiles =
-      generalOptions.get("google.protobuf.FileOptions.java_multiple_files").contains(true)
+    val javaMultipleFiles: Boolean =
+      generalOptions.contains("google.protobuf.FileOptions.java_multiple_files")
 
     PackageNaming(
       descriptor.getName,

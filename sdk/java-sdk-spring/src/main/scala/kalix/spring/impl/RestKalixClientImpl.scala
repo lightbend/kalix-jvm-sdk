@@ -18,10 +18,9 @@ package kalix.spring.impl
 
 import java.net.URI
 import java.util
-import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Function
-
+import scala.language.existentials
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Promise
@@ -46,7 +45,6 @@ import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.RestDeferredCall
 import kalix.javasdk.impl.http.HttpEndpointMethodDefinition
 import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
-import kalix.spring.KalixClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity

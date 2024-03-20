@@ -426,7 +426,6 @@ object ModelBuilder {
       name: String,
       descriptor: Descriptors.FileDescriptor,
       descriptors: Seq[Descriptors.FileDescriptor])(implicit
-      log: Log,
       messageExtractor: ProtoMessageTypeExtractor): ProtoMessageType = {
     // TODO this is used in the java tck as ValueEntity state type - I'm not sure we want to
     // support this? In that case we should probably support all primitives?
@@ -495,9 +494,7 @@ object ModelBuilder {
    *   the FQN for a proto 'message' (which are used not just for "messages", but also for state types etc)
    */
   private def resolveMessageType(name: String, pkg: String, additionalDescriptors: Seq[Descriptors.FileDescriptor])(
-      implicit
-      log: Log,
-      messageExtractor: ProtoMessageTypeExtractor): MessageType = {
+      implicit messageExtractor: ProtoMessageTypeExtractor): MessageType = {
 
     val (revolvedPackage, resolvedName) = extractPackageAndName(pkg, name)
 
@@ -506,9 +503,7 @@ object ModelBuilder {
   }
 
   private def resolveTypeArgument(name: String, pkg: String, additionalDescriptors: Seq[Descriptors.FileDescriptor])(
-      implicit
-      log: Log,
-      messageExtractor: ProtoMessageTypeExtractor): TypeArgument = {
+      implicit messageExtractor: ProtoMessageTypeExtractor): TypeArgument = {
 
     val (revolvedPackage, resolvedName) = extractPackageAndName(pkg, name)
 
@@ -701,7 +696,7 @@ object ModelBuilder {
 
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
 
-    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
     EventSourcedEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
       typeId,
@@ -715,7 +710,6 @@ object ModelBuilder {
       serviceProtoDescriptor: ServiceDescriptor,
       workflowDef: WorkflowDef,
       additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
-      log: Log,
       messageExtractor: ProtoMessageTypeExtractor): WorkflowComponent = {
 
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
@@ -733,7 +727,7 @@ object ModelBuilder {
       log: Log,
       messageExtractor: ProtoMessageTypeExtractor): ValueEntity = {
 
-    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
     ValueEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
@@ -796,7 +790,7 @@ object ModelBuilder {
           throw new IllegalArgumentException("Replicated data type not set")
       }
 
-    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
     ReplicatedEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
       typeId,
@@ -813,7 +807,6 @@ object ModelBuilder {
   }
 
   private def modelFromServiceOptions(serviceDescriptor: Descriptors.ServiceDescriptor)(implicit
-      log: Log,
       messageExtractor: ProtoMessageTypeExtractor): Model = {
 
     val serviceOptions = serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)

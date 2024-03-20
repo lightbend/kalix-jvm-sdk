@@ -34,7 +34,7 @@ object EffectSupport {
 
   def asProtocol(messageCodec: MessageCodec, forward: ForwardReplyImpl[_]): component.Forward = {
     forward match {
-      case ForwardReplyImpl(deferredCall: GrpcDeferredCall[_, _], sideEffects) =>
+      case ForwardReplyImpl(deferredCall: GrpcDeferredCall[_, _], _) =>
         component.Forward(
           deferredCall.fullServiceName,
           deferredCall.methodName,

@@ -34,11 +34,12 @@ object ProxyInfoHolder extends ExtensionId[ProxyInfoHolder] with ExtensionIdProv
   override def get(system: ClassicActorSystemProvider): ProxyInfoHolder = super.get(system)
 
   override def createExtension(system: ExtendedActorSystem): ProxyInfoHolder =
-    new ProxyInfoHolder(system)
+    new ProxyInfoHolder
+
   override def lookup: ExtensionId[_ <: Extension] = this
 }
 
-class ProxyInfoHolder(system: ExtendedActorSystem) extends Extension {
+class ProxyInfoHolder extends Extension {
 
   private val log = LoggerFactory.getLogger(classOf[ProxyInfoHolder])
 

@@ -72,6 +72,9 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
       .traverse(clients.values().asScala) {
         case javaClient: AkkaGrpcJavaClient   => javaClient.close().asScala
         case scalaClient: AkkaGrpcScalaClient => scalaClient.close()
+        case _                                =>
+          // should never happen, but needs to make compiler happy
+          throw new IllegalStateException("Unknown gRPC client")
       }
       .map(_ => Done))
 
@@ -119,7 +122,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
 
   /** This gets called by the testkit, and should impersonate the given principal. */
   def getGrpcClient[T](serviceClass: Class[T], service: String, port: Int, impersonate: String): T =
-    getGrpcClient(serviceClass, service, port, Some("impersonate-kalix-service", impersonate))
+    getGrpcClient(serviceClass, service, port, Some("impersonate-kalix-service" -> impersonate))
 
   private def getGrpcClient[T](
       serviceClass: Class[T],
@@ -184,6 +187,9 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
         javaClient.closed().asScala
       case scalaClient: AkkaGrpcScalaClient =>
         scalaClient.closed
+      case _ =>
+        // should never happen, but needs to make compiler happy
+        throw new IllegalStateException("Unknown gRPC client")
     }
     closeDone.foreach { _ =>
       // if the client is closed, remove it from the pool

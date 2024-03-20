@@ -23,7 +23,7 @@ object ReflectionUtils {
 
   private implicit val stringArrayOrdering: Ordering[Array[String]] =
     Ordering.fromLessThan(util.Arrays.compare[String](_, _) < 0)
-  implicit val methodOrdering =
+  implicit val methodOrdering: Ordering[Method] =
     Ordering.by((m: Method) => (m.getName, m.getReturnType.getName, m.getParameterTypes.map(_.getName)))
 
 }

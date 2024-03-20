@@ -23,7 +23,6 @@ import kalix.javasdk.replicatedentity.ReplicatedRegister
 import kalix.protocol.replicated_entity.ReplicatedEntityClock
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.protocol.replicated_entity.ReplicatedRegisterDelta
-import kalix.replicatedentity.ReplicatedData
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 
 private[kalix] final class ReplicatedRegisterImpl[T](

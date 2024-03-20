@@ -16,7 +16,6 @@
 
 package kalix.javasdk.impl
 
-import akka.pattern.StatusReply
 import io.grpc.StatusRuntimeException
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.Metadata

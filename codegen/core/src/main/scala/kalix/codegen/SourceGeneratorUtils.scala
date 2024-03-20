@@ -21,6 +21,7 @@ import java.nio.file.Paths
 
 import scala.annotation.tailrec
 import scala.collection.immutable
+import scala.language.implicitConversions
 import scala.util.control.NoStackTrace
 
 import kalix.codegen.ModelBuilder.Command
