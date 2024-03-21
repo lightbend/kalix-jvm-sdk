@@ -17,13 +17,17 @@
 package kalix.javasdk.client;
 
 /**
- * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a call:
- * 1. select component type (and pass id if necessary)
- * 2. select component method, by using Java method reference operator (::)
- * 3. provide parameters (if required)
+ * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a
+ * call:
  *
- * <p>
- * Example of use on a cross-component call:
+ * <ol>
+ *   <li>select component type (and pass id if necessary)
+ *   <li>select component method, by using Java method reference operator (::)
+ *   <li>provide parameters (if required)
+ * </ol>
+ *
+ * <p>Example of use on a cross-component call:
+ *
  * <pre>{@code
  * public Effect<String> createUser(String userId, String email, String name) {
  *   //validation here
@@ -33,76 +37,72 @@ package kalix.javasdk.client;
  * }</pre>
  */
 public interface ComponentClient {
-    /**
-     * Select Action as a call target component.
-     */
-    ActionCallBuilder forAction();
+  /** Select Action as a call target component. */
+  ActionCallBuilder forAction();
 
-    /**
-     * Select ValueEntity as a call target component.
-     * <p>
-     * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
-     */
-    ValueEntityCallBuilder forValueEntity();
+  /**
+   * Select ValueEntity as a call target component.
+   *
+   * <p>For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
+   */
+  ValueEntityCallBuilder forValueEntity();
 
-    /**
-     * Select ValueEntity as a call target component.
-     *
-     * @param valueEntityId - value entity id used to create a call.
-     */
-    ValueEntityCallBuilder forValueEntity(String valueEntityId);
+  /**
+   * Select ValueEntity as a call target component.
+   *
+   * @param valueEntityId - value entity id used to create a call.
+   */
+  ValueEntityCallBuilder forValueEntity(String valueEntityId);
 
-    /**
-     * Select ValueEntity as a call target component.
-     *
-     * @param valueEntityIds - compound entity ids used to create a call.
-     */
-    ValueEntityCallBuilder forValueEntity(String... valueEntityIds);
+  /**
+   * Select ValueEntity as a call target component.
+   *
+   * @param valueEntityIds - compound entity ids used to create a call.
+   */
+  ValueEntityCallBuilder forValueEntity(String... valueEntityIds);
 
-    /**
-     * Select EventSourcedEntity as a call target component.
-     * <p>
-     * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
-     */
-    EventSourcedEntityCallBuilder forEventSourcedEntity();
+  /**
+   * Select EventSourcedEntity as a call target component.
+   *
+   * <p>For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
+   */
+  EventSourcedEntityCallBuilder forEventSourcedEntity();
 
-    /**
-     * Select EventSourcedEntity as a call target component.
-     *
-     * @param eventSourcedEntityId - event sourced entity id used to create a call.
-     */
-    EventSourcedEntityCallBuilder forEventSourcedEntity(String eventSourcedEntityId);
+  /**
+   * Select EventSourcedEntity as a call target component.
+   *
+   * @param eventSourcedEntityId - event sourced entity id used to create a call.
+   */
+  EventSourcedEntityCallBuilder forEventSourcedEntity(String eventSourcedEntityId);
 
-    /**
-     * Select EventSourcedEntity as a call target component.
-     *
-     * @param eventSourcedEntityIds - compound entity ids used to create a call.
-     */
-    EventSourcedEntityCallBuilder forEventSourcedEntity(String... eventSourcedEntityIds);
+  /**
+   * Select EventSourcedEntity as a call target component.
+   *
+   * @param eventSourcedEntityIds - compound entity ids used to create a call.
+   */
+  EventSourcedEntityCallBuilder forEventSourcedEntity(String... eventSourcedEntityIds);
 
-    /**
-     * Select Workflow as a call target component.
-     * <p>
-     * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
-     */
-    WorkflowCallBuilder forWorkflow();
+  /**
+   * Select Workflow as a call target component.
+   *
+   * <p>For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
+   */
+  WorkflowCallBuilder forWorkflow();
 
-    /**
-     * Select Workflow as a call target component.
-     *
-     * @param workflowId - workflow id used to create a call.
-     */
-    WorkflowCallBuilder forWorkflow(String workflowId);
+  /**
+   * Select Workflow as a call target component.
+   *
+   * @param workflowId - workflow id used to create a call.
+   */
+  WorkflowCallBuilder forWorkflow(String workflowId);
 
-    /**
-     * Select Workflow as a call target component.
-     *
-     * @param workflowIds - compound workflow ids used to create a call.
-     */
-    WorkflowCallBuilder forWorkflow(String... workflowIds);
+  /**
+   * Select Workflow as a call target component.
+   *
+   * @param workflowIds - compound workflow ids used to create a call.
+   */
+  WorkflowCallBuilder forWorkflow(String... workflowIds);
 
-    /**
-     * Select View as a call target component.
-     */
-    ViewCallBuilder forView();
+  /** Select View as a call target component. */
+  ViewCallBuilder forView();
 }
