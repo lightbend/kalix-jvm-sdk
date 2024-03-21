@@ -54,7 +54,7 @@ class ReflectiveActionRouter[A <: Action](
     // lookup ComponentClient
     val componentClients =
       Reflect
-        .lookupComponentClientField(action.getClass, action)
+        .lookupComponentClientField(action)
 
     try {
       componentClients.foreach(_.setCallMetadata(message.metadata()))
@@ -90,7 +90,7 @@ class ReflectiveActionRouter[A <: Action](
     // lookup ComponentClient
     val componentClients =
       Reflect
-        .lookupComponentClientField(action.getClass, action)
+        .lookupComponentClientField(action)
 
     try {
       componentClients.foreach(_.setCallMetadata(message.metadata()))
