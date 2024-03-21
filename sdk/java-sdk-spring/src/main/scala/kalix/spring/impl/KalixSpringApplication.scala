@@ -36,7 +36,7 @@ import kalix.javasdk.action.ActionProvider
 import kalix.javasdk.action.ReflectiveActionProvider
 import kalix.javasdk.annotations.ViewId
 import kalix.javasdk.client.ComponentClient
-import kalix.javasdk.client.ComponentClientImpl
+import kalix.javasdk.impl.client.ComponentClientImpl
 import kalix.javasdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
@@ -47,6 +47,7 @@ import kalix.javasdk.impl.Validations
 import kalix.javasdk.impl.Validations.Invalid
 import kalix.javasdk.impl.Validations.Valid
 import kalix.javasdk.impl.Validations.Validation
+import kalix.javasdk.impl.client.ComponentClientImpl
 import kalix.javasdk.replicatedentity.ReplicatedEntity
 import kalix.javasdk.valueentity.ReflectiveValueEntityProvider
 import kalix.javasdk.valueentity.ValueEntity
@@ -63,7 +64,7 @@ import kalix.javasdk.workflow.Workflow
 import kalix.javasdk.workflow.WorkflowContext
 import kalix.javasdk.workflow.WorkflowProvider
 import kalix.spring.BuildInfo
-import kalix.spring.KalixClient
+import kalix.spring.impl.KalixClient
 import kalix.spring.WebClientProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -382,7 +383,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         wiredInstance(clz) {
           case p if p == classOf[ActionCreationContext] => context
           case p if p == classOf[KalixClient]           => kalixClient(context)
-          case p if p == classOf[ComponentClientImpl]   => componentClient(context)
+          case p if p == classOf[ComponentClient]       => componentClient(context)
           case p if p == classOf[WebClientProvider]     => webClientProvider(context)
           case p if p == classOf[Tracer] =>
             context.getOpenTelemetryTracer.orElseGet(() =>
@@ -397,10 +398,10 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
         val workflow =
           wiredInstance(clz) {
-            case p if p == classOf[WorkflowContext]     => context
-            case p if p == classOf[KalixClient]         => kalixClient(context)
-            case p if p == classOf[ComponentClientImpl] => componentClient(context)
-            case p if p == classOf[WebClientProvider]   => webClientProvider(context)
+            case p if p == classOf[WorkflowContext]   => context
+            case p if p == classOf[KalixClient]       => kalixClient(context)
+            case p if p == classOf[ComponentClient]   => componentClient(context)
+            case p if p == classOf[WebClientProvider] => webClientProvider(context)
           }
 
         val workflowStateType: Class[S] =

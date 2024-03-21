@@ -14,30 +14,15 @@
  * limitations under the License.
  */
 
-package kalix.javasdk.client;
+package kalix.javasdk.impl.client;
 
 import kalix.javasdk.Metadata;
-import kalix.spring.KalixClient;
+import kalix.javasdk.client.*;
+import kalix.spring.impl.KalixClient;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a call:
- * 1. select component type (and pass id if necessary)
- * 2. select component method, by using Java method reference operator (::)
- * 3. provide parameters (if required)
- *
- * <p>
- * Example of use on a cross-component call:
- * <pre>{@code
- * public Effect<String> createUser(String userId, String email, String name) {
- *   //validation here
- *   var defCall = componentClient.forValueEntity(userId).call(UserEntity::createUser).params(email, name);
- *   return effects().forward(defCall);
- * }
- * }</pre>
- */
 public class ComponentClientImpl implements ComponentClient {
 
   private final KalixClient kalixClient;
@@ -58,37 +43,37 @@ public class ComponentClientImpl implements ComponentClient {
 
   @Override
   public ActionCallBuilder forAction() {
-    return new ActionCallBuilder(kalixClient);
+    return new ActionCallBuilder(kalixClient, callMetadata);
   }
 
   @Override
   public ValueEntityCallBuilder forValueEntity() {
-    return new ValueEntityCallBuilder(kalixClient);
+    return new ValueEntityCallBuilder(kalixClient, callMetadata);
   }
 
   @Override
   public ValueEntityCallBuilder forValueEntity(String valueEntityId) {
-    return new ValueEntityCallBuilder(kalixClient, valueEntityId);
+    return new ValueEntityCallBuilder(kalixClient, callMetadata, valueEntityId);
   }
 
   @Override
   public ValueEntityCallBuilder forValueEntity(String... valueEntityIds) {
-    return new ValueEntityCallBuilder(kalixClient, List.of(valueEntityIds));
+    return new ValueEntityCallBuilder(kalixClient, callMetadata, List.of(valueEntityIds));
   }
 
   @Override
   public EventSourcedEntityCallBuilder forEventSourcedEntity() {
-    return new EventSourcedEntityCallBuilder(kalixClient);
+    return new EventSourcedEntityCallBuilder(kalixClient, callMetadata);
   }
 
   @Override
   public EventSourcedEntityCallBuilder forEventSourcedEntity(String eventSourcedEntityId) {
-    return new EventSourcedEntityCallBuilder(kalixClient, eventSourcedEntityId);
+    return new EventSourcedEntityCallBuilder(kalixClient, callMetadata, eventSourcedEntityId);
   }
 
   @Override
   public EventSourcedEntityCallBuilder forEventSourcedEntity(String... eventSourcedEntityIds) {
-    return new EventSourcedEntityCallBuilder(kalixClient, List.of(eventSourcedEntityIds));
+    return new EventSourcedEntityCallBuilder(kalixClient, callMetadata, List.of(eventSourcedEntityIds));
   }
 
   @Override
@@ -108,7 +93,7 @@ public class ComponentClientImpl implements ComponentClient {
 
   @Override
   public ViewCallBuilder forView() {
-    return new ViewCallBuilder(kalixClient);
+    return new ViewCallBuilder(kalixClient, callMetadata);
   }
 
 }

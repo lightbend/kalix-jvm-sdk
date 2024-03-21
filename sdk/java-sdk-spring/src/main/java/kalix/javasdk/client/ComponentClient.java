@@ -16,6 +16,22 @@
 
 package kalix.javasdk.client;
 
+/**
+ * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a call:
+ * 1. select component type (and pass id if necessary)
+ * 2. select component method, by using Java method reference operator (::)
+ * 3. provide parameters (if required)
+ *
+ * <p>
+ * Example of use on a cross-component call:
+ * <pre>{@code
+ * public Effect<String> createUser(String userId, String email, String name) {
+ *   //validation here
+ *   var defCall = componentClient.forValueEntity(userId).call(UserEntity::createUser).params(email, name);
+ *   return effects().forward(defCall);
+ * }
+ * }</pre>
+ */
 public interface ComponentClient {
     /**
      * Select Action as a call target component.

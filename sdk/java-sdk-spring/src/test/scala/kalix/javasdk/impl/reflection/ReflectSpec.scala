@@ -16,7 +16,8 @@
 
 package kalix.javasdk.impl.reflection
 
-import kalix.javasdk.client.ComponentClientImpl
+import kalix.javasdk.client.ComponentClient
+import kalix.javasdk.impl.client.ComponentClientImpl
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -50,8 +51,8 @@ class ReflectSpec extends AnyWordSpec with Matchers {
     }
 
     "lookup component client instances" in {
-      abstract class Foo(val componentClient: ComponentClientImpl)
-      class Bar(val anotherComponentClient: ComponentClientImpl, val parentComponentClient: ComponentClientImpl)
+      abstract class Foo(val componentClient: ComponentClient)
+      class Bar(val anotherComponentClient: ComponentClient, val parentComponentClient: ComponentClient)
           extends Foo(parentComponentClient)
 
       val c1 = new ComponentClientImpl(null)
@@ -61,5 +62,4 @@ class ReflectSpec extends AnyWordSpec with Matchers {
       Reflect.lookupComponentClientField(bar) should have size 2
     }
   }
-
 }

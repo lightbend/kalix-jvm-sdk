@@ -25,7 +25,8 @@ import java.util
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
-import kalix.javasdk.client.ComponentClientImpl
+import kalix.javasdk.client.ComponentClient
+import kalix.javasdk.impl.client.ComponentClientImpl
 
 /**
  * Class extension to facilitate some reflection common usages.
@@ -69,9 +70,9 @@ object Reflect {
       if (currentClz == classOf[Any]) acc // return when reach Object/Any
       else {
         val fields = currentClz.getDeclaredFields
-        val clients = // all client instances found in current class def
+        val clients = // all client instances found in current class definition
           fields
-            .collect { case field if field.getType == classOf[ComponentClientImpl] => field }
+            .collect { case field if field.getType == classOf[ComponentClient] => field }
             .map { field =>
               field.setAccessible(true)
               field.get(instance).asInstanceOf[ComponentClientImpl]

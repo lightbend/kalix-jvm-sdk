@@ -22,7 +22,7 @@ import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
 import kalix.javasdk.workflow.WorkflowContext;
-import kalix.spring.KalixClient;
+import kalix.spring.impl.KalixClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;

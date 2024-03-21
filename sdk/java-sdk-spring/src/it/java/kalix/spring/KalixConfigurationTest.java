@@ -18,7 +18,7 @@ package kalix.spring;
 
 import kalix.javasdk.JsonSupport;
 import kalix.javasdk.client.ComponentClient;
-import kalix.javasdk.client.ComponentClientImpl;
+import kalix.javasdk.impl.client.ComponentClientImpl;
 import kalix.javasdk.impl.JsonMessageCodec;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.boot.KalixConfiguration;
