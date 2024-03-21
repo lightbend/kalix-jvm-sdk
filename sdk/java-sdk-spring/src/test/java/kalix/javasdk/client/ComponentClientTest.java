@@ -256,7 +256,7 @@ class ComponentClientTest {
     Metadata metadata = MetadataImpl.Empty().set(Telemetry.TRACE_PARENT_KEY(), traceparent);
     componentClient.setCallMetadata(metadata);
     //when
-    RestDeferredCall<Any, Message> call = (RestDeferredCall<Any, Message>) componentClient.forAction(). call(PostWithOneQueryParam::message).params(param, body);
+    RestDeferredCall<Any, Message> call = (RestDeferredCall<Any, Message>) componentClient.forAction().call(PostWithOneQueryParam::message).params(param, body);
 
     //then
     assertThat(call.metadata().get(Telemetry.TRACE_PARENT_KEY()).get()).isEqualTo(traceparent);
