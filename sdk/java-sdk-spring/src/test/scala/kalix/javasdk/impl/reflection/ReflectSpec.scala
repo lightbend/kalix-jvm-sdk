@@ -59,7 +59,7 @@ class ReflectSpec extends AnyWordSpec with Matchers {
       val c2 = new ComponentClientImpl(null)
       val bar = new Bar(c1, c2)
 
-      Reflect.lookupComponentClientField(bar) should have size 2
+      Reflect.lookupComponentClientFields(bar) should have size 2
     }
   }
 }

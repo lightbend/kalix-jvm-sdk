@@ -62,9 +62,12 @@ object Reflect {
   implicit val methodOrdering: Ordering[Method] =
     Ordering.by((m: Method) => (m.getName, m.getReturnType.getName, m.getParameterTypes.map(_.getName)))
 
-  def lookupComponentClientField(instance: Any): List[ComponentClientImpl] = {
+  def lookupComponentClientFields(instance: Any): List[ComponentClientImpl] = {
     // collect all ComponentClients in passed clz
     // also scan superclasses as declaredFields only return fields declared in current class
+    // Note: although unlikely, we can't be certain that a user will inject the component client only once
+    // nor can we account for single inheritance. ComponentClients can be defined on passed instance or on superclass
+    // and users can define different fields for ComponentClient
     @tailrec
     def collectAll(currentClz: Class[_], acc: List[ComponentClientImpl]): List[ComponentClientImpl] = {
       if (currentClz == classOf[Any]) acc // return when reach Object/Any

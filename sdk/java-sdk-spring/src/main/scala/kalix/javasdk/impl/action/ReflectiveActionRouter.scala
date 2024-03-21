@@ -52,9 +52,7 @@ class ReflectiveActionRouter[A <: Action](
     val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
     // lookup ComponentClient
-    val componentClients =
-      Reflect
-        .lookupComponentClientField(action)
+    val componentClients = Reflect.lookupComponentClientFields(action)
 
     try {
       componentClients.foreach(_.setCallMetadata(message.metadata()))
@@ -88,9 +86,7 @@ class ReflectiveActionRouter[A <: Action](
     val componentMethod = commandHandlerLookup(commandName)
 
     // lookup ComponentClient
-    val componentClients =
-      Reflect
-        .lookupComponentClientField(action)
+    val componentClients = Reflect.lookupComponentClientFields(action)
 
     try {
       componentClients.foreach(_.setCallMetadata(message.metadata()))
