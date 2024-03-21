@@ -307,11 +307,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     webClientProviderHolder.webClientProvider
   }
 
-  private def kalixClient(context: Context): KalixClient = {
-    kalixClient.setWebClient(webClientProvider(context).localWebClient)
-    kalixClient
-  }
-
   private def componentClient(context: Context): ComponentClient = {
     kalixClient.setWebClient(webClientProvider(context).localWebClient)
     // Important!
@@ -382,7 +377,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       context =>
         wiredInstance(clz) {
           case p if p == classOf[ActionCreationContext] => context
-          case p if p == classOf[KalixClient]           => kalixClient(context)
           case p if p == classOf[ComponentClient]       => componentClient(context)
           case p if p == classOf[WebClientProvider]     => webClientProvider(context)
           case p if p == classOf[Tracer] =>
@@ -399,7 +393,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         val workflow =
           wiredInstance(clz) {
             case p if p == classOf[WorkflowContext]   => context
-            case p if p == classOf[KalixClient]       => kalixClient(context)
             case p if p == classOf[ComponentClient]   => componentClient(context)
             case p if p == classOf[WebClientProvider] => webClientProvider(context)
           }
