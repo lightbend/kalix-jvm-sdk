@@ -16,7 +16,28 @@
 
 package kalix.javasdk.client;
 
-import akka.japi.function.*;
+import akka.japi.function.Function;
+import akka.japi.function.Function10;
+import akka.japi.function.Function11;
+import akka.japi.function.Function12;
+import akka.japi.function.Function13;
+import akka.japi.function.Function14;
+import akka.japi.function.Function15;
+import akka.japi.function.Function16;
+import akka.japi.function.Function17;
+import akka.japi.function.Function18;
+import akka.japi.function.Function19;
+import akka.japi.function.Function2;
+import akka.japi.function.Function20;
+import akka.japi.function.Function21;
+import akka.japi.function.Function22;
+import akka.japi.function.Function3;
+import akka.japi.function.Function4;
+import akka.japi.function.Function5;
+import akka.japi.function.Function6;
+import akka.japi.function.Function7;
+import akka.japi.function.Function8;
+import akka.japi.function.Function9;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.Metadata;
