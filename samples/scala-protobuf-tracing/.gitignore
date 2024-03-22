@@ -1,0 +1,33 @@
+boot/
+lib_managed/
+src_managed/
+.bsp
+
+# intellij
+/src/intellij*/*.iml
+/src/intellij*/*.ipr
+/src/intellij*/*.iws
+**/.cache
+/.idea
+/.settings
+
+# vscode
+/.vscode
+
+# sbt's target directories
+/target/
+/project/target
+/project/plugins/project/
+/project/project
+/project/**/target/
+/test/macro-annot/target/
+/test/files/target/
+/test/target/
+/build-sbt/
+local.sbt
+jitwatch.out
+
+# metals
+.metals
+.bloop
+project/**/metals.sbt
