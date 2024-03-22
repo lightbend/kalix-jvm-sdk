@@ -14,38 +14,6 @@ class ControllerAction(creationContext: ActionCreationContext) extends AbstractC
 
   val url = "https://jsonplaceholder.typicode.com/posts/1"
 
-  override def callSyncEndpoint(empty: Empty): Action.Effect[MessageResponse] = {
-    val tracerOpt = actionContext.getOpenTelemetryTracer
-    tracerOpt match {
-      case Some(tracer) =>
-        val response =  callSync(tracer)
-        effects.reply(response)
-      case None =>
-        val response = quickRequest.get(uri"$url").send()
-        effects.reply(MessageResponse(response.body))
-    }
-  }
-
-  private def callSync(tracer: Tracer): MessageResponse = {
-    val span = tracer
-      .spanBuilder("loreipsumendpoint")
-      .setParent(actionContext.metadata.traceContext.asOpenTelemetryContext)
-      .startSpan()
-    val scope: Scope = span.makeCurrent()
-    try {
-      val response = quickRequest.get(uri"$url").send()
-      if (response.code.isSuccess) {
-        span.setAttribute("result", response.body)
-      } else {
-        span.setStatus(StatusCode.ERROR, response.statusText)
-      }
-      MessageResponse(response.body)
-    } finally {
-      span.end()
-      scope.close()
-    }
-  }
-
   override def callAsyncEndpoint(empty: Empty): Action.Effect[MessageResponse] = {
     val tracerOpt = actionContext.getOpenTelemetryTracer
     tracerOpt match {
