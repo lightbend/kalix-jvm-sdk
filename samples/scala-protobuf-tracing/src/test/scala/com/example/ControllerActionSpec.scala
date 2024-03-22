@@ -1,8 +1,5 @@
 package com.example
 
-import com.google.protobuf.empty.Empty
-import kalix.scalasdk.action.Action
-import kalix.scalasdk.testkit.ActionResult
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -23,12 +20,6 @@ class ControllerActionSpec extends AnyWordSpec with Matchers {
       // val result = service.someOperation(SomeRequest)
       // verify the reply
       // result.reply shouldBe expectedReply
-    }
-
-    "handle command CallSyncEndpoint" in {
-      val service = ControllerActionTestKit(new ControllerAction(_))
-      pending
-      // val result = service.callSyncEndpoint(Empty(...))
     }
 
     "handle command CallAsyncEndpoint" in {
