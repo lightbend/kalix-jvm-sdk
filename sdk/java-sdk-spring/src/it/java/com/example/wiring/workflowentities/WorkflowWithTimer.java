@@ -20,9 +20,9 @@ import akka.Done;
 import com.example.wiring.actions.echo.Message;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
+import kalix.javasdk.client.ComponentClient;
 import kalix.javasdk.workflow.Workflow;
 import kalix.javasdk.workflow.WorkflowContext;
-import kalix.spring.impl.KalixClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -34,12 +34,12 @@ public class WorkflowWithTimer extends Workflow<FailingCounterState> {
 
   private final String counterStepName = "counter";
 
-  private final KalixClient kalixClient;
   private final WorkflowContext workflowContext;
+  private final ComponentClient componentClient;
 
-  public WorkflowWithTimer(KalixClient kalixClient, WorkflowContext workflowContext) {
-    this.kalixClient = kalixClient;
+  public WorkflowWithTimer(WorkflowContext workflowContext, ComponentClient componentClient) {
     this.workflowContext = workflowContext;
+    this.componentClient = componentClient;
   }
 
   @Override
@@ -47,9 +47,12 @@ public class WorkflowWithTimer extends Workflow<FailingCounterState> {
     var counterInc =
         step(counterStepName)
             .asyncCall(() -> {
-              var pingWorkflow = kalixClient.put("/workflow-with-timer/" + workflowContext.workflowId() + "/ping",
-                  new CounterScheduledValue(12),
-                  String.class);
+              var pingWorkflow =
+                  componentClient
+                      .forWorkflow(workflowContext.workflowId())
+                      .call(WorkflowWithTimer::pingWorkflow)
+                      .params(new CounterScheduledValue(12));
+
               return timers().startSingleTimer("ping", Duration.ofSeconds(2), pingWorkflow);
             })
             .andThen(Done.class, __ -> effects().pause())

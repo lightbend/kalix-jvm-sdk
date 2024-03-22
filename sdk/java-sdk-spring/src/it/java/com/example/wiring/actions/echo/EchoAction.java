@@ -40,13 +40,11 @@ public class EchoAction extends Action {
 
   private Parrot parrot;
   private ActionCreationContext ctx;
-  private final KalixClient kalixClient;
   private final ComponentClient componentClient;
 
-  public EchoAction(Parrot parrot, ActionCreationContext ctx, KalixClient kalixClient, ComponentClient componentClient) {
+  public EchoAction(Parrot parrot, ActionCreationContext ctx,  ComponentClient componentClient) {
     this.parrot = parrot;
     this.ctx = ctx;
-    this.kalixClient = kalixClient;
     this.componentClient = componentClient;
   }
 
@@ -66,12 +64,6 @@ public class EchoAction extends Action {
   @GetMapping("/echo/message")
   public Effect<Message> stringMessageFromParam(@RequestParam String msg) {
     return stringMessage(msg);
-  }
-
-  @PostMapping("/echo/message/forward")
-  public Effect<Message> stringMessageFromParamFw(@RequestParam String msg) {
-    var result = kalixClient.get("/echo/message?msg=" + URLEncoder.encode(msg, StandardCharsets.UTF_8), Message.class);
-    return effects().forward(result);
   }
 
   @PostMapping("/echo/message/forward")
