@@ -1,8 +1,8 @@
 package com.example
 
-import akka.actor.ActorSystem
 import kalix.scalasdk.Kalix
 import org.slf4j.LoggerFactory
+import sttp.client4.httpclient.HttpClientFutureBackend
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -13,19 +13,18 @@ object Main {
 
   private val log = LoggerFactory.getLogger("com.example.Main")
 
-  implicit val actorSystem = ActorSystem("external-calls")
-
+  val backend = HttpClientFutureBackend()
   def createKalix(): Kalix = {
     // The KalixFactory automatically registers any generated Actions, Views or Entities,
     // and is kept up-to-date with any changes in your protobuf definitions.
     // If you prefer, you may remove this and manually register these components in a
     // `Kalix()` instance.
-    KalixFactory.withComponents(
-      new ControllerAction(_))
+    KalixFactory.withComponents(new ControllerAction(_))
   }
 
   def main(args: Array[String]): Unit = {
     log.info("starting the Kalix service")
+    Runtime.getRuntime.addShutdownHook { new Thread(() => backend.close()) }
     createKalix().start()
   }
 }

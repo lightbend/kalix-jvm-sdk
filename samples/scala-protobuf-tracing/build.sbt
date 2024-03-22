@@ -32,6 +32,7 @@ Compile / javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-param
 )
 
 libraryDependencies ++= Seq(
-  "com.softwaremill.sttp.client4" %% "core" % "4.0.0-M1" % Compile,
+  "com.softwaremill.sttp.client4" %% "core" % "4.0.0-M11" % Compile,
+  "org.json4s" %% "json4s-native" % "4.1.0-M5"% Compile,
   "org.scalatest" %% "scalatest" % "3.2.7" % Test
 )

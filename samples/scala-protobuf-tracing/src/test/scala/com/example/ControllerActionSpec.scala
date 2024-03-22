@@ -11,9 +11,7 @@ import org.scalatest.wordspec.AnyWordSpec
 // As long as this file exists it will not be overwritten: you can maintain it yourself,
 // or delete it so it is regenerated as needed.
 
-class ControllerActionSpec
-    extends AnyWordSpec
-    with Matchers {
+class ControllerActionSpec extends AnyWordSpec with Matchers {
 
   "ControllerAction" must {
 
@@ -29,13 +27,13 @@ class ControllerActionSpec
 
     "handle command CallSyncEndpoint" in {
       val service = ControllerActionTestKit(new ControllerAction(_))
-          pending
+      pending
       // val result = service.callSyncEndpoint(Empty(...))
     }
 
     "handle command CallAsyncEndpoint" in {
       val service = ControllerActionTestKit(new ControllerAction(_))
-          pending
+      pending
       // val result = service.callAsyncEndpoint(Empty(...))
     }
 
