@@ -1,104 +1,60 @@
-# scala-protobuf-tracing
+## This example show how to create Spans by the users
 
-## Designing
 
-While designing your service it is useful to read [designing services](https://docs.kalix.io/services/development-process.html).
-
-## Developing
-
-This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it it may be useful to read up on [developing services](https://docs.kalix.io/developing/index.html)
-and in particular the [JVM section](https://docs.kalix.io/java-services/index.html).
-
-## Building
-
-You can use [sbt](https://www.scala-sbt.org/) to build your project,
-which will also take care of generating code based on the `.proto` definitions:
-
-```
-sbt compile
-```
 
 ## Running Locally
 
-In order to run your application locally, you must run the Kalix proxy. The included `docker-compose.yml` file contains the configuration required to run the proxy for a locally running application.
-It also contains the configuration to start a local Google Pub/Sub emulator that the Kalix proxy will connect to.
-To start the proxy, run the following command from this directory:
 
-```
-docker-compose up
-```
+When running a Kalix service locally, we need to have its companion Kalix Runtime running alongside it.
 
-> On Linux this requires Docker 20.10 or later (https://github.com/moby/moby/pull/40007),
-> or for a `USER_FUNCTION_HOST` environment variable to be set manually.
-
-To start the application locally, start it from your IDE or use:
-
-```
-sbt run
-```
-
-With both the proxy and your application running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
+To start your service locally, run:
 
 ```shell
-> curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'
-The command handler for `GetCurrentCounter` is not implemented, yet
+sbt runAll
 ```
 
+It's worth noting that `application.conf` is passing `kalix.telemetry.tracing.collector-endpoint="http://localhost:4317"`
+to the application so the SDK knows where to export the traces. This is NOT needed when deploying in Kalix, only when run in local, that is, `mvn kalix:runAll`.
+
+This command will start your Kalix service and a companion Kalix Runtime as configured in [docker-compose.yml](./docker-compose.yml) file.
+This will also start a Jaeger service to which the services above will push the traces. You can find Jaeger at `http://localhost:16686`
+
+
+With both the Kalix Runtime and your service running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`.
 For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
 
 ```shell
-> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.CounterService/GetCurrentCounter 
-ERROR:
-  Code: Unknown
-  Message: The command handler for `GetCurrentCounter` is not implemented, yet
+grpcurl -plaintext localhost:9000  com.example.Controller/CallAsyncEndpoint                                 
 ```
+produces
+```
+{
+  "message": "{\n  \"userId\": 1,\n  \"id\": 1,\n  \"title\": \"sunt aut facere repellat provident occaecati excepturi optio reprehenderit\",\n  \"body\": \"quia et suscipit\\nsuscipit recusandae consequuntur expedita et cum\\nreprehenderit molestiae ut ut quas totam\\nnostrum rerum est autem sunt rem eveniet architecto\"\n}"
+}
+```
+or
 
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in
-> your entity.
+```shell
+grpcurl -plaintext localhost:9000  com.example.Controller/CallAsyncEndpoint  
+```
+produces
+```
+{
+  "message": "{\n  \"userId\": 1,\n  \"id\": 1,\n  \"title\": \"sunt aut facere repellat provident occaecati excepturi optio reprehenderit\",\n  \"body\": \"quia et suscipit\\nsuscipit recusandae consequuntur expedita et cum\\nreprehenderit molestiae ut ut quas totam\\nnostrum rerum est autem sunt rem eveniet architecto\"\n}"
+}
+```
 
 ## Deploying
 
 To deploy your service, install the `kalix` CLI as documented in
-[Setting up a local development environment](https://docs.kalix.io/setting-up/)
-and configure a Docker Registry to upload your Docker image to.
+[Install Kalix](https://docs.kalix.io/kalix/install-kalix.html)
+and configure a Docker Registry to upload your docker image to.
 
-You will need to set your `docker.username` as a system property:
+You will need to update the `dockerImage` property in the `pom.xml` and refer to
+[Configuring registries](https://docs.kalix.io/projects/container-registries.html)
+for more information on how to make your docker image available to Kalix.
 
-```
-sbt -Ddocker.username=mary docker:publish
-```
-
-Refer to [Configuring registries](https://docs.kalix.io/projects/container-registries.html)
-for more information on how to make your Docker image available to Kalix.
-
-You can now deploy your service through the [kalix](https://docs.kalix.io/kalix/using-cli.html) CLI:
-
-```
-$ kalix auth login
-```
-
-If this is your first time using Kalix, this will let you
-register an account, create your first project and set it as the default.
-
-Now:
-
-```
-$ kalix services deploy \
-    my-service \
-    my-container-uri/container-name:tag-name
-```
-
-Once the service has been successfully started (this may take a while),
-you can create an ad-hoc proxy to call it from your local machine:
-
-```
-$ kalix services proxy my-service
-Listening on 127.0.0.1:8080
-```
-
-Or expose it to the Internet:
-
-```
-kalix service expose my-service
-```
+Finally, you use the `kalix` CLI to create a project as described in [Create a new Project](https://docs.kalix.io/projects/create-project.html). Once you have a project you can deploy your service into the project either
+by using `mvn deploy kalix:deploy` which will package, publish your docker image, and deploy your service to Kalix,
+or by first packaging and publishing the docker image through `mvn deploy` and
+then [deploying the image through the `kalix` CLI](https://docs.kalix.io/services/deploy-service.html#_deploy).
