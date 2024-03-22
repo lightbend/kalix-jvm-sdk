@@ -3,7 +3,7 @@ package com.example
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import com.google.protobuf.empty.Empty
-import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.{Span, StatusCode}
 import io.opentelemetry.context.Scope
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionCreationContext
@@ -31,45 +31,38 @@ class ControllerAction(creationContext: ActionCreationContext) extends AbstractC
     var responseBody = ""
     tracerOpt match {
       case Some(tracer) =>
-        var span:Span = null;
-        val trySpan: Try[Span] = Using.Manager { use =>
-          use(span = tracer
-            .spanBuilder("b")
-            .setParent(actionContext.metadata.traceContext.asOpenTelemetryContext)
-            .startSpan())(ReleaseSpan)
-         use(span.makeCurrent())
+        val span = tracer
+          .spanBuilder("b")
+          .setParent(actionContext.metadata.traceContext.asOpenTelemetryContext)
+          .startSpan()
+        val scope: Scope = span.makeCurrent()
+        try {
           val response = quickRequest.get(uri"$url").send()
+          if(response.code.isSuccess) {
+            span.setAttribute("result", response.body)
+          } else {
+            span.setStatus(StatusCode.ERROR,response.statusText)
+          }
           responseBody = response.body
-          span.setAttribute("result", response.body)
+        } finally {
+          span.end()
+          scope.close()
         }
-        trySpan match {
-          case Success(span) => {}
-          case Failure(exception) => responseBody = exception.getMessage
-        }
-
-      case None => {
+      case None =>
         val response = quickRequest.get(uri"$url").send()
         responseBody = response.body
-      }
-
     }
     effects.reply(MessageResponse(responseBody))
-
-    //effects.asyncEffect(responseFuture)
   }
+
   override def callAsyncEndpoint(empty: Empty): Action.Effect[MessageResponse] = {
     val response: Response[String] = quickRequest.get(uri"$url").send()
     response.body
   }
 
-   def callEndpoint(url: String): String = {
+  def callEndpoint(url: String): String = {
     val response: Response[String] = quickRequest.get(uri"$url").send()
     response.body
-  }
-
-  object ReleaseSpan extends Releasable[Span] {
-    /** Releases the specified resource. */
-    override def release(resource: Span): Unit = resource.end()
   }
 }
 
