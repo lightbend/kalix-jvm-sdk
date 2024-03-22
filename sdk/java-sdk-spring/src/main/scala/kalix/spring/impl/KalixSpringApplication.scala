@@ -345,22 +345,22 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         // NOTE: if they are allowed, 'partial' should already have a matching case for them
         case p if p == classOf[KalixClient] =>
           throw new BeanCreationException(
-            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on KalixClient")
+            s"[${constructor.getDeclaringClass.getName}] are not allowed to have a dependency on KalixClient")
 
         case p if p == classOf[ComponentClientImpl] =>
           throw new BeanCreationException(
-            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on ComponentClient")
+            s"[${constructor.getDeclaringClass.getName}] are not allowed to have a dependency on ComponentClient")
 
         case p if p == classOf[WebClientProvider] =>
           throw new BeanCreationException(
-            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on WebClientProvider")
+            s"[${constructor.getDeclaringClass.getName}] are not allowed to have a dependency on WebClientProvider")
 
         // if partial func doesn't match, try to lookup in the applicationContext
         case anyOther =>
           val bean = applicationContext.getBean(anyOther)
           if (bean == null)
             throw new BeanCreationException(
-              s"Cannot wire [${anyOther.getSimpleName}]. Bean not found in the Application Context");
+              s"Cannot wire [${anyOther.getName}]. Bean not found in the Application Context");
           else bean
       }
 
