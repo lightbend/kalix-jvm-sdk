@@ -65,10 +65,10 @@ public class ControllerAction extends AbstractControllerAction {
 
     // tag::create-close-span[]
     Span span  = tracer 
-            .spanBuilder("loreipsumendpoint")
+            .spanBuilder("https://jsonplaceholder.typicode.com/posts/{})
             .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())// <1>
             .startSpan(); // <2>
-    span.setAttribute("attribute1", "value1");// <3>
+    span.setAttribute("post", "1");// <3>
 
     CompletableFuture<HttpResponse<Post>> responseFuture = callAsyncService();
 
@@ -77,8 +77,6 @@ public class ControllerAction extends AbstractControllerAction {
         span.setAttribute("result", response.body().title);// <5>
       }).exceptionally(ex -> {
         span.setStatus(StatusCode.ERROR, ex.getMessage());
-        System.out.println("########### so far so good callAsyncService");
-
         return null;
       });
     } finally {
