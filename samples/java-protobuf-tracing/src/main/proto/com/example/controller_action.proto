@@ -18,7 +18,5 @@ service Controller {
     action: {}
   };
 
-  rpc CallSyncEndpoint(google.protobuf.Empty) returns (MessageResponse){}
-
   rpc CallAsyncEndpoint(google.protobuf.Empty) returns (MessageResponse){}
 }
