@@ -65,7 +65,7 @@ public class ControllerAction extends AbstractControllerAction {
 
     // tag::create-close-span[]
     Span span  = tracer 
-            .spanBuilder("https://jsonplaceholder.typicode.com/posts/{})
+            .spanBuilder("https://jsonplaceholder.typicode.com/posts/{}")
             .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())// <1>
             .startSpan(); // <2>
     span.setAttribute("post", "1");// <3>
