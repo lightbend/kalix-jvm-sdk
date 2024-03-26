@@ -69,11 +69,11 @@ public class ControllerAction extends AbstractControllerAction {
     CompletableFuture<HttpResponse<Post>> responseFuture = callAsyncService();
 
     responseFuture.thenAccept(response -> {
-      span.setAttribute("result", response.body().title);// <5>
-      span.end();// <6>
+      span.setAttribute("result", response.body().title);// <4>
+      span.end();// <5>
     }).exceptionally(ex -> {
-      span.setStatus(StatusCode.ERROR, ex.getMessage());// <7>
-      span.end();// <6>
+      span.setStatus(StatusCode.ERROR, ex.getMessage());// <6>
+      span.end();// <5>
       return null;
     });
     return responseFuture;
