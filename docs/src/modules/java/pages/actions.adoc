@@ -286,7 +286,7 @@ Java::
 include::example$java-spring-fibonacci-action/src/it/java/com/example/fibonacci/FibonacciActionIntegrationTest.java[tag=testing-action]
 ----
 <1> Mark the test as a Spring integration tests.
-<2> Set up the Kalix infrastructure by extending `KalixIntegrationTestKitSupport`.
+<2> Sets up the Kalix infrastructure by extending `KalixIntegrationTestKitSupport`.
 <3> Use `WebClient` to call the Action component endpoint.
 
 In cases where detailed assertions on the HTTP response are not required, the Kalix xref:component-and-service-calls.adoc#_component_client[ComponentClient] can be used in integration tests.

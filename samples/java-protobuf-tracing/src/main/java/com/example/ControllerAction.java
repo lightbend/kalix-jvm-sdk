@@ -22,17 +22,17 @@ import java.util.concurrent.CompletionStage;
 
 public class ControllerAction extends AbstractControllerAction {
 
-  String url = "https://jsonplacceholder.typicode.com/posts/1";
+  String url = "https://jsonplaceholder.typicode.com/posts/1";
   HttpClient httpClient = HttpClient.newHttpClient();
   public ControllerAction(ActionCreationContext creationContext) {}
 
 
   @Override
   public Effect<ControllerActionApi.MessageResponse> callAsyncEndpoint(Empty empty) {
-      // tag::get-tracer[]
-      Optional<Tracer> tracerOpt = actionContext().getOpenTelemetryTracer();
-      // end::get-tracer[]
-      CompletableFuture<HttpResponse<Post>> futureResponse;
+    // tag::get-tracer[]
+    Optional<Tracer> tracerOpt = actionContext().getOpenTelemetryTracer();
+    // end::get-tracer[]
+    CompletableFuture<HttpResponse<Post>> futureResponse;
 
     if(tracerOpt.isPresent()) {
       futureResponse = callAsyncService(tracerOpt.get());
@@ -54,17 +54,13 @@ public class ControllerAction extends AbstractControllerAction {
     //Async call to external service
     return httpClient.sendAsync(httpRequest,
             new JsonResponseHandler<>(Post.class));
-
-
   }
 
 
-  //  tag::create-close-span[]
+  // tag::create-close-span[]
   private CompletableFuture<HttpResponse<Post>> callAsyncService(Tracer tracer) {
-  // end::create-close-span[]
 
-    // tag::create-close-span[]
-    Span span  = tracer 
+    Span span  = tracer
             .spanBuilder("https://jsonplaceholder.typicode.com/posts/{}")
             .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())// <1>
             .startSpan(); // <2>
@@ -72,20 +68,17 @@ public class ControllerAction extends AbstractControllerAction {
 
     CompletableFuture<HttpResponse<Post>> responseFuture = callAsyncService();
 
-    try (Scope scope = span.makeCurrent()) {// <4>
-      responseFuture.thenAccept(response -> {
-        span.setAttribute("result", response.body().title);// <5>
-        span.end();// <6>
-      }).exceptionally(ex -> {
-        span.setStatus(StatusCode.ERROR, ex.getMessage());// <7>
-        span.end();// <6>
-        return null;
-      });
-    }
+    responseFuture.thenAccept(response -> {
+      span.setAttribute("result", response.body().title);// <5>
+      span.end();// <6>
+    }).exceptionally(ex -> {
+      span.setStatus(StatusCode.ERROR, ex.getMessage());// <7>
+      span.end();// <6>
+      return null;
+    });
     return responseFuture;
   }
   // end::create-close-span[]
-
 
   public record Post(String userId, String id, String title, String body) {}
 
