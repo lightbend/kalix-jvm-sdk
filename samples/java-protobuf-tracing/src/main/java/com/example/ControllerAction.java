@@ -22,7 +22,7 @@ import java.util.concurrent.CompletionStage;
 
 public class ControllerAction extends AbstractControllerAction {
 
-  String url = "https://jsonplaceholder.typicode.com/posts/1";
+  String url = "https://jsonplacceholder.typicode.com/posts/1";
   HttpClient httpClient = HttpClient.newHttpClient();
   public ControllerAction(ActionCreationContext creationContext) {}
 
@@ -75,12 +75,12 @@ public class ControllerAction extends AbstractControllerAction {
     try (Scope scope = span.makeCurrent()) {// <4>
       responseFuture.thenAccept(response -> {
         span.setAttribute("result", response.body().title);// <5>
+        span.end();// <6>
       }).exceptionally(ex -> {
-        span.setStatus(StatusCode.ERROR, ex.getMessage());
+        span.setStatus(StatusCode.ERROR, ex.getMessage());// <7>
+        span.end();// <6>
         return null;
       });
-    } finally {
-      span.end();// <6>
     }
     return responseFuture;
   }
