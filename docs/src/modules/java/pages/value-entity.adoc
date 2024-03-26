@@ -62,7 +62,7 @@ We will now show how to add the command handlers for supporting the two desired 
 include::example$java-spring-valueentity-counter/src/main/java/com/example/CounterEntity.java[tags=behaviour]
 ----
 <1> Expose the `set` command handler on path `/counter/\{counter_id\}/set` as a PUT endpoint where `counter_id` will be its unique identifier.
-<2> Set the new counter value to the value received as body of the command request.
+<2> Sets the new counter value to the value received as body of the command request.
 <3> Reply with the new counter value wrapped within a `Number` object.
 <4> The method is accessible as a POST endpoint on `/counter/\{counter_id\}/plusone`, where `counter_id` will be its unique identifier.
 <5> `plusOne` increases the counter by adding 1 to the current state.

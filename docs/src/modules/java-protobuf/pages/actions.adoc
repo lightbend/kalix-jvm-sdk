@@ -477,13 +477,13 @@ Java::
 ----
 include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=create-close-span]
 ----
-<1> setting the action's TraceContext as the parent of this span. Linking the action's trace with this span.
-<2> creating and starting the span.
-<3> adding some attribute.
-<4> make the span the current span.
-<5> adding some attribute.
-<6> closing the span.
-<7> setting the status of the span as error.
+<1> Sets the action's TraceContext as the parent of this span. Linking the action's trace with this span.
+<2> Creating and starting the span.
+<3> Adding some attribute.
+<4> Make the span the current span.
+<5> Adding some attribute.
+<6> Closing the span.
+<7> Sets the status of the span as error.
 
 NOTE: You can find how tracing is enabled and more info  link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[here].
 

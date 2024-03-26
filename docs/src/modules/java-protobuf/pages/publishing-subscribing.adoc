@@ -520,7 +520,7 @@ Java::
 include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
 <1> We must annotate it with a `(kalix.method).eventing.in`.
-<2> Set `ignore: true` option.
+<2> Sets `ignore: true` option.
 
 Scala::
 +
@@ -530,7 +530,7 @@ Scala::
 include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
 ----
 <1> We must annotate it with a `(kalix.method).eventing.in`.
-<2> Set `ignore: true` option.
+<2> Sets `ignore: true` option.
 
 The `Ignore` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
 
@@ -584,7 +584,7 @@ include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/Coun
 ----
 <1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
 <2> Add the subject to which the message is related, that is the `counterId`.
-<3> Set the mandatory header "Content-Type" accordingly.
+<3> Sets the mandatory header "Content-Type" accordingly.
 <4> Build and publish the message along with its metadata to topic `commandsTopic`.
 <5> Upon receiving the message, access the metadata.
 <6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
@@ -598,7 +598,7 @@ include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/
 ----
 <1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
 <2> Add the subject to which the message is related, that is the `counterId`.
-<3> Set the mandatory header "Content-Type" accordingly.
+<3> Sets the mandatory header "Content-Type" accordingly.
 <4> Build and publish the message along with its metadata to topic `commandsTopic`.
 <5> Receive the message of correct type and extract `Metadata`.
 <6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
