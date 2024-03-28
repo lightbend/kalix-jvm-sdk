@@ -444,18 +444,18 @@ lazy val scalaTck = project
 lazy val codegenCore =
   project
     .in(file("codegen/core"))
-    .enablePlugins(AkkaGrpcPlugin, PublishSonatype)
+    .enablePlugins(PublishSonatype, sbtprotoc.ProtocPlugin)
     .settings(common)
     .settings(
       name := "kalix-codegen-core",
       testFrameworks += new TestFramework("munit.Framework"),
       Test / fork := false)
     .settings(Dependencies.codegenCore)
-    .settings(Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java))
     .settings(
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
-      scalaVersion := Dependencies.ScalaVersionForTooling)
+      scalaVersion := Dependencies.ScalaVersionForTooling,
+      Compile / PB.targets := Seq(PB.gens.java -> (Compile / sourceManaged).value))
 
 lazy val codegenJava =
   project
