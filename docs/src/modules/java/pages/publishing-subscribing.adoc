@@ -52,7 +52,7 @@ In the following example you can take a look at how the Action is configured to 
 ----
 include::example$java-spring-eventsourced-counter/src/main/java/com/example/actions/SubscribeTypeLevelAction.java[tag=class]
 ----
-<1> Sets to ignore unknown events.
+<1> Set to ignore unknown events.
 <2> Only processing `ValueIncreased` events.
 <3> Any return is valid.
 
@@ -241,7 +241,7 @@ include::example$java-spring-eventsourced-counter/src/it/java/com/example/Counte
 ----
 <1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
 <2> Add the subject to which the message is related, that is the `counterId`.
-<3> Sets the mandatory header "Content-Type" accordingly.
+<3> Set the mandatory header "Content-Type" accordingly.
 <4> Publish the message along with its metadata to topic `commandsTopic`.
 <5> Upon receiving the message, access the metadata.
 <6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
