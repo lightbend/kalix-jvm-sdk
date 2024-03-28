@@ -15,8 +15,8 @@ services:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.telemetry.tracing.enabled=true
         -Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:4317
-      USER_SERVICE_HOST: ${USER_SERVICE_HOST:-host.docker.internal}
-      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-8080}
+      USER_SERVICE_HOST: ${USER_SERVICE_HOST}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       # Comment to enable ACL check in dev-mode (see https://docs.kalix.io/services/using-acls.html#_local_development_with_acls)
       ACL_ENABLED: "false"
   jaeger:
