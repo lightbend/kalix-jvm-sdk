@@ -3,7 +3,7 @@ package kalix.devtools.impl
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class TracingEnabledSpec  extends AnyWordSpec with Matchers {
+class TracingEnabledSpec extends AnyWordSpec with Matchers {
 
   "TracingEnabled util" should {
 
