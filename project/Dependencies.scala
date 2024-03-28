@@ -85,6 +85,7 @@ object Dependencies {
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
+  val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0"
 
   private val deps = libraryDependencies
 
@@ -120,10 +121,7 @@ object Dependencies {
     jacksonJsr310,
     jacksonParameterNames)
 
-  val devTools = deps ++= Seq(
-    "org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0",
-    "com.typesafe" % "config" % "1.4.2",
-    scalaTest % Test)
+  val devTools = deps ++= Seq(scalaCollectionCompat, "com.typesafe" % "config" % "1.4.2", scalaTest % Test)
 
   val javaSdk = deps ++= sdkDeps
 
@@ -153,6 +151,7 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "2.3.0",
     junit5 % IntegrationTest,
     junit5 % Test,
     "org.assertj" % "assertj-core" % "3.24.2" % IntegrationTest,
@@ -182,6 +181,9 @@ object Dependencies {
 
   val codegenCore = deps ++= Seq(
     protobufJava,
+    scalaCollectionCompat,
+    "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+    "com.google.guava" % "guava" % "30.1-jre",
     kalixSdkProtocol % "compile;protobuf-src",
     logback % Test,
     munit % Test,
