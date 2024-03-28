@@ -17,16 +17,21 @@
 package kalix.devtools.impl
 
 import scala.jdk.CollectionConverters._
-
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+
+import scala.collection.mutable
 
 object DevModeSettings {
 
   val portMappingsKeyPrefix = "kalix.dev-mode.service-port-mappings"
+  val tracingConfigEnabled = "kalix.proxy.telemetry.tracing.enabled"
+  val tracingConfigEndpoint = "kalix.proxy.telemetry.tracing.collector-endpoint"
+  val userFunctionTracingKey = "kalix.telemetry.tracing.collector-endpoint"
+  val userFunctionTracingCollectorEndpoint = "http://localhost:4317"
 
   def fromConfig(config: Config): DevModeSettings = {
-
+    var entries: mutable.Set[(String, AnyRef)] = mutable.Set.empty
     if (config.hasPath(portMappingsKeyPrefix)) {
       val entries = config
         .getConfig(portMappingsKeyPrefix)
