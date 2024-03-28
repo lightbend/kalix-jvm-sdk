@@ -44,14 +44,14 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.valueEntityEventSource
 import kalix.javasdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
-import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
-
+import kalix.javasdk.impl.reflection.Reflect.Syntax.AnnotatedElementOps
+import kalix.javasdk.impl.reflection.Reflect.Syntax.MethodOps
+import kalix.javasdk.impl.reflection.Reflect
 import java.lang.reflect.Method
+
 import kalix.javasdk.impl.ComponentDescriptorFactory.mergeServiceOptions
-import kalix.javasdk.impl.Reflect.Syntax.AnnotatedElementOps
-import kalix.javasdk.impl.Reflect.Syntax.MethodOps
 import kalix.TriggerOptions
 import kalix.javasdk.annotations.Trigger
 
@@ -97,7 +97,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
 
     //TODO make sure no subscription should be exposed via REST.
     // methods annotated with @Subscribe.ValueEntity
-    import ReflectionUtils.methodOrdering
+    import Reflect.methodOrdering
 
     val handleDeletesMethods = component.getMethods
       .filter(hasHandleDeletes)
