@@ -1,0 +1,22 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package com.example;
+
+option java_outer_classname = "ControllerActionApi";
+
+message MessageResponse {
+  string message = 1;
+}
+
+service Controller {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc CallAsyncEndpoint(google.protobuf.Empty) returns (MessageResponse){}
+}

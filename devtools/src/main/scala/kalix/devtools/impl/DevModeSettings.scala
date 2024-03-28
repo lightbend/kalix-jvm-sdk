@@ -16,17 +16,37 @@
 
 package kalix.devtools.impl
 
-import scala.jdk.CollectionConverters._
+import com.typesafe.config.{ Config, ConfigFactory }
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
+import scala.jdk.CollectionConverters._
 
 object DevModeSettings {
 
   val portMappingsKeyPrefix = "kalix.dev-mode.service-port-mappings"
+  val tracingConfigEnabled = "kalix.proxy.telemetry.tracing.enabled"
+  val tracingConfigEndpoint = "kalix.proxy.telemetry.tracing.collector-endpoint"
+  val userFunctionTracingKey = "kalix.telemetry.tracing.collector-endpoint"
+  val userFunctionTracingCollectorEndpoint = "http://localhost:4317"
 
   def fromConfig(config: Config): DevModeSettings = {
+    val devModeSettingsAddedPorts = addPortsFromConfig(config)
+    addTracingConf(config, devModeSettingsAddedPorts)
+  }
 
+  private def addTracingConf(config: Config, current: DevModeSettings): DevModeSettings = {
+    val enabled = if (config.hasPath(DevModeSettings.tracingConfigEnabled)) {
+      config.getBoolean(DevModeSettings.tracingConfigEnabled)
+    } else {
+      false
+    }
+    val endpointCollector = if (config.hasPath(DevModeSettings.userFunctionTracingKey)) {
+      Some(config.getString(DevModeSettings.userFunctionTracingKey))
+    } else {
+      None
+    }
+    current.copy(tracingConfig = TracingConfig(enabled = enabled, endpointCollector))
+  }
+  private def addPortsFromConfig(config: Config): DevModeSettings = {
     if (config.hasPath(portMappingsKeyPrefix)) {
       val entries = config
         .getConfig(portMappingsKeyPrefix)
@@ -42,6 +62,16 @@ object DevModeSettings {
       }
     } else {
       DevModeSettings.empty
+    }
+
+  }
+
+  private def tracingSDKConfig(tracingConf: Option[TracingConfig]): Config = {
+    tracingConf match {
+      case Some(tc) if tc.enabled => ConfigFactory.parseString(s"""
+           |kalix.telemetry.tracing.collector-endpoint=http://localhost:4317
+           |""".stripMargin)
+      case _ => ConfigFactory.empty()
     }
 
   }
@@ -80,8 +110,10 @@ object DevModeSettings {
           // when configuring through DockerComposeUtils, we need two parts:
           // a config for a gRPC client and a direct config for REST WebClient
           main
-            .withFallback(grpcClientConfig(serviceName, host, port)
-              .withFallback(restClientConfig(serviceName, host, port)))
+            .withFallback(
+              grpcClientConfig(serviceName, host, port)
+                .withFallback(restClientConfig(serviceName, host, port))
+                .withFallback(tracingSDKConfig(dcu.tracingConfig)))
         }
       }
       .getOrElse {
@@ -100,10 +132,10 @@ object DevModeSettings {
       }
   }
 
-  def empty: DevModeSettings = DevModeSettings(Map.empty)
+  def empty: DevModeSettings = DevModeSettings(Map.empty, TracingConfig.empty)
 }
 
-case class DevModeSettings(portMappings: Map[String, String]) {
+case class DevModeSettings(portMappings: Map[String, String], tracingConfig: TracingConfig) {
   def addMapping(key: String, value: String): DevModeSettings =
-    DevModeSettings(portMappings + (key -> value))
+    this.copy(portMappings = portMappings + (key -> value))
 }

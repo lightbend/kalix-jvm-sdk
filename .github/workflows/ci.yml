@@ -581,6 +581,8 @@ jobs:
           - { sample: java-protobuf-replicatedentity-shopping-cart, it: true }
           - { sample: java-protobuf-replicatedentity-examples, it: true }
 
+          - { sample: java-protobuf-tracing, it: false }
+
           - { sample: java-protobuf-web-resources, it: false }
 
           - { sample: java-protobuf-reliable-timers, it: false }
