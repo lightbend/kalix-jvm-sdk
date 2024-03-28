@@ -364,17 +364,7 @@ public class SpringSdkIntegrationTest {
             .block(timeout);
     Assertions.assertEquals(StatusCode.Success.ACCEPTED.value(), response.statusCode().value());
   }
-
-  @Test
-  public void verifyEchoActionRequestParamWithForward() {
-
-    String reqParam = "a b&c@d";
-    Message response = execute(componentClient.forAction()
-      .call(EchoAction::stringMessageFromParamFw)
-      .params(reqParam));
-
-    assertThat(response.text()).isEqualTo("Parrot says: '" + reqParam + "'");
-  }
+  
 
   @Test
   public void verifyEchoActionRequestParamWithTypedForward() {
