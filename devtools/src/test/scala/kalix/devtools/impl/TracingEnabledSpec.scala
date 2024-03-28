@@ -30,7 +30,7 @@ class TracingEnabledSpec extends AnyWordSpec with Matchers {
         "-Dkalix.proxy.telemetry.tracing.collector-endpoint=\"http://jaeger:4317\""
       }
 
-      TracingConfExtractor.unapply(line) shouldBe Some(TracingConfig(enabled = true, "http://jaeger:4317"))
+      TracingConfExtractor.unapply(line) shouldBe Some(TracingConfig(enabled = true, Option("http://jaeger:4317")))
 
     }
   }
