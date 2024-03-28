@@ -20,7 +20,6 @@ import com.typesafe.config.ConfigFactory
 
 object TracingConfExtractor {
 
-  //TODO make sure this is needed
   def unapply(line: String): Option[TracingConfig] = {
     val tracingConfig =
       line
