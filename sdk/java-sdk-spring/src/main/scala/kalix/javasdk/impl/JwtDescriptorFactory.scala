@@ -21,7 +21,7 @@ import kalix.JwtMethodOptions
 import kalix.JwtServiceOptions
 import kalix.MethodOptions
 import kalix.javasdk.annotations.JWT
-import Reflect.Syntax._
+import kalix.javasdk.impl.reflection.Reflect.Syntax._
 import kalix.JwtStaticClaim
 
 import scala.jdk.CollectionConverters.IterableHasAsJava
