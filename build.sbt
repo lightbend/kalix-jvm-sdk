@@ -1,5 +1,6 @@
 import Dependencies.Kalix
 
+
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
