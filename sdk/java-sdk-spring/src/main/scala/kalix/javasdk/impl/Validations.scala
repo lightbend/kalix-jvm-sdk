@@ -51,9 +51,9 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.streamSubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.topicSubscription
-import kalix.javasdk.impl.Reflect.Syntax._
+import kalix.javasdk.impl.reflection.Reflect.Syntax._
+import kalix.javasdk.impl.reflection.Reflect
 import kalix.javasdk.impl.reflection.IdExtractor
-import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.ServiceMethod
 import kalix.javasdk.valueentity.ValueEntity
@@ -67,7 +67,7 @@ import reactor.core.publisher.Flux
 
 object Validations {
 
-  import ReflectionUtils.methodOrdering
+  import Reflect.methodOrdering
 
   object Validation {
 

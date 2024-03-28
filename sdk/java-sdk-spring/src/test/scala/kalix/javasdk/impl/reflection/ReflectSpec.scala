@@ -16,6 +16,8 @@
 
 package kalix.javasdk.impl.reflection
 
+import kalix.javasdk.client.ComponentClient
+import kalix.javasdk.impl.client.ComponentClientImpl
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -29,11 +31,11 @@ class SomeClass {
   def c(p1: Int, p2: Int): Unit = {}
 }
 
-class ReflectionUtilsSpec extends AnyWordSpec with Matchers {
+class ReflectSpec extends AnyWordSpec with Matchers {
 
   "The reflection utils" must {
     "deterministically sort methods of the same class" in {
-      import kalix.javasdk.impl.reflection.ReflectionUtils.methodOrdering
+      import kalix.javasdk.impl.reflection.Reflect.methodOrdering
       val methods =
         classOf[SomeClass].getDeclaredMethods.toList.sorted.map(m =>
           (m.getName, m.getParameterTypes.map(_.getSimpleName).toList))
@@ -47,6 +49,17 @@ class ReflectionUtilsSpec extends AnyWordSpec with Matchers {
         ("c", List("String", "int")) :: Nil
       )
     }
-  }
 
+    "lookup component client instances" in {
+      abstract class Foo(val componentClient: ComponentClient)
+      class Bar(val anotherComponentClient: ComponentClient, val parentComponentClient: ComponentClient)
+          extends Foo(parentComponentClient)
+
+      val c1 = new ComponentClientImpl(null)
+      val c2 = new ComponentClientImpl(null)
+      val bar = new Bar(c1, c2)
+
+      Reflect.lookupComponentClientFields(bar) should have size 2
+    }
+  }
 }

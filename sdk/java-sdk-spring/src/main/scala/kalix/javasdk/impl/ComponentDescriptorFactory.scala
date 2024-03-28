@@ -43,7 +43,7 @@ import kalix.javasdk.impl.reflection.NameGenerator
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.view.View
 // TODO: abstract away spring dependency
-import kalix.javasdk.impl.Reflect.Syntax._
+import kalix.javasdk.impl.reflection.Reflect.Syntax._
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.web.bind.annotation.RequestMapping
 private[impl] object ComponentDescriptorFactory {

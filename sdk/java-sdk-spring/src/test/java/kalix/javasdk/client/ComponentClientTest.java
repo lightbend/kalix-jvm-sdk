@@ -22,20 +22,14 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.JsonSupport;
-import kalix.javasdk.impl.AnySupport;
-import kalix.javasdk.impl.ComponentDescriptor;
-import kalix.javasdk.impl.JsonMessageCodec;
-import kalix.javasdk.impl.RestDeferredCall;
-import kalix.javasdk.impl.Validations;
+import kalix.javasdk.Metadata;
+import kalix.javasdk.impl.*;
+import kalix.javasdk.impl.client.ComponentClientImpl;
+import kalix.javasdk.impl.telemetry.Telemetry;
 import kalix.spring.impl.RestKalixClientImpl;
 import kalix.spring.testmodels.Message;
 import kalix.spring.testmodels.Number;
-import kalix.spring.testmodels.action.ActionsTestModels.GetClassLevel;
-import kalix.spring.testmodels.action.ActionsTestModels.GetWithOneParam;
-import kalix.spring.testmodels.action.ActionsTestModels.GetWithoutParam;
-import kalix.spring.testmodels.action.ActionsTestModels.PostWithOneQueryParam;
-import kalix.spring.testmodels.action.ActionsTestModels.PostWithTwoParam;
-import kalix.spring.testmodels.action.ActionsTestModels.PostWithoutParam;
+import kalix.spring.testmodels.action.ActionsTestModels.*;
 import kalix.spring.testmodels.valueentity.Counter;
 import kalix.spring.testmodels.valueentity.User;
 import kalix.spring.testmodels.view.ViewTestModels.UserByEmailWithGet;
@@ -53,12 +47,12 @@ class ComponentClientTest {
 
   private final JsonMessageCodec messageCodec = new JsonMessageCodec();
   private RestKalixClientImpl restKalixClient;
-  private ComponentClient componentClient;
+  private ComponentClientImpl componentClient;
 
   @BeforeEach
   public void initEach() {
     restKalixClient = new RestKalixClientImpl(messageCodec);
-    componentClient = new ComponentClient(restKalixClient);
+    componentClient = new ComponentClientImpl(restKalixClient);
   }
 
   @Test
@@ -249,6 +243,23 @@ class ComponentClientTest {
     assertThat(call.methodName()).isEqualTo(targetMethod.getName());
     assertMethodParamsMatch(targetMethod, call.message(), param);
     assertThat(getBody(targetMethod, call.message(), Message.class)).isEqualTo(body);
+  }
+
+  @Test
+  public void shouldReturnDefferedCallWithTraceparent() {
+    //given
+    var action = descriptorFor(PostWithOneQueryParam.class, messageCodec);
+    restKalixClient.registerComponent(action.serviceDescriptor());
+    String param = "a b&c@d";
+    Message body = new Message("hello world");
+    String traceparent = "074c4c8d-d87c-4573-847f-77951ce4e0a4";
+    Metadata metadata = MetadataImpl.Empty().set(Telemetry.TRACE_PARENT_KEY(), traceparent);
+    componentClient.setCallMetadata(metadata);
+    //when
+    RestDeferredCall<Any, Message> call = (RestDeferredCall<Any, Message>) componentClient.forAction().call(PostWithOneQueryParam::message).params(param, body);
+
+    //then
+    assertThat(call.metadata().get(Telemetry.TRACE_PARENT_KEY()).get()).isEqualTo(traceparent);
   }
 
   @Test

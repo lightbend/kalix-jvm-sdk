@@ -24,7 +24,6 @@ import kalix.MethodOptions
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
-import kalix.javasdk.impl.JwtDescriptorFactory.buildJWTOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineBy
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByTopic
@@ -45,14 +44,14 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.mergeServiceOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.subscribeToEventStream
+import kalix.javasdk.impl.JwtDescriptorFactory.buildJWTOptions
 import kalix.javasdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
-import kalix.javasdk.impl.reflection.ReflectionUtils
+import kalix.javasdk.impl.reflection.Reflect
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
-import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.javasdk.impl.reflection.VirtualDeleteServiceMethod
 import kalix.javasdk.impl.reflection.VirtualServiceMethod
 import kalix.spring.impl.KalixSpringApplication
@@ -296,7 +295,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       tableProtoMessageName: String): Seq[KalixMethod] = {
 
     def getMethodsWithSubscription(component: Class[_]): Seq[Method] = {
-      import ReflectionUtils.methodOrdering
+      import kalix.javasdk.impl.reflection.Reflect.methodOrdering
       component.getMethods
         .filter(hasEventSourcedEntitySubscription)
         .sorted
@@ -327,7 +326,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       tableProtoMessageName: String): Seq[KalixMethod] = {
 
     def getMethodsWithSubscription(component: Class[_]): Seq[Method] = {
-      import ReflectionUtils.methodOrdering
+      import Reflect.methodOrdering
       component.getMethods
         .filter(hasTopicSubscription)
         .sorted
@@ -352,7 +351,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       tableName: String,
       tableProtoMessageName: String): Seq[KalixMethod] = {
 
-    import ReflectionUtils.methodOrdering
+    import Reflect.methodOrdering
 
     val handleDeletesMethods = component.getMethods
       .filter(hasHandleDeletes)
