@@ -41,7 +41,7 @@ import akka.japi.function.Function9;
 import com.google.protobuf.any.Any;
 import kalix.javasdk.DeferredCall;
 import kalix.javasdk.workflow.Workflow;
-import kalix.spring.KalixClient;
+import kalix.spring.impl.KalixClient;
 
 import java.util.List;
 

@@ -24,6 +24,7 @@ import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
+import kalix.javasdk.impl.reflection.Reflect
 
 // TODO: abstract away reactor dependency
 import reactor.core.publisher.Flux
@@ -50,23 +51,31 @@ class ReflectiveActionRouter[A <: Action](
     val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
     val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
-    methodInvoker match {
-      case Some(invoker) =>
-        inputTypeUrl match {
-          case ProtobufEmptyTypeUrl =>
-            invoker
-              .invoke(action)
-              .asInstanceOf[Action.Effect[_]]
-          case _ =>
-            invoker
-              .invoke(action, invocationContext)
-              .asInstanceOf[Action.Effect[_]]
-        }
-      case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
-      case None =>
-        throw new NoSuchElementException(
-          s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
+    // lookup ComponentClient
+    val componentClients = Reflect.lookupComponentClientFields(action)
 
+    try {
+      componentClients.foreach(_.setCallMetadata(message.metadata()))
+
+      methodInvoker match {
+        case Some(invoker) =>
+          inputTypeUrl match {
+            case ProtobufEmptyTypeUrl =>
+              invoker
+                .invoke(action)
+                .asInstanceOf[Action.Effect[_]]
+            case _ =>
+              invoker
+                .invoke(action, invocationContext)
+                .asInstanceOf[Action.Effect[_]]
+          }
+        case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
+        case None =>
+          throw new NoSuchElementException(
+            s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
+      }
+    } finally {
+      componentClients.foreach(_.clearCallMetadata())
     }
   }
 
@@ -76,21 +85,29 @@ class ReflectiveActionRouter[A <: Action](
 
     val componentMethod = commandHandlerLookup(commandName)
 
-    val context =
-      InvocationContext(
-        message.payload().asInstanceOf[ScalaPbAny],
-        componentMethod.requestMessageDescriptor,
-        message.metadata())
+    // lookup ComponentClient
+    val componentClients = Reflect.lookupComponentClientFields(action)
 
-    val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
-    componentMethod.lookupInvoker(inputTypeUrl) match {
-      case Some(methodInvoker) =>
-        val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[Action.Effect[_]]]
-        Source.fromPublisher(response)
-      case None if ignoreUnknown => Source.empty()
-      case None =>
-        throw new NoSuchElementException(
-          s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
+    try {
+      componentClients.foreach(_.setCallMetadata(message.metadata()))
+      val context =
+        InvocationContext(
+          message.payload().asInstanceOf[ScalaPbAny],
+          componentMethod.requestMessageDescriptor,
+          message.metadata())
+
+      val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
+      componentMethod.lookupInvoker(inputTypeUrl) match {
+        case Some(methodInvoker) =>
+          val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[Action.Effect[_]]]
+          Source.fromPublisher(response)
+        case None if ignoreUnknown => Source.empty()
+        case None =>
+          throw new NoSuchElementException(
+            s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
+      }
+    } finally {
+      componentClients.foreach(_.clearCallMetadata())
     }
   }
 

@@ -18,6 +18,7 @@ package kalix.spring;
 
 import kalix.javasdk.JsonSupport;
 import kalix.javasdk.client.ComponentClient;
+import kalix.javasdk.impl.client.ComponentClientImpl;
 import kalix.javasdk.impl.JsonMessageCodec;
 import kalix.javasdk.testkit.KalixTestKit;
 import kalix.spring.boot.KalixConfiguration;
@@ -82,6 +83,6 @@ public class KalixConfigurationTest {
 
   @Bean
   public ComponentClient componentClient(KalixSpringApplication kalixSpringApplication) {
-    return kalixSpringApplication.componentClient();
+    return new ComponentClientImpl(kalixSpringApplication.kalixClient());
   }
 }

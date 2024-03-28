@@ -20,7 +20,7 @@ import com.example.wiring.actions.echo.Message;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.workflow.Workflow;
-import kalix.spring.KalixClient;
+import kalix.spring.impl.KalixClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
