@@ -95,7 +95,6 @@ object Dependencies {
     akkaHttpDependency("akka-http"),
     akkaHttpDependency("akka-http-core"),
     akkaHttpDependency("akka-http-spray-json"),
-    akkaHttpDependency("akka-http2-support"),
     akkaHttpDependency("akka-parsing"),
     protobufJavaUtil,
     kalixProxyProtocol % "protobuf-src",
