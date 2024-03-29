@@ -25,8 +25,8 @@ object TracingConfExtractor {
   val PortPattern: Regex = """(\d{1,5})""".r
 
   /**
-   * Extracts the port of the `collector-endpoint` from the docker file (after substituting any variable)
-   * if tracing is enabled.
+   * Extracts the port of the `collector-endpoint` from the docker file (after substituting any variable) if tracing is
+   * enabled.
    * @param dockerComposeUtilsLines
    * @return
    */
