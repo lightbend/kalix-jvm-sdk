@@ -25,8 +25,6 @@ object DevModeSettings {
   val portMappingsKeyPrefix = "kalix.dev-mode.service-port-mappings"
   val tracingConfigEnabled = "kalix.proxy.telemetry.tracing.enabled"
   val tracingConfigEndpoint = "kalix.proxy.telemetry.tracing.collector-endpoint"
-  val userFunctionTracingKey = "kalix.telemetry.tracing.collector-endpoint"
-  val userFunctionTracingCollectorEndpoint = "http://localhost:4317"
 
   def fromConfig(config: Config): DevModeSettings = {
     val devModeSettingsAddedPorts = addPortsFromConfig(config)
@@ -34,17 +32,16 @@ object DevModeSettings {
   }
 
   private def addTracingConf(config: Config, current: DevModeSettings): DevModeSettings = {
-    val enabled = if (config.hasPath(DevModeSettings.tracingConfigEnabled)) {
-      config.getBoolean(DevModeSettings.tracingConfigEnabled)
-    } else {
-      false
-    }
-    val endpointCollector = if (config.hasPath(DevModeSettings.userFunctionTracingKey)) {
-      Some(config.getString(DevModeSettings.userFunctionTracingKey))
-    } else {
-      None
-    }
-    current.copy(tracingConfig = TracingConfig(enabled = enabled, endpointCollector))
+    val tracingPort: Option[Int] =
+      if (config.hasPath(DevModeSettings.tracingConfigEndpoint)) {
+        config.getString(DevModeSettings.tracingConfigEndpoint) match {
+          case TracingConfExtractor.PortPattern(port) => Option(port.toInt)
+          case _                                      => None
+        }
+      } else {
+        None
+      }
+    current.copy(tracingPort = tracingPort)
   }
   private def addPortsFromConfig(config: Config): DevModeSettings = {
     if (config.hasPath(portMappingsKeyPrefix)) {
@@ -66,10 +63,10 @@ object DevModeSettings {
 
   }
 
-  private def tracingSDKConfig(tracingConf: Option[TracingConfig]): Config = {
+  private def tracingSDKConfig(tracingConf: Option[Int]): Config = {
     tracingConf match {
-      case Some(tc) if tc.enabled => ConfigFactory.parseString(s"""
-           |kalix.telemetry.tracing.collector-endpoint=http://localhost:4317
+      case Some(port) => ConfigFactory.parseString(s"""
+           |kalix.telemetry.tracing.collector-endpoint="http://localhost:$port"
            |""".stripMargin)
       case _ => ConfigFactory.empty()
     }
@@ -100,6 +97,7 @@ object DevModeSettings {
         val adaptedConfig =
           ConfigFactory
             .parseString(s"kalix.user-function-port = ${dcu.userFunctionPort}")
+            .withFallback(tracingSDKConfig(dcu.tracingConfig))
             .withFallback(mainConfig)
 
         dcu.servicesHostAndPortMap.foldLeft(adaptedConfig) { case (main, (serviceName, hostAndPort)) =>
@@ -110,10 +108,9 @@ object DevModeSettings {
           // when configuring through DockerComposeUtils, we need two parts:
           // a config for a gRPC client and a direct config for REST WebClient
           main
-            .withFallback(
-              grpcClientConfig(serviceName, host, port)
-                .withFallback(restClientConfig(serviceName, host, port))
-                .withFallback(tracingSDKConfig(dcu.tracingConfig)))
+            .withFallback(grpcClientConfig(serviceName, host, port)
+              .withFallback(restClientConfig(serviceName, host, port)))
+
         }
       }
       .getOrElse {
@@ -124,7 +121,9 @@ object DevModeSettings {
             mainConfig.getConfig(portMappingsKeyPrefix).entrySet().asScala
           portMappings.foldLeft(mainConfig) { case (main, entry) =>
             val (host, port) = HostAndPort.extract(entry.getValue.unwrapped().toString)
-            main.withFallback(grpcClientConfig(entry.getKey, host, port))
+            main
+              .withFallback(grpcClientConfig(entry.getKey, host, port))
+              .withFallback(restClientConfig(entry.getKey, host, port))
           }
 
         } else
@@ -132,10 +131,10 @@ object DevModeSettings {
       }
   }
 
-  def empty: DevModeSettings = DevModeSettings(Map.empty, TracingConfig.empty)
+  def empty: DevModeSettings = DevModeSettings(Map.empty, None)
 }
 
-case class DevModeSettings(portMappings: Map[String, String], tracingConfig: TracingConfig) {
+case class DevModeSettings(portMappings: Map[String, String], tracingPort: Option[Int]) {
   def addMapping(key: String, value: String): DevModeSettings =
     this.copy(portMappings = portMappings + (key -> value))
 }
