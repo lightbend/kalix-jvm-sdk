@@ -16,35 +16,42 @@
 
 package kalix.devtools.impl
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ ConfigFactory, ConfigParseOptions, ConfigSyntax }
+
+import scala.util.matching.Regex
 
 object TracingConfExtractor {
 
-  def unapply(line: String): Option[TracingConfig] = {
-    val tracingConfig =
-      line
-        .split("-D")
-        .foldLeft(TracingConfig.empty) { case (acc, curr) =>
-          curr match {
-            case curr if curr.startsWith(DevModeSettings.tracingConfigEnabled) =>
-              acc.copy(enabled = ConfigFactory.parseString(curr).getBoolean(DevModeSettings.tracingConfigEnabled))
-            case curr if curr.startsWith(DevModeSettings.tracingConfigEndpoint) =>
-              acc.copy(collectorEndpoint =
-                Some(ConfigFactory.parseString(curr).getString(DevModeSettings.tracingConfigEndpoint)))
-            case _ => acc
-          }
+  val PortPattern: Regex = """(\d{1,5})""".r
+
+  /**
+   * Extracts the port of the `collector-endpoint` from the docker file (after substituting any variable)
+   * if tracing is enabled.
+   * @param dockerComposeUtilsLines
+   * @return
+   */
+  def unapply(dockerComposeUtilsLines: Seq[String]): Option[Int] = {
+    var enabled = false
+    var portOpt: Option[Int] = None
+
+    dockerComposeUtilsLines.filter(_.contains("-D")).foreach { line =>
+      line.replace(System.lineSeparator(), " ").split("-D").foreach { segment =>
+        segment.split(" ").foreach {
+          case each if each.startsWith(DevModeSettings.tracingConfigEnabled) =>
+            enabled = ConfigFactory.parseString(each).getBoolean(DevModeSettings.tracingConfigEnabled)
+          case each if each.startsWith(DevModeSettings.tracingConfigEndpoint) =>
+            val url = ConfigFactory
+              .parseString(each, ConfigParseOptions.defaults().setSyntax(ConfigSyntax.PROPERTIES))
+              .getString(DevModeSettings.tracingConfigEndpoint)
+            PortPattern.findFirstIn(url) match {
+              case Some(matched) => portOpt = Option(matched.toInt)
+              case None          => {}
+            }
+          case _ => {}
         }
-    if (tracingConfig.isEmpty) None
-    else {
-      Some(tracingConfig)
+      }
     }
+    if (enabled) portOpt
+    else None
   }
-
-}
-
-case class TracingConfig(enabled: Boolean, collectorEndpoint: Option[String]) {
-  def isEmpty: Boolean = !enabled && collectorEndpoint.isEmpty
-}
-object TracingConfig {
-  def empty: TracingConfig = TracingConfig(enabled = false, None)
 }
