@@ -26,6 +26,14 @@
     <protobuf-java.version>3.22.2</protobuf-java.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>akka-repository</id>
+      <name>Akka library repository</name>
+      <url>https://repo.akka.io/maven</url>
+    </repository>
+  </repositories>
+
   <build>
     <resources>
       <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->
