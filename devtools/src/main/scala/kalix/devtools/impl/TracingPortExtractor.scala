@@ -33,7 +33,7 @@ object TracingPortExtractor {
   def unapply(dockerComposeUtilsLines: Seq[String]): Option[Int] = {
 
     def isValidPort(port: String): Boolean = port.toInt >= 1023 && port.toInt <= 65535
-    def removeColon(port: String): String = port.replace(":","")
+    def removeColon(port: String): String = port.replace(":", "")
 
     val lines =
       dockerComposeUtilsLines
@@ -41,18 +41,17 @@ object TracingPortExtractor {
         .flatMap(_.split("-D"))
         .filter(_.trim.startsWith("kalix.proxy.telemetry.tracing"))
 
-    lines.
-      foldLeft(Option(-1)){
-        case (None, _) => None // once it becomes None, it stays None
-        case (port, line) if line.startsWith(DevModeSettings.tracingConfigEnabled) =>
-          val enabled = ConfigFactory.parseString(line).getBoolean(DevModeSettings.tracingConfigEnabled)
-          port.filter(_ => enabled)
-        case (_, line) if line.startsWith(DevModeSettings.tracingConfigEndpoint) =>
-          PortPattern
-            .findFirstIn(line)
-            .map(removeColon)
-            .filter(isValidPort)
-            .map(_.toInt)
-      }
+    lines.foldLeft(Option(-1)) {
+      case (None, _) => None // once it becomes None, it stays None
+      case (port, line) if line.startsWith(DevModeSettings.tracingConfigEnabled) =>
+        val enabled = ConfigFactory.parseString(line).getBoolean(DevModeSettings.tracingConfigEnabled)
+        port.filter(_ => enabled)
+      case (_, line) if line.startsWith(DevModeSettings.tracingConfigEndpoint) =>
+        PortPattern
+          .findFirstIn(line)
+          .map(removeColon)
+          .filter(isValidPort)
+          .map(_.toInt)
+    }
   }
 }
