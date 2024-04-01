@@ -63,10 +63,7 @@ class TracingPortExtractorSpec extends AnyWordSpec with Matchers {
     }
 
     "extract none if tracing is enabled, but port is not set" in {
-      val lines: Seq[String] = Seq(
-        "-Dsomething.else=10 ",
-        "-Dkalix.proxy.telemetry.tracing.enabled=true"
-      )
+      val lines: Seq[String] = Seq("-Dsomething.else=10 ", "-Dkalix.proxy.telemetry.tracing.enabled=true")
 
       TracingPortExtractor.unapply(lines) shouldBe None
     }
@@ -75,8 +72,7 @@ class TracingPortExtractorSpec extends AnyWordSpec with Matchers {
       val lines: Seq[String] = Seq(
         "-Dsomething.else=10 ",
         "-Dkalix.proxy.telemetry.tracing.enabled=true",
-        "-Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:-1233"
-      )
+        "-Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:-1233")
 
       TracingPortExtractor.unapply(lines) shouldBe None
     }
@@ -85,8 +81,7 @@ class TracingPortExtractorSpec extends AnyWordSpec with Matchers {
       val lines: Seq[String] = Seq(
         "-Dsomething.else=10 ",
         "-Dkalix.proxy.telemetry.tracing.enabled=true",
-        "-Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:3"
-      )
+        "-Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:3")
 
       TracingPortExtractor.unapply(lines) shouldBe None
     }
