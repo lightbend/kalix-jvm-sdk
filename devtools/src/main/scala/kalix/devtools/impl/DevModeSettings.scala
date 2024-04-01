@@ -26,23 +26,9 @@ object DevModeSettings {
   val tracingConfigEnabled = "kalix.proxy.telemetry.tracing.enabled"
   val tracingConfigEndpoint = "kalix.proxy.telemetry.tracing.collector-endpoint"
 
-  def fromConfig(config: Config): DevModeSettings = {
-    val devModeSettingsAddedPorts = addPortsFromConfig(config)
-    addTracingConf(config, devModeSettingsAddedPorts)
-  }
+  def fromConfig(config: Config): DevModeSettings =
+    addPortsFromConfig(config)
 
-  private def addTracingConf(config: Config, current: DevModeSettings): DevModeSettings = {
-    val tracingPort: Option[Int] =
-      if (config.hasPath(DevModeSettings.tracingConfigEndpoint)) {
-        config.getString(DevModeSettings.tracingConfigEndpoint) match {
-          case TracingConfExtractor.PortPattern(port) => Option(port.toInt)
-          case _                                      => None
-        }
-      } else {
-        None
-      }
-    current.copy(tracingPort = tracingPort)
-  }
   private def addPortsFromConfig(config: Config): DevModeSettings = {
     if (config.hasPath(portMappingsKeyPrefix)) {
       val entries = config

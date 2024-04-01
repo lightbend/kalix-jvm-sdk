@@ -19,7 +19,7 @@ package kalix.devtools.impl
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-class TracingConfExtractorSpec extends AnyWordSpec with Matchers {
+class TracingPortExtractorSpec extends AnyWordSpec with Matchers {
 
   "TracingEnabled util" should {
 
@@ -27,9 +27,9 @@ class TracingConfExtractorSpec extends AnyWordSpec with Matchers {
       val lines: Seq[String] = Seq(
         "-Dsomething.else=10 ",
         "-Dkalix.proxy.telemetry.tracing.enabled=true ",
-        """-Dkalix.proxy.telemetry.tracing.collector-endpoint="http://jaeger:4317"""")
+        "-Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:4317")
 
-      TracingConfExtractor.unapply(lines) shouldBe Some(4317)
+      TracingPortExtractor.unapply(lines) shouldBe Some(4317)
     }
 
     val defaultFile =
@@ -58,8 +58,37 @@ class TracingConfExtractorSpec extends AnyWordSpec with Matchers {
         |      - 16686:16686
         |""".stripMargin
 
-    "extract if tracing is enabled 2" in {
-      TracingConfExtractor.unapply(Seq(defaultFile)) shouldBe Some(4317)
+    "extract if tracing is enabled in different order and with multiple params in the same line" in {
+      TracingPortExtractor.unapply(defaultFile.linesIterator.toSeq) shouldBe Some(4317)
+    }
+
+    "extract none if tracing is enabled, but port is not set" in {
+      val lines: Seq[String] = Seq(
+        "-Dsomething.else=10 ",
+        "-Dkalix.proxy.telemetry.tracing.enabled=true"
+      )
+
+      TracingPortExtractor.unapply(lines) shouldBe None
+    }
+
+    "extract none if tracing is enable, but port is invalid (negative)" in {
+      val lines: Seq[String] = Seq(
+        "-Dsomething.else=10 ",
+        "-Dkalix.proxy.telemetry.tracing.enabled=true",
+        "-Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:-1233"
+      )
+
+      TracingPortExtractor.unapply(lines) shouldBe None
+    }
+
+    "extract none if tracing is enable, but port out of range" in {
+      val lines: Seq[String] = Seq(
+        "-Dsomething.else=10 ",
+        "-Dkalix.proxy.telemetry.tracing.enabled=true",
+        "-Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:3"
+      )
+
+      TracingPortExtractor.unapply(lines) shouldBe None
     }
 
   }
