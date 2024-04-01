@@ -41,17 +41,19 @@ object TracingPortExtractor {
         .flatMap(_.split("-D"))
         .filter(_.trim.startsWith("kalix.proxy.telemetry.tracing"))
 
-    lines.foldLeft(Option(-1)) {
-      case (None, _) => None // once it becomes None, it stays None
-      case (port, line) if line.startsWith(DevModeSettings.tracingConfigEnabled) =>
-        val enabled = ConfigFactory.parseString(line).getBoolean(DevModeSettings.tracingConfigEnabled)
-        port.filter(_ => enabled)
-      case (_, line) if line.startsWith(DevModeSettings.tracingConfigEndpoint) =>
-        PortPattern
-          .findFirstIn(line)
-          .map(removeColon)
-          .filter(isValidPort)
-          .map(_.toInt)
-    }.filter(_ > 0)
+    lines
+      .foldLeft(Option(-1)) {
+        case (None, _) => None // once it becomes None, it stays None
+        case (port, line) if line.startsWith(DevModeSettings.tracingConfigEnabled) =>
+          val enabled = ConfigFactory.parseString(line).getBoolean(DevModeSettings.tracingConfigEnabled)
+          port.filter(_ => enabled)
+        case (_, line) if line.startsWith(DevModeSettings.tracingConfigEndpoint) =>
+          PortPattern
+            .findFirstIn(line)
+            .map(removeColon)
+            .filter(isValidPort)
+            .map(_.toInt)
+      }
+      .filter(_ > 0)
   }
 }
