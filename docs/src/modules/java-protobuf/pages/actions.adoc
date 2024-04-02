@@ -459,15 +459,19 @@ To get the tracer from the link:{attachmentsdir}/api/kalix/javasdk/action/Action
 [.tabset]
 Java::
 +
+To add spans in your actions you can add the tracer available in the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] and with it create the span.
++
+To get the tracer from the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]:
++
 [source,java,indent=0]
 .src/main/java/com/example/ControllerAction.java
 ----
 include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=get-tracer]
 ----
 
-Note that if link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[tracing] is not enabled in your service this `Optional` will be empty. Otherwise you can use the `tracerOpt.get()` to retreive the tracer. 
+Note that if link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[tracing] is not enabled in your service this `Optional` will be empty. Otherwise you can map over `tracerOpt` to retreive the tracer.
 
-To create a link:https://opentelemetry.io/docs/languages/java/instrumentation/#create-spans[span] and close it over an asynchronous call, you can do the following: 
+To create a link:https://opentelemetry.io/docs/languages/java/instrumentation/#create-spans[span] and end it over an asynchronous call, you can do the following:
 
 [.tabset]
 Java::
