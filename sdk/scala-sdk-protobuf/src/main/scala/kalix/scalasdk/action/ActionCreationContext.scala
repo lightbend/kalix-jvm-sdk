@@ -36,10 +36,10 @@ trait ActionCreationContext extends Context {
   def getGrpcClient[T](clientClass: Class[T], service: String): T
 
   /**
-   * Get an OpenTelemetry tracer for the current action. This will allow for building and automatic
-   * exporting of spans.
+   * Get an OpenTelemetry tracer for the current action. This will allow for building and automatic exporting of spans.
    *
-   * @return A tracer for the current action, if tracing is configured.
+   * @return
+   *   A tracer for the current action, if tracing is configured.
    */
   def getOpenTelemetryTracer: Option[Tracer]
 }

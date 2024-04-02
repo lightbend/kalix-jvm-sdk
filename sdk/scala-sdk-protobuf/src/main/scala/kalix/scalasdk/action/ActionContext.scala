@@ -16,7 +16,7 @@
 
 package kalix.scalasdk.action
 
-import kalix.scalasdk.{Metadata, MetadataContext}
+import kalix.scalasdk.{ Metadata, MetadataContext }
 
 trait ActionContext extends MetadataContext with ActionCreationContext {
 
@@ -28,7 +28,7 @@ trait ActionContext extends MetadataContext with ActionCreationContext {
    * was a gRPC call, it will contain the HTTP headers for that gRPC call.
    *
    * @return
-   * The call level metadata.
+   *   The call level metadata.
    */
   def metadata: Metadata
 

@@ -16,7 +16,7 @@
 
 package kalix.scalasdk
 
-import kalix.javasdk.impl.{MetadataImpl => JMetadataImpl}
+import kalix.javasdk.impl.{ MetadataImpl => JMetadataImpl }
 import kalix.scalasdk.impl.MetadataImpl
 
 import java.net.URI

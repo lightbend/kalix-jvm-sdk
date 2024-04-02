@@ -1,62 +1,60 @@
 package com.example
 
+import com.example.domain.Post
 import com.google.protobuf.empty.Empty
-import io.opentelemetry.api.trace.{StatusCode, Tracer}
-import io.opentelemetry.context.Scope
+import io.opentelemetry.api.trace.StatusCode
 import kalix.scalasdk.action.{Action, ActionCreationContext}
-import sttp.client4.quick.RichRequest
-import sttp.client4.{Response, _}
+import org.json4s.native.JsonMethods
+import org.json4s.{DefaultFormats, Formats}
+import sttp.client4._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class ControllerAction(creationContext: ActionCreationContext) extends AbstractControllerAction {
 
-  val url = "https://jsonplaceholder.typicode.com/posts/1"
+  implicit val formats: Formats = DefaultFormats
 
+  val url = "https://jsonplaceholder.typicode.com/posts"
+
+  // tag::create-close-span[]
   override def callAsyncEndpoint(empty: Empty): Action.Effect[MessageResponse] = {
+    // tag::get-tracer[]
     val tracerOpt = actionContext.getOpenTelemetryTracer
-    tracerOpt match {
-      case Some(tracer) =>
-        val responseBody = callAsync(tracer)
-        effects.asyncReply(responseBody)
-      case None =>
-        val responseBody = callAsync()
-        effects.asyncReply(responseBody)
-    }
-  }
+    // end::get-tracer[]
+    val span = tracerOpt.map(_.spanBuilder(s"$url/{}")
+      .setParent(actionContext.metadata.traceContext.asOpenTelemetryContext)// <1>
+      .startSpan()// <2>
+      .setAttribute("post", "1"))// <3>
 
-  private def callAsync(tracer: Tracer): Future[MessageResponse] = {
-    val span = tracer
-      .spanBuilder("loreipsumendpoint")
-      .setParent(actionContext.metadata.traceContext.asOpenTelemetryContext)
-      .startSpan()
-    val scope: Scope = span.makeCurrent()
-    try {
       val responseBody: Future[MessageResponse] = callAsync()
       responseBody.onComplete {
-        case Success(response) => span.setAttribute("result", response.message)
-        case Failure(exception) => span.setStatus(StatusCode.ERROR, exception.getMessage)
+        case Failure(exception) =>
+          span.map(_
+            .setStatus(StatusCode.ERROR, exception.getMessage)// <4>
+            .end())// <5>
+        case Success(response) =>
+          span.map(_
+            .setAttribute("result", response.message)// <3>
+            .end())// <5>
       }
-      responseBody
-    } finally {
-      span.end()
-      scope.close()
-    }
+     effects.asyncReply(responseBody)
   }
+  // end::create-close-span[]
+
 
   private def callAsync(): Future[MessageResponse] = {
-    val request = basicRequest.get(uri"$url")
-    val response: Future[Response[Either[String, String]]] =
-      request.send(Main.backend)
+    val request = basicRequest.get(uri"${url}/1")
+    val response: Future[Response[Either[String, String]]] = request.send(Main.backend)
     response.map { response =>
       response.body match {
         case Left(resEx) =>
           MessageResponse(resEx)
         case Right(value) =>
-          MessageResponse(value)
+          val post = JsonMethods.parse(value).extract[Post]
+          MessageResponse(post.title)
       }
     }
   }
-
 }
+

@@ -449,7 +449,6 @@ include::example$java-protobuf-valueentity-counter/src/main/java/com/example/act
 Please note that, the result of a side effect is ignored by the current command meaning that even if the call to
 the `Counter` entity fails, the `Action` reply will succeed.
 
-
 == Adding tracing spans
 
 To add spans in your actions you can add the tracer available in the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] and with it create the span. 
@@ -468,8 +467,20 @@ To get the tracer from the link:{attachmentsdir}/api/kalix/javasdk/action/Action
 ----
 include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=get-tracer]
 ----
-
 Note that if link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[tracing] is not enabled in your service this `Optional` will be empty. Otherwise you can map over `tracerOpt` to retreive the tracer.
+
+Scala::
++
+To add spans in your actions you can add the tracer available in the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] and with it create the span.
++
+To get the tracer from the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]:
++
+[source,java,indent=0]
+.src/main/scala/com/example/ControllerAction.java
+----
+include::example$scala-protobuf-tracing/src/main/scala/com/example/ControllerAction.scala[tag=get-tracer]
+----
+Note that if link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[tracing] is not enabled in your service this `Option` will be empty. Otherwise you can map over `tracerOpt` to use tracer.
 
 To create a link:https://opentelemetry.io/docs/languages/java/instrumentation/#create-spans[span] and end it over an asynchronous call, you can do the following:
 
@@ -480,6 +491,19 @@ Java::
 .src/main/java/com/example/ControllerAction.java
 ----
 include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=create-close-span]
+----
+<1> Sets the action's TraceContext the parent of this span. Linking the action's trace to this span.
+<2> Creates and starts the span.
+<3> Adds some attribute.
+<4> Sets the status of the span as error.
+<5> Closes the span.
+
+Scala::
++
+[source,java,indent=0]
+.src/main/scala/com/example/ControllerAction.java
+----
+include::example$scala-protobuf-tracing/src/main/scala/com/example/ControllerAction.scala[tag=create-close-span]
 ----
 <1> Sets the action's TraceContext the parent of this span. Linking the action's trace to this span.
 <2> Creates and starts the span.
