@@ -22,7 +22,7 @@ import java.util.concurrent.CompletionStage;
 
 public class ControllerAction extends AbstractControllerAction {
 
-  String url = "https://jsonplaceholder.typicode.com/posts/1";
+  String url = "https://jsonplaceholder.typicode.com/posts";
   HttpClient httpClient = HttpClient.newHttpClient();
   public ControllerAction(ActionCreationContext creationContext) {}
 
@@ -35,7 +35,7 @@ public class ControllerAction extends AbstractControllerAction {
 
     Optional<Span> span = tracerOpt.map(tracer -> {
       return tracer
-              .spanBuilder("https://jsonplaceholder.typicode.com/posts/{}")
+              .spanBuilder(url+"/{}")
               .setParent(actionContext().metadata().traceContext().asOpenTelemetryContext())// <1>
               .startSpan() // <2>
               .setAttribute("post", "1");// <3>
@@ -65,7 +65,7 @@ public class ControllerAction extends AbstractControllerAction {
 
   private CompletableFuture<HttpResponse<Post>> callAsyncService(){
     HttpRequest httpRequest = HttpRequest.newBuilder()
-            .uri(URI.create(url))
+            .uri(URI.create(url+"/1"))
             .build();
     //Async call to external service
     return httpClient.sendAsync(httpRequest,
