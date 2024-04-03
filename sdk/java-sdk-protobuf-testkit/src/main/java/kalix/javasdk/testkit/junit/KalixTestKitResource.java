@@ -196,15 +196,4 @@ public final class KalixTestKitResource extends ExternalResource {
     return testKit.getActorSystem();
   }
 
-  /**
-   * Get {@link GrpcClientSettings} for creating Akka gRPC clients.
-   *
-   * @return test gRPC client settings
-   * @deprecated Use <code>getGrpcClient</code> instead.
-   */
-  @Deprecated(since = "0.8.1", forRemoval = true)
-  public GrpcClientSettings getGrpcClientSettings() {
-    return testKit.getGrpcClientSettings();
-  }
-
 }

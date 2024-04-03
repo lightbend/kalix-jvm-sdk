@@ -204,15 +204,6 @@ class KalixTestKit private (delegate: JTestKit) {
     materializer.executionContext
 
   /**
-   * Get `GrpcClientSettings` for creating Akka gRPC clients.
-   *
-   * @return
-   *   test gRPC client settings
-   */
-  @deprecated("Use `getGrpcClient` instead.", since = "0.8.1")
-  def grpcClientSettings: GrpcClientSettings = delegate.getGrpcClientSettings()
-
-  /**
    * Get an `ActorSystem` for creating Akka HTTP clients.
    */
   def system: ActorSystem = delegate.getActorSystem()

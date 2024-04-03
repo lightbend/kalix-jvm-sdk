@@ -704,19 +704,7 @@ public class KalixTestKit {
     return testSystem;
   }
 
-  /**
-   * Get {@link GrpcClientSettings} for creating Akka gRPC clients.
-   *
-   * @return test gRPC client settings
-   * @deprecated Use <code>getGrpcClient</code> instead.
-   */
-  @Deprecated(since = "0.8.1", forRemoval = true)
-  public GrpcClientSettings getGrpcClientSettings() {
-    if (!started)
-      throw new IllegalStateException(
-          "Need to start KalixTestkit before accessing gRPC client settings");
-    return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
-  }
+
 
   /**
    * Get incoming messages for ValueEntity.
