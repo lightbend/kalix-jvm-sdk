@@ -55,14 +55,12 @@ public class EventingTestkitIntegrationTest {
 
   @Autowired
   private KalixTestKit kalixTestKit;
-  private EventingTestKit.Topic eventsTopic;
   private IncomingMessages topicSubscription;
   @Autowired
   private WebClient webClient;
 
   @BeforeAll
   public void beforeAll() {
-    eventsTopic = kalixTestKit.getTopic(COUNTER_EVENTS_TOPIC);
     topicSubscription = kalixTestKit.getTopicIncomingMessages(COUNTER_EVENTS_TOPIC);
   }
 
@@ -77,37 +75,6 @@ public class EventingTestkitIntegrationTest {
     kalixTestKit.stop();
   }
 
-  @Test
-  public void shouldPublishEventWithTypeNameViaTopicEventingTestkit() {
-    //given
-    String subject = "test";
-    ValueIncreased event1 = new ValueIncreased(1);
-    ValueIncreased event2 = new ValueIncreased(2);
-
-    //when
-    Message<ValueIncreased> test = kalixTestKit.getMessageBuilder().of(event1, subject);
-    eventsTopic.publish(test);
-    eventsTopic.publish(event2, subject);
-
-    //then
-    await()
-        .ignoreExceptions()
-        .atMost(10, TimeUnit.of(SECONDS))
-        .untilAsserted(() -> {
-          var response = DummyCounterEventStore.get(subject);
-          assertThat(response).containsOnly(event1, event2);
-
-          var viewResponse = webClient
-              .get()
-              .uri("/counter-view-topic-sub/less-then/" + 4)
-              .retrieve()
-              .bodyToFlux(CounterView.class)
-              .toStream()
-              .toList();
-
-          assertThat(viewResponse).contains(new CounterView(subject, 3));
-        });
-  }
 
   @Test
   public void shouldPublishEventWithTypeNameViaSubscriptionEventingTestkit() {

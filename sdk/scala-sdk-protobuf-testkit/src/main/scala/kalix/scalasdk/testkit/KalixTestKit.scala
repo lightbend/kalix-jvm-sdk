@@ -16,7 +16,6 @@
 
 package kalix.scalasdk.testkit
 
-import scala.annotation.nowarn
 import scala.concurrent.ExecutionContext
 
 import akka.actor.ActorSystem
@@ -144,18 +143,6 @@ class KalixTestKit private (delegate: JTestKit) {
    */
   def getGrpcClientForPrincipal[T](clientClass: Class[T], principal: Principal): T =
     delegate.getGrpcClientForPrincipal(clientClass, Principal.toJava(principal))
-
-  /**
-   * Get a Topic for mocked interactions, avoiding the need for a real broker instance.
-   *
-   * @param topic
-   *   the name of the topic configured in your service which you want to mock
-   * @return
-   *   mocked topic to read/publish messages from/to
-   */
-  @Deprecated
-  @nowarn
-  def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic), delegate.getMessageCodec)
 
   /**
    * Get incoming messages for ValueEntity.

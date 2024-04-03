@@ -24,8 +24,8 @@ import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
 import kalix.javasdk.testkit.EventingTestKit.OutgoingMessages;
-import kalix.javasdk.testkit.EventingTestKit.Topic;
 import kalix.javasdk.testkit.KalixTestKit;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import org.junit.rules.ExternalResource;
 
 /**
@@ -92,20 +92,6 @@ public final class KalixTestKitResource extends ExternalResource {
     testKit.stop();
   }
 
-
-  /**
-   * Use <code>getTopicIncomingMessages</code> or <code>getTopicOutgoingMessages</code> instead.
-   * <p>
-   * If your Kalix service publishes or consumes from/to an eventing services (i.e. kafka or pub/sub),
-   * this will allow assertions on messages consumed / produced to such broker.
-   *
-   * @param topic name of the topic to interact with
-   * @return a structure to allow interactions with a topic
-   */
-  @Deprecated
-  public Topic getTopic(String topic) {
-    return testKit.getTopic(topic);
-  }
 
   /**
    * Get incoming messages for ValueEntity.
