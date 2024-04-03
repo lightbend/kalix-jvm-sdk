@@ -18,33 +18,21 @@ package kalix.javasdk.impl.reflection
 
 import java.lang.reflect.AnnotatedElement
 
-import kalix.javasdk.annotations.EntityKey
-import kalix.javasdk.annotations.GenerateEntityKey
 import java.lang.reflect.Method
-
-import scala.annotation.nowarn
-import scala.annotation.nowarn
 
 import kalix.javasdk.annotations.GenerateId
 import kalix.javasdk.annotations.Id
 
 object IdExtractor {
 
-  @nowarn
   private[kalix] def shouldGenerateId(annotatedElement: AnnotatedElement) =
-    if (annotatedElement.getAnnotation(classOf[GenerateId]) != null)
-      true
-    else
-      annotatedElement.getAnnotation(classOf[GenerateEntityKey]) != null
+    annotatedElement.getAnnotation(classOf[GenerateId]) != null
 
   def extractIds(component: Class[_], method: Method): Seq[String] = {
 
-    @nowarn
     def idValue(annotatedElement: AnnotatedElement) =
       if (annotatedElement.getAnnotation(classOf[Id]) != null)
         annotatedElement.getAnnotation(classOf[Id]).value()
-      else if (annotatedElement.getAnnotation(classOf[EntityKey]) != null)
-        annotatedElement.getAnnotation(classOf[EntityKey]).value()
       else
         Array.empty[String]
 

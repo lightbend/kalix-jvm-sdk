@@ -20,15 +20,12 @@ import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.util
 
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import akka.http.scaladsl.model.HttpMethods
 import com.google.protobuf.any.Any
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.Metadata
-import kalix.javasdk.MetadataContext
 import kalix.javasdk.action.Action
-import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.TypeId
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.impl.client.MethodRefResolver
@@ -42,7 +39,6 @@ import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.workflow.Workflow
-import kalix.spring.impl.KalixClient
 import kalix.spring.impl.KalixClient
 import kalix.spring.impl.RestKalixClientImpl
 import org.springframework.web.bind.annotation.RequestMethod
@@ -203,12 +199,10 @@ object ComponentCall {
     throw new IllegalStateException(s"HTTP $requestMethod not supported when calling $pathTemplate")
   }
 
-  @nowarn
   private def idVariables(ids: List[String], method: Method): Map[String, String] = {
 
     val declaringClass = method.getDeclaringClass
-    if (declaringClass.getAnnotation(classOf[EntityType]) == null &&
-      declaringClass.getAnnotation(classOf[TypeId]) == null) {
+    if (declaringClass.getAnnotation(classOf[TypeId]) == null) {
       //not an entity or workflows
       Map.empty
     } else if (IdExtractor.shouldGenerateId(method)) {
