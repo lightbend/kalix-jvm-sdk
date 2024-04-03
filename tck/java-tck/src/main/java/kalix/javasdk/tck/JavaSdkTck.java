@@ -24,7 +24,6 @@ import kalix.javasdk.replicatedentity.WriteConsistency;
 import kalix.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo;
 import kalix.javasdk.tck.model.localpersistenceeventing.*;
 import kalix.javasdk.tck.model.replicatedentity.*;
-import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.tck.model.action.ActionTckModelActionProvider;
 import kalix.tck.model.action.ActionTckModelImpl;
 import kalix.tck.model.action.ActionTwoActionProvider;
@@ -46,11 +45,7 @@ public final class JavaSdkTck {
           .register(ValueEntityTckModelEntityProvider.of(ValueEntityTckModelEntity::new))
           .register(ValueEntityTwoEntityProvider.of(ValueEntityTwoEntity::new))
           .register(
-              ValueEntityConfiguredEntityProvider.of(ValueEntityConfiguredEntity::new)
-                  .withOptions(
-                      ValueEntityOptions.defaults() // required timeout of 100 millis for TCK tests
-                          .withPassivationStrategy(
-                              PassivationStrategy.timeout(Duration.ofMillis(100)))))
+              ValueEntityConfiguredEntityProvider.of(ValueEntityConfiguredEntity::new))
           .register(ReplicatedEntityTckModelEntityProvider.of(ReplicatedEntityTckModelEntity::new))
           .register(ReplicatedEntityTwoEntityProvider.of(ReplicatedEntityTwoEntity::new))
           .register(
@@ -67,12 +62,7 @@ public final class JavaSdkTck {
                   .withOptions(EventSourcedEntityOptions.defaults().withSnapshotEvery(5)))
           .register(EventSourcedTwoEntityProvider.of(EventSourcedTwoEntity::new))
           .register(
-              EventSourcedConfiguredEntityProvider.of(EventSourcedConfiguredEntity::new)
-                  // required timeout of 100 millis for TCK tests
-                  .withOptions(
-                      EventSourcedEntityOptions.defaults()
-                          .withPassivationStrategy(
-                              PassivationStrategy.timeout(Duration.ofMillis(100)))))
+              EventSourcedConfiguredEntityProvider.of(EventSourcedConfiguredEntity::new))
           .register(LocalPersistenceSubscriberProvider.of(LocalPersistenceSubscriber::new))
           .register(EventSourcedEntityOneProvider.of(EventSourcedEntityOne::new))
           .register(EventSourcedEntityTwoProvider.of(EventSourcedEntityTwo::new))

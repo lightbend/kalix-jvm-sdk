@@ -25,6 +25,8 @@ import java.util.Collections;
 /** Root entity options for all Replicated Entities. */
 public interface ReplicatedEntityOptions extends EntityOptions {
 
+  PassivationStrategy passivationStrategy();
+
   ReplicatedEntityOptions withPassivationStrategy(PassivationStrategy strategy);
 
   /**
