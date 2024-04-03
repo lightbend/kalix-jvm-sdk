@@ -16,17 +16,20 @@
 
 package kalix.devtools.impl
 
-import scala.jdk.CollectionConverters._
+import com.typesafe.config.{ Config, ConfigFactory }
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
+import scala.jdk.CollectionConverters._
 
 object DevModeSettings {
 
   val portMappingsKeyPrefix = "kalix.dev-mode.service-port-mappings"
+  val tracingConfigEnabled = "kalix.proxy.telemetry.tracing.enabled"
+  val tracingConfigEndpoint = "kalix.proxy.telemetry.tracing.collector-endpoint"
 
-  def fromConfig(config: Config): DevModeSettings = {
+  def fromConfig(config: Config): DevModeSettings =
+    addPortsFromConfig(config)
 
+  private def addPortsFromConfig(config: Config): DevModeSettings = {
     if (config.hasPath(portMappingsKeyPrefix)) {
       val entries = config
         .getConfig(portMappingsKeyPrefix)
@@ -42,6 +45,16 @@ object DevModeSettings {
       }
     } else {
       DevModeSettings.empty
+    }
+
+  }
+
+  private def tracingSDKConfig(tracingConf: Option[Int]): Config = {
+    tracingConf match {
+      case Some(port) => ConfigFactory.parseString(s"""
+           |kalix.telemetry.tracing.collector-endpoint="http://localhost:$port"
+           |""".stripMargin)
+      case _ => ConfigFactory.empty()
     }
 
   }
@@ -70,6 +83,7 @@ object DevModeSettings {
         val adaptedConfig =
           ConfigFactory
             .parseString(s"kalix.user-function-port = ${dcu.userFunctionPort}")
+            .withFallback(tracingSDKConfig(dcu.tracingConfig))
             .withFallback(mainConfig)
 
         dcu.servicesHostAndPortMap.foldLeft(adaptedConfig) { case (main, (serviceName, hostAndPort)) =>
@@ -82,6 +96,7 @@ object DevModeSettings {
           main
             .withFallback(grpcClientConfig(serviceName, host, port)
               .withFallback(restClientConfig(serviceName, host, port)))
+
         }
       }
       .getOrElse {
@@ -92,7 +107,9 @@ object DevModeSettings {
             mainConfig.getConfig(portMappingsKeyPrefix).entrySet().asScala
           portMappings.foldLeft(mainConfig) { case (main, entry) =>
             val (host, port) = HostAndPort.extract(entry.getValue.unwrapped().toString)
-            main.withFallback(grpcClientConfig(entry.getKey, host, port))
+            main
+              .withFallback(grpcClientConfig(entry.getKey, host, port))
+              .withFallback(restClientConfig(entry.getKey, host, port))
           }
 
         } else
@@ -100,10 +117,10 @@ object DevModeSettings {
       }
   }
 
-  def empty: DevModeSettings = DevModeSettings(Map.empty)
+  def empty: DevModeSettings = DevModeSettings(Map.empty, None)
 }
 
-case class DevModeSettings(portMappings: Map[String, String]) {
+case class DevModeSettings(portMappings: Map[String, String], tracingPort: Option[Int]) {
   def addMapping(key: String, value: String): DevModeSettings =
-    DevModeSettings(portMappings + (key -> value))
+    this.copy(portMappings = portMappings + (key -> value))
 }
