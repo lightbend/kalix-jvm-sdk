@@ -41,5 +41,5 @@ trait ActionCreationContext extends Context {
    * @return
    *   A tracer for the current action, if tracing is configured.
    */
-  def getOpenTelemetryTracer: Option[Tracer]
+  def getTracer: Tracer
 }

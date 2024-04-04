@@ -16,16 +16,11 @@
 
 package kalix.javasdk.impl.telemetry
 
-import akka.actor.ActorSystem
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
+import akka.actor.{ ActorSystem, ExtendedActorSystem, Extension, ExtensionId }
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.common.Attributes
-import io.opentelemetry.api.trace.Span
-import io.opentelemetry.api.trace.SpanKind
-import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
+import io.opentelemetry.api.trace.{ Span, SpanKind, Tracer }
 import io.opentelemetry.context.propagation.{ ContextPropagators, TextMapGetter, TextMapSetter }
 import io.opentelemetry.context.{ Context => OtelContext }
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
@@ -35,15 +30,12 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes
 import kalix.javasdk.Metadata
-import kalix.javasdk.impl.MetadataImpl
-import kalix.javasdk.impl.ProxyInfoHolder
-import kalix.javasdk.impl.Service
+import kalix.javasdk.impl.{ MetadataImpl, ProxyInfoHolder, Service }
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.component.MetadataEntry
 import kalix.protocol.component.MetadataEntry.Value.StringValue
 import kalix.protocol.entity.Command
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.{ Logger, LoggerFactory }
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
@@ -114,7 +106,7 @@ trait Instrumentation {
 
   def buildSpan(service: Service, command: ActionCommand): Option[Span]
 
-  def getTracer(): Tracer
+  def getTracer: Tracer
 
 }
 
@@ -219,7 +211,7 @@ private final class TraceInstrumentation(
       val context = openTelemetry.getPropagators.getTextMapPropagator
         .extract(OtelContext.current(), metadata, otelGetter)
 
-      val span = getTracer()
+      val span = getTracer
         .spanBuilder(command.name)
         .setParent(context)
         .setSpanKind(SpanKind.SERVER)
@@ -235,7 +227,7 @@ private final class TraceInstrumentation(
   }
 
   // TODO: should this be specific per sdk?
-  override def getTracer(): Tracer = openTelemetry.getTracer("java-sdk")
+  override def getTracer: Tracer = openTelemetry.getTracer("java-sdk")
 }
 
 private object NoOpInstrumentation extends Instrumentation {
@@ -244,5 +236,5 @@ private object NoOpInstrumentation extends Instrumentation {
 
   override def buildSpan(service: Service, command: ActionCommand): Option[Span] = None
 
-  override def getTracer(): Tracer = null
+  override def getTracer: Tracer = OpenTelemetry.noop().getTracer("noop")
 }

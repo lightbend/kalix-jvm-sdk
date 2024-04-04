@@ -379,9 +379,7 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
           case p if p == classOf[KalixClient]           => kalixClient(context)
           case p if p == classOf[ComponentClient]       => componentClient(context)
           case p if p == classOf[WebClientProvider]     => webClientProvider(context)
-          case p if p == classOf[Tracer] =>
-            context.getOpenTelemetryTracer.orElseGet(() =>
-              throw new IllegalStateException("Tracer not available. Make sure to have enabled tracing."))
+          case p if p == classOf[Tracer]                => context.getTracer
         })
 
   private def workflowProvider[S, W <: Workflow[S]](clz: Class[W]): WorkflowProvider[S, W] = {

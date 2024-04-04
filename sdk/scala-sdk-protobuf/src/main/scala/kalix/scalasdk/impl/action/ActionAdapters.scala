@@ -141,7 +141,9 @@ private[scalasdk] final case class ScalaActionCreationContextAdapter(
 
   override def materializer(): Materializer = javaSdkCreationContext.materializer()
 
-  override def getOpenTelemetryTracer: Option[Tracer] = javaSdkCreationContext.getOpenTelemetryTracer.toScala
+  def getOpenTelemetryTracer: Option[Tracer] = javaSdkCreationContext.getOpenTelemetryTracer.toScala
+
+  override def getTracer: Tracer = javaSdkCreationContext.getTracer
 }
 
 private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: javasdk.action.ActionContext)
@@ -173,5 +175,6 @@ private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: jav
     }
   }
 
-  override def getOpenTelemetryTracer: Option[Tracer] = javaSdkContext.getOpenTelemetryTracer.toScala
+  override def getTracer: Tracer = javaSdkContext.getTracer
+
 }

@@ -46,5 +46,8 @@ public interface ActionCreationContext extends Context {
    *
    * @return A tracer for the current action, if tracing is configured.
    */
+  @Deprecated(since = "1.4.2")
   Optional<Tracer> getOpenTelemetryTracer();
+
+  Tracer getTracer();
 }

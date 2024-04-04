@@ -20,23 +20,24 @@ class ControllerAction(creationContext: ActionCreationContext) extends AbstractC
   // tag::create-close-span[]
   override def callAsyncEndpoint(empty: Empty): Action.Effect[MessageResponse] = {
     // tag::get-tracer[]
-    val tracerOpt = actionContext.getOpenTelemetryTracer
+    val tracer = actionContext.getTracer
+    println(tracer)
     // end::get-tracer[]
-    val span = tracerOpt.map(_.spanBuilder(s"$url/{}")
+    val span = tracer.spanBuilder(s"$url/{}")
       .setParent(actionContext.metadata.traceContext.asOpenTelemetryContext)// <1>
       .startSpan()// <2>
-      .setAttribute("post", "1"))// <3>
+      .setAttribute("post", "1")// <3>
 
       val responseBody: Future[MessageResponse] = callAsync()
       responseBody.onComplete {
         case Failure(exception) =>
-          span.map(_
+          span
             .setStatus(StatusCode.ERROR, exception.getMessage)// <4>
-            .end())// <5>
+            .end()// <5>
         case Success(response) =>
-          span.map(_
+          span
             .setAttribute("result", response.message)// <3>
-            .end())// <5>
+            .end()// <5>
       }
      effects.asyncReply(responseBody)
   }
