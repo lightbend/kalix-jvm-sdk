@@ -25,6 +25,14 @@
     <akka-grpc.version>2.1.6</akka-grpc.version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>akka-repository</id>
+      <name>Akka library repository</name>
+      <url>https://repo.akka.io/maven</url>
+    </repository>
+  </repositories>
+
   <build>
     <resources>
       <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->
@@ -74,7 +82,7 @@
               <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
               <descriptorSetFileName>user-function.desc</descriptorSetFileName>
               <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${os.detected.classifier}</protocArtifact>
+              <protocArtifact>com.google.protobuf:protoc:3.21.7:exe:${os.detected.classifier}</protocArtifact>
               <protocPlugins>
                 <protocPlugin>
                   <id>akka-grpc</id>
