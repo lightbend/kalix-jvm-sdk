@@ -2,6 +2,8 @@ organization := "com.example"
 
 scalaVersion := "2.13.10"
 
+resolvers += "Akka library repository".at("https://repo.akka.io/maven")
+
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
 // For Docker setup see https://docs.kalix.io/projects/container-registries.html
