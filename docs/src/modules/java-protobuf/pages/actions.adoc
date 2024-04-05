@@ -451,38 +451,57 @@ the `Counter` entity fails, the `Action` reply will succeed.
 
 == Adding tracing spans
 
-To add spans in your actions you can add the tracer available in the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] and with it create the span. 
-
-To get the tracer from the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]: 
+To create link:https://opentelemetry.io/docs/specs/otel/trace/api/#span[`spans`{tab-icon}, window="new"] in your actions you need the link:https://opentelemetry.io/docs/specs/otel/trace/api/#tracer[`tracer`{tab-icon}, window="new"] available through the `actionContext()` method.
 
 [.tabset]
 Java::
 +
-To add spans in your actions you can add the tracer available in the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] and with it create the span.
-+
-To get the tracer from the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]:
+`actionContext()` gives you the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]. That is, some methods that apply to the context of the action's request.
 +
 [source,java,indent=0]
 .src/main/java/com/example/ControllerAction.java
 ----
 include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=get-tracer]
 ----
-Note that if link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[tracing] is not enabled in your service this `Optional` will be empty. Otherwise you can map over `tracerOpt` to retreive the tracer.
 
 Scala::
 +
-To add spans in your actions you can add the tracer available in the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] and with it create the span.
-+
-To get the tracer from the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]:
+`actionContext()` gives you the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]. That is, some methods that apply to the context of the action's request.
 +
 [source,java,indent=0]
 .src/main/scala/com/example/ControllerAction.java
 ----
 include::example$scala-protobuf-tracing/src/main/scala/com/example/ControllerAction.scala[tag=get-tracer]
 ----
-Note that if link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[tracing] is not enabled in your service this `Option` will be empty. Otherwise you can map over `tracerOpt` to use tracer.
 
-To create a link:https://opentelemetry.io/docs/languages/java/instrumentation/#create-spans[span] and end it over an asynchronous call, you can do the following:
+IMPORTANT: If your tracing is enabled, you will get a tracer that actually creates span and exports data as expected.
+But if tracing is not enabled, you will get a no operational tracer instead, which will not create traces.
+
+Trace generation is disabled by default. To enable it in a service deployed to Kalix, see link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[`here`].
+To enable it in a service running on your local machine you need to add the following `JAVA_TOOL_OPTIONS` to your `docker-compose.yml` in the base of your project.
+[source,yaml]
+.docker-compose.yml
+---
+services:
+  kalix-runtime:
+    image: ...
+    ...
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -Dkalix.proxy.telemetry.tracing.enabled=true
+        -Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:4317
+    ...
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    ports:
+      - 4317:4317
+      - 16686:16686
+---
+
+Here the traces are pushed to a `jaeger` docker image, to the port `4317`. And you can check them out at `http://localhost:16686`.
+
+
+To link:https://opentelemetry.io/docs/languages/java/instrumentation/#create-spans[create a span] and end it over an asynchronous call, you can do the following:
 
 [.tabset]
 Java::
@@ -510,7 +529,6 @@ include::example$scala-protobuf-tracing/src/main/scala/com/example/ControllerAct
 <3> Adds some attribute.
 <4> Sets the status of the span as error.
 <5> Closes the span.
-
 NOTE: You can find how tracing is enabled and more info  link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[here].
 
 == Unit testing the side effects

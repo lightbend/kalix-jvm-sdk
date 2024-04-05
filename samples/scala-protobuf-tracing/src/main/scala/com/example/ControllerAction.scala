@@ -21,7 +21,6 @@ class ControllerAction(creationContext: ActionCreationContext) extends AbstractC
   override def callAsyncEndpoint(empty: Empty): Action.Effect[MessageResponse] = {
     // tag::get-tracer[]
     val tracer = actionContext.getTracer
-    println(tracer)
     // end::get-tracer[]
     val span = tracer.spanBuilder(s"$url/{}")
       .setParent(actionContext.metadata.traceContext.asOpenTelemetryContext)// <1>

@@ -10,5 +10,5 @@ import "kalix/annotations.proto";
 // per component or method using annotations.
 // Documentation at https://docs.kalix.io/java-protobuf/access-control.html
 option (kalix.file).acl = {
-  allow: { service: "*" }
+  allow: { principal: INTERNET }
 };
