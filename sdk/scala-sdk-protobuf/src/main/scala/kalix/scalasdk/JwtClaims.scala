@@ -86,7 +86,7 @@ trait JwtClaims {
    * Get the expiration time, that is, the `exp` claim, as described in RFC 7519 section 4.1.4.
    *
    * @return
-   *   the expiration time, if present. Returns [[None]] if the value is not a numeric date.
+   *   the expiration time, if present. Returns [[scala.None]] if the value is not a numeric date.
    * @see
    *   [[https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.4 RFC 7519 section 4.1.4]]
    */
@@ -96,7 +96,7 @@ trait JwtClaims {
    * Get the not before, that is, the `nbf` claim, as described in RFC 7519 section 4.1.5.
    *
    * @return
-   *   the not before, if present. Returns [[None]] if the value is not a numeric date.
+   *   the not before, if present. Returns [[scala.None]] if the value is not a numeric date.
    * @see
    *   [[https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.5 RFC 7519 section 4.1.5]]
    */
@@ -106,7 +106,7 @@ trait JwtClaims {
    * Get the issued at, that is, the `iat` claim, as described in RFC 7519 section 4.1.6.
    *
    * @return
-   *   the issued at, if present. Returns [[None]] if the value is not a numeric date.
+   *   the issued at, if present. Returns [[scala.None]] if the value is not a numeric date.
    * @see
    *   [[https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.6 RFC 7519 section 4.1.6]]
    */
@@ -140,7 +140,7 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The integer claim, if present. Returns [[None]] if the claim is not an int or can't be parsed as an int.
+   *   The integer claim, if present. Returns [[scala.None]] if the claim is not an int or can't be parsed as an int.
    */
   def getInt(name: String): Option[Int] = getNumber(name, _.toInt)
 
@@ -150,7 +150,7 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The long claim, if present. Returns [[None]] if the claim is not a long or can't be parsed as an long.
+   *   The long claim, if present. Returns [[scala.None]] if the claim is not a long or can't be parsed as an long.
    */
   def getLong(name: String): Option[Long] = getNumber(name, _.toLong)
 
@@ -160,7 +160,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The double claim, if present. Returns [[None]] if the claim is not a double or can't be parsed as an double.
+   *   The double claim, if present. Returns [[scala.None]] if the claim is not a double or can't be parsed as an
+   *   double.
    */
   def getDouble(name: String): Option[Double] = getNumber(name, _.toDouble)
 
@@ -170,7 +171,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The boolean claim, if present. Returns [[None]] if the claim is not a boolean or can't be parsed as a boolean.
+   *   The boolean claim, if present. Returns [[scala.None]] if the claim is not a boolean or can't be parsed as a
+   *   boolean.
    */
   def getBoolean(name: String): Option[Boolean] = getString(name).flatMap {
     case t if t.equalsIgnoreCase("true")  => Some(true)
@@ -186,8 +188,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The numeric date claim, if present. Returns [[None]] if the claim is not a numeric date or can't be parsed as a
-   *   numeric date.
+   *   The numeric date claim, if present. Returns [[scala.None]] if the claim is not a numeric date or can't be parsed
+   *   as a numeric date.
    * @see
    *   [[https://datatracker.ietf.org/doc/html/rfc7519#section-2 RFC 7519 section 2]]
    */
@@ -201,7 +203,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The object claim, if present. Returns [[None]] if the claim is not an object or can't be parsed as an object.
+   *   The object claim, if present. Returns [[scala.None]] if the claim is not an object or can't be parsed as an
+   *   object.
    */
   def getObject(name: String): Option[JsObject] = getString(name).flatMap(value =>
     try JsonParser(value) match {
@@ -217,8 +220,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The string list claim, if present. Returns [[None]] if the claim is not a JSON array of strings or cannot be
-   *   parsed as a JSON array of strings.
+   *   The string list claim, if present. Returns [[scala.None]] if the claim is not a JSON array of strings or cannot
+   *   be parsed as a JSON array of strings.
    */
   def getStringList(name: String): Option[Seq[String]] = getArray(name, { case JsString(value) => value })
 
@@ -228,8 +231,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The integer list claim, if present. Returns [[None]] if the claim is not a JSON array of integers or cannot be
-   *   parsed as a JSON array of integers.
+   *   The integer list claim, if present. Returns [[scala.None]] if the claim is not a JSON array of integers or cannot
+   *   be parsed as a JSON array of integers.
    */
   def getIntegerList(name: String): Option[Seq[Int]] =
     getArray(name, { case JsNumber(value) if value.isValidInt => value.toInt })
@@ -240,8 +243,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The long list claim, if present. Returns [[None]] if the claim is not a JSON array of longs or cannot be parsed
-   *   as a JSON array of longs.
+   *   The long list claim, if present. Returns [[scala.None]] if the claim is not a JSON array of longs or cannot be
+   *   parsed as a JSON array of longs.
    */
   def getLongList(name: String): Option[Seq[Long]] =
     getArray(name, { case JsNumber(value) if value.isValidLong => value.toLong })
@@ -252,8 +255,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The double list claim, if present. Returns [[None]] if the claim is not a JSON array of doubles or cannot be
-   *   parsed as a JSON array of doubles.
+   *   The double list claim, if present. Returns [[scala.None]] if the claim is not a JSON array of doubles or cannot
+   *   be parsed as a JSON array of doubles.
    */
   def getDoubleList(name: String): Option[Seq[Double]] = getArray(name, { case JsNumber(value) => value.toDouble })
 
@@ -263,8 +266,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The boolean list claim, if present. Returns [[None]] if the claim is not a JSON array of booleans or cannot be
-   *   parsed as a JSON array of booleans.
+   *   The boolean list claim, if present. Returns [[scala.None]] if the claim is not a JSON array of booleans or cannot
+   *   be parsed as a JSON array of booleans.
    */
   def getBooleanList(name: String): Option[Seq[Boolean]] = getArray(name, { case JsBoolean(value) => value })
 
@@ -274,8 +277,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The numeric date list claim, if present. Returns [[None]] if the claim is not a JSON array of numeric dates or
-   *   cannot be parsed as a JSON array of numeric dates.
+   *   The numeric date list claim, if present. Returns [[scala.None]] if the claim is not a JSON array of numeric dates
+   *   or cannot be parsed as a JSON array of numeric dates.
    */
   def getNumericDateList(name: String): Option[Seq[Instant]] = getLongList(name).map(_.map(Instant.ofEpochSecond))
 
@@ -285,8 +288,8 @@ trait JwtClaims {
    * @param name
    *   The name of the claim.
    * @return
-   *   The object list claim, if present. Returns [[None]] if the claim is not a JSON array of objects or cannot be
-   *   parsed as a JSON array of objects.
+   *   The object list claim, if present. Returns [[scala.None]] if the claim is not a JSON array of objects or cannot
+   *   be parsed as a JSON array of objects.
    */
   def getObjectList(name: String): Option[Seq[JsObject]] = getArray(name, { case obj: JsObject => obj })
 

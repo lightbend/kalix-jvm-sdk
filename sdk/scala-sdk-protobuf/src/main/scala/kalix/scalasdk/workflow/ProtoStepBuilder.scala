@@ -36,14 +36,14 @@ object ProtoStepBuilder {
      * Transition to the next step based on the result of the step call.
      *
      * The function passed to this method should receive the return type of the step call and return an
-     * [[Workflow.Effect.TransitionalEffect]] describing the next step to transition to.
+     * [[AbstractWorkflow.Effect.TransitionalEffect]] describing the next step to transition to.
      *
      * When defining the Effect, you can update the workflow state and indicate the next step to transition to. This can
      * be another step, or a pause or end of the workflow. <p> When transition to another step, you can also pass an
      * input parameter to the next step.
      *
      * @param transitionFunc
-     *   Function that transform the action result to a [[Workflow.Effect.TransitionalEffect]]
+     *   Function that transform the action result to a [[AbstractWorkflow.Effect.TransitionalEffect]]
      * @return
      *   CallStep
      */
@@ -67,14 +67,14 @@ object ProtoStepBuilder {
      * Transition to the next step based on the result of the step call.
      *
      * The function passed to this method should receive the return type of the step call and return an
-     * [[Workflow.Effect.TransitionalEffect]] describing the next step to transition to.
+     * [[AbstractWorkflow.Effect.TransitionalEffect]] describing the next step to transition to.
      *
      * When defining the Effect, you can update the workflow state and indicate the next step to transition to. This can
      * be another step, or a pause or end of the workflow. <p> When transition to another step, you can also pass an
      * input parameter to the next step.
      *
      * @param transitionFunc
-     *   Function that transform the action result to a [[Workflow.Effect.TransitionalEffect]]
+     *   Function that transform the action result to a [[AbstractWorkflow.Effect.TransitionalEffect]]
      * @return
      *   AsyncCallStep
      */
@@ -152,9 +152,9 @@ case class ProtoStepBuilder(name: String) {
   /**
    * Build a step action with an async call.
    *
-   * The function passed to this method should return a [[Future]]. On successful completion, its result is made
-   * available to this workflow via the `andThen` method. In the `andThen` method, we can use the result to update the
-   * workflow state and transition to the next step.
+   * The function passed to this method should return a [[scala.concurrent.Future]]. On successful completion, its
+   * result is made available to this workflow via the `andThen` method. In the `andThen` method, we can use the result
+   * to update the workflow state and transition to the next step.
    *
    * On failure, the step will be retried according to the default retry strategy or the one defined in the step
    * configuration.
@@ -179,9 +179,9 @@ case class ProtoStepBuilder(name: String) {
   /**
    * Build a step action with an async call.
    *
-   * The function passed to this method should return a [[Future]]. On successful completion, its result is made
-   * available to this workflow via the `andThen` method. In the `andThen` method, we can use the result to update the
-   * workflow state and transition to the next step.
+   * The function passed to this method should return a [[scala.concurrent.Future]]. On successful completion, its
+   * result is made available to this workflow via the `andThen` method. In the `andThen` method, we can use the result
+   * to update the workflow state and transition to the next step.
    *
    * On failure, the step will be retried according to the default retry strategy or the one defined in the step
    * configuration.

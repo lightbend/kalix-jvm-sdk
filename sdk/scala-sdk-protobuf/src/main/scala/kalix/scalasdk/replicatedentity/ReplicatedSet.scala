@@ -58,10 +58,10 @@ class ReplicatedSet[E] private[scalasdk] (override val delegate: ReplicatedSetIm
   def isEmpty: Boolean = delegate.isEmpty
 
   /**
-   * Elements of this set as a regular [[Set]]
+   * Elements of this set as a regular [[scala.collection.immutable.Set]]
    *
    * @return
-   *   elements as [[Set]]
+   *   elements as [[scala.collection.immutable.Set]]
    */
   def elements: Set[E] =
     delegate.elementsSet

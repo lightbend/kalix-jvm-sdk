@@ -148,8 +148,7 @@ class KalixTestKit private (delegate: JTestKit) {
    * Get incoming messages for ValueEntity.
    *
    * @param typeId
-   * @TypeId
-   *   or entity_type of the ValueEntity (depending on the used SDK)
+   *   The typeId the ValueEntity
    */
   def getValueEntityIncomingMessages(typeId: String): IncomingMessages = IncomingMessages(
     delegate.getValueEntityIncomingMessages(typeId))
@@ -158,8 +157,7 @@ class KalixTestKit private (delegate: JTestKit) {
    * Get incoming messages for EventSourcedEntity.
    *
    * @param typeId
-   * @TypeId
-   *   or entity_type of the EventSourcedEntity (depending on the used SDK)
+   *   The typeId of the EventSourcedEntity
    */
   def getEventSourcedEntityIncomingMessages(typeId: String): IncomingMessages = IncomingMessages(
     delegate.getEventSourcedEntityIncomingMessages(typeId))

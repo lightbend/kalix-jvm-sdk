@@ -41,7 +41,7 @@ trait ReplicatedEntityOptions extends EntityOptions {
    *
    * @param writeConsistency
    *   write consistency to use
-   * @returns
+   * @return
    *   new replicated entity options with write consistency setting
    */
   def withWriteConsistency(writeConsistency: WriteConsistency): ReplicatedEntityOptions
@@ -68,7 +68,7 @@ object ReplicatedEntityOptions {
      *
      * @param writeConsistency
      *   write consistency to use
-     * @returns
+     * @return
      *   new replicated entity options with write consistency setting
      */
     override def withWriteConsistency(writeConsistency: WriteConsistency): ReplicatedEntityOptions =

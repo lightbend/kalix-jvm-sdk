@@ -44,7 +44,7 @@ object JsonSupport {
    * the overload with an explicit name for the JSON type instead.
    *
    * @see
-   *   [[encodeJson(T, java.lang.String)]]
+   *   [[JsonSupport.encodeJson[T](value:T,jsonType:String*]]
    */
   def encodeJson[T](value: T): ScalaPbAny = ScalaPbAny.fromJavaProto(JavaJsonSupport.encodeJson(value))
 
@@ -58,7 +58,7 @@ object JsonSupport {
    * @param jsonType
    *   A discriminator making it possible to identify which type of object is in the JSON, useful for example when
    *   multiple different objects are passed through a pub/sub topic.
-   * @throws IllegalArgumentException
+   * @throws java.lang.IllegalArgumentException
    *   if the given value cannot be turned into JSON
    */
   def encodeJson[T](value: T, jsonType: String): ScalaPbAny =
@@ -73,7 +73,7 @@ object JsonSupport {
    *   deserialization.
    * @return
    *   The decoded object
-   * @throws IllegalArgumentException
+   * @throws java.lang.IllegalArgumentException
    *   if the given value cannot be decoded to a T
    */
   def decodeJson[T: ClassTag](any: ScalaPbAny): T =
@@ -85,7 +85,7 @@ object JsonSupport {
    *
    * @return
    *   An Option containing the successfully decoded value or None if the type suffix does not match.
-   * @throws IllegalArgumentException
+   * @throws java.lang.IllegalArgumentException
    *   if the suffix matches but the Any cannot be parsed into a T
    */
   def decodeJson[T: ClassTag](jsonType: String, any: ScalaPbAny): Option[T] =
