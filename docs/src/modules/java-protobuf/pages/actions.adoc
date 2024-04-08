@@ -474,7 +474,7 @@ Scala::
 include::example$scala-protobuf-tracing/src/main/scala/com/example/ControllerAction.scala[tag=get-tracer]
 ----
 
-IMPORTANT: If your tracing is enabled, you will get a tracer that actually creates span and exports data as expected.
+IMPORTANT: If tracing is enabled, you will get a tracer that actually creates span and exports data as expected.
 But if tracing is not enabled, you will get a no operational tracer instead, which will not create traces.
 
 Trace generation is disabled by default. To enable it in a service deployed to Kalix, see link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[`here`].
