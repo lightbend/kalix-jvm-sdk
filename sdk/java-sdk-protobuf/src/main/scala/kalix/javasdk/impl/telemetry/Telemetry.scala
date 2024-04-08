@@ -227,7 +227,7 @@ private final class TraceInstrumentation(
   }
 
   // TODO: should this be specific per sdk?
-  override def getTracer: Tracer = openTelemetry.getTracer("java-sdk")
+  override def getTracer: Tracer = openTelemetry.getTracer("kalix")
 }
 
 private object NoOpInstrumentation extends Instrumentation {

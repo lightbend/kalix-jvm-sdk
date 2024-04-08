@@ -479,6 +479,7 @@ But if tracing is not enabled, you will get a no operational tracer instead, whi
 
 Trace generation is disabled by default. To enable it in a service deployed to Kalix, see link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[`here`].
 To enable it in a service running on your local machine you need to add the following `JAVA_TOOL_OPTIONS` to your `docker-compose.yml` in the base of your project.
+It's also necessary to have where to collect the traces. For example, an extra container, like the `jaeger` below.
 [source,yaml]
 .docker-compose.yml
 ---
