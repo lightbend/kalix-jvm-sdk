@@ -18,35 +18,25 @@ package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{ Sink, Source }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.Any
 import io.grpc.Status
-import io.opentelemetry.api.trace.Span
-import io.opentelemetry.api.trace.SpanContext
-import io.opentelemetry.api.trace.Tracer
+import io.opentelemetry.api.trace.{ Span, SpanContext, Tracer }
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
 import kalix.javasdk._
 import kalix.javasdk.action._
-import kalix.javasdk.impl.ActionFactory
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl._
 import kalix.javasdk.impl.effect.EffectSupport.asProtocol
+import kalix.javasdk.impl.telemetry.TraceInstrumentation.{ TRACE_PARENT_KEY, TRACE_STATE_KEY }
 import kalix.javasdk.impl.telemetry.{ ActionCategory, Instrumentation, Telemetry, TraceInstrumentation }
-import kalix.javasdk.impl.telemetry.TraceInstrumentation.TRACE_PARENT_KEY
-import kalix.javasdk.impl.telemetry.TraceInstrumentation.TRACE_STATE_KEY
-import kalix.protocol.action.ActionCommand
-import kalix.protocol.action.ActionResponse
-import kalix.protocol.action.Actions
+import kalix.protocol.action.{ ActionCommand, ActionResponse, Actions }
 import kalix.protocol.component
-import kalix.protocol.component.Failure
-import kalix.protocol.component.MetadataEntry
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import kalix.protocol.component.{ Failure, MetadataEntry }
+import org.slf4j.{ Logger, LoggerFactory }
 
 import java.util.Optional
-import scala.collection.mutable
 import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
@@ -366,7 +356,7 @@ private[javasdk] final class ActionsImpl(
       serviceName: String): ActionContext = {
     val metadata = MetadataImpl.of(in.metadata.map(_.entries.toVector).getOrElse(Nil))
     val updatedMetadata = spanContext.map(metadataWithTracing(metadata, _)).getOrElse(metadata)
-    new ActionContextImpl(updatedMetadata, messageCodec, system, serviceName, telemetries)
+    new ActionContextImpl(updatedMetadata, messageCodec, system, serviceName, telemetries(serviceName))
   }
 
   private def metadataWithTracing(metadata: MetadataImpl, spanContext: SpanContext): Metadata = {
@@ -396,7 +386,7 @@ class ActionContextImpl(
     val messageCodec: MessageCodec,
     val system: ActorSystem,
     serviceName: String,
-    telemetries: Map[String, Instrumentation])
+    instrumentation: Instrumentation)
     extends AbstractContext(system)
     with ActionContext {
 
@@ -422,6 +412,9 @@ class ActionContextImpl(
   }
 
   override def getOpenTelemetryTracer: Optional[Tracer] =
-    telemetries.get(serviceName).map(_.getTracer()).asJava
+    Option(instrumentation.getTracer).asJava
+
+  override def getTracer: Tracer =
+    instrumentation.getTracer
 
 }

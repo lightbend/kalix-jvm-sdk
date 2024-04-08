@@ -44,7 +44,17 @@ public interface ActionCreationContext extends Context {
    * Get an OpenTelemetry tracer for the current action. This will allow for building and automatic
    * exporting of spans.
    *
+   * @deprecated use getTracer() instead.
    * @return A tracer for the current action, if tracing is configured.
    */
+  @Deprecated(since = "1.4.2")
   Optional<Tracer> getOpenTelemetryTracer();
+
+  /**
+   * Get an OpenTelemetry tracer for the current action. This will allow for building and automatic
+   * exporting of spans.
+   *
+   * @return A tracer for the current action, if tracing is configured. Otherwise, a noops tracer.
+   */
+  Tracer getTracer();
 }

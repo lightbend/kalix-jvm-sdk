@@ -16,6 +16,7 @@
 
 package kalix.scalasdk.action
 
+import io.opentelemetry.api.trace.Tracer
 import kalix.scalasdk.Context
 
 trait ActionCreationContext extends Context {
@@ -33,4 +34,12 @@ trait ActionCreationContext extends Context {
    *   connection details are configured under `akka.grpc.client.[service-name]` in `application.conf`.
    */
   def getGrpcClient[T](clientClass: Class[T], service: String): T
+
+  /**
+   * Get an OpenTelemetry tracer for the current action. This will allow for building and automatic exporting of spans.
+   *
+   * @return
+   *   A tracer for the current action, if tracing is configured.
+   */
+  def getTracer: Tracer
 }
