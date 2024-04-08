@@ -15,7 +15,7 @@ class ControllerAction(creationContext: ActionCreationContext) extends AbstractC
 
   implicit val formats: Formats = DefaultFormats
 
-  val url = "https://jsonplaceholder.typicode.com/posts"
+  val url = "https://jsonpilaceholder.typicode.com/posts"
 
   // tag::create-close-span[]
   override def callAsyncEndpoint(empty: Empty): Action.Effect[MessageResponse] = {
@@ -44,16 +44,11 @@ class ControllerAction(creationContext: ActionCreationContext) extends AbstractC
 
 
   private def callAsync(): Future[MessageResponse] = {
-    val request = basicRequest.get(uri"${url}/1")
-    val response: Future[Response[Either[String, String]]] = request.send(Main.backend)
+    val request = quickRequest.get(uri"${url}/1")
+    val response = request.send(Main.backend)
     response.map { response =>
-      response.body match {
-        case Left(resEx) =>
-          MessageResponse(resEx)
-        case Right(value) =>
-          val post = JsonMethods.parse(value).extract[Post]
-          MessageResponse(post.title)
-      }
+      val post = JsonMethods.parse(response.body).extract[Post]
+      MessageResponse(post.title)
     }
   }
 }
