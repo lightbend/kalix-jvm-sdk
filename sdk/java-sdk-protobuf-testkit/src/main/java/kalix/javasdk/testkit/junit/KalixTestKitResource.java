@@ -17,7 +17,6 @@
 package kalix.javasdk.testkit.junit;
 
 import akka.actor.ActorSystem;
-import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
 import kalix.javasdk.Kalix;
 import kalix.javasdk.impl.MessageCodec;
