@@ -37,7 +37,7 @@ object TestValueEntityProtocol {
     import context.system
 
     private val in = TestPublisher.probe[ValueEntityStreamIn]()
-    private val out = client.handle(Source.fromPublisher(in)).runWith(TestSink.probe[ValueEntityStreamOut])
+    private val out = client.handle(Source.fromPublisher(in)).runWith(TestSink[ValueEntityStreamOut]())
 
     out.ensureSubscription()
 
