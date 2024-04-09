@@ -336,7 +336,7 @@ private[testkit] class OutgoingMessagesImpl(
     protected val codec: MessageCodec)
     extends OutgoingMessages {
 
-  private val DefaultTimeout: time.Duration = time.Duration.ofSeconds(3)
+  val DefaultTimeout: time.Duration = time.Duration.ofSeconds(3)
 
   private val log = LoggerFactory.getLogger(classOf[OutgoingMessagesImpl])
 
