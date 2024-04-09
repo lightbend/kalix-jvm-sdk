@@ -38,10 +38,7 @@ object CommonSettings extends AutoPlugin {
         val tagOrBranch =
           if (version.value.endsWith("SNAPSHOT")) "main"
           else "v" + version.value
-        Seq(
-          (
-            "BUSL-1.1",
-            url(s"https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/${tagOrBranch}/LICENSE")))
+        Seq(("BUSL-1.1", url(s"https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/${tagOrBranch}/LICENSE")))
       },
       scalafmtOnCompile := !insideCI.value,
       javafmtOnCompile := !insideCI.value,
