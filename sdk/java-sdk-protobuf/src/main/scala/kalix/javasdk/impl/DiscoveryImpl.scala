@@ -153,8 +153,8 @@ class DiscoveryImpl(
               name,
               Component.ComponentSettings.Component(GenericComponentSettings(forwardHeaders)))
           case _ =>
-            val passivationStrategy = entityPassivationStrategy(service.componentOptions.collect {
-              case e: EntityOptions => e
+            val passivationStrategy = replicatedEntityPassivationStrategy(service.componentOptions.collect {
+              case e: ReplicatedEntityOptions => e
             })
             val replicatedEntitySpecificSettings = specificSettings(service.componentOptions.collect {
               case options: ReplicatedEntityOptions => options
@@ -252,7 +252,8 @@ class DiscoveryImpl(
       } else None
     }
 
-  private def entityPassivationStrategy(maybeOptions: Option[EntityOptions]): Option[PassivationStrategy] = {
+  private def replicatedEntityPassivationStrategy(
+      maybeOptions: Option[ReplicatedEntityOptions]): Option[PassivationStrategy] = {
     import kalix.protocol.discovery.{ PassivationStrategy => EPStrategy }
     maybeOptions.flatMap { options =>
       options.passivationStrategy() match {

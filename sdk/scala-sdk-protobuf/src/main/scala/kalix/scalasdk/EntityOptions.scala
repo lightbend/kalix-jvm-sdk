@@ -21,19 +21,6 @@ import kalix.scalasdk.impl.ComponentOptions
 /** Options used for configuring an entity. */
 trait EntityOptions extends ComponentOptions {
 
-  /** @return the passivation strategy for an entity */
-  def passivationStrategy: PassivationStrategy
-
-  /**
-   * Create an entity option with the given passivation strategy.
-   *
-   * @param strategy
-   *   to be used
-   * @return
-   *   the entity option
-   */
-  def withPassivationStrategy(strategy: PassivationStrategy): EntityOptions
-
   /**
    * @return
    *   the headers requested to be forwarded as metadata (cannot be mutated, use withForwardHeaders)

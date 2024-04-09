@@ -19,7 +19,6 @@ package kalix.javasdk.impl.replicatedentity
 import kalix.javasdk.replicatedentity.ReplicatedVote
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 import kalix.protocol.replicated_entity.VoteDelta
-import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedVoteImpl(
     selfVote: Boolean = false,

@@ -98,8 +98,9 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
     Kalix(delegate.preferScalaProtobufs)
 
   /**
-   * Register a replicated entity using a [[ReplicatedEntityProvider]]. The concrete `ReplicatedEntityProvider` is
-   * generated for the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
+   * Register a replicated entity using a [[kalix.scalasdk.replicatedentity.ReplicatedEntityProvider]]. The concrete
+   * `ReplicatedEntityProvider` is generated for the specific entities defined in Protobuf, for example
+   * `CustomerEntityProvider`.
    *
    * [[kalix.scalasdk.replicatedentity.ReplicatedEntityOptions]] can be defined by in the `ReplicatedEntityProvider `.
    *
@@ -110,8 +111,9 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
     Kalix(delegate.register(JavaReplicatedEntityProviderAdapter(provider)))
 
   /**
-   * Register a value based entity using a [[ValueEntityProvider]]. The concrete ` ValueEntityProvider` is generated for
-   * the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
+   * Register a value based entity using a [[kalix.scalasdk.valueentity.ValueEntityProvider]]. The concrete `
+   * ValueEntityProvider` is generated for the specific entities defined in Protobuf, for example
+   * `CustomerEntityProvider`.
    *
    * [[kalix.scalasdk.valueentity.ValueEntityOptions]] can be defined by in the `ValueEntityProvider`.
    *
@@ -122,8 +124,8 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
     Kalix(delegate.register(new JavaValueEntityProviderAdapter(provider)))
 
   /**
-   * Register a workflow using a [[WorkflowProvider]]. The concrete `WorkflowProvider` is generated for the specific
-   * workflow defined in Protobuf, for example `TransferWorkflowProvider`.
+   * Register a workflow using a [[kalix.scalasdk.workflow.WorkflowProvider]]. The concrete `WorkflowProvider` is
+   * generated for the specific workflow defined in Protobuf, for example `TransferWorkflowProvider`.
    *
    * [[kalix.scalasdk.workflow.WorkflowOptions]] can be defined by in the `WorkflowProvider`.
    *
@@ -134,8 +136,9 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
     Kalix(delegate.register(new JavaWorkflowProviderAdapter(provider)))
 
   /**
-   * Register a event sourced entity using a [[EventSourcedEntityProvider]]. The concrete `EventSourcedEntityProvider`
-   * is generated for the specific entities defined in Protobuf, for example `CustomerEntityProvider`.
+   * Register a event sourced entity using a [[kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider]]. The
+   * concrete `EventSourcedEntityProvider` is generated for the specific entities defined in Protobuf, for example
+   * `CustomerEntityProvider`.
    *
    * [[kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions]] can be defined by in the
    * `EventSourcedEntityProvider`.
@@ -147,8 +150,8 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
     Kalix(delegate.register(new JavaEventSourcedEntityProviderAdapter(provider)))
 
   /**
-   * Register a view using a [[ViewProvider]]. The concrete ` ViewProvider` is generated for the specific views defined
-   * in Protobuf, for example ` CustomerViewProvider`.
+   * Register a view using a [[kalix.scalasdk.view.ViewProvider]]. The concrete ` ViewProvider` is generated for the
+   * specific views defined in Protobuf, for example ` CustomerViewProvider`.
    *
    * @return
    *   This stateful service builder.
@@ -157,8 +160,8 @@ class Kalix private (private[kalix] val delegate: javasdk.Kalix) {
     Kalix(delegate.register(new JavaViewProviderAdapter(provider)))
 
   /**
-   * Register an action using an [[ActionProvider]]. The concrete ` ActionProvider` is generated for the specific
-   * entities defined in Protobuf, for example `CustomerActionProvider`.
+   * Register an action using an [[kalix.scalasdk.action.ActionProvider]]. The concrete ` ActionProvider` is generated
+   * for the specific entities defined in Protobuf, for example `CustomerActionProvider`.
    *
    * @return
    *   This stateful service builder.

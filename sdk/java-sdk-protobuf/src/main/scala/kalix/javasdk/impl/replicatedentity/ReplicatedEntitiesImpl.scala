@@ -190,7 +190,7 @@ object ReplicatedEntitiesImpl {
         serializedSecondaryEffect.replyToClientAction(service.anySupport, command.id)
 
       serializedSecondaryEffect match {
-        case error: ErrorReplyImpl[_] =>
+        case _: ErrorReplyImpl[_] =>
           if (router._internalHasDelta)
             throw EntityException(command, s"Replicated entity was changed for a failed command, this is not allowed.")
           ReplicatedEntityStreamOut(

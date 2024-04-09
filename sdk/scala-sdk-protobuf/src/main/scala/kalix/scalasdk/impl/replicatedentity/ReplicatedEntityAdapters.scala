@@ -57,12 +57,14 @@ import kalix.scalasdk.replicatedentity.ReplicatedSet
 import kalix.scalasdk.replicatedentity.ReplicatedVote
 import kalix.scalasdk.replicatedentity.WriteConsistency
 import com.google.protobuf.Descriptors
-
 import java.util
 import java.util.Optional
+
 import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters.RichOptional
+
+import kalix.scalasdk.PassivationStrategy
 
 private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
     scalaSdkProvider: ReplicatedEntityProvider[D, E])

@@ -248,7 +248,7 @@ abstract class Action {
   }
 
   /**
-   * Returns a [[TimerScheduler]] that can be used to schedule further in time.
+   * Returns a [[kalix.scalasdk.timer.TimerScheduler]] that can be used to schedule further in time.
    */
   final def timers: TimerScheduler = {
 

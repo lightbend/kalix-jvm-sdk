@@ -234,7 +234,10 @@ private[kalix] object ComponentDescriptor {
                       case UnhandledParameter(p) =>
                         throw new RuntimeException(
                           s"Unhandled parameter for [${serviceMethod.methodName}]: [$p], message type: " + inputMessageName)
-                      // FIXME not handled: BodyParameter(_, _), PathParameter(_, _), QueryParamParameter(_, _)
+                      case _ =>
+                        // FIXME not handled: BodyParameter(_, _), PathParameter(_, _), QueryParamParameter(_, _)
+                        // not even clear yet if that's even possible
+                        throw new RuntimeException("not implement")
                     }
                 }
               }.toArray

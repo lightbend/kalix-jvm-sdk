@@ -488,7 +488,7 @@ abstract class AbstractWorkflow[S >: Null] {
    * This method can only be called when handling a command. Calling it outside a method (eg: in the constructor) will
    * raise a IllegalStateException exception.
    *
-   * @throws IllegalStateException
+   * @throws java.lang.IllegalStateException
    *   if accessed outside a handler method
    */
   @ApiMayChange
@@ -528,7 +528,7 @@ abstract class AbstractWorkflow[S >: Null] {
   }
 
   /**
-   * Returns a [[TimerScheduler]] that can be used to schedule further in time.
+   * Returns a [[kalix.scalasdk.timer.TimerScheduler]] that can be used to schedule further in time.
    */
   def timers: TimerScheduler = {
     try {
