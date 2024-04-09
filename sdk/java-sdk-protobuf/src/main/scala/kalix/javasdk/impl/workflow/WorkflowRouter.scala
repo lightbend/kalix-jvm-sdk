@@ -189,6 +189,9 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
               (grpcDefCall.methodName, grpcDefCall.fullServiceName)
             case restDefCall: RestDeferredCall[_, _] =>
               (restDefCall.methodName, restDefCall.fullServiceName)
+            case _ =>
+              // should never happen, but needs to make compiler happy
+              throw new IllegalStateException("Unknown DeferredCall implementation")
           }
 
         val stepDefCall =

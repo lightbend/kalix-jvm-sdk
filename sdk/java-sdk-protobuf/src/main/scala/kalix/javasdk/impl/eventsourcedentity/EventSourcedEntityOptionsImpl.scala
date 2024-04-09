@@ -24,15 +24,11 @@ import java.util.Collections
 
 private[impl] final case class EventSourcedEntityOptionsImpl(
     override val snapshotEvery: Int,
-    override val passivationStrategy: PassivationStrategy,
     override val forwardHeaders: java.util.Set[String])
     extends EventSourcedEntityOptions {
 
   override def withSnapshotEvery(numberOfEvents: Int): EventSourcedEntityOptions =
     copy(snapshotEvery = numberOfEvents)
-
-  override def withPassivationStrategy(strategy: PassivationStrategy): EventSourcedEntityOptions =
-    copy(passivationStrategy = strategy)
 
   override def withForwardHeaders(headers: util.Set[String]): EventSourcedEntityOptions =
     copy(forwardHeaders = Collections.unmodifiableSet(new util.HashSet(headers)));

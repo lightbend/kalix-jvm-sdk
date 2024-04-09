@@ -27,10 +27,8 @@ import java.nio.file.Files
 import kalix.codegen.scalasdk.{ gen, genTests, genUnmanaged, genUnmanagedTest, BuildInfo, KalixGenerator }
 import sbt.{ Compile, _ }
 import sbt.Keys._
-import sbt.Def.Initialize
 import sbtprotoc.ProtocPlugin
 import sbtprotoc.ProtocPlugin.autoImport.PB
-import kalix.devtools.impl.DockerComposeUtils
 import sbt.complete.Parsers.spaceDelimited
 
 object KalixPlugin extends AutoPlugin {

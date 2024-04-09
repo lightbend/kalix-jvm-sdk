@@ -191,8 +191,8 @@ trait CloudEvent {
   /**
    * Return this CloudEvent represented as Metadata.
    *
-   * <p>If this CloudEvent was created by {{@link Metadata#asCloudEvent()}}, then any non CloudEvent metadata that was
-   * present will still be present.
+   * <p>If this CloudEvent was created by [[kalix.scalasdk.Metadata.asCloudEvent:*]], then any non CloudEvent metadata
+   * that was present will still be present.
    *
    * @return
    *   This CloudEvent expressed as Kalix metadata.

@@ -42,7 +42,7 @@ object TestWorkflowProtocol {
     import context.system
 
     private val in = TestPublisher.probe[WorkflowStreamIn]()
-    private val out = client.handle(Source.fromPublisher(in)).runWith(TestSink.probe[WorkflowStreamOut])
+    private val out = client.handle(Source.fromPublisher(in)).runWith(TestSink[WorkflowStreamOut]())
 
     out.ensureSubscription()
 

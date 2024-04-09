@@ -19,6 +19,7 @@ package kalix.javasdk.impl
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination
@@ -30,7 +31,6 @@ import kalix.ServiceEventingOut
 import kalix.ServiceOptions
 import kalix.javasdk.action.Action
 import kalix.javasdk.annotations.Acl
-import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
@@ -132,13 +132,8 @@ private[impl] object ComponentDescriptorFactory {
   def hasTopicPublication(javaMethod: Method): Boolean =
     javaMethod.isPublic && javaMethod.hasAnnotation[Publish.Topic]
 
-  def readTypeIdValue(annotated: AnnotatedElement) =
-    Option(annotated.getAnnotation(classOf[TypeId]))
-      .map(_.value())
-      .getOrElse {
-        // assuming that if TypeId is not in use, EntityType will
-        annotated.getAnnotation(classOf[EntityType]).value()
-      }
+  def readTypeIdValue(annotated: AnnotatedElement): String =
+    annotated.getAnnotation(classOf[TypeId]).value()
 
   def findEventSourcedEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
@@ -383,7 +378,7 @@ private[impl] object ComponentDescriptorFactory {
   // we should let users know if components are missing required annotations,
   // eg: Workflow and Entities require @TypeId, View requires @Table and @Subscription
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
-    if (component.getAnnotation(classOf[TypeId]) != null || component.getAnnotation(classOf[EntityType]) != null)
+    if (component.getAnnotation(classOf[TypeId]) != null)
       EntityDescriptorFactory
     else if (component.getAnnotation(classOf[Table]) != null || component.getAnnotation(classOf[ViewId]) != null)
       ViewDescriptorFactory

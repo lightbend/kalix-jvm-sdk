@@ -76,11 +76,10 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
   override def error[R](description: String, statusCode: Status.Code): ErrorEffect[R] = ErrorEffectImpl(
     javasdkEffect.error(description, statusCode))
 
-  final case class PersistenceEffectBuilderImpl[S](
-      javasdkEffect: workflow.AbstractWorkflow.Effect.PersistenceEffectBuilder[S])
+  case class PersistenceEffectBuilderImpl(javasdkEffect: workflow.AbstractWorkflow.Effect.PersistenceEffectBuilder[S])
       extends PersistenceEffectBuilder[S] {
 
-    override def pause(): TransitionalEffect[Void] =
+    override def pause: TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.pause())
 
     override def transitionTo[I](stepName: String, input: I): TransitionalEffect[Void] =
@@ -89,11 +88,10 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
     override def transitionTo(stepName: String): TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.transitionTo(stepName))
 
-    override def end(): TransitionalEffect[Void] =
+    override def end: TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.end())
   }
 
-  final case class ErrorEffectImpl[R](javasdkEffect: workflow.AbstractWorkflow.Effect.ErrorEffect[T])
-      extends ErrorEffect[R]
+  case class ErrorEffectImpl[R](javasdkEffect: workflow.AbstractWorkflow.Effect.ErrorEffect[T]) extends ErrorEffect[R]
 
 }

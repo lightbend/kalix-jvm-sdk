@@ -16,10 +16,8 @@
 
 package kalix.scalasdk.action
 
-import scala.collection.immutable.Seq
-
-import kalix.scalasdk.impl.action.ActionRouter
 import com.google.protobuf.Descriptors
+import kalix.scalasdk.impl.action.ActionRouter
 
 trait ActionProvider[A <: Action] {
   def options: ActionOptions

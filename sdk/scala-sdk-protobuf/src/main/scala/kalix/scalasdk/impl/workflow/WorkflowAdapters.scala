@@ -78,7 +78,7 @@ private[scalasdk] final class JavaWorkflowAdapter[S >: Null](scalaSdkWorkflow: A
     val javaWorkflowDef = workflow()
     val scalaDefinition = scalaSdkWorkflow.definition
     scalaDefinition.steps.map {
-      case callStep: CallStep[Any, Any, Any, Any] =>
+      case callStep: CallStep[Any @unchecked, Any @unchecked, Any @unchecked, Any @unchecked] =>
         val javaCallStep = new javasdk.workflow.AbstractWorkflow.CallStep(
           callStep.name,
           callStep.callInputClass,
@@ -94,7 +94,7 @@ private[scalasdk] final class JavaWorkflowAdapter[S >: Null](scalaSdkWorkflow: A
             }
           })
         javaWorkflowDef.addStep(javaCallStep)
-      case asyncCallStep: AsyncCallStep[Any, Any, Any] =>
+      case asyncCallStep: AsyncCallStep[Any @unchecked, Any @unchecked, Any @unchecked] =>
         val javaAsyncCallStep = new javasdk.workflow.AbstractWorkflow.AsyncCallStep(
           asyncCallStep.name,
           asyncCallStep.callInputClass,

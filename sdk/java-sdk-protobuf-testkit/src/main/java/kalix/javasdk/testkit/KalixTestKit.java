@@ -704,37 +704,7 @@ public class KalixTestKit {
     return testSystem;
   }
 
-  /**
-   * Get {@link GrpcClientSettings} for creating Akka gRPC clients.
-   *
-   * @return test gRPC client settings
-   * @deprecated Use <code>getGrpcClient</code> instead.
-   */
-  @Deprecated(since = "0.8.1", forRemoval = true)
-  public GrpcClientSettings getGrpcClientSettings() {
-    if (!started)
-      throw new IllegalStateException(
-          "Need to start KalixTestkit before accessing gRPC client settings");
-    return GrpcClientSettings.connectToServiceAt(getHost(), getPort(), testSystem).withTls(false);
-  }
 
-  /**
-   * Use <code>getTopicIncomingMessages</code> or <code>getTopicOutgoingMessages</code> instead.
-   * <p>
-   * Get {@link EventingTestKit.Topic} for mocking interactions, avoiding the need for a real broker instance.
-   *
-   * @param topic the name of the topic configured in your service which you want to mock
-   * @return mocked topic to read/publish messages from/to
-   */
-  @Deprecated
-  public EventingTestKit.Topic getTopic(String topic) {
-    if (!settings.eventingSupport.equals(TEST_BROKER)) {
-      throw new IllegalStateException("Currently configured eventing support is (" + settings.eventingSupport +
-          "). To use this API, configure it to be (" + TEST_BROKER + ")");
-    }
-
-    return eventingTestKit.getTopic(topic);
-  }
 
   /**
    * Get incoming messages for ValueEntity.

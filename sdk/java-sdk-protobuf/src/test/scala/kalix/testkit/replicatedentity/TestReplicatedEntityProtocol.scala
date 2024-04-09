@@ -39,7 +39,7 @@ object TestReplicatedEntityProtocol {
     import context.system
 
     private val in = TestPublisher.probe[ReplicatedEntityStreamIn]()
-    private val out = client.handle(Source.fromPublisher(in)).runWith(TestSink.probe[ReplicatedEntityStreamOut])
+    private val out = client.handle(Source.fromPublisher(in)).runWith(TestSink[ReplicatedEntityStreamOut]())
 
     out.ensureSubscription()
 

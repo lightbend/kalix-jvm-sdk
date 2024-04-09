@@ -115,8 +115,7 @@ public class GenerateMojo extends AbstractMojo {
                           integrationTestSourceDirectory.toPath(),
                           generatedSourceDirectory.toPath(),
                           generatedTestSourceDirectory.toPath(),
-                          mainClass,
-                          log);
+                          mainClass);
                   Path absBaseDir = baseDir.toPath().toAbsolutePath();
                   generated.foreach(p -> {
                       log.info("Generated: " + absBaseDir.relativize(p.toAbsolutePath()));

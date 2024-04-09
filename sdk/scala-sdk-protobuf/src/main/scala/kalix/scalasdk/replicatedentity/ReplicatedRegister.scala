@@ -58,7 +58,7 @@ class ReplicatedRegister[T] private[scalasdk] (override val delegate: Replicated
    *   the key of the mapping
    * @return
    *   the current value of the register
-   * @throws NoSuchElementException
+   * @throws java.util.NoSuchElementException
    *   if value not defined
    */
   def apply(): T = get.getOrElse(throw new NoSuchElementException("Register value not defined"))

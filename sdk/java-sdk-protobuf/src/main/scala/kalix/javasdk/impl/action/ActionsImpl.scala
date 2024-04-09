@@ -109,11 +109,7 @@ private[javasdk] object ActionsImpl {
 
 }
 
-private[javasdk] final class ActionsImpl(
-    _system: ActorSystem,
-    services: Map[String, ActionService],
-    rootContext: Context)
-    extends Actions {
+private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[String, ActionService]) extends Actions {
 
   import ActionsImpl._
   import _system.dispatcher

@@ -27,7 +27,7 @@ object ProtoDescriptorRenderer {
     // not water tight but better than the default non-protobuf Proto-toString format
     val proto = fileDescriptor.toProto
     val builder = new mutable.StringBuilder()
-    builder ++= s"""syntax = "${fileDescriptor.getSyntax.name().toLowerCase}";\n\n"""
+    builder ++= s"""syntax = "${fileDescriptor.toProto.getSyntax.toLowerCase}";\n\n"""
 
     builder ++= "package "
     builder ++= fileDescriptor.getPackage + ";\n\n"
