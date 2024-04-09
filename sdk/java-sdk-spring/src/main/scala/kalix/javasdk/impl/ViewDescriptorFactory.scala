@@ -186,7 +186,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         ProtoMessageDescriptors.generateMessageDescriptors(queryOutputType)
 
       val queryInputSchemaDescriptor =
-        queryMethod.params.find(_.isInstanceOf[BodyParameter]).map { case BodyParameter(param, _) =>
+        queryMethod.params.collectFirst { case BodyParameter(param, _) =>
           ProtoMessageDescriptors.generateMessageDescriptors(param.getParameterType)
         }
 

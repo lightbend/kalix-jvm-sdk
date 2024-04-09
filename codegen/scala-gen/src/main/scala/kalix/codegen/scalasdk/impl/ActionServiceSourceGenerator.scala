@@ -17,7 +17,6 @@
 package kalix.codegen.scalasdk.impl
 
 import kalix.codegen.File
-import kalix.codegen.ProtoMessageType
 import kalix.codegen.ModelBuilder
 import kalix.codegen.PackageNaming
 import kalix.codegen.ClassMessageType

@@ -21,7 +21,6 @@ import kalix.codegen.Imports
 import kalix.codegen.MessageType
 import kalix.codegen.ModelBuilder
 import kalix.codegen.PackageNaming
-import kalix.codegen.ClassMessageType
 import kalix.codegen.ProtoMessageType
 import kalix.codegen.SourceGeneratorUtils._
 

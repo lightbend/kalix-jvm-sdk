@@ -186,9 +186,6 @@ object ComponentSourceGenerator {
       case vs: ViewService   => vs.className.split('.').last
     }
 
-  private def fullyQualifiedMessage(messageType: ProtoMessageType): String =
-    s"${messageType.parent.javaPackage}.${messageType.name}"
-
   private def callableCommandsFor(service: Service): Iterable[ModelBuilder.Command] =
     service match {
       case view: ViewService =>

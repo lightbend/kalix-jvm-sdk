@@ -18,7 +18,7 @@ package kalix.codegen
 
 import com.google.protobuf.Descriptors
 import java.nio.file.{ FileVisitOption, Files }
-
+import scala.language.reflectiveCalls
 import scala.sys.process._
 
 abstract class ExampleSuiteBase extends munit.FunSuite {

@@ -16,8 +16,6 @@
 
 package kalix.scalasdk.replicatedentity
 
-import scala.collection.immutable.Set
-
 import kalix.javasdk.impl.replicatedentity.ReplicatedRegisterMapImpl
 import kalix.javasdk.replicatedentity.{ ReplicatedRegister => JavaSdkReplicatedRegister }
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
@@ -50,7 +48,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val delegate: Repl
    *   the key for the register
    * @return
    *   the register value for the key
-   * @throws NoSuchElementException
+   * @throws java.util.NoSuchElementException
    *   if the key is not preset in the map
    */
   def apply(key: K): V = get(key).get
@@ -144,7 +142,7 @@ class ReplicatedRegisterMap[K, V] private[scalasdk] (override val delegate: Repl
   def containsKey(key: K): Boolean = delegate.containsKey(key)
 
   /**
-   * Get a [[Set]] view of the keys contained in this register map.
+   * Get a [[scala.collection.immutable.Set]] view of the keys contained in this register map.
    *
    * @return
    *   the keys contained in this register map

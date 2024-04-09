@@ -16,29 +16,19 @@
 
 package kalix.scalasdk.valueentity
 
-import kalix.scalasdk
 import kalix.scalasdk.EntityOptions
-import kalix.scalasdk.PassivationStrategy
 
 /** Root entity options for all value based entities. */
 trait ValueEntityOptions extends EntityOptions {
-  @deprecated(message = "passivation strategy is ignored", since = "1.1.4")
-  def withPassivationStrategy(strategy: PassivationStrategy): ValueEntityOptions
   def withForwardHeaders(headers: Set[String]): ValueEntityOptions
 }
 object ValueEntityOptions {
-  val defaults: ValueEntityOptions =
-    ValueEntityOptionsImpl(PassivationStrategy.defaultTimeout, Set.empty)
+  val defaults: ValueEntityOptions = ValueEntityOptionsImpl(Set.empty)
 
-  private[kalix] final case class ValueEntityOptionsImpl(
-      passivationStrategy: scalasdk.PassivationStrategy,
-      forwardHeaders: Set[String])
-      extends ValueEntityOptions {
+  private[kalix] final case class ValueEntityOptionsImpl(forwardHeaders: Set[String]) extends ValueEntityOptions {
 
     override def withForwardHeaders(headers: Set[String]): ValueEntityOptions =
       copy(forwardHeaders = headers)
 
-    override def withPassivationStrategy(passivationStrategy: scalasdk.PassivationStrategy): ValueEntityOptions =
-      copy(passivationStrategy = passivationStrategy)
   }
 }

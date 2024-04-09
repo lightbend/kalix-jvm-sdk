@@ -16,15 +16,16 @@
 
 package kalix.scalasdk.replicatedentity
 
-import kalix.scalasdk.replicatedentity.WriteConsistency
-
-import scala.collection.immutable.Set
 import kalix.scalasdk
 import kalix.scalasdk.EntityOptions
 import kalix.scalasdk.PassivationStrategy
 
 trait ReplicatedEntityOptions extends EntityOptions {
-  override def withPassivationStrategy(strategy: PassivationStrategy): ReplicatedEntityOptions
+
+  def passivationStrategy: PassivationStrategy
+
+  def withPassivationStrategy(strategy: PassivationStrategy): ReplicatedEntityOptions
+
   override def withForwardHeaders(headers: Set[String]): ReplicatedEntityOptions
 
   /**
@@ -40,7 +41,7 @@ trait ReplicatedEntityOptions extends EntityOptions {
    *
    * @param writeConsistency
    *   write consistency to use
-   * @returns
+   * @return
    *   new replicated entity options with write consistency setting
    */
   def withWriteConsistency(writeConsistency: WriteConsistency): ReplicatedEntityOptions
@@ -59,7 +60,7 @@ object ReplicatedEntityOptions {
     override def withForwardHeaders(headers: Set[String]): ReplicatedEntityOptions =
       copy(forwardHeaders = headers)
 
-    override def withPassivationStrategy(passivationStrategy: scalasdk.PassivationStrategy): ReplicatedEntityOptions =
+    def withPassivationStrategy(passivationStrategy: scalasdk.PassivationStrategy): ReplicatedEntityOptions =
       copy(passivationStrategy = passivationStrategy)
 
     /**
@@ -67,7 +68,7 @@ object ReplicatedEntityOptions {
      *
      * @param writeConsistency
      *   write consistency to use
-     * @returns
+     * @return
      *   new replicated entity options with write consistency setting
      */
     override def withWriteConsistency(writeConsistency: WriteConsistency): ReplicatedEntityOptions =

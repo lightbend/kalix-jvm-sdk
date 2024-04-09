@@ -145,22 +145,10 @@ class KalixTestKit private (delegate: JTestKit) {
     delegate.getGrpcClientForPrincipal(clientClass, Principal.toJava(principal))
 
   /**
-   * Get a Topic for mocked interactions, avoiding the need for a real broker instance.
-   *
-   * @param topic
-   *   the name of the topic configured in your service which you want to mock
-   * @return
-   *   mocked topic to read/publish messages from/to
-   */
-  @Deprecated
-  def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic), delegate.getMessageCodec)
-
-  /**
    * Get incoming messages for ValueEntity.
    *
    * @param typeId
-   * @TypeId
-   *   or entity_type of the ValueEntity (depending on the used SDK)
+   *   The typeId the ValueEntity
    */
   def getValueEntityIncomingMessages(typeId: String): IncomingMessages = IncomingMessages(
     delegate.getValueEntityIncomingMessages(typeId))
@@ -169,8 +157,7 @@ class KalixTestKit private (delegate: JTestKit) {
    * Get incoming messages for EventSourcedEntity.
    *
    * @param typeId
-   * @TypeId
-   *   or entity_type of the EventSourcedEntity (depending on the used SDK)
+   *   The typeId of the EventSourcedEntity
    */
   def getEventSourcedEntityIncomingMessages(typeId: String): IncomingMessages = IncomingMessages(
     delegate.getEventSourcedEntityIncomingMessages(typeId))
@@ -213,15 +200,6 @@ class KalixTestKit private (delegate: JTestKit) {
 
   implicit def executionContext: ExecutionContext =
     materializer.executionContext
-
-  /**
-   * Get `GrpcClientSettings` for creating Akka gRPC clients.
-   *
-   * @return
-   *   test gRPC client settings
-   */
-  @deprecated("Use `getGrpcClient` instead.", since = "0.8.1")
-  def grpcClientSettings: GrpcClientSettings = delegate.getGrpcClientSettings()
 
   /**
    * Get an `ActorSystem` for creating Akka HTTP clients.

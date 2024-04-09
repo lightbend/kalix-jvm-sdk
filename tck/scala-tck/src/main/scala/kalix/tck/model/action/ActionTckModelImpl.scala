@@ -17,12 +17,13 @@
 package kalix.tck.model.action
 
 import akka.NotUsed
+import akka.stream.Materializer
 import akka.stream.scaladsl.{ Sink, Source }
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionCreationContext
 
 class ActionTckModelImpl(ctx: ActionCreationContext) extends AbstractActionTckModelAction {
-  private implicit val mat = ctx.materializer()
+  private implicit val mat: Materializer = ctx.materializer()
 
   override def processUnary(request: Request): Action.Effect[Response] =
     response(request.groups)

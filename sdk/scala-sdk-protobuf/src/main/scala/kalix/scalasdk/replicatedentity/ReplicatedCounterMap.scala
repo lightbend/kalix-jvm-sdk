@@ -22,7 +22,7 @@ import kalix.javasdk.impl.replicatedentity.ReplicatedCounterMapImpl
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
 
 /**
- * A Map of counters. Uses [[ReplicatedCounter]] 's as values.
+ * A Map of counters. Uses [[kalix.scalasdk.replicatedentity.ReplicatedCounter]] 's as values.
  *
  * @tparam K
  *   The type for keys.
@@ -140,7 +140,7 @@ class ReplicatedCounterMap[K] private[scalasdk] (override val delegate: Replicat
     delegate.forall(predicate)
 
   /**
-   * Get a [[Set]] view of the keys contained in this counter map.
+   * Get a [[scala.collection.immutable.Set]] view of the keys contained in this counter map.
    *
    * @return
    *   the keys contained in this counter map

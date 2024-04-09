@@ -76,7 +76,7 @@ class ActionHandlerSpec
     //setting tracing as disabled, emulating that is discovered from the proxy.
     ProxyInfoHolder(system).overrideTracingCollectorEndpoint("")
 
-    new ActionsImpl(classicSystem, services, new AbstractContext(classicSystem) {})
+    new ActionsImpl(classicSystem, services)
   }
 
   "The action service" should {

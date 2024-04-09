@@ -39,13 +39,6 @@ public interface EventSourcedEntityOptions extends EntityOptions {
    */
   EventSourcedEntityOptions withSnapshotEvery(int numberOfEvents);
 
-  /**
-   * @deprecated passivation strategy is ignored
-   */
-  @Override
-  @Deprecated(since = "1.1.4", forRemoval = true)
-  EventSourcedEntityOptions withPassivationStrategy(PassivationStrategy strategy);
-
   @Override
   EventSourcedEntityOptions withForwardHeaders(Set<String> headers);
 
@@ -55,7 +48,6 @@ public interface EventSourcedEntityOptions extends EntityOptions {
    * @return the entity option
    */
   static EventSourcedEntityOptions defaults() {
-    return new EventSourcedEntityOptionsImpl(
-        0, PassivationStrategy.defaultTimeout(), Collections.emptySet());
+    return new EventSourcedEntityOptionsImpl(0, Collections.emptySet());
   }
 }

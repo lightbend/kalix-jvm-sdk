@@ -20,16 +20,6 @@ import kalix.javasdk.impl.ComponentOptions;
 /** Options used for configuring an entity. */
 public interface EntityOptions extends ComponentOptions {
 
-  /** @return the passivation strategy for an entity */
-  PassivationStrategy passivationStrategy();
-
-  /**
-   * Create an entity option with the given passivation strategy.
-   *
-   * @param strategy to be used
-   * @return the entity option
-   */
-  EntityOptions withPassivationStrategy(PassivationStrategy strategy);
 
   /**
    * @return the headers requested to be forwarded as metadata (cannot be mutated, use

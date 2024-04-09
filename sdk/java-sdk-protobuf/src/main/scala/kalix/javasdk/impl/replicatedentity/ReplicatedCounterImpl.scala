@@ -19,7 +19,6 @@ package kalix.javasdk.impl.replicatedentity
 import kalix.javasdk.replicatedentity.ReplicatedCounter
 import kalix.protocol.replicated_entity.ReplicatedCounterDelta
 import kalix.protocol.replicated_entity.ReplicatedEntityDelta
-import kalix.replicatedentity.ReplicatedData
 
 private[kalix] final class ReplicatedCounterImpl(value: Long = 0, delta: Long = 0)
     extends ReplicatedCounter
