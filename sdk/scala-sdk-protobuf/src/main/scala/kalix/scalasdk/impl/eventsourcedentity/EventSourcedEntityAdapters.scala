@@ -16,10 +16,15 @@
 
 package kalix.scalasdk.impl.eventsourcedentity
 
+import java.util.Optional
+
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.OptionConverters._
+
 import akka.stream.Materializer
 import com.google.protobuf.Descriptors
 import kalix.javasdk
-import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.{ CommandContext => JavaSdkCommandContext }
 import kalix.javasdk.eventsourcedentity.{ EventContext => JavaSdkEventContext }
 import kalix.javasdk.eventsourcedentity.{ EventSourcedEntity => JavaSdkEventSourcedEntity }
@@ -35,12 +40,6 @@ import kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityProvider
 import kalix.scalasdk.impl.InternalContext
 import kalix.scalasdk.impl.MetadataConverters
-import kalix.scalasdk.impl.PassivationStrategyConverters
-
-import java.util.Optional
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.CollectionConverters.SetHasAsScala
-import scala.jdk.OptionConverters._
 
 private[scalasdk] final class JavaEventSourcedEntityAdapter[S](scalaSdkEventSourcedEntity: EventSourcedEntity[S])
     extends JavaSdkEventSourcedEntity[S, Any] {
@@ -92,13 +91,6 @@ private[scalasdk] final class JavaEventSourcedEntityOptionsAdapter(
     new JavaEventSourcedEntityOptionsAdapter(
       scalaSdkEventSourcedEntityOptions.withForwardHeaders(Set.from(headers.asScala)))
 
-  def passivationStrategy(): javasdk.PassivationStrategy =
-    PassivationStrategyConverters.toJava(scalaSdkEventSourcedEntityOptions.passivationStrategy)
-
-  def withPassivationStrategy(passivationStrategy: javasdk.PassivationStrategy): JavaSdkEventSourcedEntityOptions =
-    new JavaEventSourcedEntityOptionsAdapter(
-      scalaSdkEventSourcedEntityOptions.withPassivationStrategy(
-        PassivationStrategyConverters.toScala(passivationStrategy)))
 }
 
 private[scalasdk] final class JavaEventSourcedEntityRouterAdapter[S](

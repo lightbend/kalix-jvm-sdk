@@ -230,7 +230,7 @@ trait Metadata extends Iterable[MetadataEntry] {
    *
    * @return
    *   This Metadata expressed as CloudEvent metadata.
-   * @throws IllegalStateException
+   * @throws java.lang.IllegalStateException
    *   If this metadata is not a CloudEvent, that is, if it doesn't have any of specversion, id, source or type
    *   CloudEvent fields defined.
    */

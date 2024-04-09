@@ -192,7 +192,7 @@ final class ValueEntitiesImpl(
               serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
 
             serializedSecondaryEffect match {
-              case error: ErrorReplyImpl[_] =>
+              case _: ErrorReplyImpl[_] =>
                 ValueEntityStreamOut(OutReply(ValueEntityReply(commandId = command.id, clientAction = clientAction)))
 
               case _ => // non-error

@@ -37,7 +37,7 @@ object TestEventSourcedProtocol {
     import context.system
 
     private val in = TestPublisher.probe[EventSourcedStreamIn]()
-    private val out = client.handle(Source.fromPublisher(in)).runWith(TestSink.probe[EventSourcedStreamOut])
+    private val out = client.handle(Source.fromPublisher(in)).runWith(TestSink[EventSourcedStreamOut]())
 
     out.ensureSubscription()
 

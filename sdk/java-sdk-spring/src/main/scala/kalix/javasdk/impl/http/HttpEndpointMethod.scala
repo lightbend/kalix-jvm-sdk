@@ -75,7 +75,7 @@ private object HttpEndpointMethod {
 
 // Reads a rfc2045 encoded Base64 string
   final val ParseBytes: String => Option[ProtobufByteString] =
-    s => Some(ProtobufByteString.copyFrom(Base64.rfc2045.decode(s))) // Make cheaper? Protobuf has a Base64 decoder?
+    s => Some(ProtobufByteString.copyFrom(Base64.rfc2045().decode(s))) // Make cheaper? Protobuf has a Base64 decoder?
 
   final def suitableParserFor(field: FieldDescriptor)(whenIllegal: String => Nothing): String => Option[Any] =
     field.getJavaType match {

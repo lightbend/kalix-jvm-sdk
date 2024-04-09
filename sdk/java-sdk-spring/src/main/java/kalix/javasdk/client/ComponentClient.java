@@ -16,6 +16,10 @@
 
 package kalix.javasdk.client;
 
+import kalix.spring.impl.KalixClient;
+
+import java.util.List;
+
 /**
  * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a
  * call:

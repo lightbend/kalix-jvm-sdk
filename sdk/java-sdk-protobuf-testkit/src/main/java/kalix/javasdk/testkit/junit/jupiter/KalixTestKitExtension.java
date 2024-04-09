@@ -17,20 +17,16 @@
 package kalix.javasdk.testkit.junit.jupiter;
 
 import akka.actor.ActorSystem;
-import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
 import kalix.javasdk.Kalix;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
 import kalix.javasdk.testkit.EventingTestKit.OutgoingMessages;
-import kalix.javasdk.testkit.EventingTestKit.Topic;
 import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.rules.ExternalResource;
 
 /**
  * A JUnit 5 "Jupiter" Extension for {@link KalixTestKit}, which automatically manages the lifecycle of

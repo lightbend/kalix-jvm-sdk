@@ -72,6 +72,9 @@ private[kalix] final class TimerSchedulerImpl(
           restDeferredCall.fullServiceName,
           restDeferredCall.methodName,
           Some(restDeferredCall.message.asInstanceOf[ScalaPbAny]))
+      case _ =>
+        // should never happen, but needs to make compiler happy
+        throw new IllegalStateException("Unknown DeferredCall implementation")
     }
 
     val singleTimer = SingleTimer(name, Some(call), Some(ProtoDuration(delay)), maxRetries)

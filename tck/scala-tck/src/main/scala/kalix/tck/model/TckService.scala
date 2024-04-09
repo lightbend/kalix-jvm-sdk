@@ -16,17 +16,13 @@
 
 package kalix.tck.model
 
-import scala.concurrent.duration._
-import kalix.scalasdk.PassivationStrategy
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntityOptions
-import kalix.scalasdk.valueentity.ValueEntityOptions
-import kalix.tck.model.eventsourcedentity.{
-  EventSourcedConfiguredEntity,
-  EventSourcedConfiguredEntityProvider,
-  EventSourcedTckModelEntity,
-  EventSourcedTckModelEntityProvider
-}
-import kalix.tck.model.valueentity.{ ValueEntityConfiguredEntity, ValueEntityConfiguredEntityProvider }
+import kalix.tck.model.eventsourcedentity.EventSourcedConfiguredEntity
+import kalix.tck.model.eventsourcedentity.EventSourcedConfiguredEntityProvider
+import kalix.tck.model.eventsourcedentity.EventSourcedTckModelEntity
+import kalix.tck.model.eventsourcedentity.EventSourcedTckModelEntityProvider
+import kalix.tck.model.valueentity.ValueEntityConfiguredEntity
+import kalix.tck.model.valueentity.ValueEntityConfiguredEntityProvider
 
 /**
  * Create the Kalix instance with some required configuration changes.
@@ -40,13 +36,10 @@ object TckService {
       // take Main registrations and override a few ones with extra options
       .register(
         // required timeout of 100 millis for configured TCK tests
-        ValueEntityConfiguredEntityProvider(new ValueEntityConfiguredEntity(_))
-          .withOptions(ValueEntityOptions.defaults.withPassivationStrategy(PassivationStrategy.timeout(100.millis))))
+        ValueEntityConfiguredEntityProvider(new ValueEntityConfiguredEntity(_)))
       .register(
         // required timeout of 100 millis for configured TCK tests
-        EventSourcedConfiguredEntityProvider(new EventSourcedConfiguredEntity(_))
-          .withOptions(
-            EventSourcedEntityOptions.defaults.withPassivationStrategy(PassivationStrategy.timeout(100.millis))))
+        EventSourcedConfiguredEntityProvider(new EventSourcedConfiguredEntity(_)))
       .register(EventSourcedTckModelEntityProvider(new EventSourcedTckModelEntity(_))
         .withOptions(EventSourcedEntityOptions.defaults.withSnapshotEvery(5)))
 }

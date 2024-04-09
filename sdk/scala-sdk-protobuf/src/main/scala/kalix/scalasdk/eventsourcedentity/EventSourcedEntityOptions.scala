@@ -36,8 +36,6 @@ trait EventSourcedEntityOptions extends EntityOptions {
    */
   def withSnapshotEvery(numberOfEvents: Int): EventSourcedEntityOptions
 
-  @deprecated(message = "passivation strategy is ignored", since = "1.1.4")
-  override def withPassivationStrategy(strategy: PassivationStrategy): EventSourcedEntityOptions
   override def withForwardHeaders(headers: Set[String]): EventSourcedEntityOptions
 }
 
@@ -49,21 +47,16 @@ object EventSourcedEntityOptions {
    * @return
    *   the entity option
    */
-  def defaults: EventSourcedEntityOptions = {
-    EventSourcedEntityOptionsImpl(0, PassivationStrategy.defaultTimeout, Set.empty)
-  }
+  def defaults: EventSourcedEntityOptions =
+    EventSourcedEntityOptionsImpl(0, Set.empty)
 
   private[kalix] final case class EventSourcedEntityOptionsImpl(
       override val snapshotEvery: Int,
-      override val passivationStrategy: PassivationStrategy,
       override val forwardHeaders: Set[String])
       extends EventSourcedEntityOptions {
 
     override def withSnapshotEvery(numberOfEvents: Int): EventSourcedEntityOptions =
       copy(snapshotEvery = numberOfEvents)
-
-    override def withPassivationStrategy(strategy: PassivationStrategy): EventSourcedEntityOptions =
-      copy(passivationStrategy = strategy)
 
     override def withForwardHeaders(headers: Set[String]): EventSourcedEntityOptions =
       copy(forwardHeaders = headers)

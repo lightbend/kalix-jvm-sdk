@@ -16,7 +16,6 @@
 
 package kalix.javasdk.impl.view
 
-import kalix.javasdk.impl.ComponentOptions
 import kalix.javasdk.view.ViewOptions
 
 import java.util

@@ -16,23 +16,22 @@
 
 package kalix.scalasdk.impl.valueentity
 
+import java.util.Optional
+
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.OptionConverters._
+
 import akka.stream.Materializer
+import com.google.protobuf.Descriptors
 import kalix.javasdk
 import kalix.scalasdk.impl.InternalContext
 import kalix.scalasdk.impl.MetadataConverters
-import kalix.scalasdk.impl.PassivationStrategyConverters
 import kalix.scalasdk.valueentity.CommandContext
 import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityContext
 import kalix.scalasdk.valueentity.ValueEntityOptions
 import kalix.scalasdk.valueentity.ValueEntityProvider
-import com.google.protobuf.Descriptors
-
-import java.util.Optional
-import scala.collection.immutable.Set
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.CollectionConverters.SetHasAsScala
-import scala.jdk.OptionConverters._
 
 private[scalasdk] final class JavaValueEntityAdapter[S](scalaSdkValueEntity: ValueEntity[S])
     extends javasdk.valueentity.ValueEntity[S] {
@@ -91,14 +90,6 @@ private[scalasdk] final class JavaValueEntityOptionsAdapter(scalaSdkValueEntityO
 
   def withForwardHeaders(headers: java.util.Set[String]): javasdk.valueentity.ValueEntityOptions =
     new JavaValueEntityOptionsAdapter(scalaSdkValueEntityOptions.withForwardHeaders(Set.from(headers.asScala)))
-
-  def passivationStrategy(): javasdk.PassivationStrategy =
-    PassivationStrategyConverters.toJava(scalaSdkValueEntityOptions.passivationStrategy)
-
-  def withPassivationStrategy(
-      passivationStrategy: javasdk.PassivationStrategy): javasdk.valueentity.ValueEntityOptions =
-    new JavaValueEntityOptionsAdapter(
-      scalaSdkValueEntityOptions.withPassivationStrategy(PassivationStrategyConverters.toScala(passivationStrategy)))
 }
 
 private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: javasdk.valueentity.CommandContext)
