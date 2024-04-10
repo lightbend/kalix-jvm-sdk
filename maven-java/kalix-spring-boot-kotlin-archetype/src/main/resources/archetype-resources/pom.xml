@@ -26,7 +26,7 @@
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>${package}.MainKt</mainClass>
 
-    <jdk.target>21</jdk.target>
+    <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <kalix-sdk.version>@project.version@</kalix-sdk.version>
@@ -110,7 +110,7 @@
             <compilerPlugins>
               <plugin>spring</plugin>
             </compilerPlugins>
-              <jvmTarget>${jdk.target}</jvmTarget>
+              <jvmTarget>${java.version}</jvmTarget>
           </configuration>
         <dependencies>
           <dependency>
@@ -125,8 +125,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
         <configuration>
-          <source>${jdk.target}</source>
-          <target>${jdk.target}</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
           <compilerArgs>
             <arg>-Xlint:deprecation</arg>
             <arg>-parameters</arg>
@@ -144,7 +144,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/eclipse-temurin:${jdk.target}-alpine</from>
+                <from>docker.io/library/eclipse-temurin:${java.version}-alpine</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>
