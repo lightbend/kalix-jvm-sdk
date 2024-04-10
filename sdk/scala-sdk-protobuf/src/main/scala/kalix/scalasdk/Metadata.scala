@@ -107,7 +107,7 @@ trait Metadata extends Iterable[MetadataEntry] {
    * @return
    *   A list of all the keys in this metadata.
    */
-  def getAllKeys(): Seq[String]
+  def getAllKeys: Seq[String]
 
   /**
    * Set the string value for the given key.

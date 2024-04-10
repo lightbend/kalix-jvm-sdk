@@ -9,7 +9,6 @@ import com.typesafe.config.Config
 import java.io.File
 import java.nio.file.{ Files, Paths }
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
 import scala.sys.process._
 
 object DockerComposeUtils {

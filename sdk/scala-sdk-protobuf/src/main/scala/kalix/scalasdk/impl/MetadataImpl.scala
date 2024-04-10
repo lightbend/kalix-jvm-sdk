@@ -63,7 +63,7 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
   def clear(): Metadata = MetadataImpl(impl.clear())
   def get(key: String): Option[String] = impl.getScala(key)
   def getAll(key: String): Seq[String] = impl.getAllScala(key)
-  def getAllKeys(): Seq[String] = impl.getAllKeysScala
+  def getAllKeys: Seq[String] = impl.getAllKeysScala
   def getBinary(key: String): Option[java.nio.ByteBuffer] = impl.getBinaryScala(key)
   def getBinaryAll(key: String): Seq[java.nio.ByteBuffer] = impl.getBinaryAllScala(key)
   def has(key: String): Boolean = impl.has(key)
