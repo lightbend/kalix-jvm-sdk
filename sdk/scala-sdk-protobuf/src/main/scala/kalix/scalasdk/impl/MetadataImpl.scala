@@ -3,14 +3,17 @@
  */
 
 package kalix.scalasdk.impl
-import java.nio.ByteBuffer
-import scala.collection.immutable.Seq
-import kalix.scalasdk.{ CloudEvent, JwtClaims, Metadata, MetadataEntry, Principal, Principals }
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
+import io.opentelemetry.context.propagation.TextMapGetter
+import io.opentelemetry.context.{ Context => OtelContext }
+import kalix.scalasdk.TraceContext
+import kalix.javasdk.impl.telemetry.TraceInstrumentation
 import kalix.protocol.component.{ MetadataEntry => ProtocolMetadataEntry }
-import kalix.scalasdk.StatusCode
+import kalix.scalasdk._
 
-import scala.jdk.OptionConverters._
+import java.nio.ByteBuffer
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 
 private[kalix] object MetadataImpl {
   def apply(impl: kalix.javasdk.impl.MetadataImpl): MetadataImpl = new MetadataImpl(impl)
@@ -60,7 +63,7 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
   def clear(): Metadata = MetadataImpl(impl.clear())
   def get(key: String): Option[String] = impl.getScala(key)
   def getAll(key: String): Seq[String] = impl.getAllScala(key)
-  def getAllKeys(): Seq[String] = impl.getAllKeysScala
+  def getAllKeys: Seq[String] = impl.getAllKeysScala
   def getBinary(key: String): Option[java.nio.ByteBuffer] = impl.getBinaryScala(key)
   def getBinaryAll(key: String): Seq[java.nio.ByteBuffer] = impl.getBinaryAllScala(key)
   def has(key: String): Boolean = impl.has(key)
@@ -88,4 +91,23 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
 
   override def withStatusCode(code: StatusCode.Redirect): Metadata =
     set("_kalix-http-code", code.value.toString)
+
+  override lazy val traceContext: TraceContext = new TraceContext {
+    override def asOpenTelemetryContext = W3CTraceContextPropagator
+      .getInstance()
+      .extract(OtelContext.current(), asMetadata, otelGetter)
+
+    override def traceParent: Option[String] = get(TraceInstrumentation.TRACE_PARENT_KEY)
+
+    override def traceState: Option[String] = get(TraceInstrumentation.TRACE_STATE_KEY)
+  }
+
+  lazy val otelGetter = new TextMapGetter[Metadata]() {
+    override def get(carrier: Metadata, key: String): String = {
+      carrier.get(key).getOrElse("")
+    }
+
+    override def keys(carrier: Metadata): java.lang.Iterable[String] =
+      carrier.getAllKeys.asJava
+  }
 }

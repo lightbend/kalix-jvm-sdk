@@ -4,8 +4,8 @@
 
 package kalix.scalasdk
 
-import kalix.scalasdk.impl.MetadataImpl
 import kalix.javasdk.impl.{ MetadataImpl => JMetadataImpl }
+import kalix.scalasdk.impl.MetadataImpl
 
 import java.net.URI
 import java.nio.ByteBuffer
@@ -107,7 +107,7 @@ trait Metadata extends Iterable[MetadataEntry] {
    * @return
    *   A list of all the keys in this metadata.
    */
-  def getAllKeys(): Seq[String]
+  def getAllKeys: Seq[String]
 
   /**
    * Set the string value for the given key.
@@ -274,6 +274,13 @@ trait Metadata extends Iterable[MetadataEntry] {
    *   a copy of this metadata with the HTTP response code set.
    */
   def withStatusCode(httpStatusCode: StatusCode.Redirect): Metadata
+
+  /**
+   * Get the trace context associated with this request metadata.
+   * @return
+   *   The trace context.
+   */
+  def traceContext: TraceContext
 }
 
 object Metadata {

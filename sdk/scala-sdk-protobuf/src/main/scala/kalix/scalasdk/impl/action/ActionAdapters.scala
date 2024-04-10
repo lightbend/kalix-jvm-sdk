@@ -18,6 +18,7 @@ import kalix.scalasdk.action.MessageEnvelope
 import kalix.scalasdk.impl.InternalContext
 import kalix.scalasdk.impl.MetadataConverters
 import com.google.protobuf.Descriptors
+import io.opentelemetry.api.trace.Tracer
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.component.MetadataEntry
 import kalix.scalasdk.impl.MetadataImpl
@@ -127,6 +128,8 @@ private[scalasdk] final case class ScalaActionCreationContextAdapter(
     javaSdkCreationContext.getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer = javaSdkCreationContext.materializer()
+
+  override def getTracer: Tracer = javaSdkCreationContext.getTracer
 }
 
 private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: javasdk.action.ActionContext)
@@ -139,11 +142,11 @@ private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: jav
   override def eventSubject: Option[String] =
     javaSdkContext.eventSubject().toScala
 
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
-    javaSdkContext.getGrpcClient(clientClass, service)
-
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
     case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
+  }
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T = {
+    getComponentGrpcClient(clientClass)
   }
 
   override def materializer(): Materializer = javaSdkContext.materializer()
@@ -157,5 +160,7 @@ private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: jav
       case None => MetadataImpl(kalix.javasdk.impl.MetadataImpl.Empty)
     }
   }
+
+  override def getTracer: Tracer = javaSdkContext.getTracer
 
 }

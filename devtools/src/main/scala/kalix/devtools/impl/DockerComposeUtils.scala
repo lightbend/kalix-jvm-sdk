@@ -4,14 +4,12 @@
 
 package kalix.devtools.impl
 
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
+import com.typesafe.config.Config
 
+import java.io.File
+import java.nio.file.{ Files, Paths }
 import scala.collection.mutable
 import scala.sys.process._
-
-import com.typesafe.config.Config
 
 object DockerComposeUtils {
 
@@ -100,6 +98,9 @@ case class DockerComposeUtils(file: String) {
       case ServicePortMappingsExtractor(mappings) => mappings
       case _                                      => Seq.empty
     }
+
+  def tracingConfig: Option[Int] =
+    TracingPortExtractor.unapply(lines)
 
   /**
    * Returns a Map from service name to host:port.

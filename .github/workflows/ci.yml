@@ -541,7 +541,7 @@ jobs:
         include:
           - { sample: java-protobuf-shopping-cart-quickstart, it: true }
           - { sample: java-protobuf-customer-registry-quickstart, it: true }
-          - { sample: java-protobuf-customer-registry-kafka-quickstart, pre_cmd: 'docker-compose -f ../../.circleci/kafka.yml up -d', it: true }
+          - { sample: java-protobuf-customer-registry-kafka-quickstart, pre_cmd: 'docker compose -f ../../.circleci/kafka.yml up -d', it: true }
           - { sample: java-protobuf-customer-registry-views-quickstart, it: true }
 
           - { sample: java-spring-shopping-cart-quickstart, it: true }
@@ -576,10 +576,12 @@ jobs:
           - { sample: java-spring-valueentity-shopping-cart, it: true }
           - { sample: java-spring-valueentity-customer-registry, it: true }
 
-          - { sample: java-spring-eventsourced-counter, pre_cmd: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
+          - { sample: java-spring-eventsourced-counter, pre_cmd: 'docker compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
 
           - { sample: java-protobuf-replicatedentity-shopping-cart, it: true }
           - { sample: java-protobuf-replicatedentity-examples, it: true }
+
+          - { sample: java-protobuf-tracing, it: false }
 
           - { sample: java-protobuf-web-resources, it: false }
 
@@ -688,7 +690,7 @@ jobs:
 
           - { sample: scala-protobuf-eventsourced-customer-registry, test: true }
           - { sample: scala-protobuf-eventsourced-customer-registry-subscriber, pre_cmd: './build-customer-service-image.sh', test: true }
-          - { sample: scala-protobuf-eventsourced-counter, pre_cmd: 'docker-compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', test: true }
+          - { sample: scala-protobuf-eventsourced-counter, pre_cmd: 'docker compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', test: true }
           - { sample: scala-protobuf-eventsourced-shopping-cart, test: true }
 
           - { sample: scala-protobuf-valueentity-counter, test: true }
