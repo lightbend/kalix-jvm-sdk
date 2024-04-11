@@ -7,7 +7,6 @@ package kalix.scalasdk.testkit
 import scala.concurrent.ExecutionContext
 
 import akka.actor.ActorSystem
-import akka.grpc.GrpcClientSettings
 import akka.stream.Materializer
 import kalix.scalasdk.{ Kalix, Principal }
 import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }

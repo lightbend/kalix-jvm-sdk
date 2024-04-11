@@ -4,8 +4,6 @@
 
 package kalix.javasdk.impl.reflection
 
-import java.util
-
 import scala.jdk.OptionConverters._
 
 import com.google.protobuf.ByteString

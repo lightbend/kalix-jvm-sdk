@@ -5,7 +5,6 @@
 package kalix.scalasdk.testkit.impl
 
 import kalix.javasdk.impl.GrpcDeferredCall
-import kalix.scalasdk.SideEffect
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.action.ActionEffectImpl
@@ -26,15 +25,6 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
   override def reply: T = effect match {
     case e: ActionEffectImpl.ReplyEffect[T] => e.msg
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$effectName]")
-  }
-
-  private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[_, _]] = {
-    sideEffects.map { sideEffect =>
-      sideEffect.serviceCall match {
-        case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
-          TestKitDeferredCall(javaSdkDeferredCall.asInstanceOf[GrpcDeferredCall[_, _]])
-      }
-    }
   }
 
   override def sideEffects: Seq[DeferredCallDetails[_, _]] =

@@ -41,7 +41,7 @@ object SourceGeneratorUtils {
     val (kind, messageType) = service match {
       case Left(serv: ModelBuilder.ActionService)      => ("Action Service", serv.messageType)
       case Left(serv: ModelBuilder.ViewService)        => ("View Service", serv.messageType)
-      case Left(serv: ModelBuilder.EntityService)      => throw new IllegalArgumentException("Unexpected EntityService")
+      case Left(_: ModelBuilder.EntityService)         => throw new IllegalArgumentException("Unexpected EntityService")
       case Right(ent: ModelBuilder.EventSourcedEntity) => ("Event Sourced Entity Service", ent.messageType)
       case Right(ent: ModelBuilder.ValueEntity)        => ("Value Entity Service", ent.messageType)
       case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.messageType)

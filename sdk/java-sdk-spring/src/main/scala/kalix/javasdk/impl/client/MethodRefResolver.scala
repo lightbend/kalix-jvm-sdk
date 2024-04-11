@@ -34,7 +34,7 @@ private[kalix] object MethodRefResolver {
 
     val serializedLambda = writeReplace.invoke(lambda) match {
       case s: SerializedLambda => s
-      case other =>
+      case _ =>
         throw new IllegalArgumentException(
           "Passed in object does not writeReplace itself with SerializedLambda, hence it can't be a Java 8 method reference.")
     }
