@@ -4,11 +4,9 @@
 
 package kalix.javasdk.impl
 
-import kalix.spring.testmodels.subscriptions.PubSubTestModels.MissingTopicForTopicSubscription
 import scala.reflect.ClassTag
 
 import kalix.javasdk.eventsourcedentity.TestEventSourcedEntity
-import kalix.javasdk.valueentity.TestValueEntity
 
 /**
  * Utility class to quickly print descriptors

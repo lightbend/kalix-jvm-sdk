@@ -19,7 +19,6 @@ import java.util.{ List => JList }
 import scala.concurrent.duration.FiniteDuration
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.DurationConverters.ScalaDurationOps
-import scala.language.postfixOps
 import scala.reflect.ClassTag
 
 import kalix.scalasdk.testkit.IncomingMessages

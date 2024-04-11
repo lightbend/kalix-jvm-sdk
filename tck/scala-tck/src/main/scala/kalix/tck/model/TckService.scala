@@ -24,10 +24,10 @@ object TckService {
       // take Main registrations and override a few ones with extra options
       .register(
         // required timeout of 100 millis for configured TCK tests
-        ValueEntityConfiguredEntityProvider(new ValueEntityConfiguredEntity(_)))
+        ValueEntityConfiguredEntityProvider(_ => new ValueEntityConfiguredEntity))
       .register(
         // required timeout of 100 millis for configured TCK tests
-        EventSourcedConfiguredEntityProvider(new EventSourcedConfiguredEntity(_)))
-      .register(EventSourcedTckModelEntityProvider(new EventSourcedTckModelEntity(_))
+        EventSourcedConfiguredEntityProvider(_ => new EventSourcedConfiguredEntity))
+      .register(EventSourcedTckModelEntityProvider(_ => new EventSourcedTckModelEntity)
         .withOptions(EventSourcedEntityOptions.defaults.withSnapshotEvery(5)))
 }

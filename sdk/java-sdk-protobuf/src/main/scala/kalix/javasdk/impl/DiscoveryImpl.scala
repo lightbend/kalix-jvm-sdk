@@ -22,7 +22,6 @@ import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.google.protobuf.empty.Empty
 import kalix.javasdk.BuildInfo
-import kalix.javasdk.EntityOptions
 import kalix.javasdk.replicatedentity.ReplicatedEntityOptions
 import kalix.javasdk.replicatedentity.WriteConsistency
 import kalix.protocol.action.Actions

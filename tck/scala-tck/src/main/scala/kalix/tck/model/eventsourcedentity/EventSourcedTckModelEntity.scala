@@ -5,9 +5,9 @@
 package kalix.tck.model.eventsourcedentity
 
 import kalix.scalasdk.SideEffect
-import kalix.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 
-class EventSourcedTckModelEntity(context: EventSourcedEntityContext) extends AbstractEventSourcedTckModelEntity {
+class EventSourcedTckModelEntity extends AbstractEventSourcedTckModelEntity {
   override def emptyState: Persisted = Persisted.defaultInstance
 
   override def process(currentState: Persisted, request: Request): EventSourcedEntity.Effect[Response] = {

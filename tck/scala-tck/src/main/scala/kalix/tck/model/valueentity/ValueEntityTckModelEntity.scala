@@ -5,10 +5,10 @@
 package kalix.tck.model.valueentity
 
 import kalix.scalasdk.SideEffect
-import kalix.scalasdk.valueentity.{ ValueEntity, ValueEntityContext }
+import kalix.scalasdk.valueentity.ValueEntity
 
 /** A value entity. */
-class ValueEntityTckModelEntity(context: ValueEntityContext) extends AbstractValueEntityTckModelEntity {
+class ValueEntityTckModelEntity extends AbstractValueEntityTckModelEntity {
   override def emptyState: Persisted = Persisted.defaultInstance
 
   override def process(currentState: Persisted, request: Request): ValueEntity.Effect[Response] = {

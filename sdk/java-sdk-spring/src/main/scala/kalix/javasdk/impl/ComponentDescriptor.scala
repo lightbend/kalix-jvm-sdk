@@ -287,7 +287,7 @@ private[kalix] object ComponentDescriptor {
   private def buildSyntheticMessageAndExtractors(
       nameGenerator: NameGenerator,
       serviceMethod: SyntheticRequestServiceMethod,
-      entityIds: Seq[String] = Seq.empty): (DescriptorProto, Map[Int, ExtractorCreator]) = {
+      entityIds: Seq[String]): (DescriptorProto, Map[Int, ExtractorCreator]) = {
 
     val inputMessageName = nameGenerator.getName(serviceMethod.methodName.capitalize + "KalixSyntheticRequest")
 

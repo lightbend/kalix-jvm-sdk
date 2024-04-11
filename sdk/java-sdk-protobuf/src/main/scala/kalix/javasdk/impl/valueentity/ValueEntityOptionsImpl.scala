@@ -4,7 +4,6 @@
 
 package kalix.javasdk.impl.valueentity
 
-import kalix.javasdk.PassivationStrategy
 import kalix.javasdk.valueentity.ValueEntityOptions
 
 import java.util.Collections

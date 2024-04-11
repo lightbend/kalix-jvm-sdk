@@ -111,7 +111,6 @@ object EntityServiceSourceGenerator {
           service,
           replicatedEntity,
           packageName,
-          className,
           mainPackageName)
       case workflowComponent: WorkflowComponent =>
         WorkflowSourceGenerator.abstractWorkflowComponent(

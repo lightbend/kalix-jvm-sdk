@@ -7,10 +7,6 @@ package kalix.scalasdk.testkit.impl
 import kalix.scalasdk.Metadata
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.testkit.EventSourcedResult
-import kalix.scalasdk.testkit.impl.EventSourcedResultImpl
-import scala.collection.immutable.Seq
-
-import kalix.scalasdk.eventsourcedentity.CommandContext
 
 /** Extended by generated code, not meant for user extension */
 abstract class EventSourcedEntityEffectsRunner[S](entity: EventSourcedEntity[S]) {

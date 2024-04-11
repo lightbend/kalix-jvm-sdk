@@ -10,8 +10,6 @@ import akka.stream.testkit.scaladsl.TestSink
 import kalix.protocol.replicated_entity._
 import kalix.testkit.TestProtocol.TestProtocolContext
 
-import scala.collection.immutable.Seq
-
 final class TestReplicatedEntityProtocol(context: TestProtocolContext) {
   private val client = ReplicatedEntitiesClient(context.clientSettings)(context.system)
 

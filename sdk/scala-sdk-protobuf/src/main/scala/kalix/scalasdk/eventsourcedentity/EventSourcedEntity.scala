@@ -4,7 +4,7 @@
 
 package kalix.scalasdk.eventsourcedentity
 
-import kalix.scalasdk.{ Context, DeferredCall, Metadata, SideEffect }
+import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import io.grpc.Status
 

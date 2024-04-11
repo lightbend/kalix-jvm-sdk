@@ -5,7 +5,7 @@
 package kalix.scalasdk
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.javasdk.{ JsonSupport => JavaJsonSupport, Kalix }
+import kalix.javasdk.{ JsonSupport => JavaJsonSupport }
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 

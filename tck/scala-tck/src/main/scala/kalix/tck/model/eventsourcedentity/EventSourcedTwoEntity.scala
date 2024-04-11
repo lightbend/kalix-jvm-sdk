@@ -4,9 +4,9 @@
 
 package kalix.tck.model.eventsourcedentity
 
-import kalix.scalasdk.eventsourcedentity.{ EventSourcedEntity, EventSourcedEntityContext }
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 
-class EventSourcedTwoEntity(context: EventSourcedEntityContext) extends AbstractEventSourcedTwoEntity {
+class EventSourcedTwoEntity extends AbstractEventSourcedTwoEntity {
   override def emptyState: Persisted = Persisted.defaultInstance
 
   override def call(currentState: Persisted, request: Request): EventSourcedEntity.Effect[Response] =

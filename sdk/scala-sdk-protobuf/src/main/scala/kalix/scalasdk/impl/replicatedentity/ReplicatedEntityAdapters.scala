@@ -52,8 +52,6 @@ import scala.jdk.CollectionConverters.SetHasAsJava
 import scala.jdk.CollectionConverters.SetHasAsScala
 import scala.jdk.OptionConverters.RichOptional
 
-import kalix.scalasdk.PassivationStrategy
-
 private[scalasdk] final case class JavaReplicatedEntityProviderAdapter[D <: ReplicatedData, E <: ReplicatedEntity[D]](
     scalaSdkProvider: ReplicatedEntityProvider[D, E])
     extends JavaSdkReplicatedEntityProvider[D, JavaSdkReplicatedEntity[D]] {

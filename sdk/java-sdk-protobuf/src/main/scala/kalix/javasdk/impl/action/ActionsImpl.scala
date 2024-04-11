@@ -340,7 +340,7 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
       serviceName: String): ActionContext = {
     val metadata = MetadataImpl.of(in.metadata.map(_.entries.toVector).getOrElse(Nil))
     val updatedMetadata = spanContext.map(metadataWithTracing(metadata, _)).getOrElse(metadata)
-    new ActionContextImpl(updatedMetadata, messageCodec, system, serviceName, telemetries(serviceName))
+    new ActionContextImpl(updatedMetadata, messageCodec, system, telemetries(serviceName))
   }
 
   private def metadataWithTracing(metadata: MetadataImpl, spanContext: SpanContext): Metadata = {
@@ -369,7 +369,6 @@ class ActionContextImpl(
     override val metadata: Metadata,
     val messageCodec: MessageCodec,
     val system: ActorSystem,
-    serviceName: String,
     instrumentation: Instrumentation)
     extends AbstractContext(system)
     with ActionContext {

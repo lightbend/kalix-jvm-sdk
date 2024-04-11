@@ -5,9 +5,8 @@
 package kalix.tck.model.view
 
 import kalix.scalasdk.view.View.UpdateEffect
-import kalix.scalasdk.view.ViewContext
 
-class ViewTckModelImpl(context: ViewContext) extends AbstractViewTckModelView {
+class ViewTckModelImpl extends AbstractViewTckModelView {
 
   override def emptyState: ViewState = ViewState.defaultInstance
 

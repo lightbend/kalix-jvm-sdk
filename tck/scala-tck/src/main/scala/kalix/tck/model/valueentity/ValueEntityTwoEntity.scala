@@ -5,10 +5,9 @@
 package kalix.tck.model.valueentity
 
 import kalix.scalasdk.valueentity.ValueEntity
-import kalix.scalasdk.valueentity.ValueEntityContext
 
 /** A value entity. */
-class ValueEntityTwoEntity(context: ValueEntityContext) extends AbstractValueEntityTwoEntity {
+class ValueEntityTwoEntity extends AbstractValueEntityTwoEntity {
   override def emptyState: Persisted = Persisted.defaultInstance
 
   override def call(currentState: Persisted, request: Request): ValueEntity.Effect[Response] =
