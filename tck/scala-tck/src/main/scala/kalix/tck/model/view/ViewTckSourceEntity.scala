@@ -4,10 +4,8 @@
 
 package kalix.tck.model.view
 
-import kalix.scalasdk.valueentity.ValueEntityContext
-
 /** A value entity. */
-class ViewTckSourceEntity(context: ValueEntityContext) extends AbstractViewTckSourceEntity {
+class ViewTckSourceEntity extends AbstractViewTckSourceEntity {
   override def emptyState: Ignore = Ignore.defaultInstance
 
 }

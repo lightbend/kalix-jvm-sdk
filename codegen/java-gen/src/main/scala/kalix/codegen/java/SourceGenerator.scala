@@ -78,7 +78,7 @@ object SourceGenerator {
           (entity match {
             case ese: ModelBuilder.EventSourcedEntity => EventSourcedEntityTestKitGenerator.generate(ese, service)
             case ve: ModelBuilder.ValueEntity         => ValueEntityTestKitGenerator.generate(ve, service)
-            case w: ModelBuilder.WorkflowComponent    => GeneratedFiles.Empty //TODO update for workflows
+            case _: ModelBuilder.WorkflowComponent    => GeneratedFiles.Empty //TODO update for workflows
             case _: ModelBuilder.ReplicatedEntity     =>
               // FIXME implement for replicated entity
               GeneratedFiles.Empty

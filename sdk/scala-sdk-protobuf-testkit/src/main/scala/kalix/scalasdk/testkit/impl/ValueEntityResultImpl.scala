@@ -7,7 +7,6 @@ package kalix.scalasdk.testkit.impl
 import kalix.javasdk.impl.effect.ErrorReplyImpl
 import kalix.javasdk.impl.effect.ForwardReplyImpl
 import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.effect.NoSecondaryEffectImpl
 import kalix.scalasdk.impl.valueentity.ValueEntityEffectImpl
 import kalix.javasdk.impl.valueentity.{ ValueEntityEffectImpl => JValueEntityEffectImpl }
 import kalix.scalasdk.testkit.DeferredCallDetails

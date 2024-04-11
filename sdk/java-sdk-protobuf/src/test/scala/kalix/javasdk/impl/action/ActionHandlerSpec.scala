@@ -15,7 +15,6 @@ import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.actionspec.ActionspecApi
 import kalix.javasdk.impl.ActionFactory
-import kalix.javasdk.impl.AbstractContext
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MetadataImpl

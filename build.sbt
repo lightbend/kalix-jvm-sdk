@@ -38,6 +38,8 @@ def disciplinedScalacSettings: Seq[Setting[_]] = {
         "-feature",
         "-deprecation",
         "-unchecked",
+        "-Ywarn-unused:_",
+        "-Wconf:src=.*/target/.*:s",
         // silence warnings from generated sources
         "-Wconf:src=.*/src_managed/.*:s",
         // silence warnings from deprecated protobuf fields

@@ -3,7 +3,6 @@
  */
 
 package kalix.scalasdk.impl.replicatedentity
-import kalix.javasdk
 import kalix.javasdk.impl.replicatedentity.{ ReplicatedEntityEffectImpl => JavaSdkReplicatedEntityEffectImpl }
 import kalix.replicatedentity.ReplicatedData
 import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }

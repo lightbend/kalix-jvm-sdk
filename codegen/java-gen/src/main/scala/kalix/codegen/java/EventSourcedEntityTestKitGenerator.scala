@@ -14,16 +14,14 @@ object EventSourcedEntityTestKitGenerator {
     val className = entity.messageType.name
 
     GeneratedFiles.Empty
-      .addManagedTest(
-        File.java(pkg, className + "TestKit", generateSourceCode(service, entity, pkg.javaPackage, className)))
+      .addManagedTest(File.java(pkg, className + "TestKit", generateSourceCode(service, entity, pkg.javaPackage)))
       .addUnmanagedTest(File.java(pkg, className + "Test", generateTestSources(service, entity)))
   }
 
   private[codegen] def generateSourceCode(
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.EventSourcedEntity,
-      packageName: String,
-      className: String): String = {
+      packageName: String): String = {
     val imports = generateImports(
       allRelevantMessageTypes(service, entity),
       packageName,

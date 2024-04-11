@@ -106,7 +106,7 @@ object SourceGenerator {
 
     model.services.values.flatMap {
       case service: ModelBuilder.EntityService =>
-        val main = MainSourceGenerator.mainClassName(model, mainPackageName)
+        val main = MainSourceGenerator.mainClassName(mainPackageName)
         model.lookupEntity(service) match {
           case entity: ModelBuilder.ValueEntity =>
             ValueEntityTestKitGenerator.generateUnmanagedTest(main, entity, service)

@@ -97,7 +97,7 @@ class ReplicatedEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAn
 
     "fail when entity is sent multiple init" in {
       service.expectLogError("Terminating entity [cart] due to unexpected failure") {
-        val response = protocol.replicatedEntity
+        protocol.replicatedEntity
           .connect()
           .send(init(ShoppingCart.Name, "cart"))
           .send(init(ShoppingCart.Name, "cart"))

@@ -32,16 +32,16 @@ object Main {
     // If you prefer, you may remove this and manually register these components in a
     // `Kalix()` instance.
     KalixFactory.withComponents(
-      new EventSourcedConfiguredEntity(_),
-      new EventSourcedTckModelEntity(_),
-      new EventSourcedTwoEntity(_),
-      new ValueEntityConfiguredEntity(_),
-      new ValueEntityTckModelEntity(_),
-      new ValueEntityTwoEntity(_),
-      new ViewTckSourceEntity(_),
+      _ => new EventSourcedConfiguredEntity,
+      _ => new EventSourcedTckModelEntity,
+      _ => new EventSourcedTwoEntity,
+      _ => new ValueEntityConfiguredEntity,
+      _ => new ValueEntityTckModelEntity,
+      _ => new ValueEntityTwoEntity,
+      _ => new ViewTckSourceEntity,
       new ActionTckModelImpl(_),
-      new ActionTwoImpl(_),
-      new ViewTckModelImpl(_))
+      _ => new ActionTwoImpl(),
+      _ => new ViewTckModelImpl)
   }
 
   def main(args: Array[String]): Unit = {

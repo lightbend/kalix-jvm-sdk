@@ -5,10 +5,6 @@
 package kalix.scalasdk.eventsourcedentity
 
 import kalix.scalasdk.EntityOptions
-import kalix.scalasdk.PassivationStrategy
-import scala.collection.immutable.Set
-
-import java.util.Collections
 
 /** Root entity options for all event sourcing entities. */
 trait EventSourcedEntityOptions extends EntityOptions {
