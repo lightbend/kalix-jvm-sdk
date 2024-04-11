@@ -7,7 +7,6 @@ package kalix.testkit.eventsourcedentity
 import akka.stream.scaladsl.Source
 import akka.stream.testkit.TestPublisher
 import akka.stream.testkit.scaladsl.TestSink
-import kalix.protocol.component.Failure
 import kalix.protocol.event_sourced_entity._
 import kalix.testkit.TestProtocol.TestProtocolContext
 

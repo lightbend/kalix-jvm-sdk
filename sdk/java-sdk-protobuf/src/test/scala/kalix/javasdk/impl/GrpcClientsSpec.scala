@@ -5,7 +5,6 @@
 package kalix.javasdk.impl
 
 import akka.Done
-import akka.actor.ClassicActorSystemProvider
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.grpc.GrpcClientSettings
 import akka.grpc.javadsl.AkkaGrpcClient
@@ -15,15 +14,19 @@ import com.typesafe.config.ConfigFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-
 import java.util.concurrent.CompletionStage
+
+import scala.annotation.nowarn
 import scala.concurrent.Promise
 import scala.jdk.FutureConverters.FutureOps
+
+import akka.actor.ClassicActorSystemProvider
 
 // dummy instead of depending on actual generated Akka gRPC client to keep it simple
 trait PretendService {}
 object PretendServiceClient {
-  def create(settings: GrpcClientSettings, systemProvider: ClassicActorSystemProvider): PretendServiceClient =
+
+  def create(settings: GrpcClientSettings, @nowarn systemProvider: ClassicActorSystemProvider): PretendServiceClient =
     new PretendServiceClient(settings)
 }
 class PretendServiceClient(val settings: GrpcClientSettings) extends PretendService with AkkaGrpcClient {

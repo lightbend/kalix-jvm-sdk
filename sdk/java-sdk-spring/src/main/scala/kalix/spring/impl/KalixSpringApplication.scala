@@ -35,7 +35,6 @@ import kalix.javasdk.impl.Validations
 import kalix.javasdk.impl.Validations.Invalid
 import kalix.javasdk.impl.Validations.Valid
 import kalix.javasdk.impl.Validations.Validation
-import kalix.javasdk.impl.client.ComponentClientImpl
 import kalix.javasdk.replicatedentity.ReplicatedEntity
 import kalix.javasdk.valueentity.ReflectiveValueEntityProvider
 import kalix.javasdk.valueentity.ValueEntity
@@ -52,7 +51,6 @@ import kalix.javasdk.workflow.Workflow
 import kalix.javasdk.workflow.WorkflowContext
 import kalix.javasdk.workflow.WorkflowProvider
 import kalix.spring.BuildInfo
-import kalix.spring.impl.KalixClient
 import kalix.spring.WebClientProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

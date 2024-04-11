@@ -227,7 +227,6 @@ object ReplicatedEntitySourceGenerator {
       service: ModelBuilder.EntityService,
       entity: ModelBuilder.ReplicatedEntity,
       packageName: String,
-      className: String,
       mainPackageName: String): String = {
 
     val abstractEntityName = entity.abstractEntityName

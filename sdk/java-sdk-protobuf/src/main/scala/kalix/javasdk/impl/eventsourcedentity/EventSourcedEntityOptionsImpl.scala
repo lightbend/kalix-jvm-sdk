@@ -4,7 +4,6 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
-import kalix.javasdk.PassivationStrategy
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityOptions
 
 import java.util

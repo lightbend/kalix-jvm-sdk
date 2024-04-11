@@ -33,8 +33,6 @@ import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.RestDeferredCall
 import kalix.javasdk.impl.http.HttpEndpointMethodDefinition
 import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec
@@ -46,8 +44,6 @@ import org.springframework.web.util.UriBuilder
  * INTERNAL API
  */
 final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixClient {
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private var services: Seq[HttpEndpointMethodDefinition] = Seq.empty
 
@@ -68,7 +64,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   private def buildWrappedBody[P](
       httpDef: HttpEndpointMethodDefinition,
       inputBuilder: DynamicMessage.Builder,
-      body: Option[P] = None): Any = {
+      body: Option[P]): Any = {
     if (body.isDefined && httpDef.rule.body.nonEmpty) {
       val bodyField = httpDef.methodDescriptor.getInputType.getFields.asScala
         .find(_.getName == httpDef.rule.body)

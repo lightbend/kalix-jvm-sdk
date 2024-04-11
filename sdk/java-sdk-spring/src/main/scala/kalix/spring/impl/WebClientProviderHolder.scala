@@ -7,9 +7,6 @@ package kalix.spring.impl
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
-import scala.jdk.CollectionConverters.MapHasAsScala
-import scala.jdk.OptionConverters.RichOptional
-
 import akka.actor.ActorSystem
 import akka.actor.ClassicActorSystemProvider
 import akka.actor.ExtendedActorSystem
@@ -17,7 +14,6 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.annotation.InternalApi
-import com.typesafe.config.Config
 import kalix.devtools.impl.DevModeSettings
 import kalix.devtools.impl.HostAndPort
 import kalix.javasdk.JsonSupport

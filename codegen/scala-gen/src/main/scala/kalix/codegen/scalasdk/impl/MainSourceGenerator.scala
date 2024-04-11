@@ -22,11 +22,11 @@ object MainSourceGenerator {
   def generateManaged(model: ModelBuilder.Model, mainPackageName: PackageNaming): Iterable[File] =
     Seq(kalixFactorySource(model, mainPackageName))
 
-  def mainClassName(model: ModelBuilder.Model, mainPackageName: PackageNaming): ProtoMessageType =
+  def mainClassName(mainPackageName: PackageNaming): ProtoMessageType =
     ProtoMessageType.noDescriptor("Main", mainPackageName)
 
   private[codegen] def mainSource(model: ModelBuilder.Model, mainPackageName: PackageNaming): File = {
-    val mainClass = mainClassName(model, mainPackageName)
+    val mainClass = mainClassName(mainPackageName)
 
     val entityImports = model.statefulComponents.values.collect {
       case entity: ModelBuilder.EventSourcedEntity   => entity.messageType.fullyQualifiedName
