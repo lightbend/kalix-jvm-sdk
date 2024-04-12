@@ -18,7 +18,7 @@
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>store.Main</mainClass>
 
-    <java.version>11</java.version>
+    <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <kalix-sdk.version>1.4.1</kalix-sdk.version>
