@@ -130,7 +130,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/adoptopenjdk:${java.version}-jre-hotspot</from>
+                <from>docker.io/library/eclipse-temurin:21.0.2_13-jre-jammy</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>

@@ -5,7 +5,7 @@ scalaVersion := "2.13.12"
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
-dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
+dockerBaseImage := "docker.io/library/eclipse-temurin:21.0.2_13-jre-jammy"
 dockerUsername := sys.props.get("docker.username")
 dockerRepository := sys.props.get("docker.registry")
 dockerUpdateLatest := true
