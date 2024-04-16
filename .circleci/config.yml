@@ -242,6 +242,6 @@ workflows:
               only: /^v\d+(\.\d+){1,2}$/
             branches:
               ignore: /.*/
-          requires:
-            # we only create the versions bump PR after publish-docs is successful, which means release was successful
-            - publish-docs
+#          requires:
+#            # we only create the versions bump PR after publish-docs is successful, which means release was successful
+#            - publish-docs

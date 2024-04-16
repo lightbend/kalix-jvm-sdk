@@ -48,11 +48,10 @@ object PublishSonatype extends AutoPlugin {
       publishSigned := publishSigned.dependsOn(beforePublishTask).value,
       publishTo :=
         (if (isSnapshot.value)
-          Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka-snapshots/"))
-        else
-          Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka/"))),
-      credentials ++= cloudsmithCredentials(validate = false)
-    )
+           Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka-snapshots/"))
+         else
+           Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka/"))),
+      credentials ++= cloudsmithCredentials(validate = false))
 
   private def beforePublish(snapshot: Boolean): Unit = {
     if (beforePublishDone.compareAndSet(false, true)) {
@@ -61,7 +60,6 @@ object PublishSonatype extends AutoPlugin {
         cloudsmithCredentials(validate = true)
     }
   }
-
 
   private def cloudsmithCredentials(validate: Boolean): Seq[Credentials] = {
     (sys.env.get("PUBLISH_USER"), sys.env.get("PUBLISH_PASSWORD")) match {
