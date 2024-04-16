@@ -104,6 +104,8 @@ Static claims can also be defined using a pattern. This is useful when the value
 <2> Claim "sub" must be a valid UUID.
 <3> Claim "name" must be not empty.
 
+If the JWT token claim is an array of values, the token will be considered valid if at least one of the claim values matches the pattern. Otherwise, the request is rejected.
+
 When signing a JWT, static claim defined by a pattern will not be included. They are only used in validation.
 
 NOTE: A static claim can be defined with a `value` or a `pattern`, but not both.
