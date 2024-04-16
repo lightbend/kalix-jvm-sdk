@@ -33,7 +33,7 @@ object DefaultPublishSettings extends AutoPlugin {
  * Publish maven artifacts to Sonatype.
  */
 object PublishSonatype extends AutoPlugin {
-  override def requires = plugins.JvmPlugin && CommonSettings
+  override def requires = plugins.JvmPlugin && CommonSettings && DefaultPublishSettings
   override def trigger = AllRequirements
 
   private lazy val beforePublishTask = taskKey[Unit]("setup before publish")
