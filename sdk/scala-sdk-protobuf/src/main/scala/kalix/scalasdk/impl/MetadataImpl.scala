@@ -108,6 +108,6 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
     }
 
     override def keys(carrier: Metadata): java.lang.Iterable[String] =
-      carrier.getAllKeys.asJava
+      carrier.getAllKeys().asJava
   }
 }
