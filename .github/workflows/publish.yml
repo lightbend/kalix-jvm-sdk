@@ -49,6 +49,7 @@ jobs:
 
   release-maven:
     name: Publish maven plugin and archetype
+    runs-on: ubuntu-22.04
     if: github.event.repository.fork == false
     steps:
       - name: Checkout

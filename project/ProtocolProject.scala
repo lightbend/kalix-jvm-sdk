@@ -36,7 +36,7 @@ object PublicProtocolProject extends AutoPlugin {
   import autoImport._
   import ProtocPlugin.autoImport._
 
-  override def requires = ProtocolProject && PublishSonatype
+  override def requires = ProtocolProject && Publish
 
   override def projectSettings =
     Seq(

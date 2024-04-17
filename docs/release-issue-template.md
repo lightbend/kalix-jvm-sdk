@@ -13,7 +13,7 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 - [ ] Update the "Change date" on [the license](/LICENSE) to release date plus three years
 - [ ] Use the "Generate release notes" button to create [a new release](https://github.com/lightbend/kalix-jvm-sdk/releases/new) with the appropriate tag.
     - Review the generated notes and "Publish release"
-    - CI will automatically publish to Sonatype OSSRH (Maven Central) based on the tag
+    - CI will automatically publish to the repository based on the tag
     - CI will update the docs/kalix-current branch
 
 ### Check availability
