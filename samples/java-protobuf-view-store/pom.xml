@@ -18,7 +18,7 @@
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>store.Main</mainClass>
 
-    <jdk.target>11</jdk.target>
+    <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <kalix-sdk.version>1.4.1</kalix-sdk.version>
@@ -58,8 +58,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
         <configuration>
-          <source>${jdk.target}</source>
-          <target>${jdk.target}</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
           <compilerArgs>
             <arg>-Xlint:deprecation</arg>
           </compilerArgs>
@@ -131,7 +131,7 @@
               <name>${dockerImage}:%l</name>
               <build>
                 <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/adoptopenjdk:${jdk.target}-jre-hotspot</from>
+                <from>docker.io/library/eclipse-temurin:21.0.2_13-jre-jammy</from>
                 <createImageOptions>
                   <platform>linux/amd64</platform>
                 </createImageOptions>

@@ -25,16 +25,15 @@ object Dependencies {
   val ScalaTestVersion = "3.2.14"
   val JacksonVersion = "2.14.3"
   val JacksonDatabindVersion = "2.14.3"
-  val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
   val LogbackVersion = "1.4.14"
   val LogbackContribVersion = "0.1.5"
   val TestContainersVersion = "1.17.6"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.10.1"
-  val SpringFrameworkVersion = "6.1.3"
+  val SpringFrameworkVersion = "6.1.5"
   // make sure to sync spring-boot-starter-parent version in samples and archetype to this version
-  val SpringBootVersion = "3.2.1"
+  val SpringBootVersion = "3.2.4"
   val OpenTelemetryVersion = "1.28.0"
 
   val CommonsIoVersion = "2.11.0"

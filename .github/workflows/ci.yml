@@ -46,12 +46,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Run javafmt checks
         run: |
@@ -101,12 +101,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -184,12 +184,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -238,12 +238,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -277,13 +277,13 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/actions/setup-java/releases/
         # v3.11.0
         uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -355,12 +355,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -409,12 +409,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -504,12 +504,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -605,12 +605,12 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -734,12 +734,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
         # v1.3.0
         uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
