@@ -82,7 +82,7 @@ object Dependencies {
   val opentelemetrySemConv = "io.opentelemetry" % "opentelemetry-semconv" % (OpenTelemetryVersion + "-alpha")
 
   val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
-  val scalaPbValidateCore =  "com.thesamet.scalapb" %% "scalapb-validate-core" % "0.3.4"
+  val scalaPbValidateCore = "com.thesamet.scalapb" %% "scalapb-validate-core" % "0.3.4"
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
