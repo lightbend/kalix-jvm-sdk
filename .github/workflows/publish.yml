@@ -1,0 +1,128 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: github.event.repository.fork == false
+    name: Release (sbt)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          # we don't know what commit the last tag was it's safer to get entire repo so previousStableVersion resolves
+          fetch-depth: 0
+
+      - name: Cache Coursier cache
+        # https://github.com/coursier/cache-action/releases
+        # v6.4.5
+        uses: coursier/cache-action@1ff273bff02a8787bc9f1877d347948af647956d
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        with:
+          jvm: temurin:1.17.0.5
+
+      - name: Publish artifacts for all Scala versions
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
+          PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
+        run: sbtn ci-release
+
+      - name: Publish M2
+        run: sbtn publishM2
+
+  release-maven:
+    name: Publish maven plugin and archetype
+    if: github.event.repository.fork == false
+    steps:
+      - name: Checkout
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          # we don't know what commit the last tag was it's safer to get entire repo so previousStableVersion resolves
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        with:
+          jvm: temurin:1.17.0.5
+
+      - name: Publish maven plugin and archetype
+        run: |-
+          cd maven-java
+          echo $PGP_SECRET | base64 -d | gpg --import --batch
+          mkdir -p ~/.m2
+          cat >~/.m2/settings.xml \<<EOF;
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
+          <servers>
+            <server>
+              <id>ossrh</id>
+              <username>$SONATYPE_USERNAME</username>
+              <password>$SONATYPE_PASSWORD</password>
+            </server>
+          </servers>
+          <profiles>
+            <profile>
+              <id>ossrh</id>
+              <activation>
+                <activeByDefault>true</activeByDefault>
+              </activation>
+              <properties>
+                <gpg.passphrase>$PGP_PASSPHRASE</gpg.passphrase>
+              </properties>
+            </profile>
+          </profiles>
+          </settings>
+          EOF
+          mvn -B versions:set -DnewVersion=$SDK_VERSION
+          mvn -P release -B deploy
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+
+  documentation:
+    name: Documentation
+    runs-on: ubuntu-22.04
+    if: github.event.repository.fork == false
+    steps:
+      - name: Checkout
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        with:
+          jvm: temurin:1.17.0.5
+
+      - name: Publish docs
+        run: |-
+          eval "$(ssh-agent -s)"
+          echo $KALIX_DOCS_SYNC | base64 -d > .github/id_rsa
+          chmod 600 .github/id_rsa
+          ssh-add .github/id_rsa
+          make -C docs deploy
+        env:
+          KALIX_DOCS_SYNC: ${{ secrets.KALIX_DOCS_SYNC }}
