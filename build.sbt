@@ -49,7 +49,7 @@ def disciplinedScalacSettings: Seq[Setting[_]] = {
 
 lazy val coreSdk = project
   .in(file("sdk/core"))
-  .enablePlugins(PublishSonatype)
+  .enablePlugins(Publish)
   .dependsOn(devTools)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
@@ -67,7 +67,7 @@ lazy val coreSdk = project
 lazy val javaSdkProtobuf = project
   .in(file("sdk/java-sdk-protobuf"))
   .dependsOn(coreSdk)
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -115,7 +115,7 @@ lazy val javaSdkProtobuf = project
 lazy val javaSdkProtobufTestKit = project
   .in(file("sdk/java-sdk-protobuf-testkit"))
   .dependsOn(javaSdkProtobuf)
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
   .settings(commonCompilerSettings)
   .settings(
     name := "kalix-java-sdk-protobuf-testkit",
@@ -153,7 +153,7 @@ lazy val javaSdkSpring = project
   .dependsOn(javaSdkProtobuf % "compile->compile;test->test")
   .dependsOn(devTools % IntegrationTest)
   .dependsOn(javaSdkProtobufTestKit % IntegrationTest)
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype, IntegrationTests)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish, IntegrationTests)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -196,7 +196,7 @@ lazy val javaSdkSpringTestKit = project
   .in(file("sdk/java-sdk-spring-testkit"))
   .dependsOn(javaSdkSpring)
   .dependsOn(javaSdkProtobufTestKit)
-  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(BuildInfoPlugin, Publish)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -233,7 +233,7 @@ lazy val javaSdkSpringTestKit = project
 lazy val springBootStarter = project
   .in(file("sdk/spring-boot-starter"))
   .dependsOn(javaSdkSpring)
-  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(BuildInfoPlugin, Publish)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -270,7 +270,7 @@ lazy val springBootStarterTest = project
   .in(file("sdk/spring-boot-starter-test"))
   .dependsOn(javaSdkSpring)
   .dependsOn(javaSdkSpringTestKit)
-  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(BuildInfoPlugin, Publish)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -306,7 +306,7 @@ lazy val springBootStarterTest = project
 lazy val scalaSdkProtobuf = project
   .in(file("sdk/scala-sdk-protobuf"))
   .dependsOn(javaSdkProtobuf)
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -336,7 +336,7 @@ lazy val scalaSdkProtobufTestKit = project
   .in(file("sdk/scala-sdk-protobuf-testkit"))
   .dependsOn(scalaSdkProtobuf)
   .dependsOn(javaSdkProtobufTestKit)
-  .enablePlugins(BuildInfoPlugin, PublishSonatype)
+  .enablePlugins(BuildInfoPlugin, Publish)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -405,7 +405,7 @@ lazy val devToolsInternal =
  */
 def devToolsCommon(project: Project): Project =
   project
-    .enablePlugins(BuildInfoPlugin, PublishSonatype)
+    .enablePlugins(BuildInfoPlugin, Publish)
     .settings(commonCompilerSettings)
     // TODO: need fix in KalixPlugin
     // .settings(disciplinedScalacSettings)
@@ -475,7 +475,7 @@ lazy val scalaTck = project
 lazy val codegenCore =
   project
     .in(file("codegen/core"))
-    .enablePlugins(sbtprotoc.ProtocPlugin, PublishSonatype)
+    .enablePlugins(sbtprotoc.ProtocPlugin, Publish)
     .settings(commonCompilerSettings)
     .settings(disciplinedScalacSettings)
     .settings(
@@ -494,7 +494,7 @@ lazy val codegenJava =
     .in(file("codegen/java-gen"))
     .configs(IntegrationTest)
     .dependsOn(codegenCore % "compile->compile;test->test")
-    .enablePlugins(PublishSonatype)
+    .enablePlugins(Publish)
     .settings(
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       // to provide access to protoc to tests
@@ -538,7 +538,7 @@ lazy val codegenScala =
   project
     .in(file("codegen/scala-gen"))
     .enablePlugins(BuildInfoPlugin)
-    .enablePlugins(PublishSonatype)
+    .enablePlugins(Publish)
     .settings(Dependencies.codegenScala)
     .settings(commonCompilerSettings)
     .settings(disciplinedScalacSettings)
@@ -599,7 +599,7 @@ lazy val codegenScalaCompilationExampleSuite: CompositeProject =
 
 lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .enablePlugins(SbtPlugin)
-  .enablePlugins(PublishSonatype)
+  .enablePlugins(Publish)
   .settings(Dependencies.sbtPlugin)
   .settings(commonCompilerSettings)
   .settings(

@@ -30,9 +30,9 @@ object DefaultPublishSettings extends AutoPlugin {
 }
 
 /**
- * Publish maven artifacts to Sonatype.
+ * Publish maven artifacts to the Cloudsmith repository.
  */
-object PublishSonatype extends AutoPlugin {
+object Publish extends AutoPlugin {
   override def requires = plugins.JvmPlugin && CommonSettings && DefaultPublishSettings
   override def trigger = AllRequirements
 
