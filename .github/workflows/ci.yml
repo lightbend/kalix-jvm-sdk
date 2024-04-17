@@ -706,7 +706,7 @@ jobs:
           - { sample: scala-protobuf-transfer-workflow, test: true }
           - { sample: scala-protobuf-transfer-workflow-compensation, test: true }
 
-          - { sample: scala-protobuf-validated, test: false }
+          - { sample: scala-protobuf-validated, test: true }
 
     steps:
       - name: Checkout

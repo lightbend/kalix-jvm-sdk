@@ -51,6 +51,7 @@ run / javaOptions ++= Seq("-Dkalix.user-function-interface=0.0.0.0", "-Dlogback.
 
 // For scalapb/envoy protobuf validation
 Compile / PB.targets += scalapb.validate.gen(FlatPackage) -> (Compile / akkaGrpcCodeGeneratorSettings / target).value
+Test / PB.targets += scalapb.validate.gen(FlatPackage) -> (Test / akkaGrpcCodeGeneratorSettings / target).value
 
 libraryDependencies ++= Seq(
   "com.thesamet.scalapb" %% "scalapb-validate-core" % scalapb.validate.compiler.BuildInfo.version % "protobuf")
