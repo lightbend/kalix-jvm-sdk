@@ -36,7 +36,7 @@ Which results in a `403 BadRequest` HTTP response with a text body with details 
 
 Or a proper email:
 ```shell
-curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.validated.Validated/CallMeMaybe -d '{"email":"notanemail"}'
+curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.validated.Validated/CallMeMaybe -d '{"email":"very.email@example.com"}'
 ```
 
 Or, given [`grpcurl`](https://github.com/fullstorydev/grpcurl):
