@@ -49,8 +49,8 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
@@ -105,8 +105,8 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
@@ -147,8 +147,8 @@ jobs:
 
       - name: Upload io.kalix dependencies
         # https://github.com/actions/upload-artifact/releases
-        # v3.1.2
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        # v4.3.2
+        uses: actions/upload-artifact@1746f4ab65b179e0ea60a494b83293b640dd5bba
         with:
           name: m2-cache
           path: ~/dependencies.tar.gz
@@ -189,15 +189,15 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -244,15 +244,15 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -302,8 +302,8 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -363,15 +363,15 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -418,15 +418,15 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -515,15 +515,15 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -617,8 +617,8 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
@@ -634,8 +634,8 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -745,15 +745,15 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
