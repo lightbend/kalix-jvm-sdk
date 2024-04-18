@@ -66,7 +66,8 @@ object HttpEndpointMethodDefinition {
     name = "ANY",
     safe = false,
     idempotent = false,
-    requestEntityAcceptance = RequestEntityAcceptance.Tolerated)
+    requestEntityAcceptance = RequestEntityAcceptance.Tolerated,
+    contentLengthAllowed = true)
 
   /**
    * INTERNAL API
