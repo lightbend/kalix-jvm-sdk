@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 echo "Extracting the SDK version from sbt build"
-SDK_VERSION=$(sbt --no-colors "print coreSdk/version" | tail -n 1 | tr -d '\n')
-IS_SNAPSHOT=$(sbt --no-colors "print coreSdk/isSnapshot" | tail -n 1 | tr -d '\n')
+SDK_VERSION=$(sbt --client --no-colors "print coreSdk/version" | tail -n 1 | tr -d '\n')
+IS_SNAPSHOT=$(sbt --client --no-colors "print coreSdk/isSnapshot" | tail -n 1 | tr -d '\n')
 if [ "false" == "${IS_SNAPSHOT}" ]
 then
   REPO="akka-repo::default::https://maven.cloudsmith.io/lightbend/akka/"
