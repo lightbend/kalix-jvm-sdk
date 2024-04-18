@@ -2,6 +2,7 @@ import sbt._
 import sbt.Keys._
 import com.geirsson.CiReleasePlugin
 import com.jsuereth.sbtpgp.PgpKeys.publishSigned
+import com.jsuereth.sbtpgp.PgpKeys.publishSignedConfiguration
 import sbtdynver.DynVerPlugin
 import sbtdynver.DynVerPlugin.autoImport.dynverSonatypeSnapshots
 import xerial.sbt.Sonatype
@@ -46,6 +47,11 @@ object Publish extends AutoPlugin {
       sonatypeProfileName := "com.typesafe",
       beforePublishTask := beforePublish(isSnapshot.value),
       publishSigned := publishSigned.dependsOn(beforePublishTask).value,
+      publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
+        // avoid publishing the plugin jar twice
+        publishSignedConfiguration.value.artifacts.collect {
+          case tup @ (artifact, _) if artifact.name.contains("2.12_1.0") => tup
+        }),
       publishTo :=
         (if (isSnapshot.value)
            Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka-snapshots/"))
