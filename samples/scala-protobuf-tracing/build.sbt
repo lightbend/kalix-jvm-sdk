@@ -1,6 +1,6 @@
 organization := "com.example"
 
-scalaVersion := "2.13.12"
+scalaVersion := "2.13.13"
 
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
