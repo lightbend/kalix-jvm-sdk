@@ -19,6 +19,7 @@ import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.model.IllegalRequestException
 import akka.http.scaladsl.model.ParsingException
 import akka.http.scaladsl.model.RequestEntityAcceptance
+import akka.http.scaladsl.model.StatusCode
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.Uri.Path
 import com.google.api.HttpRule.PatternCase
@@ -62,12 +63,13 @@ object HttpEndpointMethodDefinition {
   private type ExtractPathParameters = (Matcher, PathParameterEffect) => Unit
 
   // This is used to support the "*" custom pattern
-  val ANY_METHOD = HttpMethod.custom(
-    name = "ANY",
-    safe = false,
-    idempotent = false,
-    requestEntityAcceptance = RequestEntityAcceptance.Tolerated,
-    contentLengthAllowed = true)
+  val ANY_METHOD =
+    HttpMethod(
+      "ANY",
+      isSafe = false,
+      isIdempotent = false,
+      requestEntityAcceptance = RequestEntityAcceptance.Tolerated,
+      contentLengthAllowed = (forStatus: StatusCode) => forStatus.intValue < 200 || forStatus.intValue >= 300)
 
   /**
    * INTERNAL API
