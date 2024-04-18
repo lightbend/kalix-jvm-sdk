@@ -11,10 +11,10 @@ permissions:
   contents: read
 
 jobs:
-  release:
-    if: github.event.repository.fork == false
+  publish-sbt:
     name: Release (sbt)
     runs-on: ubuntu-22.04
+    if: github.event.repository.fork == false
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -47,7 +47,7 @@ jobs:
       - name: Publish M2
         run: sbtn publishM2
 
-  release-maven:
+  publish-maven:
     name: Publish maven plugin and archetype
     runs-on: ubuntu-22.04
     if: github.event.repository.fork == false
@@ -59,6 +59,11 @@ jobs:
         with:
           # we don't know what commit the last tag was it's safer to get entire repo so previousStableVersion resolves
           fetch-depth: 0
+
+      - name: Cache Coursier cache
+        # https://github.com/coursier/cache-action/releases
+        # v6.4.5
+        uses: coursier/cache-action@1ff273bff02a8787bc9f1877d347948af647956d
 
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
@@ -75,7 +80,7 @@ jobs:
           PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
           PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
 
-  documentation:
+  publish-documentation:
     name: Documentation
     runs-on: ubuntu-22.04
     if: github.event.repository.fork == false
