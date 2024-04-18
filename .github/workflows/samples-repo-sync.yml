@@ -15,7 +15,9 @@ jobs:
 
     steps:
       - name: Checkout JVM SDK
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           path: kalix-jvm-sdk
           sparse-checkout: |
@@ -28,7 +30,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.KALIX_BOT_ACCESS_TOKEN }}
 
       - name: Checkout sample in kalix.io
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
         with:
           repository: kalix-io/${{ matrix.public-repo }}
           path: ${{ matrix.public-repo }}/
