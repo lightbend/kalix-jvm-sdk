@@ -35,6 +35,7 @@ import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.AnySupport.Prefer.Java
 import kalix.javasdk.impl.AnySupport.Prefer.Scala
+import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import org.slf4j.LoggerFactory
 import scalapb.GeneratedMessage
 import scalapb.GeneratedMessageCompanion
@@ -464,7 +465,12 @@ class AnySupport(
 
       resolveTypeUrl(typeName) match {
         case Some(parser) =>
-          parser.parseFrom(any.value)
+          try {
+            parser.parseFrom(any.value)
+          } catch {
+            case ex: scalapb.validate.FieldValidationException =>
+              throw BadRequestException(ex.getMessage)
+          }
         case None =>
           throw SerializationException("Unable to find descriptor for type: " + typeUrl)
       }
