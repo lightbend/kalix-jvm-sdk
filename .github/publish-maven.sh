@@ -12,7 +12,7 @@ fi
 echo "Publishing ${SDK_VERSION} to ${REPO}"
 echo ${PGP_SECRET} | base64 -d | gpg --import --batch
 mkdir -p ~/.m2
-cat >~/.m2/settings.xml \<<EOF;
+cat <<EOF >~/.m2/settings.xml
 <settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
   <servers>
