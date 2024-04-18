@@ -1,4 +1,4 @@
-name: Release
+name: Publish
 
 on:
   push:
@@ -73,11 +73,6 @@ jobs:
           jvm: temurin:1.17.0.5
 
       - name: Publish docs
-        run: |-
-          eval "$(ssh-agent -s)"
-          echo $KALIX_DOCS_SYNC | base64 -d > .github/id_rsa
-          chmod 600 .github/id_rsa
-          ssh-add .github/id_rsa
-          make -C docs deploy
+        run: make -C docs deploy
         env:
-          KALIX_DOCS_SYNC: ${{ secrets.KALIX_DOCS_SYNC }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
