@@ -54,6 +54,8 @@ jobs:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
           PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
+          SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
 
   publish-documentation:
     name: Documentation
