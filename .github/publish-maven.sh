@@ -28,7 +28,10 @@ cat <<EOF >~/.m2/settings.xml
   </servers>
   <profiles>
     <profile>
-      <id>release</id>
+      <id>ossrh</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <properties>
         <gpg.passphrase>${PGP_PASSPHRASE}</gpg.passphrase>
       </properties>
