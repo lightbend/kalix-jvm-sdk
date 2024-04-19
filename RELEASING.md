@@ -20,4 +20,4 @@ make deploy
 
 If only some doc changes are needed, branch from the last release tag, cherry-pick the needed doc changes, and then run `make deploy`.
 
-This will publish the doc sources to the `docs/current` branch. They will be included automatically in the next build for the main docs. A build for the main docs can also be triggered by re-running the last docs build in CircleCI (on the `master` branch for dev docs, on the `current` branch for prod docs).
+This will publish the doc sources to the `docs/current` branch. They will be included automatically in the next build for the main docs. A build for the main docs can also be triggered by re-running the last docs build in GitHub workflows (on the `main` branch for dev docs, on the `current` branch for prod docs).
