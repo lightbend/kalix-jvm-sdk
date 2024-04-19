@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  kafka:
+    image: confluentinc/cp-kafka:7.2.6
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092 # used when running clients from containerized Kalix runtime
+      - 9093:9093 # used when running non-docker clients from host
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # advertised listener running on port 9092 must be accessible to kalix-runtime container running for integration tests
+      # therefore we need to use host.testcontainers.internal (testcontainers's bridge address) to access it through the host machine
+      # advertised listener running on port 9093 is to be used by non-docker clients running on host machine
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL_DOCKER://host.testcontainers.internal:9092,HOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL_DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  zookeeper:
+    image: zookeeper:3.9
+    ports:
+      - "2181:2181"
