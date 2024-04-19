@@ -1,18 +1,36 @@
 #!/usr/bin/env bash
+set -e
 
-echo "Extracting the SDK version from sbt build"
-
-# debugging help
-echo "----"
-sbt --client --no-colors "print coreSdk/version"
-echo "----"
-SDK_VERSION=$(sbt --client --no-colors "print coreSdk/version" | tail -n 3 | head -n 1 | tr -d '\n')
-echo "Publishing '${SDK_VERSION}'"
+if [ -z "${SDK_VERSION}" ];
+then
+  echo "expected SDK_VERSION to be set"
+  exit 1
+fi
+if [ -z "${SONATYPE_USERNAME}" ];
+then
+  echo "expected SONATYPE_USERNAME to be set"
+  exit 1
+fi
+if [ -z "${SONATYPE_PASSWORD}" ];
+then
+  echo "expected SONATYPE_PASSWORD to be set"
+  exit 1
+fi
+if [ -z "${PGP_PASSPHRASE}" ];
+then
+  echo "expected PGP_PASSPHRASE to be set"
+  exit 1
+fi
+if [ -z "${PGP_SECRET}" ];
+then
+  echo "expected PGP_SECRET to be set"
+  exit 1
+fi
 
 cd maven-java
 
-# update poms with the version extracted from sbt dynver (-B == no colors)
-mvn -B versions:set -DnewVersion=${SDK_VERSION}
+# update poms with the version extracted from sbt dynver
+mvn --quiet --batch-mode versions:set -DnewVersion=${SDK_VERSION}
 
 # create Maven settings.xml with credentials for repository publishing
 mkdir -p ~/.m2
@@ -41,7 +59,7 @@ cat <<EOF >~/.m2/settings.xml
 EOF
 
 # import the artefact signing key
-echo ${PGP_SECRET} | base64 -d | gpg --import --batch
+echo "${PGP_SECRET}" | base64 -d | gpg --import --batch
 
-# Maven deply with profile `release` (-B == no colors)
-mvn -P release -B deploy
+# Maven deploy with profile `release`
+mvn --quiet --batch-mode --activate-profiles release deploy
