@@ -36,6 +36,14 @@ jobs:
         with:
           jvm: temurin:1.17.0.5
 
+      - name: Determine SDK version
+        id: determine_sdk_version
+        run: |-
+          .github/determine-sdk-version.sh
+          SDK_VERSION="$(cat sdk-version.txt)"
+          echo "SDK version: '${SDK_VERSION}'"
+          echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
+
       - name: sbt ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
@@ -50,6 +58,7 @@ jobs:
       - name: mvn deploy
         run: ./.github/publish-maven.sh
         env:
+          SDK_VERSION: ${{ steps.determine_sdk_version.outputs.sdk_version }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           PUBLISH_USER: ${{ secrets.PUBLISH_USER }}

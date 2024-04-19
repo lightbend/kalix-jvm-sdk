@@ -32,13 +32,10 @@ jobs:
       - name: Determine SDK version
         id: determine_sdk_version
         run: |-
-          echo "Extracting version from sbt build"
-          sbt --client --no-colors "print coreSdk/version" > version.txt
-          # debugging help
-          echo "----"
-          cat version.txt
-          echo "----"
-          echo "sdk_version=$(cat version.txt | tail -n 3 | head -n 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+          .github/determine-sdk-version.sh
+          SDK_VERSION="$(cat sdk-version.txt)"
+          echo "SDK version: '${SDK_VERSION}'"
+          echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Create PR to update all sdk versions (samples, sbt and maven)
         env:
