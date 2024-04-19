@@ -42,7 +42,12 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
   zookeeper:
     image: zookeeper:3.9
     ports:
