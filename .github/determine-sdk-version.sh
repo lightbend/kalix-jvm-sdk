@@ -7,4 +7,8 @@ sbt --client --no-colors "print coreSdk/version" > sdk-version-raw.txt
 echo "----"
 cat sdk-version-raw.txt
 echo "----"
-cat sdk-version-raw.txt | tail -n 3 | head -n 1 | sed $'s/\033\[[0-9;]*m//g' > sdk-version.txt
+cat sdk-version-raw.txt | tail -n 3 | head -n 1 | tr -d '\n'| tr -d '[:space:]' > sdk-version.txt
+# debugging help
+echo "----"
+hexdump -c sdk-version.txt
+echo "----"
