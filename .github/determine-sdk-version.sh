@@ -2,7 +2,8 @@
 set -e
 
 echo "Extracting version from sbt build"
-sbt --client --no-colors "print coreSdk/version" > sdk-version-raw.txt
+# deliberately not using `--client`
+sbt --no-colors "print coreSdk/version" > sdk-version-raw.txt
 # debugging help
 echo "----"
 cat sdk-version-raw.txt
