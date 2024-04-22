@@ -61,10 +61,8 @@ jobs:
           SDK_VERSION: ${{ steps.determine_sdk_version.outputs.sdk_version }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
-          PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.KALIX_IO_SONATYPE_USER }}
+          SONATYPE_PASSWORD: ${{ secrets.KALIX_IO_SONATYPE_PASSWORD }}
 
   publish-documentation:
     name: Documentation
