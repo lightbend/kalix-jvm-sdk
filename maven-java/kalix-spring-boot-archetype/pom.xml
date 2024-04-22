@@ -14,14 +14,6 @@
     <description>This archetype can be used to generate a project suitable for the general development of Kalix applications</description>
     <url>https://docs.kalix.io</url>
 
-    <repositories>
-        <repository>
-            <id>akka-repository</id>
-            <name>Akka library repository</name>
-            <url>https://repo.akka.io/maven</url>
-        </repository>
-    </repositories>
-
     <build>
         <resources>
             <resource>
