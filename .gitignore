@@ -48,3 +48,5 @@ regenerate
 .vscode/settings.json
 target-2.12
 sdk/java-sdk-spring/tempo-data
+sdk-version-raw.txt
+sdk-version.txt
