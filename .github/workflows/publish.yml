@@ -63,25 +63,3 @@ jobs:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_USERNAME: ${{ secrets.KALIX_IO_SONATYPE_USER }}
           SONATYPE_PASSWORD: ${{ secrets.KALIX_IO_SONATYPE_PASSWORD }}
-
-  publish-documentation:
-    name: Documentation
-    runs-on: ubuntu-22.04
-    if: github.event.repository.fork == false
-    steps:
-      - name: Checkout
-        # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-
-      - name: Set up JDK 17
-        # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
-        with:
-          jvm: temurin:1.17.0.5
-
-      - name: Publish docs
-        run: make -C docs deploy
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
