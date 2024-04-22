@@ -21,6 +21,14 @@
 
   <name>Kalix Maven Plugin</name>
 
+  <repositories>
+    <repository>
+      <id>akka-repository</id>
+      <name>Akka library repository</name>
+      <url>https://repo.akka.io/maven</url>
+    </repository>
+  </repositories>
+
   <dependencies>
 
     <dependency>
