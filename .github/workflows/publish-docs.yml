@@ -1,0 +1,32 @@
+name: Publish docs
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  # pushing to docs/kalix-current branch (see docs/bin/deploy.sh)
+  contents: write
+
+jobs:
+  push-documentation:
+    name: Push documentation to docs/kalix-current
+    runs-on: ubuntu-22.04
+    if: github.event.repository.fork == false
+    steps:
+      - name: Checkout
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Set up JDK 17
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        with:
+          jvm: temurin:1.17.0.5
+
+      - name: Publish docs
+        run: make -C docs deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
