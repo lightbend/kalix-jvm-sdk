@@ -62,4 +62,5 @@ EOF
 echo "${PGP_SECRET}" | base64 -d | gpg --import --batch
 
 # Maven deploy with profile `release`
-mvn --quiet --batch-mode --activate-profiles release deploy
+# mvn --quiet --batch-mode --activate-profiles release deploy
+mvn --batch-mode --activate-profiles release deploy
