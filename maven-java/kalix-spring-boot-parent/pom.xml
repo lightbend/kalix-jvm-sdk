@@ -5,10 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.4</version>
-        <relativePath />
+        <groupId>io.kalix</groupId>
+        <artifactId>kalix-maven-java</artifactId>
+        <version>1.4.1</version>
     </parent>
     
     <!-- it has spring-boot-starter as parent, but groupId remains io.kalix -->
@@ -28,7 +27,6 @@
         <!-- archetype need to override kalixContainerRegistry and kalixOrganization -->
         <kalixContainerRegistry>kcr.us-east-1.kalix.io</kalixContainerRegistry>
         <kalixOrganization>acme</kalixOrganization>
-
 
         <dockerImage>${kalixContainerRegistry}/${kalixOrganization}/${project.artifactId}</dockerImage>
         <dockerTag>${project.version}-${build.timestamp}</dockerTag>
@@ -281,6 +279,19 @@
             </build>
         </profile>
     </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+           <dependency>
+               <groupId>org.springframework.boot</groupId>
+               <artifactId>spring-boot-dependencies</artifactId>
+               <version>3.2.4</version>
+               <type>pom</type>
+               <scope>import</scope>
+           </dependency>
+       </dependencies>
+   </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>io.kalix</groupId>
