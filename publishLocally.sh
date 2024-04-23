@@ -20,7 +20,8 @@ sbt 'publishM2; publishLocal'
     mvn versions:set -DnewVersion=$SDK_VERSION
 
     # also needs to change kalix-sdk.version in parent pom
-    sed "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" pom.xml
+    sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" pom.xml
+    rm pom.xml.bak
   )
 
   mvn clean install

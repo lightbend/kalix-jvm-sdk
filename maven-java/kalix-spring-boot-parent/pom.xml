@@ -34,7 +34,6 @@
         <dockerTag>${project.version}-${build.timestamp}</dockerTag>
 
         <docker.base.image>docker.io/library/eclipse-temurin:21.0.2_13-jre-jammy</docker.base.image>
-        <docker.platforms>linux/amd64</docker.platforms>
 
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <java.version>21</java.version>
@@ -45,24 +44,27 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>akka-repository-snapshots</id>
-            <url>https://repo.akka.io/snapshots</url>
-        </pluginRepository>
-        <pluginRepository>
             <id>akka-repository</id>
             <url>https://repo.akka.io/maven</url>
+        </pluginRepository>
+
+        <!-- remove snapshots before final release -->
+        <pluginRepository>
+            <id>akka-repository-snapshots</id>
+            <url>https://repo.akka.io/snapshots</url>
         </pluginRepository>
     </pluginRepositories>
 
     <repositories>
         <repository>
-            <id>akka-repository-snapshots</id>
-            <name>Akka library repository</name>
-            <url>https://repo.akka.io/snapshots</url>
-        </repository>
-        <repository>
             <id>akka-repository</id>
             <name>Akka library repository</name>
+            <url>https://repo.akka.io/maven</url>
+        </repository>
+
+        <!-- remove snapshots before final release -->
+        <repository>
+            <id>akka-repository-snapshots</id>
             <url>https://repo.akka.io/snapshots</url>
         </repository>
     </repositories>
@@ -131,7 +133,7 @@
                                     <!-- Base Docker image which contains jre-->
                                     <from>${docker.base.image}</from>
                                     <createImageOptions>
-                                        <platform>${docker.platforms}</platform>
+                                        <platform>linux/amd64</platform>
                                     </createImageOptions>
                                     <tags>
                                         <!-- tag for generated image -->
@@ -142,8 +144,7 @@
                                         <port>8080</port>
                                     </ports>
                                     <assembly>
-                                        <!-- NOTE: (optional) switch to "artifact-with-dependencies"
-                                        to show dependencies library-->
+                                        <!-- NOTE: (optional) switch to "artifact-with-dependencies" to show dependencies library-->
                                         <descriptorRef>artifact</descriptorRef>
                                     </assembly>
                                     <entryPoint>
@@ -172,7 +173,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
 
                 <plugin>
                     <!-- configure src/it/java and src/it/resources -->
@@ -248,7 +248,6 @@
                         <skip>true</skip>
                     </configuration>
                 </plugin>
-
             </plugins>
         </pluginManagement>
 
