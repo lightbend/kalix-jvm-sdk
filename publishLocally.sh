@@ -12,16 +12,26 @@ sbt 'publishM2; publishLocal'
 (
   cd maven-java
   mvn versions:set -DnewVersion=$SDK_VERSION
-
+  
   (
-    # special case for parent pom, version:set only changes project sharing the same parent
+    cd kalix-java-protobuf-parent
+
+    # also needs to change kalix-sdk.version in parent pom
+    sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" pom.xml
+    rm pom.xml.bak
+  )
+
+  ( # special case for parent pom, version:set only changes project sharing the same parent
     # kalix-spring-boot-parent is special because its parent is spring-boot-starter-parent
     cd kalix-spring-boot-parent
     mvn versions:set -DnewVersion=$SDK_VERSION
 
     # also needs to change kalix-sdk.version in parent pom
-    sed "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" pom.xml
+    sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" pom.xml
+    rm pom.xml.bak
   )
+
+  
 
   mvn clean install
 
