@@ -30,7 +30,7 @@ fi
 cd maven-java
 
 # update poms with the version extracted from sbt dynver
-mvn --quiet --batch-mode versions:set -DnewVersion=${SDK_VERSION}
+mvn --quiet --batch-mode --activate-profiles patch-version versions:set -DnewVersion=${SDK_VERSION}
 
   ( # also needs to change kalix-sdk.version in parent pom
     cd kalix-java-protobuf-parent
@@ -62,6 +62,7 @@ cat <<EOF >~/.m2/settings.xml
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
+        <altSnapshotDeploymentRepository>snapshots::default::https://s01.oss.sonatype.org/content/repositories/snapshots</altSnapshotDeploymentRepository>
         <gpg.passphrase>${PGP_PASSPHRASE}</gpg.passphrase>
       </properties>
     </profile>

@@ -11,7 +11,7 @@ echo "------------------------------------------------------------------------"
 sbt 'publishM2; publishLocal'
 (
   cd maven-java
-  mvn versions:set -DnewVersion=$SDK_VERSION
+  mvn --activate-profiles patch-version versions:set -DnewVersion=$SDK_VERSION
   
   ( # also needs to change kalix-sdk.version in parent pom
     cd kalix-java-protobuf-parent
