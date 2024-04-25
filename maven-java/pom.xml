@@ -112,10 +112,6 @@
             <artifactId>maven-resources-plugin</artifactId>
             <version>3.2.0</version>
           </plugin>
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-          </plugin>  
         </plugins>
       </build>
     </profile>
