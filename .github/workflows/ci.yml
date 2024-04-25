@@ -125,10 +125,10 @@ jobs:
         run: |-
           sbt -Ddisable.apidocs=true publishM2 publishLocal
           # the SDK_VERSION is later used to run the maven tests (see below)
-          echo "Extracting version from sbt build"
-          sbt "print javaSdkProtobuf/version" > version.txt
-          cat version.txt
-          echo 'sdk_version='$(cat version.txt | tail -n 2 | head -n 1) >> $GITHUB_OUTPUT
+          .github/determine-sdk-version.sh
+          SDK_VERSION="$(cat sdk-version.txt)"
+          echo "SDK version: '${SDK_VERSION}'"
+          echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Build maven-java
         env:
@@ -136,8 +136,8 @@ jobs:
         run: |-
           cd maven-java
           echo "Running maven-java with SDK version: '${SDK_VERSION}'"
-          mvn versions:set -DnewVersion=${SDK_VERSION}
-          mvn verify install --no-transfer-progress
+          ../.github/patch-maven-versions.sh
+          mvn verify install --no-transfer-progress -Dskip.docker=true
           echo $SDK_VERSION > ~/kalix-sdk-version.txt
 
       - name: Package io.kalix dependencies
@@ -316,6 +316,7 @@ jobs:
       - name: Value Entity Archetype
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          echo "Testing Value Entity Archetype. SDK_VERSION: ${SDK_VERSION}"
           cd maven-java
           mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype -DarchetypeVersion=$SDK_VERSION
           cd counter-value-entity
@@ -324,6 +325,7 @@ jobs:
 
       - name: Event Sourced Entity Archetype
         run: |-
+          echo "Testing Event Sourced Entity Archetype. SDK_VERSION: ${SDK_VERSION}"
           mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
           cd counter-event-sourced-entity
           mvn -B compile

@@ -38,6 +38,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kalix-sdk.version>1.4.1</kalix-sdk.version>
         <akka-grpc.version>2.1.6</akka-grpc.version>
+
+        <skip.docker>false</skip.docker>
     </properties>
 
 
@@ -127,7 +129,6 @@
                     </configuration>
                 </plugin>
 
-
                 <plugin>
                     <groupId>org.xolstice.maven.plugins</groupId>
                     <artifactId>protobuf-maven-plugin</artifactId>
@@ -162,7 +163,7 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.43.4</version>
+                    <version>0.44.0</version>
                     <configuration>
                     <images>
                         <image>
@@ -289,6 +290,50 @@
             </plugins>
         </pluginManagement>
 
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <skip>${skip.docker}</skip>
+                </configuration>    
+            </plugin>
+            
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+            </plugin> 
+
+            <plugin>
+                <groupId>io.kalix</groupId>
+                <artifactId>kalix-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
@@ -319,18 +364,19 @@
             </build>
         </profile>
     </profiles>
-    <dependencies>
-        <dependency>
-            <groupId>io.kalix</groupId>
-            <artifactId>kalix-java-sdk-protobuf</artifactId>
-            <version>${kalix-sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.kalix</groupId>
-            <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-            <version>${kalix-sdk.version}</version>
-            <scope>test</scope>
-        </dependency>
 
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.kalix</groupId>
+                <artifactId>kalix-java-sdk-protobuf</artifactId>
+                <version>${kalix-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kalix</groupId>
+                <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
+                <version>${kalix-sdk.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
