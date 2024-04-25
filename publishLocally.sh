@@ -25,17 +25,17 @@ sbt 'publishM2; publishLocal'
     rm pom.xml.bak
   )
 
-  
-
   mvn clean install
 
   # cleanup
   rm pom.xml.versionsBackup
   rm */pom.xml.versionsBackup
 
-  # revert
-  git checkout pom.xml
-  git checkout */pom.xml
+  # revert, but only we didn't request to keep the modified files
+  if [ "$1" != "--keep" ]; then
+    git checkout pom.xml
+    git checkout */pom.xml
+  fi
 )
 
 
