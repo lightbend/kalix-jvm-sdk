@@ -9,6 +9,7 @@ if [[ -z "$SDK_VERSION" ]]; then
     exit 1
 fi
 
+
 updateDocs() {
   echo ">>> Update references in docs"
   sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" ./docs/src/modules/java/pages/spring-client.adoc
@@ -39,7 +40,10 @@ updateScalaSamples() {
 
 updateMavenPlugin() {
   echo ">>> Updating maven plugin to $SDK_VERSION"
-  cd maven-java && mvn versions:set -DnewVersion="$SDK_VERSION" && cd ..
+  (
+    cd maven-java && 
+    ../.github/patch-maven-versions.sh
+  )
 }
 
 DEFAULT_SAMPLES="./samples"

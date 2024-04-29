@@ -37,6 +37,8 @@
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kalix-sdk.version>1.4.1</kalix-sdk.version>
+        
+        <skip.docker>false</skip.docker>
     </properties>
 
 
@@ -122,7 +124,7 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.43.4</version>
+                    <version>0.44.0</version>
                     <configuration>
                         <images>
                             <image>
@@ -249,6 +251,51 @@
             </plugins>
         </pluginManagement>
 
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <skip>${skip.docker}</skip>
+                </configuration>    
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>io.kalix</groupId>
+                <artifactId>kalix-maven-plugin</artifactId>
+            </plugin>
+            
+        </plugins>
     </build>
 
     <profiles>
@@ -282,39 +329,24 @@
 
     <dependencyManagement>
         <dependencies>
-           <dependency>
-               <groupId>org.springframework.boot</groupId>
-               <artifactId>spring-boot-dependencies</artifactId>
-               <version>3.2.4</version>
-               <type>pom</type>
-               <scope>import</scope>
-           </dependency>
-       </dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>3.2.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.kalix</groupId>
+                <artifactId>kalix-spring-boot-starter</artifactId>
+                <version>${kalix-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.kalix</groupId>
+                <artifactId>kalix-spring-boot-starter-test</artifactId>
+                <version>${kalix-sdk.version}</version>
+            </dependency>
+        </dependencies>
    </dependencyManagement>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.kalix</groupId>
-            <artifactId>kalix-spring-boot-starter</artifactId>
-            <version>${kalix-sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.kalix</groupId>
-            <artifactId>kalix-spring-boot-starter-test</artifactId>
-            <version>${kalix-sdk.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
 </project>

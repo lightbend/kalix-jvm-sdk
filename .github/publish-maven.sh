@@ -28,20 +28,7 @@ then
 fi
 
 cd maven-java
-
-# update poms with the version extracted from sbt dynver
-mvn --quiet --batch-mode --activate-profiles patch-version versions:set -DnewVersion=${SDK_VERSION}
-
-  ( # also needs to change kalix-sdk.version in parent pom
-    cd kalix-java-protobuf-parent
-    sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" pom.xml
-  )
-
-  ( # also needs to change kalix-sdk.version in parent pom
-    cd kalix-spring-boot-parent
-    sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" pom.xml
-  )
-
+../.github/patch-maven-versions.sh
 
 # create Maven settings.xml with credentials for repository publishing
 mkdir -p ~/.m2
@@ -75,4 +62,4 @@ echo "${PGP_SECRET}" | base64 -d | gpg --import --batch
 
 # Maven deploy with profile `release`
 # mvn --quiet --batch-mode --activate-profiles release deploy
-mvn --batch-mode --activate-profiles release deploy
+mvn --batch-mode --activate-profiles release -Dskip.docker=true deploy
