@@ -477,9 +477,10 @@ jobs:
 
       - name: Java Samples
         run: |-
-          if [ $(find ./samples -name pom.xml | xargs grep -h "<kalix-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
+          # sample ending with 'spring-client' is not a kalix sample and therefore needs to be excluded
+          if [ $(find ./samples -name pom.xml -not -path "./samples/*-spring-client/*" | xargs grep -m 1 "<version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
             echo "Not all Java samples have the same SDK version:"
-            find ./samples -name pom.xml | xargs grep "<kalix-sdk.version>"
+            find ./samples -name pom.xml -not -path "./samples/*-spring-client/*" | xargs grep -m 1 "<version>"
             false
           fi
 
