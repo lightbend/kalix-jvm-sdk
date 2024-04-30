@@ -32,6 +32,7 @@
         <dockerTag>${project.version}-${build.timestamp}</dockerTag>
 
         <docker.base.image>docker.io/library/eclipse-temurin:21.0.2_13-jre-jammy</docker.base.image>
+        <docker.platform>linux/amd64</docker.platform>
 
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <java.version>21</java.version>
@@ -133,7 +134,7 @@
                                     <!-- Base Docker image which contains jre-->
                                     <from>${docker.base.image}</from>
                                     <createImageOptions>
-                                        <platform>linux/amd64</platform>
+                                        <platform>${docker.platform}</platform>
                                     </createImageOptions>
                                     <tags>
                                         <!-- tag for generated image -->
