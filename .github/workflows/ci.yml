@@ -552,7 +552,7 @@ jobs:
         include:
           - { sample: java-protobuf-shopping-cart-quickstart, it: true }
           - { sample: java-protobuf-customer-registry-quickstart, it: true }
-          - { sample: java-protobuf-customer-registry-kafka-quickstart, pre_cmd: 'docker compose -f ../../.circleci/kafka.yml up -d', it: true }
+          - { sample: java-protobuf-customer-registry-kafka-quickstart, pre_cmd: 'docker compose -f ../../.github/kafka.yml up -d', it: true }
           - { sample: java-protobuf-customer-registry-views-quickstart, it: true }
 
           - { sample: java-spring-shopping-cart-quickstart, it: true }
