@@ -126,19 +126,16 @@ jobs:
           sbt -Ddisable.apidocs=true publishM2 publishLocal
           # the SDK_VERSION is later used to run the maven tests (see below)
           .github/determine-sdk-version.sh
-          SDK_VERSION="$(cat sdk-version.txt)"
+          SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
           echo "SDK version: '${SDK_VERSION}'"
-          echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Build maven-java
-        env:
-          SDK_VERSION: ${{ steps.build_sdk.outputs.sdk_version }}
         run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd maven-java
           echo "Running maven-java with SDK version: '${SDK_VERSION}'"
           ../.github/patch-maven-versions.sh
           mvn verify install --no-transfer-progress -Dskip.docker=true
-          echo $SDK_VERSION > ~/kalix-sdk-version.txt
 
       - name: Package io.kalix dependencies
         run: |-
