@@ -557,6 +557,7 @@ lazy val codegenScala =
         version,
         scalaVersion,
         sbtVersion,
+        "akkaVersion" -> Dependencies.AkkaVersion,
         "protocolVersion" -> Kalix.RuntimeVersion,
         BuildInfoKey(PB.protocExecutable),
         BuildInfoKey(codegenCore / PB.externalIncludePath),
