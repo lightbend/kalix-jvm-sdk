@@ -14,27 +14,27 @@ object Dependencies {
   }
 
   // changing the Scala version of the Java SDK affects end users
-  val ScalaVersion = "2.13.12"
-  val ScalaVersionForTooling = "2.12.18"
+  val ScalaVersion = "2.13.13"
+  val ScalaVersionForTooling = "2.12.19"
 
   val ProtobufVersion = // akka.grpc.gen.BuildInfo.googleProtobufVersion
     "3.21.12" // explicitly overriding the 3.21.1 version from Akka gRPC 2.1.6 (even though its build says 3.20.1)
 
-  val AkkaVersion = "2.6.21"
-  val AkkaHttpVersion = "10.2.10" // Note: should at least the Akka HTTP version required by Akka gRPC
+  val AkkaVersion = "2.9.2"
+  val AkkaHttpVersion = "10.6.1" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
-  val JacksonVersion = "2.14.3"
-  val JacksonDatabindVersion = "2.14.3"
-  val DockerBaseImageVersion = "adoptopenjdk/openjdk11:debianslim-jre"
+  // https://github.com/akka/akka/blob/main/project/Dependencies.scala#L31
+  val JacksonVersion = "2.15.4"
+  val JacksonDatabindVersion = JacksonVersion
   val LogbackVersion = "1.4.14"
   val LogbackContribVersion = "0.1.5"
   val TestContainersVersion = "1.17.6"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.10.1"
-  val SpringFrameworkVersion = "6.1.3"
+  val SpringFrameworkVersion = "6.1.5"
   // make sure to sync spring-boot-starter-parent version in samples and archetype to this version
-  val SpringBootVersion = "3.2.1"
+  val SpringBootVersion = "3.2.4"
   val OpenTelemetryVersion = "1.28.0"
 
   val CommonsIoVersion = "2.11.0"
@@ -86,6 +86,7 @@ object Dependencies {
   val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
 
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
+  val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0"
 
   private val deps = libraryDependencies
 
@@ -96,7 +97,6 @@ object Dependencies {
     akkaHttpDependency("akka-http"),
     akkaHttpDependency("akka-http-core"),
     akkaHttpDependency("akka-http-spray-json"),
-    akkaHttpDependency("akka-http2-support"),
     akkaHttpDependency("akka-parsing"),
     protobufJavaUtil,
     kalixProxyProtocol % "protobuf-src",
@@ -123,10 +123,7 @@ object Dependencies {
     jacksonJsr310,
     jacksonParameterNames)
 
-  val devTools = deps ++= Seq(
-    "org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0",
-    "com.typesafe" % "config" % "1.4.2",
-    scalaTest % Test)
+  val devTools = deps ++= Seq(scalaCollectionCompat, "com.typesafe" % "config" % "1.4.2", scalaTest % Test)
 
   val javaSdk = deps ++= sdkDeps
 
@@ -156,6 +153,7 @@ object Dependencies {
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % IntegrationTest,
     "net.aichler" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % Test,
     "org.springframework.boot" % "spring-boot-starter-test" % SpringBootVersion % IntegrationTest,
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "2.3.0",
     junit5 % IntegrationTest,
     junit5 % Test,
     "org.assertj" % "assertj-core" % "3.24.2" % IntegrationTest,
@@ -185,6 +183,9 @@ object Dependencies {
 
   val codegenCore = deps ++= Seq(
     protobufJava,
+    scalaCollectionCompat,
+    "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+    "com.google.guava" % "guava" % "30.1-jre",
     kalixSdkProtocol % "compile;protobuf-src",
     logback % Test,
     munit % Test,

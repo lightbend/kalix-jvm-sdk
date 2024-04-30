@@ -1,0 +1,55 @@
+name: SDK version update
+
+on:
+  workflow_dispatch: # for testing
+  push:
+    tags: ["v*"]
+
+jobs:
+  open-pr-update-sample:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          # we don't know what commit the last tag was it's safer to get entire repo so previousStableVersion resolves
+          fetch-depth: 0
+
+      - name: Cache Coursier cache
+        # https://github.com/coursier/cache-action/releases
+        # v6.4.5
+        uses: coursier/cache-action@1ff273bff02a8787bc9f1877d347948af647956d
+
+      - name: Set up JDK 21
+        # https://github.com/coursier/setup-action/releases
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        with:
+          jvm: temurin:1.21
+
+      - name: Determine SDK version
+        id: determine_sdk_version
+        run: |-
+          .github/determine-sdk-version.sh
+          SDK_VERSION="$(cat sdk-version.txt)"
+          echo "SDK version: '${SDK_VERSION}'"
+          echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create PR to update all sdk versions (samples, sbt and maven)
+        env:
+          SDK_VERSION: ${{ steps.determine_sdk_version.outputs.sdk_version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |-
+          echo "Updating samples to version ${SDK_VERSION}"
+          ./updateSdkVersions.sh all
+          BRANCH=bump-sdk-versions-${SDK_VERSION}
+          git checkout -b ${BRANCH}
+          git config user.name "Kalix Bot"
+          git config user.email "kalix.github@lightbend.com"
+          git commit . -m "chore: bump SDK versions to ${SDK_VERSION}"
+          git remote add origin-rw https://${GH_TOKEN}@github.com/lightbend/kalix-jvm-sdk
+          git push --set-upstream origin-rw ${BRANCH}
+        
+          gh pr create -B main -t "Auto PR - Bump SDK versions to ${SDK_VERSION}" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay." || echo "No changes"; exit 0

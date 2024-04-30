@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.impl
@@ -24,7 +12,6 @@ import kalix.MethodOptions
 import kalix.javasdk.annotations.Query
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
-import kalix.javasdk.impl.JwtDescriptorFactory.buildJWTOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineBy
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByES
 import kalix.javasdk.impl.ComponentDescriptorFactory.combineByTopic
@@ -45,14 +32,14 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.hasUpdateEffectOutput
 import kalix.javasdk.impl.ComponentDescriptorFactory.hasValueEntitySubscription
 import kalix.javasdk.impl.ComponentDescriptorFactory.mergeServiceOptions
 import kalix.javasdk.impl.ComponentDescriptorFactory.subscribeToEventStream
+import kalix.javasdk.impl.JwtDescriptorFactory.buildJWTOptions
 import kalix.javasdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
-import kalix.javasdk.impl.reflection.ReflectionUtils
+import kalix.javasdk.impl.reflection.Reflect
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.RestServiceIntrospector.BodyParameter
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
-import kalix.javasdk.impl.reflection.SyntheticRequestServiceMethod
 import kalix.javasdk.impl.reflection.VirtualDeleteServiceMethod
 import kalix.javasdk.impl.reflection.VirtualServiceMethod
 import kalix.spring.impl.KalixSpringApplication
@@ -187,7 +174,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
         ProtoMessageDescriptors.generateMessageDescriptors(queryOutputType)
 
       val queryInputSchemaDescriptor =
-        queryMethod.params.find(_.isInstanceOf[BodyParameter]).map { case BodyParameter(param, _) =>
+        queryMethod.params.collectFirst { case BodyParameter(param, _) =>
           ProtoMessageDescriptors.generateMessageDescriptors(param.getParameterType)
         }
 
@@ -296,7 +283,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       tableProtoMessageName: String): Seq[KalixMethod] = {
 
     def getMethodsWithSubscription(component: Class[_]): Seq[Method] = {
-      import ReflectionUtils.methodOrdering
+      import kalix.javasdk.impl.reflection.Reflect.methodOrdering
       component.getMethods
         .filter(hasEventSourcedEntitySubscription)
         .sorted
@@ -327,7 +314,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       tableProtoMessageName: String): Seq[KalixMethod] = {
 
     def getMethodsWithSubscription(component: Class[_]): Seq[Method] = {
-      import ReflectionUtils.methodOrdering
+      import Reflect.methodOrdering
       component.getMethods
         .filter(hasTopicSubscription)
         .sorted
@@ -352,7 +339,7 @@ private[impl] object ViewDescriptorFactory extends ComponentDescriptorFactory {
       tableName: String,
       tableProtoMessageName: String): Seq[KalixMethod] = {
 
-    import ReflectionUtils.methodOrdering
+    import Reflect.methodOrdering
 
     val handleDeletesMethods = component.getMethods
       .filter(hasHandleDeletes)

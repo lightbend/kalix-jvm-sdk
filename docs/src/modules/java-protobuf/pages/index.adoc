@@ -60,7 +60,7 @@ Scala::
 [.group-scala]
 [source,scala,subs="attributes+"]
 ----
-scalaVersion := "2.13.10"
+scalaVersion := "2.13.13"
 
 enablePlugins(KalixPlugin)
 ----

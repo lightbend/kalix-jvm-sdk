@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.impl
@@ -19,6 +7,7 @@ package kalix.javasdk.impl
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
+
 import kalix.DirectDestination
 import kalix.DirectSource
 import kalix.EventDestination
@@ -30,7 +19,6 @@ import kalix.ServiceEventingOut
 import kalix.ServiceOptions
 import kalix.javasdk.action.Action
 import kalix.javasdk.annotations.Acl
-import kalix.javasdk.annotations.EntityType
 import kalix.javasdk.annotations.Publish
 import kalix.javasdk.annotations.Subscribe
 import kalix.javasdk.annotations.Table
@@ -43,7 +31,7 @@ import kalix.javasdk.impl.reflection.NameGenerator
 import kalix.javasdk.valueentity.ValueEntity
 import kalix.javasdk.view.View
 // TODO: abstract away spring dependency
-import kalix.javasdk.impl.Reflect.Syntax._
+import kalix.javasdk.impl.reflection.Reflect.Syntax._
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.web.bind.annotation.RequestMapping
 private[impl] object ComponentDescriptorFactory {
@@ -132,13 +120,8 @@ private[impl] object ComponentDescriptorFactory {
   def hasTopicPublication(javaMethod: Method): Boolean =
     javaMethod.isPublic && javaMethod.hasAnnotation[Publish.Topic]
 
-  def readTypeIdValue(annotated: AnnotatedElement) =
-    Option(annotated.getAnnotation(classOf[TypeId]))
-      .map(_.value())
-      .getOrElse {
-        // assuming that if TypeId is not in use, EntityType will
-        annotated.getAnnotation(classOf[EntityType]).value()
-      }
+  def readTypeIdValue(annotated: AnnotatedElement): String =
+    annotated.getAnnotation(classOf[TypeId]).value()
 
   def findEventSourcedEntityType(javaMethod: Method): String = {
     val ann = javaMethod.getAnnotation(classOf[Subscribe.EventSourcedEntity])
@@ -383,7 +366,7 @@ private[impl] object ComponentDescriptorFactory {
   // we should let users know if components are missing required annotations,
   // eg: Workflow and Entities require @TypeId, View requires @Table and @Subscription
   def getFactoryFor(component: Class[_]): ComponentDescriptorFactory = {
-    if (component.getAnnotation(classOf[TypeId]) != null || component.getAnnotation(classOf[EntityType]) != null)
+    if (component.getAnnotation(classOf[TypeId]) != null)
       EntityDescriptorFactory
     else if (component.getAnnotation(classOf[Table]) != null || component.getAnnotation(classOf[ViewId]) != null)
       ViewDescriptorFactory

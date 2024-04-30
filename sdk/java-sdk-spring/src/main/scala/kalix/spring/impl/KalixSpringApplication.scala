@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.spring.impl
@@ -19,10 +7,12 @@ package kalix.spring.impl
 import java.lang.reflect.Constructor
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
+
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.jdk.FutureConverters.CompletionStageOps
 import scala.jdk.OptionConverters.RichOption
+
 import akka.Done
 import com.typesafe.config.Config
 import io.opentelemetry.api.trace.Tracer
@@ -34,6 +24,7 @@ import kalix.javasdk.action.ActionProvider
 import kalix.javasdk.action.ReflectiveActionProvider
 import kalix.javasdk.annotations.ViewId
 import kalix.javasdk.client.ComponentClient
+import kalix.javasdk.impl.client.ComponentClientImpl
 import kalix.javasdk.eventsourced.ReflectiveEventSourcedEntityProvider
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext
@@ -60,7 +51,6 @@ import kalix.javasdk.workflow.Workflow
 import kalix.javasdk.workflow.WorkflowContext
 import kalix.javasdk.workflow.WorkflowProvider
 import kalix.spring.BuildInfo
-import kalix.spring.KalixClient
 import kalix.spring.WebClientProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -196,7 +186,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
 
   private val messageCodec = new JsonMessageCodec
   private[kalix] val kalixClient = new RestKalixClientImpl(messageCodec)
-  private[kalix] val componentClient = new ComponentClient(kalixClient)
 
   private val kalixBeanFactory = new DefaultListableBeanFactory(applicationContext)
 
@@ -304,14 +293,12 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
     webClientProviderHolder.webClientProvider
   }
 
-  private def kalixClient(context: Context): KalixClient = {
-    kalixClient.setWebClient(webClientProvider(context).localWebClient)
-    kalixClient
-  }
-
   private def componentClient(context: Context): ComponentClient = {
     kalixClient.setWebClient(webClientProvider(context).localWebClient)
-    componentClient
+    // Important!
+    // always new ComponentClient instance because we need to set the call context each time
+    // and we should not share state between call
+    new ComponentClientImpl(kalixClient)
   }
 
   /**
@@ -344,22 +331,22 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         // NOTE: if they are allowed, 'partial' should already have a matching case for them
         case p if p == classOf[KalixClient] =>
           throw new BeanCreationException(
-            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on KalixClient")
+            s"[${constructor.getDeclaringClass.getName}] are not allowed to have a dependency on KalixClient")
 
-        case p if p == classOf[ComponentClient] =>
+        case p if p == classOf[ComponentClientImpl] =>
           throw new BeanCreationException(
-            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on ComponentClient")
+            s"[${constructor.getDeclaringClass.getName}] are not allowed to have a dependency on ComponentClient")
 
         case p if p == classOf[WebClientProvider] =>
           throw new BeanCreationException(
-            s"[${constructor.getDeclaringClass.getSimpleName}] are not allowed to have a dependency on WebClientProvider")
+            s"[${constructor.getDeclaringClass.getName}] are not allowed to have a dependency on WebClientProvider")
 
         // if partial func doesn't match, try to lookup in the applicationContext
         case anyOther =>
           val bean = applicationContext.getBean(anyOther)
           if (bean == null)
             throw new BeanCreationException(
-              s"Cannot wire [${anyOther.getSimpleName}]. Bean not found in the Application Context");
+              s"Cannot wire [${anyOther.getName}]. Bean not found in the Application Context");
           else bean
       }
 
@@ -376,7 +363,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
       context =>
         wiredInstance(clz) {
           case p if p == classOf[ActionCreationContext] => context
-          case p if p == classOf[KalixClient]           => kalixClient(context)
           case p if p == classOf[ComponentClient]       => componentClient(context)
           case p if p == classOf[WebClientProvider]     => webClientProvider(context)
           case p if p == classOf[Tracer]                => context.getTracer
@@ -391,7 +377,6 @@ case class KalixSpringApplication(applicationContext: ApplicationContext, config
         val workflow =
           wiredInstance(clz) {
             case p if p == classOf[WorkflowContext]   => context
-            case p if p == classOf[KalixClient]       => kalixClient(context)
             case p if p == classOf[ComponentClient]   => componentClient(context)
             case p if p == classOf[WebClientProvider] => webClientProvider(context)
           }

@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk
@@ -37,7 +25,6 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import kalix.devtools.impl.DevModeSettings
 import kalix.devtools.impl.DockerComposeUtils
-import kalix.javasdk.impl.AbstractContext
 import kalix.javasdk.impl.DiscoveryImpl
 import kalix.javasdk.impl.Service
 import kalix.javasdk.impl.action.ActionService
@@ -162,8 +149,6 @@ final class KalixRunner private[javasdk] (
       aclDescriptor = aclDescriptor,
       sdkName)
 
-  private val rootContext: Context = new AbstractContext(system) {}
-
   private[this] def createRoutes(): PartialFunction[HttpRequest, Future[HttpResponse]] = {
 
     val serviceRoutes =
@@ -191,12 +176,12 @@ final class KalixRunner private[javasdk] (
 
         case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
             if serviceClass == classOf[ActionService] =>
-          val actionImpl = new ActionsImpl(system, actionServices, rootContext)
+          val actionImpl = new ActionsImpl(system, actionServices)
           route.orElse(ActionsHandler.partial(actionImpl))
 
         case (route, (serviceClass, viewServices: Map[String, ViewService] @unchecked))
             if serviceClass == classOf[ViewService] =>
-          val viewsImpl = new ViewsImpl(system, viewServices, rootContext)
+          val viewsImpl = new ViewsImpl(system, viewServices)
           route.orElse(ViewsHandler.partial(viewsImpl))
 
         case (_, (serviceClass, _)) =>

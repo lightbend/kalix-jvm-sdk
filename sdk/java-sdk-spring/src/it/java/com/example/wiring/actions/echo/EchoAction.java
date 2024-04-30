@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package com.example.wiring.actions.echo;
@@ -21,7 +9,7 @@ import kalix.javasdk.StatusCode;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.action.ActionCreationContext;
 import kalix.javasdk.client.ComponentClient;
-import kalix.spring.KalixClient;
+import kalix.spring.impl.KalixClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,13 +28,11 @@ public class EchoAction extends Action {
 
   private Parrot parrot;
   private ActionCreationContext ctx;
-  private final KalixClient kalixClient;
   private final ComponentClient componentClient;
 
-  public EchoAction(Parrot parrot, ActionCreationContext ctx, KalixClient kalixClient, ComponentClient componentClient) {
+  public EchoAction(Parrot parrot, ActionCreationContext ctx,  ComponentClient componentClient) {
     this.parrot = parrot;
     this.ctx = ctx;
-    this.kalixClient = kalixClient;
     this.componentClient = componentClient;
   }
 
@@ -66,12 +52,6 @@ public class EchoAction extends Action {
   @GetMapping("/echo/message")
   public Effect<Message> stringMessageFromParam(@RequestParam String msg) {
     return stringMessage(msg);
-  }
-
-  @PostMapping("/echo/message/forward")
-  public Effect<Message> stringMessageFromParamFw(@RequestParam String msg) {
-    var result = kalixClient.get("/echo/message?msg=" + URLEncoder.encode(msg, StandardCharsets.UTF_8), Message.class);
-    return effects().forward(result);
   }
 
   @PostMapping("/echo/message/forward")

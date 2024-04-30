@@ -1,38 +1,25 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.scalasdk.impl.valueentity
 
+import java.util.Optional
+
+import scala.jdk.CollectionConverters.SetHasAsJava
+import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.OptionConverters._
+
 import akka.stream.Materializer
+import com.google.protobuf.Descriptors
 import kalix.javasdk
 import kalix.scalasdk.impl.InternalContext
 import kalix.scalasdk.impl.MetadataConverters
-import kalix.scalasdk.impl.PassivationStrategyConverters
 import kalix.scalasdk.valueentity.CommandContext
 import kalix.scalasdk.valueentity.ValueEntity
 import kalix.scalasdk.valueentity.ValueEntityContext
 import kalix.scalasdk.valueentity.ValueEntityOptions
 import kalix.scalasdk.valueentity.ValueEntityProvider
-import com.google.protobuf.Descriptors
-
-import java.util.Optional
-import scala.collection.immutable.Set
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.CollectionConverters.SetHasAsScala
-import scala.jdk.OptionConverters._
 
 private[scalasdk] final class JavaValueEntityAdapter[S](scalaSdkValueEntity: ValueEntity[S])
     extends javasdk.valueentity.ValueEntity[S] {
@@ -91,14 +78,6 @@ private[scalasdk] final class JavaValueEntityOptionsAdapter(scalaSdkValueEntityO
 
   def withForwardHeaders(headers: java.util.Set[String]): javasdk.valueentity.ValueEntityOptions =
     new JavaValueEntityOptionsAdapter(scalaSdkValueEntityOptions.withForwardHeaders(Set.from(headers.asScala)))
-
-  def passivationStrategy(): javasdk.PassivationStrategy =
-    PassivationStrategyConverters.toJava(scalaSdkValueEntityOptions.passivationStrategy)
-
-  def withPassivationStrategy(
-      passivationStrategy: javasdk.PassivationStrategy): javasdk.valueentity.ValueEntityOptions =
-    new JavaValueEntityOptionsAdapter(
-      scalaSdkValueEntityOptions.withPassivationStrategy(PassivationStrategyConverters.toScala(passivationStrategy)))
 }
 
 private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: javasdk.valueentity.CommandContext)

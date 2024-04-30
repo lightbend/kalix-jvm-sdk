@@ -19,6 +19,8 @@ object CommonSettings extends AutoPlugin {
       organizationName := "Lightbend Inc.",
       organizationHomepage := Some(url("https://lightbend.com")),
       homepage := Some(url("https://kalix.io")),
+      description := "Java and Scala SDKs for Kalix",
+      resolvers += "Akka library repository".at("https://repo.akka.io/maven"),
       developers := List(
         Developer(
           id = "kalix-team",
@@ -31,8 +33,13 @@ object CommonSettings extends AutoPlugin {
         if ((ThisBuild / isSnapshot).value) None
         else Some(url(s"https://github.com/lightbend/kalix-jvm-sdk/releases/tag/v${version.value}"))
       ),
-      startYear := Some(2024),
-      licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+      startYear := Some(2021),
+      licenses := {
+        val tagOrBranch =
+          if (version.value.endsWith("SNAPSHOT")) "main"
+          else "v" + version.value
+        Seq(("BUSL-1.1", url(s"https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/${tagOrBranch}/LICENSE")))
+      },
       scalafmtOnCompile := !insideCI.value,
       javafmtOnCompile := !insideCI.value,
       scalaVersion := Dependencies.ScalaVersion,
@@ -56,6 +63,8 @@ object CommonHeaderSettings extends AutoPlugin {
   import de.heikoseeberger.sbtheader.FileType
 
   override def projectSettings = AutomateHeaderPlugin.projectSettings ++ Seq(
+    headerLicense := Some(
+      HeaderLicense.Custom("""Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>""")),
     headerMappings += FileType("proto") -> HeaderCommentStyle.cppStyleLineComment,
     headerSources / excludeFilter := (headerSources / excludeFilter).value || "package-info.java",
     // exclude source files in resources

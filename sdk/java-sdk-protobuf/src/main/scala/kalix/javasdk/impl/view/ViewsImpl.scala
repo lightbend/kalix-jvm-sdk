@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.impl.view
@@ -22,9 +10,9 @@ import scala.util.control.NonFatal
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import kalix.javasdk.impl.{ Service, ViewFactory }
-import kalix.javasdk.{ Context, Metadata }
+import kalix.javasdk.Metadata
 import kalix.javasdk.impl._
-import kalix.javasdk.view.{ UpdateContext, View, ViewContext, ViewCreationContext, ViewOptions }
+import kalix.javasdk.view.{ UpdateContext, ViewContext, ViewCreationContext, ViewOptions }
 import kalix.protocol.{ view => pv }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -66,7 +54,7 @@ object ViewsImpl {
 }
 
 /** INTERNAL API */
-final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], rootContext: Context) extends pv.Views {
+final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) extends pv.Views {
   import ViewsImpl.log
 
   private final val services = _services.iterator.toMap
@@ -86,7 +74,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService], 
     // and so on recursively.
     in.prefixAndTail(1)
       .flatMapConcat {
-        case (Seq(pv.ViewStreamIn(pv.ViewStreamIn.Message.Receive(receiveEvent), _)), tail) =>
+        case (Seq(pv.ViewStreamIn(pv.ViewStreamIn.Message.Receive(receiveEvent), _)), _) =>
           services.get(receiveEvent.serviceName) match {
             case Some(service: ViewService) =>
               if (!service.factory.isPresent)

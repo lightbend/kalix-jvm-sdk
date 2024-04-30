@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.scalasdk.workflow
@@ -36,14 +24,14 @@ object ProtoStepBuilder {
      * Transition to the next step based on the result of the step call.
      *
      * The function passed to this method should receive the return type of the step call and return an
-     * [[Workflow.Effect.TransitionalEffect]] describing the next step to transition to.
+     * [[AbstractWorkflow.Effect.TransitionalEffect]] describing the next step to transition to.
      *
      * When defining the Effect, you can update the workflow state and indicate the next step to transition to. This can
      * be another step, or a pause or end of the workflow. <p> When transition to another step, you can also pass an
      * input parameter to the next step.
      *
      * @param transitionFunc
-     *   Function that transform the action result to a [[Workflow.Effect.TransitionalEffect]]
+     *   Function that transform the action result to a [[AbstractWorkflow.Effect.TransitionalEffect]]
      * @return
      *   CallStep
      */
@@ -67,14 +55,14 @@ object ProtoStepBuilder {
      * Transition to the next step based on the result of the step call.
      *
      * The function passed to this method should receive the return type of the step call and return an
-     * [[Workflow.Effect.TransitionalEffect]] describing the next step to transition to.
+     * [[AbstractWorkflow.Effect.TransitionalEffect]] describing the next step to transition to.
      *
      * When defining the Effect, you can update the workflow state and indicate the next step to transition to. This can
      * be another step, or a pause or end of the workflow. <p> When transition to another step, you can also pass an
      * input parameter to the next step.
      *
      * @param transitionFunc
-     *   Function that transform the action result to a [[Workflow.Effect.TransitionalEffect]]
+     *   Function that transform the action result to a [[AbstractWorkflow.Effect.TransitionalEffect]]
      * @return
      *   AsyncCallStep
      */
@@ -152,9 +140,9 @@ case class ProtoStepBuilder(name: String) {
   /**
    * Build a step action with an async call.
    *
-   * The function passed to this method should return a [[Future]]. On successful completion, its result is made
-   * available to this workflow via the `andThen` method. In the `andThen` method, we can use the result to update the
-   * workflow state and transition to the next step.
+   * The function passed to this method should return a [[scala.concurrent.Future]]. On successful completion, its
+   * result is made available to this workflow via the `andThen` method. In the `andThen` method, we can use the result
+   * to update the workflow state and transition to the next step.
    *
    * On failure, the step will be retried according to the default retry strategy or the one defined in the step
    * configuration.
@@ -179,9 +167,9 @@ case class ProtoStepBuilder(name: String) {
   /**
    * Build a step action with an async call.
    *
-   * The function passed to this method should return a [[Future]]. On successful completion, its result is made
-   * available to this workflow via the `andThen` method. In the `andThen` method, we can use the result to update the
-   * workflow state and transition to the next step.
+   * The function passed to this method should return a [[scala.concurrent.Future]]. On successful completion, its
+   * result is made available to this workflow via the `andThen` method. In the `andThen` method, we can use the result
+   * to update the workflow state and transition to the next step.
    *
    * On failure, the step will be retried according to the default retry strategy or the one defined in the step
    * configuration.

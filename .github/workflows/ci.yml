@@ -22,8 +22,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -33,8 +34,8 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |
             ~/.cache/coursier
@@ -46,12 +47,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Run javafmt checks
         run: |
@@ -77,8 +78,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -88,8 +90,8 @@ jobs:
 
       - name: Cache Coursier cache
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |
             ~/.cache/coursier
@@ -101,17 +103,17 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
@@ -123,10 +125,10 @@ jobs:
         run: |-
           sbt -Ddisable.apidocs=true publishM2 publishLocal
           # the SDK_VERSION is later used to run the maven tests (see below)
-          echo "Extracting version from sbt build"
-          sbt "print javaSdkProtobuf/version" > version.txt
-          cat version.txt
-          echo 'sdk_version='$(cat version.txt | tail -n 2 | head -n 1) >> $GITHUB_OUTPUT
+          .github/determine-sdk-version.sh
+          SDK_VERSION="$(cat sdk-version.txt)"
+          echo "SDK version: '${SDK_VERSION}'"
+          echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Build maven-java
         env:
@@ -134,8 +136,8 @@ jobs:
         run: |-
           cd maven-java
           echo "Running maven-java with SDK version: '${SDK_VERSION}'"
-          mvn versions:set -DnewVersion=${SDK_VERSION}
-          mvn verify install --no-transfer-progress
+          ../.github/patch-maven-versions.sh
+          mvn verify install --no-transfer-progress -Dskip.docker=true
           echo $SDK_VERSION > ~/kalix-sdk-version.txt
 
       - name: Package io.kalix dependencies
@@ -145,8 +147,8 @@ jobs:
 
       - name: Upload io.kalix dependencies
         # https://github.com/actions/upload-artifact/releases
-        # v3.1.2
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        # v4.3.2
+        uses: actions/upload-artifact@1746f4ab65b179e0ea60a494b83293b640dd5bba
         with:
           name: m2-cache
           path: ~/dependencies.tar.gz
@@ -160,8 +162,9 @@ jobs:
 
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -171,8 +174,8 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |
             ~/.cache/coursier
@@ -184,17 +187,17 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -214,8 +217,9 @@ jobs:
 
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -225,8 +229,8 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |
             ~/.cache/coursier
@@ -238,17 +242,17 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -268,8 +272,9 @@ jobs:
 
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -277,18 +282,18 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/actions/setup-java/releases/
-        # v3.11.0
-        uses: actions/setup-java@5ffc13f4174014e2d4d4572b3d74c3fa61aeb2c2
+        # v4.2.1
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
@@ -297,8 +302,8 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -311,6 +316,7 @@ jobs:
       - name: Value Entity Archetype
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          echo "Testing Value Entity Archetype. SDK_VERSION: ${SDK_VERSION}"
           cd maven-java
           mvn -B archetype:generate -DgroupId=com.example -DartifactId=counter-value-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype -DarchetypeVersion=$SDK_VERSION
           cd counter-value-entity
@@ -319,6 +325,7 @@ jobs:
 
       - name: Event Sourced Entity Archetype
         run: |-
+          echo "Testing Event Sourced Entity Archetype. SDK_VERSION: ${SDK_VERSION}"
           mvn -B archetype:generate  -DgroupId=com.example -DartifactId=counter-event-sourced-entity -DarchetypeGroupId=io.kalix -DarchetypeArtifactId=kalix-maven-archetype-event-sourced-entity -DarchetypeVersion=$SDK_VERSION
           cd counter-event-sourced-entity
           mvn -B compile
@@ -331,8 +338,9 @@ jobs:
 
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -342,8 +350,8 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |
             ~/.cache/coursier
@@ -355,17 +363,17 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -385,8 +393,9 @@ jobs:
 
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -396,8 +405,8 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |
             ~/.cache/coursier
@@ -409,17 +418,17 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -445,8 +454,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -480,8 +490,9 @@ jobs:
 
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -491,8 +502,8 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |
             ~/.cache/coursier
@@ -504,17 +515,17 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -576,7 +587,7 @@ jobs:
           - { sample: java-spring-valueentity-shopping-cart, it: true }
           - { sample: java-spring-valueentity-customer-registry, it: true }
 
-          - { sample: java-spring-eventsourced-counter, pre_cmd: 'docker compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', it: true }
+          - { sample: java-spring-eventsourced-counter, pre_cmd: 'docker compose up gcloud-pubsub-emulator -d', it: true }
 
           - { sample: java-protobuf-replicatedentity-shopping-cart, it: true }
           - { sample: java-protobuf-replicatedentity-examples, it: true }
@@ -596,8 +607,9 @@ jobs:
 
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -605,17 +617,17 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
           git checkout scratch
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
@@ -624,8 +636,8 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/
@@ -690,7 +702,7 @@ jobs:
 
           - { sample: scala-protobuf-eventsourced-customer-registry, test: true }
           - { sample: scala-protobuf-eventsourced-customer-registry-subscriber, pre_cmd: './build-customer-service-image.sh', test: true }
-          - { sample: scala-protobuf-eventsourced-counter, pre_cmd: 'docker compose -f ../../.circleci/google-pubsub-emulator-docker-compose.yml up -d', test: true }
+          - { sample: scala-protobuf-eventsourced-counter, pre_cmd: 'docker compose up gcloud-pubsub-emulator -d', test: true }
           - { sample: scala-protobuf-eventsourced-shopping-cart, test: true }
 
           - { sample: scala-protobuf-valueentity-counter, test: true }
@@ -710,8 +722,9 @@ jobs:
 
     steps:
       - name: Checkout
-        # v3.1.0
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        # https://github.com/actions/checkout/releases
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -721,8 +734,8 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v3.3.1
-        uses: actions/cache/restore@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        # v4.0.2
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
         with:
           path: |
             ~/.cache/coursier
@@ -734,17 +747,17 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.0
-        uses: coursier/setup-action@70323223454ac2a9eb2de46f389b4d045cbcdea5
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.17
+          jvm: temurin:1.21
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v3.0.2
-        uses: actions/download-artifact@d2278a10efbd646909370fd49fb454cb04e368e3
+        # v4.1.5
+        uses: actions/download-artifact@8caf195ad4b1dee92908e23f56eeb0696f1dd42d
         with:
           name: m2-cache
           path: ~/

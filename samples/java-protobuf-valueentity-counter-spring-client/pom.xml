@@ -13,19 +13,25 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.8</version>
+        <version>3.2.4</version>
         <relativePath/>
     </parent>
 
     <properties>
-        <java.version>11</java.version>
-        <jdk.target>11</jdk.target>
+        <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <akka-grpc.version>2.1.6</akka-grpc.version>
-        <protobuf.version>3.19.2</protobuf.version>
         <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
-        <grpc.version>1.44.0</grpc.version>
+        <protobuf.version>3.21.7</protobuf.version>
+        <grpc.version>1.62.2</grpc.version>
     </properties>
+
+  <repositories>
+    <repository>
+      <id>akka-repository</id>
+      <name>Akka library repository</name>
+      <url>https://repo.akka.io/maven</url>
+    </repository>
+  </repositories>
 
     <dependencies>
         <dependency>
@@ -67,7 +73,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.0.1</version>
+            <version>5.0.0-alpha.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -78,8 +84,8 @@
         </dependency>
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock</artifactId>
-            <version>2.27.2</version>
+            <artifactId>wiremock-jre8-standalone</artifactId>
+            <version>3.0.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -102,11 +108,9 @@
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>${protobuf-plugin.version}</version>
                 <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${os.detected.classifier}
-                    </protocArtifact>
+                    <protocArtifact>com.google.protobuf:protoc:3.21.7:exe:${os.detected.classifier}</protocArtifact>
                     <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
-                    </pluginArtifact>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
                 </configuration>
                 <executions>
                     <execution>

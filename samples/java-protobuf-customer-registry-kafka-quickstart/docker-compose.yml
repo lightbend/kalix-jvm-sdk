@@ -30,6 +30,8 @@ services:
     ports:
       - 9092:9092 # used when running clients from containerized Kalix Runtime
       - 9093:9093 # used when running non-docker clients from host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -42,7 +44,13 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      start_period: 10s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
   zookeeper:
     image: zookeeper:3.9
     ports:

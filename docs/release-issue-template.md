@@ -3,16 +3,17 @@
 ### Prepare
 
 - [ ] Make sure all important PRs have been merged
-- [ ] Check that the [latest build](https://app.circleci.com/pipelines/github/lightbend/kalix-jvm-sdk?branch=main) successfully finished
+- [ ] Check that the [latest build](https://github.com/lightbend/kalix-jvm-sdk/actions?query=branch%3Amain) successfully finished
 - [ ] Make sure a version of the Kalix Runtime that supports the protocol version the SDK expects has been deployed to production
 
 You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.kalix.io/d/b30d0d8e-3894-4fbf-9627-9cb6088949ee/prod-kalix-metrics?orgId=1) or using [various other methods](https://github.com/lightbend/kalix/wiki/Versioning-and-how-to-determine-what-version-is-running).
 
 ### Cutting the release 
 
+- [ ] Update the "Change date" on [the license](/LICENSE) to release date plus three years
 - [ ] Use the "Generate release notes" button to create [a new release](https://github.com/lightbend/kalix-jvm-sdk/releases/new) with the appropriate tag.
     - Review the generated notes and "Publish release"
-    - CI will automatically publish to Sonatype OSSRH (Maven Central) based on the tag
+    - CI will automatically publish to the repository based on the tag
     - CI will update the docs/kalix-current branch
 
 ### Check availability

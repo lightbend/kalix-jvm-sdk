@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.scalasdk.testkit
@@ -19,7 +7,6 @@ package kalix.scalasdk.testkit
 import scala.concurrent.ExecutionContext
 
 import akka.actor.ActorSystem
-import akka.grpc.GrpcClientSettings
 import akka.stream.Materializer
 import kalix.scalasdk.{ Kalix, Principal }
 import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
@@ -145,22 +132,10 @@ class KalixTestKit private (delegate: JTestKit) {
     delegate.getGrpcClientForPrincipal(clientClass, Principal.toJava(principal))
 
   /**
-   * Get a Topic for mocked interactions, avoiding the need for a real broker instance.
-   *
-   * @param topic
-   *   the name of the topic configured in your service which you want to mock
-   * @return
-   *   mocked topic to read/publish messages from/to
-   */
-  @Deprecated
-  def getTopic(topic: String): Topic = Topic(delegate.getTopic(topic), delegate.getMessageCodec)
-
-  /**
    * Get incoming messages for ValueEntity.
    *
    * @param typeId
-   * @TypeId
-   *   or entity_type of the ValueEntity (depending on the used SDK)
+   *   The typeId the ValueEntity
    */
   def getValueEntityIncomingMessages(typeId: String): IncomingMessages = IncomingMessages(
     delegate.getValueEntityIncomingMessages(typeId))
@@ -169,8 +144,7 @@ class KalixTestKit private (delegate: JTestKit) {
    * Get incoming messages for EventSourcedEntity.
    *
    * @param typeId
-   * @TypeId
-   *   or entity_type of the EventSourcedEntity (depending on the used SDK)
+   *   The typeId of the EventSourcedEntity
    */
   def getEventSourcedEntityIncomingMessages(typeId: String): IncomingMessages = IncomingMessages(
     delegate.getEventSourcedEntityIncomingMessages(typeId))
@@ -213,15 +187,6 @@ class KalixTestKit private (delegate: JTestKit) {
 
   implicit def executionContext: ExecutionContext =
     materializer.executionContext
-
-  /**
-   * Get `GrpcClientSettings` for creating Akka gRPC clients.
-   *
-   * @return
-   *   test gRPC client settings
-   */
-  @deprecated("Use `getGrpcClient` instead.", since = "0.8.1")
-  def grpcClientSettings: GrpcClientSettings = delegate.getGrpcClientSettings()
 
   /**
    * Get an `ActorSystem` for creating Akka HTTP clients.

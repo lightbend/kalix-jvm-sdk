@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.testkit.impl
@@ -60,12 +48,10 @@ import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.testkit.EventingTestKit
 import kalix.javasdk.testkit.EventingTestKit.IncomingMessages
 import kalix.javasdk.testkit.EventingTestKit.OutgoingMessages
-import kalix.javasdk.testkit.EventingTestKit.Topic
 import kalix.javasdk.testkit.EventingTestKit.{ Message => TestKitMessage }
 import kalix.javasdk.testkit.impl.EventingTestKitImpl.RunningSourceProbe
 import kalix.javasdk.testkit.impl.TestKitMessageImpl.defaultMetadata
 import kalix.javasdk.testkit.impl.TestKitMessageImpl.expectMsgInternal
-import kalix.javasdk.testkit.impl.TopicImpl.DefaultTimeout
 import kalix.javasdk.{ Metadata => SdkMetadata }
 import kalix.protocol.component.Metadata
 import kalix.protocol.component.MetadataEntry
@@ -163,20 +149,12 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
   private implicit val sys: ActorSystem = system
   private implicit val ec: ExecutionContextExecutor = sys.dispatcher
 
-  private val topics = new ConcurrentHashMap[String, TopicImpl]()
   private val topicDestinations = new ConcurrentHashMap[String, OutgoingMessagesImpl]()
 
   private val veSubscriptions = new ConcurrentHashMap[String, VeIncomingMessagesImpl]()
   private val esSubscriptions = new ConcurrentHashMap[String, IncomingMessagesImpl]()
   private val streamSubscriptions = new ConcurrentHashMap[String, IncomingMessagesImpl]()
   private val topicSubscriptions = new ConcurrentHashMap[String, IncomingMessagesImpl]()
-
-  override def getTopic(topic: String): Topic = getTopicImpl(topic)
-
-  private def getTopicImpl(topic: String): TopicImpl =
-    topics.computeIfAbsent(
-      topic,
-      _ => new TopicImpl(TestProbe(), system.actorOf(Props[SourcesHolder](), "topic-source-holder-" + topic), codec))
 
   override def getTopicIncomingMessages(topic: String): IncomingMessages = getTopicIncomingMessagesImpl(topic)
 
@@ -218,11 +196,9 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
     override def emitSingle(in: EmitSingleCommand): Future[EmitSingleResult] = {
       log.debug("Receiving message from test broker: [{}]", in)
 
-      in.destination.foreach(dest => {
-        val probe = getTopicImpl(dest.getTopic).destinationProbe //TODO temporary supporting both, to be removed
-        probe.ref ! in
+      in.destination.foreach { dest =>
         getTopicOutgoingMessagesImpl(dest.getTopic).destinationProbe.ref ! in
-      })
+      }
 
       if (in.destination.isEmpty) {
         log.warn("Received a message without destination, ignoring. {}", in)
@@ -255,7 +231,6 @@ final class EventingTestServiceImpl(system: ActorSystem, val host: String, var p
           eventSource.source match {
             case EventSource.Source.Empty => throw new IllegalStateException("not recognized empty eventing source")
             case EventSource.Source.Topic(topic) =>
-              getTopicImpl(topic).addSourceProbe(runningSourceProbe) //TODO temporary supporting both, to be removed
               getTopicIncomingMessagesImpl(topic).addSourceProbe(runningSourceProbe)
             case EventSource.Source.EventSourcedEntity(typeId) =>
               getEventSourcedSubscriptionImpl(typeId).addSourceProbe(runningSourceProbe)
@@ -438,137 +413,6 @@ private[testkit] class OutgoingMessagesImpl(
       }
       .asJava
   }
-}
-
-private[testkit] class TopicImpl(
-    private[testkit] val destinationProbe: TestProbe,
-    protected val sourcesHolder: ActorRef,
-    protected val codec: MessageCodec)
-    extends Topic {
-
-  private val log = LoggerFactory.getLogger(classOf[TopicImpl])
-
-  def addSourceProbe(runningSourceProbe: RunningSourceProbe): Unit = {
-    val addSource = sourcesHolder.ask(SourcesHolder.AddSource(runningSourceProbe))(5.seconds)
-    Await.result(addSource, 10.seconds)
-  }
-
-  override def publish(message: ByteString): Unit =
-    publish(message, SdkMetadata.EMPTY)
-
-  override def publish(message: ByteString, metadata: SdkMetadata): Unit = {
-    val addSource = sourcesHolder.ask(SourcesHolder.Publish(message, metadata))(5.seconds)
-    Await.result(addSource, 5.seconds)
-  }
-
-  override def publish(message: TestKitMessage[_]): Unit = message.getPayload match {
-    case javaPb: GeneratedMessageV3 => publish(javaPb.toByteString, message.getMetadata)
-    case scalaPb: GeneratedMessage  => publish(scalaPb.toByteString, message.getMetadata)
-    case str: String                => publish(ByteString.copyFromUtf8(str), message.getMetadata)
-    case _ =>
-      val encodedMsg = JsonSupport.getObjectMapper
-        .writerFor(message.getPayload.getClass)
-        .writeValueAsBytes(message.getPayload)
-      publish(ByteString.copyFrom(encodedMsg), message.getMetadata)
-  }
-
-  override def publish[T](message: T, subject: String): Unit = {
-    val md = defaultMetadata(message, subject, codec)
-    publish(TestKitMessageImpl(message, md))
-  }
-
-  override def publish(message: JList[TestKitMessage[_]]): Unit =
-    message.asScala.foreach(m => publish(m))
-
-  override def expectNone(): Unit = expectNone(DefaultTimeout)
-
-  override def expectNone(timeout: time.Duration): Unit = destinationProbe.expectNoMessage(timeout.toScala)
-
-  override def expectOneRaw(): TestKitMessage[ByteString] = expectOneRaw(DefaultTimeout)
-
-  override def expectOneRaw(timeout: time.Duration): TestKitMessage[ByteString] = {
-    val msg = expectMsgInternal(destinationProbe, timeout)
-    TestKitMessageImpl.ofProtocolMessage(msg.getMessage)
-  }
-
-  override def expectOne(): TestKitMessage[_] = expectOne(DefaultTimeout)
-
-  override def expectOne(timeout: time.Duration): TestKitMessage[_] = {
-    val msg = expectMsgInternal(destinationProbe, timeout)
-    anyFromMessage(msg.getMessage)
-  }
-
-  override def expectOneTyped[T](clazz: Class[T]): TestKitMessage[T] =
-    expectOneTyped(clazz, DefaultTimeout)
-
-  override def expectOneTyped[T](clazz: Class[T], timeout: time.Duration): TestKitMessage[T] = {
-    val msg = expectMsgInternal(destinationProbe, timeout, Some(clazz))
-    val metadata = MetadataImpl.of(msg.getMessage.getMetadata.entries)
-    val scalaPb = ScalaPbAny(typeUrlFor(metadata), msg.getMessage.payload)
-
-    val decodedMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
-      JsonSupport.getObjectMapper
-        .readerFor(clazz)
-        .readValue(msg.getMessage.payload.toByteArray)
-    } else {
-      codec.decodeMessage(scalaPb)
-    }
-
-    val concreteType = TestKitMessageImpl.expectType(decodedMsg, clazz)
-    TestKitMessageImpl(concreteType, metadata)
-  }
-
-  private def anyFromMessage(m: kalix.testkit.protocol.eventing_test_backend.Message): TestKitMessage[_] = {
-    val metadata = MetadataImpl.of(m.metadata.getOrElse(Metadata.defaultInstance).entries)
-    val anyMsg = if (typeUrlFor(metadata).startsWith(JsonSupport.KALIX_JSON)) {
-      m.payload.toStringUtf8
-    } else {
-      codec.decodeMessage(ScalaPbAny(typeUrlFor(metadata), m.payload))
-    }
-    TestKitMessageImpl(anyMsg, metadata)
-  }
-
-  private def typeUrlFor(metadata: MetadataImpl): String = {
-    val ceType = metadata.get("ce-type").asScala
-    val contentType = metadata.get("Content-Type").asScala
-
-    (ceType, contentType) match {
-      case (_, Some("text/plain; charset=utf-8")) => "type.kalix.io/string"
-      case (_, Some("application/octet-stream"))  => "type.kalix.io/bytes"
-      case (Some(t), Some("application/json"))    => s"json.kalix.io/$t"
-      case (Some(t), _)                           => s"type.googleapis.com/$t"
-      case (t, ct) =>
-        log.warn(s"Could not extract typeUrl from ce-type=$t content-type=$ct")
-        ""
-    }
-  }
-
-  override def expectN(): JList[TestKitMessage[_]] =
-    expectN(Int.MaxValue, DefaultTimeout)
-
-  override def expectN(total: Int): JList[TestKitMessage[_]] =
-    expectN(total, DefaultTimeout)
-
-  override def expectN(total: Int, timeout: time.Duration): JList[TestKitMessage[_]] = {
-    destinationProbe
-      .receiveN(total, timeout.toScala)
-      .map { case cmd: EmitSingleCommand =>
-        anyFromMessage(cmd.getMessage)
-      }
-      .asJava
-  }
-
-  override def clear(): JList[TestKitMessage[_]] = {
-    destinationProbe
-      .receiveWhile(idle = 50.millisecond) { case cmd: EmitSingleCommand =>
-        anyFromMessage(cmd.getMessage)
-      }
-      .asJava
-  }
-}
-
-private[testkit] object TopicImpl {
-  val DefaultTimeout: time.Duration = time.Duration.ofSeconds(3)
 }
 
 private[testkit] case class TestKitMessageImpl[P](payload: P, metadata: SdkMetadata) extends TestKitMessage[P] {

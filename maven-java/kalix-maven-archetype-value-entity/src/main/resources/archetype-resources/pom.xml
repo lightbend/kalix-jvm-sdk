@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
+  <parent>
+    <groupId>io.kalix</groupId>
+    <artifactId>kalix-java-sdk-protobuf-parent</artifactId>
+    <version>@project.version@</version>
+    <relativePath/> 
+  </parent>
+  
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
   <version>${version}</version>
@@ -14,278 +20,18 @@
     <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
     <kalixContainerRegistry>kcr.us-east-1.kalix.io</kalixContainerRegistry>
     <kalixOrganization>acme</kalixOrganization>
-    <dockerImage>${D}{kalixContainerRegistry}/${D}{kalixOrganization}/${D}{project.artifactId}</dockerImage>
-    <dockerTag>${D}{project.version}-${D}{build.timestamp}</dockerTag>
-    <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>${package}.Main</mainClass>
-
-    <jdk.target>11</jdk.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <kalix-sdk.version>@project.version@</kalix-sdk.version>
-    <akka-grpc.version>2.1.6</akka-grpc.version>
   </properties>
-
-  <build>
-    <resources>
-      <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->
-      <resource>
-        <directory>${D}{project.build.directory}/generated-resources</directory>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-    </resources>
-
-    <extensions>
-      <extension>
-        <groupId>kr.motd.maven</groupId>
-        <artifactId>os-maven-plugin</artifactId>
-        <version>1.7.1</version>
-      </extension>
-    </extensions>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
-        <configuration>
-          <source>${D}{jdk.target}</source>
-          <target>${D}{jdk.target}</target>
-          <compilerArgs>
-            <arg>-Xlint:deprecation</arg>
-          </compilerArgs>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.xolstice.maven.plugins</groupId>
-        <artifactId>protobuf-maven-plugin</artifactId>
-        <version>0.6.1</version>
-        <executions>
-          <execution>
-            <!-- generate Java code for protobuf types -->
-            <id>protobuf</id>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-            <configuration>
-              <writeDescriptorSet>true</writeDescriptorSet>
-              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-              <descriptorSetFileName>user-function.desc</descriptorSetFileName>
-              <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.19.2:exe:${D}{os.detected.classifier}</protocArtifact>
-              <protocPlugins>
-                <protocPlugin>
-                  <id>akka-grpc</id>
-                  <groupId>com.lightbend.akka.grpc</groupId>
-                  <artifactId>akka-grpc-scalapb-protoc-plugin_2.12</artifactId>
-                  <version>${D}{akka-grpc.version}</version>
-                  <mainClass>akka.grpc.gen.Main</mainClass>
-                </protocPlugin>
-              </protocPlugins>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.1</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                  <resource>reference.conf</resource>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>${D}{mainClass}</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <version>0.43.4</version>
-        <configuration>
-          <images>
-            <image>
-              <name>${D}{dockerImage}:%l</name>
-              <build>
-                <!-- Base Docker image which contains jre-->
-                <from>docker.io/library/adoptopenjdk:${D}{jdk.target}-jre-hotspot</from>
-                <createImageOptions>
-                  <platform>linux/amd64</platform>
-                </createImageOptions>
-                <tags>
-                  <!-- tag for generated image -->
-                  <tag>${D}{dockerTag}</tag>
-                </tags>
-                <ports>
-                  <!-- expose port in Docker container -->
-                  <port>8080</port>
-                </ports>
-                <assembly>
-                  <!-- NOTE: (optional) switch to "artifact-with-dependencies" to show dependencies library-->
-                  <descriptorRef>artifact</descriptorRef>
-                </assembly>
-                <entryPoint>
-                  <arg>java</arg>
-                  <arg>-jar</arg>
-                  <arg>/maven/${D}{project.build.finalName}.jar</arg>
-                </entryPoint>
-              </build>
-            </image>
-          </images>
-        </configuration>
-        <executions>
-          <execution>
-            <id>build-docker-image</id>
-            <phase>install</phase>
-            <goals>
-              <goal>build</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>push-docker-image</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>push</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <!-- configure src/it/java and src/it/resources -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <execution>
-            <id>add-integration-test-source</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>src/it/java</source>
-              </sources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>add-integration-test-resource</id>
-            <phase>generate-test-resources</phase>
-            <goals>
-              <goal>add-test-resource</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>src/it/resources</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.2</version>
-        <configuration>
-          <excludes>
-            <!-- ignore integration test classes -->
-            <exclude>**/*IntegrationTest</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>io.kalix</groupId>
-        <artifactId>kalix-maven-plugin</artifactId>
-        <version>${D}{kalix-sdk.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate</goal>
-              <goal>deploy</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <dockerImage>${D}{dockerImage}:${D}{dockerTag}</dockerImage>
-          <mainClass>${D}{mainClass}</mainClass>
-          <integrationTestSourceDirectory>src/it/java</integrationTestSourceDirectory>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>3.1.1</version>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-
-    </plugins>
-  </build>
-
-  <profiles>
-    <profile>
-      <!-- run Integration Tests in src/it/java with `mvn verify -Pit`-->
-      <id>it</id>
-      <build>
-        <plugins>
-          <plugin>
-            <!-- run *IntegrationTest with failsafe -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <version>2.22.2</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
-                  <includes>
-                    <include>**/*IntegrationTest</include>
-                  </includes>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
   <dependencies>
     <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-protobuf</artifactId>
-      <version>${D}{kalix-sdk.version}</version>
+        <groupId>io.kalix</groupId>
+        <artifactId>kalix-java-sdk-protobuf</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-      <version>${D}{kalix-sdk.version}</version>
-      <scope>test</scope>
+        <groupId>io.kalix</groupId>
+        <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
     </dependency>
   </dependencies>
+  
 </project>

@@ -1,7 +1,7 @@
 # This script will publish the current snapshot of all artifacts. 
 # Including the maven plugin and archetypes.
 
-SDK_VERSION=$(sbt "print javaSdkProtobuf/version" | tail -1)
+export SDK_VERSION=$(sbt "print coreSdk/version" | tail -1)
 
 echo
 echo "------------------------------------------------------------------------"
@@ -11,16 +11,18 @@ echo "------------------------------------------------------------------------"
 sbt 'publishM2; publishLocal'
 (
   cd maven-java
-  mvn versions:set -DnewVersion=$SDK_VERSION
-  mvn clean install
+  ../.github/patch-maven-versions.sh
+  mvn clean install -Dskip.docker=true
 
   # cleanup
   rm pom.xml.versionsBackup
   rm */pom.xml.versionsBackup
 
-  # revert
-  git checkout pom.xml
-  git checkout */pom.xml
+  # revert, but only we didn't request to keep the modified files
+  if [ "$1" != "--keep" ]; then
+    git checkout pom.xml
+    git checkout */pom.xml
+  fi
 )
 
 

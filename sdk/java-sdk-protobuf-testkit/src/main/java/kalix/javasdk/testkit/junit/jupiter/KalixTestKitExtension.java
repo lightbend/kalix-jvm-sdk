@@ -1,36 +1,20 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.testkit.junit.jupiter;
 
 import akka.actor.ActorSystem;
-import akka.grpc.GrpcClientSettings;
 import akka.stream.Materializer;
 import kalix.javasdk.Kalix;
 import kalix.javasdk.impl.MessageCodec;
 import kalix.javasdk.testkit.EventingTestKit;
 import kalix.javasdk.testkit.EventingTestKit.IncomingMessages;
 import kalix.javasdk.testkit.EventingTestKit.OutgoingMessages;
-import kalix.javasdk.testkit.EventingTestKit.Topic;
 import kalix.javasdk.testkit.KalixTestKit;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.Extension;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.rules.ExternalResource;
 
 /**
  * A JUnit 5 "Jupiter" Extension for {@link KalixTestKit}, which automatically manages the lifecycle of

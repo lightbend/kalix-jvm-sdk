@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.codegen
@@ -21,6 +9,7 @@ import java.nio.file.Paths
 
 import scala.annotation.tailrec
 import scala.collection.immutable
+import scala.language.implicitConversions
 import scala.util.control.NoStackTrace
 
 import kalix.codegen.ModelBuilder.Command
@@ -52,7 +41,7 @@ object SourceGeneratorUtils {
     val (kind, messageType) = service match {
       case Left(serv: ModelBuilder.ActionService)      => ("Action Service", serv.messageType)
       case Left(serv: ModelBuilder.ViewService)        => ("View Service", serv.messageType)
-      case Left(serv: ModelBuilder.EntityService)      => throw new IllegalArgumentException("Unexpected EntityService")
+      case Left(_: ModelBuilder.EntityService)         => throw new IllegalArgumentException("Unexpected EntityService")
       case Right(ent: ModelBuilder.EventSourcedEntity) => ("Event Sourced Entity Service", ent.messageType)
       case Right(ent: ModelBuilder.ValueEntity)        => ("Value Entity Service", ent.messageType)
       case Right(ent: ModelBuilder.ReplicatedEntity)   => ("Replicated Entity Service", ent.messageType)

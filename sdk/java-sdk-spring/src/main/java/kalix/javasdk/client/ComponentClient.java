@@ -1,33 +1,25 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.client;
 
-import kalix.spring.KalixClient;
+import kalix.spring.impl.KalixClient;
 
 import java.util.List;
 
 /**
- * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a call:
- * 1. select component type (and pass id if necessary)
- * 2. select component method, by using Java method reference operator (::)
- * 3. provide parameters (if required)
+ * Utility to send requests to other Kalix components by composing a DeferredCall. To compose a
+ * call:
  *
- * <p>
- * Example of use on a cross-component call:
+ * <ol>
+ *   <li>select component type (and pass id if necessary)
+ *   <li>select component method, by using Java method reference operator (::)
+ *   <li>provide parameters (if required)
+ * </ol>
+ *
+ * <p>Example of use on a cross-component call:
+ *
  * <pre>{@code
  * public Effect<String> createUser(String userId, String email, String name) {
  *   //validation here
@@ -36,107 +28,73 @@ import java.util.List;
  * }
  * }</pre>
  */
-public class ComponentClient {
-
-  private final KalixClient kalixClient;
-
-  public ComponentClient(KalixClient kalixClient) {
-    this.kalixClient = kalixClient;
-  }
-
-  /**
-   * Select Action as a call target component.
-   */
-  public ActionCallBuilder forAction() {
-    return new ActionCallBuilder(kalixClient);
-  }
+public interface ComponentClient {
+  /** Select Action as a call target component. */
+  ActionCallBuilder forAction();
 
   /**
    * Select ValueEntity as a call target component.
-   * <p>
-   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
+   *
+   * <p>For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
    */
-  public ValueEntityCallBuilder forValueEntity() {
-    return new ValueEntityCallBuilder(kalixClient);
-  }
+  ValueEntityCallBuilder forValueEntity();
 
   /**
    * Select ValueEntity as a call target component.
    *
    * @param valueEntityId - value entity id used to create a call.
    */
-  public ValueEntityCallBuilder forValueEntity(String valueEntityId) {
-    return new ValueEntityCallBuilder(kalixClient, valueEntityId);
-  }
+  ValueEntityCallBuilder forValueEntity(String valueEntityId);
 
   /**
    * Select ValueEntity as a call target component.
    *
    * @param valueEntityIds - compound entity ids used to create a call.
    */
-  public ValueEntityCallBuilder forValueEntity(String... valueEntityIds) {
-    return new ValueEntityCallBuilder(kalixClient, List.of(valueEntityIds));
-  }
+  ValueEntityCallBuilder forValueEntity(String... valueEntityIds);
 
   /**
    * Select EventSourcedEntity as a call target component.
-   * <p>
-   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
+   *
+   * <p>For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
    */
-  public EventSourcedEntityCallBuilder forEventSourcedEntity() {
-    return new EventSourcedEntityCallBuilder(kalixClient);
-  }
+  EventSourcedEntityCallBuilder forEventSourcedEntity();
 
   /**
    * Select EventSourcedEntity as a call target component.
    *
    * @param eventSourcedEntityId - event sourced entity id used to create a call.
    */
-  public EventSourcedEntityCallBuilder forEventSourcedEntity(String eventSourcedEntityId) {
-    return new EventSourcedEntityCallBuilder(kalixClient, eventSourcedEntityId);
-  }
+  EventSourcedEntityCallBuilder forEventSourcedEntity(String eventSourcedEntityId);
 
   /**
    * Select EventSourcedEntity as a call target component.
    *
    * @param eventSourcedEntityIds - compound entity ids used to create a call.
    */
-  public EventSourcedEntityCallBuilder forEventSourcedEntity(String... eventSourcedEntityIds) {
-    return new EventSourcedEntityCallBuilder(kalixClient, List.of(eventSourcedEntityIds));
-  }
+  EventSourcedEntityCallBuilder forEventSourcedEntity(String... eventSourcedEntityIds);
 
   /**
    * Select Workflow as a call target component.
-   * <p>
-   * For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
+   *
+   * <p>For calling methods annotated with @{@link kalix.javasdk.annotations.GenerateId}
    */
-  public WorkflowCallBuilder forWorkflow() {
-    return new WorkflowCallBuilder(kalixClient);
-  }
+  WorkflowCallBuilder forWorkflow();
 
   /**
    * Select Workflow as a call target component.
    *
    * @param workflowId - workflow id used to create a call.
    */
-  public WorkflowCallBuilder forWorkflow(String workflowId) {
-    return new WorkflowCallBuilder(kalixClient, workflowId);
-  }
+  WorkflowCallBuilder forWorkflow(String workflowId);
 
   /**
    * Select Workflow as a call target component.
    *
    * @param workflowIds - compound workflow ids used to create a call.
    */
-  public WorkflowCallBuilder forWorkflow(String... workflowIds) {
-    return new WorkflowCallBuilder(kalixClient, List.of(workflowIds));
-  }
+  WorkflowCallBuilder forWorkflow(String... workflowIds);
 
-  /**
-   * Select View as a call target component.
-   */
-  public ViewCallBuilder forView() {
-    return new ViewCallBuilder(kalixClient);
-  }
-
+  /** Select View as a call target component. */
+  ViewCallBuilder forView();
 }

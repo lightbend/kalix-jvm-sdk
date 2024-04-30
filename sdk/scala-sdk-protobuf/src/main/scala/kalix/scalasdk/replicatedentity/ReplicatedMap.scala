@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.scalasdk.replicatedentity
@@ -23,10 +11,11 @@ import kalix.scalasdk.impl.replicatedentity.ScalaReplicatedDataConverter
 import kalix.scalasdk.impl.replicatedentity.ScalaReplicatedDataFactoryAdapter
 
 /**
- * A Replicated Map that allows both the addition and removal of [[ReplicatedData]] objects.
+ * A Replicated Map that allows both the addition and removal of [[kalix.replicatedentity.ReplicatedData]] objects.
  *
- * Use the more specialized maps if possible, such as [[ReplicatedCounterMap]], [[ReplicatedRegisterMap]], and
- * [[ReplicatedMultiMap]].
+ * Use the more specialized maps if possible, such as [[kalix.scalasdk.replicatedentity.ReplicatedCounterMap]],
+ * [[kalix.scalasdk.replicatedentity.ReplicatedRegisterMap]], and
+ * [[kalix.scalasdk.replicatedentity.ReplicatedMultiMap]].
  *
  * A removal can only be done if all of the additions that caused the key to be in the map have been seen by this node.
  * This means that, for example, if node 1 adds key A, and node 2 also adds key A, then node 1's addition is replicated
@@ -34,10 +23,10 @@ import kalix.scalasdk.impl.replicatedentity.ScalaReplicatedDataFactoryAdapter
  * because node 2's addition had not yet been observed by node 3. However, if both additions had been replicated to node
  * 3, then the key will be removed.
  *
- * The values of the map are themselves [[ReplicatedData]] types, and hence allow concurrent updates that will
- * eventually converge. New [[ReplicatedData]] objects may only be created when using the
- * [[ReplicatedMap#getOrElse(Any, Function)]] method, using the provided [[ReplicatedDataFactory]] for the create
- * function.
+ * The values of the map are themselves [[kalix.replicatedentity.ReplicatedData]] types, and hence allow concurrent
+ * updates that will eventually converge. New [[kalix.replicatedentity.ReplicatedData]] objects may only be created when
+ * using the [[kalix.scalasdk.replicatedentity.ReplicatedMap.getOrElse*]] method, using the provided
+ * [[kalix.scalasdk.replicatedentity.ReplicatedDataFactory]] for the create function.
  *
  * While removing entries from the map is supported, if the entries are added back again, it is possible that the value
  * of the deleted entry may be merged into the value of the current entry, depending on whether the removal has been
@@ -62,38 +51,39 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
     extends InternalReplicatedData {
 
   /**
-   * Get the [[ReplicatedData]] value for the given key.
+   * Get the [[kalix.replicatedentity.ReplicatedData]] value for the given key.
    *
    * @param key
    *   the key of the mapping
    * @return
-   *   the [[ReplicatedData]] for the key
-   * @throws NoSuchElementException
+   *   the [[kalix.replicatedentity.ReplicatedData]] for the key
+   * @throws java.util.NoSuchElementException
    *   if the key is not preset in the map
    */
   def apply(key: K): V = delegate(key)
 
   /**
-   * Optionally returns the [[ReplicatedData]] value for the given key.
+   * Optionally returns the [[kalix.replicatedentity.ReplicatedData]] value for the given key.
    *
    * @param key
    *   the key of the mapping
    * @return
-   *   an option value containing the value associated with `key` in this [[ReplicatedMap]], or `None` if none exists.
+   *   an option value containing the value associated with `key` in this
+   *   [[kalix.scalasdk.replicatedentity.ReplicatedMap]], or `None` if none exists.
    */
   def get(key: K): Option[V] = delegate.getOption(key)
 
   /**
-   * Get the [[ReplicatedData]] value for the given key. If the key is not present in the map, then a new value is
-   * created with a creation function.
+   * Get the [[kalix.replicatedentity.ReplicatedData]] value for the given key. If the key is not present in the map,
+   * then a new value is created with a creation function.
    *
    * @param key
    *   the key of the mapping
    * @param create
-   *   function used to create an empty value using the given [[ReplicatedDataFactory]] if the key is not present in the
-   *   map
+   *   function used to create an empty value using the given [[kalix.scalasdk.replicatedentity.ReplicatedDataFactory]]
+   *   if the key is not present in the map
    * @return
-   *   the [[ReplicatedData]] for the key
+   *   the [[kalix.replicatedentity.ReplicatedData]] for the key
    */
   def getOrElse[ValueT <: ReplicatedData](key: K, create: ReplicatedDataFactory => ValueT): ValueT = {
     ScalaReplicatedDataConverter
@@ -104,12 +94,12 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
   }
 
   /**
-   * Update the [[ReplicatedData]] value associated with the given key.
+   * Update the [[kalix.replicatedentity.ReplicatedData]] value associated with the given key.
    *
    * @param key
    *   the key of the mapping
    * @param value
-   *   the updated [[ReplicatedData]] value
+   *   the updated [[kalix.replicatedentity.ReplicatedData]] value
    * @return
    *   a new map with the updated value
    */
@@ -163,7 +153,7 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
   def contains(key: K): Boolean = delegate.containsKey(key)
 
   /**
-   * Get a [[Set]] view of the keys contained in this map.
+   * Get a [[scala.collection.immutable.Set]] view of the keys contained in this map.
    *
    * @return
    *   the keys contained in this map
@@ -172,25 +162,25 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
     delegate.keys
 
   /**
-   * Get a [[ReplicatedCounter]] from a heterogeneous Replicated Map (a map with different types of Replicated Data
-   * values).
+   * Get a [[kalix.scalasdk.replicatedentity.ReplicatedCounter]] from a heterogeneous Replicated Map (a map with
+   * different types of Replicated Data values).
    *
    * @param key
    *   the key for a Replicated Counter in this map
    * @return
-   *   the [[ReplicatedCounter]] associated with the given key, or an empty counter
+   *   the [[kalix.scalasdk.replicatedentity.ReplicatedCounter]] associated with the given key, or an empty counter
    */
   def getReplicatedCounter(key: K): ReplicatedCounter =
     getOrElse(key, factory => factory.newCounter)
 
   /**
-   * Get a [[ReplicatedRegister]] from a heterogeneous Replicated Map (a map with different types of Replicated Data
-   * values).
+   * Get a [[kalix.scalasdk.replicatedentity.ReplicatedRegister]] from a heterogeneous Replicated Map (a map with
+   * different types of Replicated Data values).
    *
    * @param key
    *   the key for a Replicated Register in this map
    * @return
-   *   the [[ReplicatedRegister]] associated with the given key, or an empty register
+   *   the [[kalix.scalasdk.replicatedentity.ReplicatedRegister]] associated with the given key, or an empty register
    * @tparam ValueT
    *   the value type for the Replicated Register
    */
@@ -198,15 +188,15 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
     getReplicatedRegister(key, () => null.asInstanceOf[ValueT])
 
   /**
-   * Get a [[ReplicatedRegister]] from a heterogeneous Replicated Map (a map with different types of Replicated Data
-   * values).
+   * Get a [[kalix.scalasdk.replicatedentity.ReplicatedRegister]] from a heterogeneous Replicated Map (a map with
+   * different types of Replicated Data values).
    *
    * @param key
    *   the key for a Replicated Register in this map
    * @param defaultValue
    *   the supplier for a default value when the register is not present
    * @return
-   *   the [[ReplicatedRegister]] associated with the given key, or a default register
+   *   the [[kalix.scalasdk.replicatedentity.ReplicatedRegister]] associated with the given key, or a default register
    * @tparam ValueT
    *   the value type for the Replicated Register
    */
@@ -214,12 +204,13 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
     getOrElse(key, factory => factory.newRegister(defaultValue()))
 
   /**
-   * Get a [[ReplicatedSet]] from a heterogeneous Replicated Map (a map with different types of Replicated Data values).
+   * Get a [[kalix.scalasdk.replicatedentity.ReplicatedSet]] from a heterogeneous Replicated Map (a map with different
+   * types of Replicated Data values).
    *
    * @param key
    *   the key for a Replicated Set in this map
    * @return
-   *   the [[ReplicatedSet]] associated with the given key, or an empty set
+   *   the [[kalix.scalasdk.replicatedentity.ReplicatedSet]] associated with the given key, or an empty set
    * @tparam ElementT
    *   the element type for the Replicated Set
    */
@@ -227,13 +218,13 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
     getOrElse(key, factory => factory.newReplicatedSet)
 
   /**
-   * Get a [[ReplicatedCounterMap]] from a heterogeneous Replicated Map (a map with different types of Replicated Data
-   * values).
+   * Get a [[kalix.scalasdk.replicatedentity.ReplicatedCounterMap]] from a heterogeneous Replicated Map (a map with
+   * different types of Replicated Data values).
    *
    * @param key
    *   the key for a Replicated Counter Map in this map
    * @return
-   *   the [[ReplicatedCounterMap]] associated with the given key, or an empty map
+   *   the [[kalix.scalasdk.replicatedentity.ReplicatedCounterMap]] associated with the given key, or an empty map
    * @tparam KeyT
    *   the key type for the Replicated Counter Map
    */
@@ -241,13 +232,13 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
     getOrElse(key, factory => factory.newReplicatedCounterMap)
 
   /**
-   * Get a [[ReplicatedRegisterMap]] from a heterogeneous Replicated Map (a map with different types of Replicated Data
-   * values).
+   * Get a [[kalix.scalasdk.replicatedentity.ReplicatedRegisterMap]] from a heterogeneous Replicated Map (a map with
+   * different types of Replicated Data values).
    *
    * @param key
    *   the key for a Replicated Register Map in this map
    * @return
-   *   the [[ReplicatedRegisterMap]] associated with the given key, or an empty map
+   *   the [[kalix.scalasdk.replicatedentity.ReplicatedRegisterMap]] associated with the given key, or an empty map
    * @tparam KeyT
    *   the key type for the Replicated Register Map
    * @tparam ValueT
@@ -257,13 +248,13 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
     getOrElse(key, factory => factory.newReplicatedRegisterMap)
 
   /**
-   * Get a [[ReplicatedMultiMap]] from a heterogeneous Replicated Map (a map with different types of Replicated Data
-   * values).
+   * Get a [[kalix.scalasdk.replicatedentity.ReplicatedMultiMap]] from a heterogeneous Replicated Map (a map with
+   * different types of Replicated Data values).
    *
    * @param key
    *   the key for a Replicated Multi-Map in this map
    * @return
-   *   the [[ReplicatedMultiMap]] associated with the given key, or an empty multi-map
+   *   the [[kalix.scalasdk.replicatedentity.ReplicatedMultiMap]] associated with the given key, or an empty multi-map
    * @tparam KeyT
    *   the key type for the Replicated Multi-Map
    * @tparam ValueT
@@ -273,12 +264,13 @@ class ReplicatedMap[K, V <: ReplicatedData] private[scalasdk] (override val dele
     getOrElse(key, factory => factory.newReplicatedMultiMap)
 
   /**
-   * Get a [[ReplicatedMap]] from a heterogeneous Replicated Map (a map with different types of Replicated Data values).
+   * Get a [[kalix.scalasdk.replicatedentity.ReplicatedMap]] from a heterogeneous Replicated Map (a map with different
+   * types of Replicated Data values).
    *
    * @param key
    *   the key for a Replicated Map in this map
    * @return
-   *   the [[ReplicatedMap]] associated with the given key, or an empty map
+   *   the [[kalix.scalasdk.replicatedentity.ReplicatedMap]] associated with the given key, or an empty map
    * @tparam KeyT
    *   the key type for the Replicated Map
    * @tparam ValueT

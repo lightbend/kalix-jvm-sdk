@@ -49,52 +49,25 @@
     <maven.version>3.9.0</maven.version>
   </properties>
 
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.6.13</version>
-          <extensions>true</extensions>
-          <configuration>
-            <serverId>ossrh</serverId>
-            <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
-            <autoReleaseAfterClose>true</autoReleaseAfterClose>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.2.0</version>
-        </plugin>
-        <plugin>
-          <!-- 
-            this plugin allow us to change the version of this projects and submodules
-            we use it in CI to align the project with the current SDK version
-          -->
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>versions-maven-plugin</artifactId>
-          <version>2.8.1</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-
+  
   <profiles>
+    <profile>
+      <id>patch-version</id>
+      <build>
+        <plugins>
+          <plugin>
+            <!-- 
+              this plugin allow us to change the version of this projects and submodules
+              we use it in CI to align the project with the current SDK version
+            -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>versions-maven-plugin</artifactId>
+            <version>2.8.1</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>release</id>
       <build>
@@ -123,6 +96,22 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.13</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.2.0</version>
+          </plugin>
         </plugins>
       </build>
     </profile>
@@ -130,9 +119,13 @@
 
   <modules>
     <module>kalix-maven-plugin</module>
+
+    <module>kalix-java-protobuf-parent</module>
     <module>kalix-maven-archetype-value-entity</module>
+    <module>kalix-maven-archetype-event-sourced-entity</module>
+    
+    <module>kalix-spring-boot-parent</module>
     <module>kalix-spring-boot-archetype</module>
     <module>kalix-spring-boot-kotlin-archetype</module>
-    <module>kalix-maven-archetype-event-sourced-entity</module>
   </modules>
 </project>

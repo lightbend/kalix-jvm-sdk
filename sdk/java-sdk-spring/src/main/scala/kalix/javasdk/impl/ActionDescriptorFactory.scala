@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.impl
@@ -44,14 +32,14 @@ import kalix.javasdk.impl.ComponentDescriptorFactory.valueEntityEventSource
 import kalix.javasdk.impl.reflection.HandleDeletesServiceMethod
 import kalix.javasdk.impl.reflection.KalixMethod
 import kalix.javasdk.impl.reflection.NameGenerator
-import kalix.javasdk.impl.reflection.ReflectionUtils
 import kalix.javasdk.impl.reflection.RestServiceIntrospector
 import kalix.javasdk.impl.reflection.SubscriptionServiceMethod
-
+import kalix.javasdk.impl.reflection.Reflect.Syntax.AnnotatedElementOps
+import kalix.javasdk.impl.reflection.Reflect.Syntax.MethodOps
+import kalix.javasdk.impl.reflection.Reflect
 import java.lang.reflect.Method
+
 import kalix.javasdk.impl.ComponentDescriptorFactory.mergeServiceOptions
-import kalix.javasdk.impl.Reflect.Syntax.AnnotatedElementOps
-import kalix.javasdk.impl.Reflect.Syntax.MethodOps
 import kalix.TriggerOptions
 import kalix.javasdk.annotations.Trigger
 
@@ -97,7 +85,7 @@ private[impl] object ActionDescriptorFactory extends ComponentDescriptorFactory 
 
     //TODO make sure no subscription should be exposed via REST.
     // methods annotated with @Subscribe.ValueEntity
-    import ReflectionUtils.methodOrdering
+    import Reflect.methodOrdering
 
     val handleDeletesMethods = component.getMethods
       .filter(hasHandleDeletes)

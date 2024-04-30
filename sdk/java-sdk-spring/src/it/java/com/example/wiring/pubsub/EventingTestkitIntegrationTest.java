@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package com.example.wiring.pubsub;
@@ -55,14 +43,12 @@ public class EventingTestkitIntegrationTest {
 
   @Autowired
   private KalixTestKit kalixTestKit;
-  private EventingTestKit.Topic eventsTopic;
   private IncomingMessages topicSubscription;
   @Autowired
   private WebClient webClient;
 
   @BeforeAll
   public void beforeAll() {
-    eventsTopic = kalixTestKit.getTopic(COUNTER_EVENTS_TOPIC);
     topicSubscription = kalixTestKit.getTopicIncomingMessages(COUNTER_EVENTS_TOPIC);
   }
 
@@ -77,37 +63,6 @@ public class EventingTestkitIntegrationTest {
     kalixTestKit.stop();
   }
 
-  @Test
-  public void shouldPublishEventWithTypeNameViaTopicEventingTestkit() {
-    //given
-    String subject = "test";
-    ValueIncreased event1 = new ValueIncreased(1);
-    ValueIncreased event2 = new ValueIncreased(2);
-
-    //when
-    Message<ValueIncreased> test = kalixTestKit.getMessageBuilder().of(event1, subject);
-    eventsTopic.publish(test);
-    eventsTopic.publish(event2, subject);
-
-    //then
-    await()
-        .ignoreExceptions()
-        .atMost(10, TimeUnit.of(SECONDS))
-        .untilAsserted(() -> {
-          var response = DummyCounterEventStore.get(subject);
-          assertThat(response).containsOnly(event1, event2);
-
-          var viewResponse = webClient
-              .get()
-              .uri("/counter-view-topic-sub/less-then/" + 4)
-              .retrieve()
-              .bodyToFlux(CounterView.class)
-              .toStream()
-              .toList();
-
-          assertThat(viewResponse).contains(new CounterView(subject, 3));
-        });
-  }
 
   @Test
   public void shouldPublishEventWithTypeNameViaSubscriptionEventingTestkit() {

@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.codegen
@@ -426,7 +414,6 @@ object ModelBuilder {
       name: String,
       descriptor: Descriptors.FileDescriptor,
       descriptors: Seq[Descriptors.FileDescriptor])(implicit
-      log: Log,
       messageExtractor: ProtoMessageTypeExtractor): ProtoMessageType = {
     // TODO this is used in the java tck as ValueEntity state type - I'm not sure we want to
     // support this? In that case we should probably support all primitives?
@@ -495,9 +482,7 @@ object ModelBuilder {
    *   the FQN for a proto 'message' (which are used not just for "messages", but also for state types etc)
    */
   private def resolveMessageType(name: String, pkg: String, additionalDescriptors: Seq[Descriptors.FileDescriptor])(
-      implicit
-      log: Log,
-      messageExtractor: ProtoMessageTypeExtractor): MessageType = {
+      implicit messageExtractor: ProtoMessageTypeExtractor): MessageType = {
 
     val (revolvedPackage, resolvedName) = extractPackageAndName(pkg, name)
 
@@ -506,9 +491,7 @@ object ModelBuilder {
   }
 
   private def resolveTypeArgument(name: String, pkg: String, additionalDescriptors: Seq[Descriptors.FileDescriptor])(
-      implicit
-      log: Log,
-      messageExtractor: ProtoMessageTypeExtractor): TypeArgument = {
+      implicit messageExtractor: ProtoMessageTypeExtractor): TypeArgument = {
 
     val (revolvedPackage, resolvedName) = extractPackageAndName(pkg, name)
 
@@ -701,7 +684,7 @@ object ModelBuilder {
 
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
 
-    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
     EventSourcedEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
       typeId,
@@ -715,7 +698,6 @@ object ModelBuilder {
       serviceProtoDescriptor: ServiceDescriptor,
       workflowDef: WorkflowDef,
       additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
-      log: Log,
       messageExtractor: ProtoMessageTypeExtractor): WorkflowComponent = {
 
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
@@ -733,7 +715,7 @@ object ModelBuilder {
       log: Log,
       messageExtractor: ProtoMessageTypeExtractor): ValueEntity = {
 
-    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
     ValueEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
@@ -796,7 +778,7 @@ object ModelBuilder {
           throw new IllegalArgumentException("Replicated data type not set")
       }
 
-    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
     ReplicatedEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
       typeId,
@@ -813,7 +795,6 @@ object ModelBuilder {
   }
 
   private def modelFromServiceOptions(serviceDescriptor: Descriptors.ServiceDescriptor)(implicit
-      log: Log,
       messageExtractor: ProtoMessageTypeExtractor): Model = {
 
     val serviceOptions = serviceDescriptor.getOptions.getExtension(kalix.Annotations.service)

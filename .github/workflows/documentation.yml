@@ -16,8 +16,8 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v3.5.0
-        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       - name: Cache Coursier cache
         # https://github.com/coursier/cache-action/releases
@@ -26,8 +26,8 @@ jobs:
 
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
-        # v1.3.3
-        uses: coursier/setup-action@6a582d7f7292a865e72c497ca64c3ef447cdb6c7
+        # v1.3.5
+        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.17
 
@@ -39,8 +39,8 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v3.5.0
-        uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+        # v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
       # https://vale.sh
       - name: Vale

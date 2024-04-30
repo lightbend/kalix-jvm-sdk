@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.scalasdk.impl.workflow
@@ -76,11 +64,10 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
   override def error[R](description: String, statusCode: Status.Code): ErrorEffect[R] = ErrorEffectImpl(
     javasdkEffect.error(description, statusCode))
 
-  final case class PersistenceEffectBuilderImpl[S](
-      javasdkEffect: workflow.AbstractWorkflow.Effect.PersistenceEffectBuilder[S])
+  case class PersistenceEffectBuilderImpl(javasdkEffect: workflow.AbstractWorkflow.Effect.PersistenceEffectBuilder[S])
       extends PersistenceEffectBuilder[S] {
 
-    override def pause(): TransitionalEffect[Void] =
+    override def pause: TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.pause())
 
     override def transitionTo[I](stepName: String, input: I): TransitionalEffect[Void] =
@@ -89,11 +76,10 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
     override def transitionTo(stepName: String): TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.transitionTo(stepName))
 
-    override def end(): TransitionalEffect[Void] =
+    override def end: TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.end())
   }
 
-  final case class ErrorEffectImpl[R](javasdkEffect: workflow.AbstractWorkflow.Effect.ErrorEffect[T])
-      extends ErrorEffect[R]
+  case class ErrorEffectImpl[R](javasdkEffect: workflow.AbstractWorkflow.Effect.ErrorEffect[T]) extends ErrorEffect[R]
 
 }

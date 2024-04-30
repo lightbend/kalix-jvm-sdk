@@ -1,27 +1,14 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.spring.impl
 
 import java.net.URI
 import java.util
-import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Function
-
+import scala.language.existentials
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Promise
@@ -46,9 +33,6 @@ import kalix.javasdk.impl.MetadataImpl
 import kalix.javasdk.impl.RestDeferredCall
 import kalix.javasdk.impl.http.HttpEndpointMethodDefinition
 import kalix.javasdk.impl.http.HttpEndpointMethodDefinition.ANY_METHOD
-import kalix.spring.KalixClient
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec
@@ -60,8 +44,6 @@ import org.springframework.web.util.UriBuilder
  * INTERNAL API
  */
 final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixClient {
-
-  private val logger: Logger = LoggerFactory.getLogger(getClass)
 
   private var services: Seq[HttpEndpointMethodDefinition] = Seq.empty
 
@@ -82,7 +64,7 @@ final class RestKalixClientImpl(messageCodec: JsonMessageCodec) extends KalixCli
   private def buildWrappedBody[P](
       httpDef: HttpEndpointMethodDefinition,
       inputBuilder: DynamicMessage.Builder,
-      body: Option[P] = None): Any = {
+      body: Option[P]): Any = {
     if (body.isDefined && httpDef.rule.body.nonEmpty) {
       val bodyField = httpDef.methodDescriptor.getInputType.getFields.asScala
         .find(_.getName == httpDef.rule.body)

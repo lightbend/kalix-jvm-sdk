@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.impl
@@ -72,6 +60,9 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
       .traverse(clients.values().asScala) {
         case javaClient: AkkaGrpcJavaClient   => javaClient.close().asScala
         case scalaClient: AkkaGrpcScalaClient => scalaClient.close()
+        case _                                =>
+          // should never happen, but needs to make compiler happy
+          throw new IllegalStateException("Unknown gRPC client")
       }
       .map(_ => Done))
 
@@ -119,7 +110,7 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
 
   /** This gets called by the testkit, and should impersonate the given principal. */
   def getGrpcClient[T](serviceClass: Class[T], service: String, port: Int, impersonate: String): T =
-    getGrpcClient(serviceClass, service, port, Some("impersonate-kalix-service", impersonate))
+    getGrpcClient(serviceClass, service, port, Some("impersonate-kalix-service" -> impersonate))
 
   private def getGrpcClient[T](
       serviceClass: Class[T],
@@ -184,6 +175,9 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
         javaClient.closed().asScala
       case scalaClient: AkkaGrpcScalaClient =>
         scalaClient.closed
+      case _ =>
+        // should never happen, but needs to make compiler happy
+        throw new IllegalStateException("Unknown gRPC client")
     }
     closeDone.foreach { _ =>
       // if the client is closed, remove it from the pool

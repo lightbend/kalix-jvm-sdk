@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.tck;
@@ -24,7 +12,6 @@ import kalix.javasdk.replicatedentity.WriteConsistency;
 import kalix.javasdk.tck.model.localpersistenceeventing.ValueEntityTwo;
 import kalix.javasdk.tck.model.localpersistenceeventing.*;
 import kalix.javasdk.tck.model.replicatedentity.*;
-import kalix.javasdk.valueentity.ValueEntityOptions;
 import kalix.tck.model.action.ActionTckModelActionProvider;
 import kalix.tck.model.action.ActionTckModelImpl;
 import kalix.tck.model.action.ActionTwoActionProvider;
@@ -46,11 +33,7 @@ public final class JavaSdkTck {
           .register(ValueEntityTckModelEntityProvider.of(ValueEntityTckModelEntity::new))
           .register(ValueEntityTwoEntityProvider.of(ValueEntityTwoEntity::new))
           .register(
-              ValueEntityConfiguredEntityProvider.of(ValueEntityConfiguredEntity::new)
-                  .withOptions(
-                      ValueEntityOptions.defaults() // required timeout of 100 millis for TCK tests
-                          .withPassivationStrategy(
-                              PassivationStrategy.timeout(Duration.ofMillis(100)))))
+              ValueEntityConfiguredEntityProvider.of(ValueEntityConfiguredEntity::new))
           .register(ReplicatedEntityTckModelEntityProvider.of(ReplicatedEntityTckModelEntity::new))
           .register(ReplicatedEntityTwoEntityProvider.of(ReplicatedEntityTwoEntity::new))
           .register(
@@ -67,12 +50,7 @@ public final class JavaSdkTck {
                   .withOptions(EventSourcedEntityOptions.defaults().withSnapshotEvery(5)))
           .register(EventSourcedTwoEntityProvider.of(EventSourcedTwoEntity::new))
           .register(
-              EventSourcedConfiguredEntityProvider.of(EventSourcedConfiguredEntity::new)
-                  // required timeout of 100 millis for TCK tests
-                  .withOptions(
-                      EventSourcedEntityOptions.defaults()
-                          .withPassivationStrategy(
-                              PassivationStrategy.timeout(Duration.ofMillis(100)))))
+              EventSourcedConfiguredEntityProvider.of(EventSourcedConfiguredEntity::new))
           .register(LocalPersistenceSubscriberProvider.of(LocalPersistenceSubscriber::new))
           .register(EventSourcedEntityOneProvider.of(EventSourcedEntityOne::new))
           .register(EventSourcedEntityTwoProvider.of(EventSourcedEntityTwo::new))

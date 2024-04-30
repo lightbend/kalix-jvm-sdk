@@ -1,17 +1,5 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.impl.action
@@ -27,7 +15,6 @@ import kalix.javasdk.action.Action
 import kalix.javasdk.action.MessageEnvelope
 import kalix.javasdk.actionspec.ActionspecApi
 import kalix.javasdk.impl.ActionFactory
-import kalix.javasdk.impl.AbstractContext
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MetadataImpl
@@ -76,7 +63,7 @@ class ActionHandlerSpec
     //setting tracing as disabled, emulating that is discovered from the proxy.
     ProxyInfoHolder(system).overrideTracingCollectorEndpoint("")
 
-    new ActionsImpl(classicSystem, services, new AbstractContext(classicSystem) {})
+    new ActionsImpl(classicSystem, services)
   }
 
   "The action service" should {

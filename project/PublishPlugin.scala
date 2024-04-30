@@ -1,12 +1,18 @@
 import sbt._
 import sbt.Keys._
 import com.geirsson.CiReleasePlugin
+import com.jsuereth.sbtpgp.PgpKeys.publishSigned
+import com.jsuereth.sbtpgp.PgpKeys.publishSignedConfiguration
 import sbtdynver.DynVerPlugin
+import sbtdynver.DynVerPlugin.autoImport.dynverSonatypeSnapshots
 import xerial.sbt.Sonatype
+import xerial.sbt.Sonatype.autoImport.sonatypeProfileName
+
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Default publish settings. Note: disable publishing by default, as Sonatype plugin is automatic. Opt-in to publishing
- * to Sonatype by enabling the PublishSonatype plugin.
+ * to Sonatype by enabling the Publish plugin.
  */
 object DefaultPublishSettings extends AutoPlugin {
 
@@ -19,25 +25,57 @@ object DefaultPublishSettings extends AutoPlugin {
   override def projectSettings = Seq(
     publish / skip := true,
     publishTo := None,
-    dynverSonatypeSnapshots := false,
-    scmInfo := (Global / scmInfo).value,
     pomIncludeRepository := (_ => false),
     // Note: need to use the new s01.oss.sonatype.org host
     sonatypeCredentialHost := Sonatype.sonatype01)
 }
 
 /**
- * Publish maven artifacts to Sonatype.
+ * Publish maven artifacts to the Cloudsmith repository.
  */
-object PublishSonatype extends AutoPlugin {
+object Publish extends AutoPlugin {
+  override def requires = plugins.JvmPlugin && CommonSettings && DefaultPublishSettings
+  override def trigger = AllRequirements
 
-  import DynVerPlugin.autoImport._
-  import Sonatype.autoImport._
+  private lazy val beforePublishTask = taskKey[Unit]("setup before publish")
+  private lazy val beforePublishDone = new AtomicBoolean(false)
 
-  override def requires = DefaultPublishSettings
+  override def projectSettings: Seq[Def.Setting[_]] =
+    Seq(
+      publish / skip := false, // re-enable publishing
+      dynverSonatypeSnapshots := false, // don't append -SNAPSHOT
+      sonatypeProfileName := "com.typesafe",
+      beforePublishTask := beforePublish(isSnapshot.value),
+      publishSigned := publishSigned.dependsOn(beforePublishTask).value,
+      publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
+        // avoid publishing the plugin jar twice
+        publishSignedConfiguration.value.artifacts.collect {
+          case tup @ (artifact, _) if artifact.name.contains("2.12_1.0") => tup
+        }),
+      publishTo :=
+        (if (isSnapshot.value)
+           Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka-snapshots/"))
+         else
+           Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka/"))),
+      credentials ++= cloudsmithCredentials(validate = false))
 
-  override def projectSettings = Seq(
-    publish / skip := false, // re-enable publishing
-    publishTo := sonatypePublishToBundle.value,
-    dynverSonatypeSnapshots := true)
+  private def beforePublish(snapshot: Boolean): Unit = {
+    if (beforePublishDone.compareAndSet(false, true)) {
+      CiReleasePlugin.setupGpg()
+      if (!snapshot)
+        cloudsmithCredentials(validate = true)
+    }
+  }
+
+  private def cloudsmithCredentials(validate: Boolean): Seq[Credentials] = {
+    (sys.env.get("PUBLISH_USER"), sys.env.get("PUBLISH_PASSWORD")) match {
+      case (Some(user), Some(password)) =>
+        Seq(Credentials("Cloudsmith API", "maven.cloudsmith.io", user, password))
+      case _ =>
+        if (validate)
+          throw new Exception("Publishing credentials expected in `PUBLISH_USER` and `PUBLISH_PASSWORD`.")
+        else
+          Nil
+    }
+  }
 }

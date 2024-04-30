@@ -4,10 +4,12 @@ organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://kalix.io"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
-scalaVersion := "2.13.10"
+scalaVersion := "2.13.13"
+
+resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
-dockerBaseImage := "docker.io/library/adoptopenjdk:11-jre-hotspot"
+dockerBaseImage := "docker.io/library/eclipse-temurin:21.0.2_13-jre-jammy"
 // For Docker setup see https://docs.kalix.io/projects/container-registries.html
 dockerRepository := sys.props.get("docker.registry").orElse(Some("kcr.us-east-1.kalix.io"))
 dockerUsername := sys.props.get("docker.username") // use your Kalix organization name
@@ -27,7 +29,7 @@ dockerBuildCommand := {
 ThisBuild / dynverSeparator := "-"
 
 Compile / scalacOptions ++= Seq(
-  "-target:11",
+  "-release:21",
   "-deprecation",
   "-feature",
   "-unchecked",

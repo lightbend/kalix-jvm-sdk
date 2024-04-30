@@ -1,23 +1,11 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.scalasdk
 
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.javasdk.{ JsonSupport => JavaJsonSupport, Kalix }
+import kalix.javasdk.{ JsonSupport => JavaJsonSupport }
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
@@ -44,7 +32,7 @@ object JsonSupport {
    * the overload with an explicit name for the JSON type instead.
    *
    * @see
-   *   [[encodeJson(T, java.lang.String)]]
+   *   [[JsonSupport.encodeJson[T](value:T,jsonType:String*]]
    */
   def encodeJson[T](value: T): ScalaPbAny = ScalaPbAny.fromJavaProto(JavaJsonSupport.encodeJson(value))
 
@@ -58,7 +46,7 @@ object JsonSupport {
    * @param jsonType
    *   A discriminator making it possible to identify which type of object is in the JSON, useful for example when
    *   multiple different objects are passed through a pub/sub topic.
-   * @throws IllegalArgumentException
+   * @throws java.lang.IllegalArgumentException
    *   if the given value cannot be turned into JSON
    */
   def encodeJson[T](value: T, jsonType: String): ScalaPbAny =
@@ -73,7 +61,7 @@ object JsonSupport {
    *   deserialization.
    * @return
    *   The decoded object
-   * @throws IllegalArgumentException
+   * @throws java.lang.IllegalArgumentException
    *   if the given value cannot be decoded to a T
    */
   def decodeJson[T: ClassTag](any: ScalaPbAny): T =
@@ -85,7 +73,7 @@ object JsonSupport {
    *
    * @return
    *   An Option containing the successfully decoded value or None if the type suffix does not match.
-   * @throws IllegalArgumentException
+   * @throws java.lang.IllegalArgumentException
    *   if the suffix matches but the Any cannot be parsed into a T
    */
   def decodeJson[T: ClassTag](jsonType: String, any: ScalaPbAny): Option[T] =

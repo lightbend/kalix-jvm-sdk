@@ -1,21 +1,11 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.javasdk.impl.reflection
 
+import kalix.javasdk.client.ComponentClient
+import kalix.javasdk.impl.client.ComponentClientImpl
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -29,11 +19,11 @@ class SomeClass {
   def c(p1: Int, p2: Int): Unit = {}
 }
 
-class ReflectionUtilsSpec extends AnyWordSpec with Matchers {
+class ReflectSpec extends AnyWordSpec with Matchers {
 
   "The reflection utils" must {
     "deterministically sort methods of the same class" in {
-      import kalix.javasdk.impl.reflection.ReflectionUtils.methodOrdering
+      import kalix.javasdk.impl.reflection.Reflect.methodOrdering
       val methods =
         classOf[SomeClass].getDeclaredMethods.toList.sorted.map(m =>
           (m.getName, m.getParameterTypes.map(_.getSimpleName).toList))
@@ -47,6 +37,17 @@ class ReflectionUtilsSpec extends AnyWordSpec with Matchers {
         ("c", List("String", "int")) :: Nil
       )
     }
-  }
 
+    "lookup component client instances" in {
+      abstract class Foo(val componentClient: ComponentClient)
+      class Bar(val anotherComponentClient: ComponentClient, val parentComponentClient: ComponentClient)
+          extends Foo(parentComponentClient)
+
+      val c1 = new ComponentClientImpl(null)
+      val c2 = new ComponentClientImpl(null)
+      val bar = new Bar(c1, c2)
+
+      Reflect.lookupComponentClientFields(bar) should have size 2
+    }
+  }
 }

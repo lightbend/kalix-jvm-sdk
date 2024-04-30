@@ -1,23 +1,10 @@
 /*
- * Copyright 2024 Lightbend Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package kalix.scalasdk.testkit.impl
 
 import kalix.javasdk.impl.GrpcDeferredCall
-import kalix.scalasdk.SideEffect
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.action.ActionEffectImpl
@@ -38,15 +25,6 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
   override def reply: T = effect match {
     case e: ActionEffectImpl.ReplyEffect[T] => e.msg
     case _ => throw new IllegalStateException(s"The effect was not a reply but [$effectName]")
-  }
-
-  private def extractServices(sideEffects: Seq[SideEffect]): Seq[DeferredCallDetails[_, _]] = {
-    sideEffects.map { sideEffect =>
-      sideEffect.serviceCall match {
-        case ScalaDeferredCallAdapter(javaSdkDeferredCall) =>
-          TestKitDeferredCall(javaSdkDeferredCall.asInstanceOf[GrpcDeferredCall[_, _]])
-      }
-    }
   }
 
   override def sideEffects: Seq[DeferredCallDetails[_, _]] =
