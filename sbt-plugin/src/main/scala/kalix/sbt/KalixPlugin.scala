@@ -34,6 +34,8 @@ object KalixPlugin extends AutoPlugin {
     val rootPackage = settingKey[Option[String]](
       "A root scala package to use for generated common classes such as Main, by default auto detected from protobuf files")
 
+    val akkaVersion = settingKey[String]("Akka core modules version")
+
     val runAll = inputKey[Unit]("Run all")
   }
 
@@ -60,6 +62,10 @@ object KalixPlugin extends AutoPlugin {
         "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
         "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
         "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
+
+      // -------------------------------------------------------------------------------------------
+      // expose Akka version (so that users may refer to it when depending on the Akka Stream testkit)
+      akkaVersion := BuildInfo.akkaVersion,
 
       // -------------------------------------------------------------------------------------------
       // run task
