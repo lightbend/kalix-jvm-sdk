@@ -23,8 +23,9 @@ object Dependencies {
   val AkkaVersion = "2.9.2"
   val AkkaHttpVersion = "10.6.1" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
-  val JacksonVersion = "2.14.3"
-  val JacksonDatabindVersion = "2.14.3"
+  // https://github.com/akka/akka/blob/main/project/Dependencies.scala#L31
+  val JacksonVersion = "2.15.4"
+  val JacksonDatabindVersion = JacksonVersion
   val LogbackVersion = "1.4.14"
   val LogbackContribVersion = "0.1.5"
   val TestContainersVersion = "1.17.6"
