@@ -36,10 +36,24 @@
 
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <java.version>21</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kalix-sdk.version>1.4.1</kalix-sdk.version>
-        
         <skip.docker>false</skip.docker>
+
+
+        <!-- plugin versions -->
+        <spring-boot.version>3.2.5</spring-boot.version>
+        <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
+        <docker-maven-plugin.version>0.44.0</docker-maven-plugin.version>
+        <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
+        <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+
+        <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
     </properties>
 
 
@@ -91,6 +105,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
+                    <version>${maven-shade-plugin.version}</version>
                     <configuration>
                         <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
                         <createDependencyReducedPom>true</createDependencyReducedPom>
@@ -109,7 +124,7 @@
                         <dependency>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
-                        <version>3.2.1</version>
+                        <version>${spring-boot.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -120,26 +135,26 @@
                             </goals>
                             <configuration>
                                 <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring.handlers</resource>
-                                    <resource>reference.conf</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring.schemas</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports</resource>
-                                </transformer>
-                                <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
-                                    <resource>META-INF/spring.factories</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>${start-class}</mainClass>
-                                </transformer>                                    
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                        <resource>META-INF/spring.handlers</resource>
+                                        <resource>reference.conf</resource>
+                                    </transformer>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                        <resource>META-INF/spring.schemas</resource>
+                                    </transformer>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                        <resource>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</resource>
+                                    </transformer>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                        <resource>META-INF/spring/org.springframework.boot.actuate.autoconfigure.web.ManagementContextConfiguration.imports</resource>
+                                    </transformer>
+                                    <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                                        <resource>META-INF/spring.factories</resource>
+                                    </transformer>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                        <mainClass>${mainClass}</mainClass>
+                                    </transformer>
                                 </transformers>
                             </configuration>
                         </execution>
@@ -149,6 +164,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -162,7 +178,7 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.44.0</version>
+                    <version>${docker-maven-plugin.version}</version>
                     <configuration>
                         <images>
                             <image>
@@ -216,6 +232,7 @@
                     <!-- configure src/it/java and src/it/resources -->
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${build-helper-maven-plugin.version}</version>
                     <executions>
                         <execution>
                             <id>add-integration-test-source</id>
@@ -249,6 +266,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                     <configuration>
                         <excludes>
                             <!-- ignore integration test classes -->
@@ -261,7 +279,7 @@
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>${spring-boot.version}</version>
                     <executions>
                         <execution>
                             <id>repackage</id>
@@ -295,7 +313,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>${maven-deploy-plugin.version}</version>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
@@ -360,6 +378,7 @@
                         <!-- run *IntegrationTest with failsafe -->
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${maven-failsafe-plugin.version}</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -373,6 +392,9 @@
                                 </configuration>
                             </execution>
                         </executions>
+                        <configuration>
+                            <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -384,7 +406,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.2.4</version>
+                <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

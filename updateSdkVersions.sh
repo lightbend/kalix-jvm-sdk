@@ -22,8 +22,8 @@ updateJavaSamples() {
   for i in ${PROJS[@]}
   do
     echo "Updating pom for: $i"
-    sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" $i
-    rm $i.bak
+    # we only want to update the first occurrence of <version>, the one belonging the parent-pom
+    awk '/<version>[^<]*<\/version>/ && !subyet {sub("<version>[^<]*<\/version>", "<version>"ENVIRON["SDK_VERSION"]"</version>"); subyet=1} 1' $i > temp && mv temp $i
   done
 }
 

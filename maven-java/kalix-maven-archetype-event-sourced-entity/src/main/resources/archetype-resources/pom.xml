@@ -5,7 +5,6 @@
     <groupId>io.kalix</groupId>
     <artifactId>kalix-java-sdk-protobuf-parent</artifactId>
     <version>@project.version@</version>
-    <relativePath/> 
   </parent>
   
   <groupId>${groupId}</groupId>
@@ -31,6 +30,7 @@
     <dependency>
         <groupId>io.kalix</groupId>
         <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
+        <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

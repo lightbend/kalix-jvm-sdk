@@ -6,7 +6,6 @@
     <groupId>io.kalix</groupId>
     <artifactId>kalix-spring-boot-parent</artifactId>
     <version>@project.version@</version>
-    <relativePath/> 
   </parent>
 
   <groupId>${groupId}</groupId>

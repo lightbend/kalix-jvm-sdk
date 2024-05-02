@@ -445,8 +445,8 @@ jobs:
         # part of the publish-local pipeline as it requires sbt
         run: ./bin/check-sample-protoc-version.sh
 
-  check-sample-sdk-versions:
-    name: "Check all samples have the same SDK version"
+  check-samples-in-ci:
+    name: "Check all samples are included in CI build"
     needs: [checks, publish-local] # not really, but deferring until more important stuff
     runs-on: ubuntu-22.04
     steps:
@@ -464,25 +464,10 @@ jobs:
       - name: Ensure all sample projects are listed
         run: .github/ci-check-samples.sh
 
-      - name: Scala Samples
-        run: |-
-          if [ $(find ./samples -name plugins.sbt | xargs grep -h "kalix-sdk.version" | uniq | wc -l) -ne 1 ]; then
-            echo "Not all Scala samples have the same SDK version:"
-            find ./samples -name plugins.sbt | xargs grep "kalix-sdk.version"
-            false
-          fi
-
-      - name: Java Samples
-        run: |-
-          if [ $(find ./samples -name pom.xml | xargs grep -h "<kalix-sdk.version>" | tr -s [:space:] | uniq | wc -l) -ne 1 ]; then
-            echo "Not all Java samples have the same SDK version:"
-            find ./samples -name pom.xml | xargs grep "<kalix-sdk.version>"
-            false
-          fi
 
   tck-tests:
     name: "TCK tests"
-    needs: check-sample-sdk-versions
+    needs: check-samples-in-ci
     runs-on: ubuntu-22.04
 
     steps:
@@ -540,7 +525,7 @@ jobs:
 
   maven-samples:
     name: Maven samples
-    needs: check-sample-sdk-versions
+    needs: check-samples-in-ci
     runs-on: ubuntu-22.04
 
     strategy:
@@ -568,12 +553,12 @@ jobs:
           - { sample: java-spring-view-store, it: true }
 
           - { sample: java-protobuf-eventsourced-customer-registry, it: true }
-          - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -Dkalix-sdk.version=${SDK_VERSION} -f ../java-protobuf-eventsourced-customer-registry/pom.xml package docker:build --no-transfer-progress' }
+          - { sample: java-protobuf-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -f ../java-protobuf-eventsourced-customer-registry/pom.xml package docker:build --no-transfer-progress' }
           - { sample: java-protobuf-eventsourced-counter, it: true }
           - { sample: java-protobuf-eventsourced-shopping-cart, it: true }
 
           - { sample: java-spring-eventsourced-customer-registry, it: true }
-          - { sample: java-spring-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -Dkalix-sdk.version=${SDK_VERSION} -f ../java-spring-eventsourced-customer-registry/pom.xml package docker:build --no-transfer-progress' }
+          - { sample: java-spring-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -f ../java-spring-eventsourced-customer-registry/pom.xml package docker:build --no-transfer-progress' }
           - { sample: java-spring-eventsourced-shopping-cart, it: true }
 
           - { sample: java-protobuf-valueentity-counter, it: true }
@@ -644,6 +629,11 @@ jobs:
           cd
           tar -xf dependencies.tar.gz
 
+      - name: Update sdk version in samples
+        run: |-
+          export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          ./updateSdkVersions.sh java samples/
+
       - name: ${{ matrix.sample }} test-compile
         env:
           DIR: ${{ matrix.sample }}
@@ -652,7 +642,7 @@ jobs:
           cd samples/${DIR}
           echo "Running mvn on ${DIR} with SDK version: '${SDK_VERSION}'"
           # must also compile without the profile!
-          mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile --no-transfer-progress
+          mvn test-compile --no-transfer-progress
 
       - name: ${{ matrix.sample }} verify
         if: matrix.verify || matrix.it
@@ -661,13 +651,14 @@ jobs:
           PRE_CMD: ${{ matrix.pre_cmd }}
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          ./updateSdkVersions.sh java samples/${DIR}
           cd samples/${DIR}
           if [ true == '${{matrix.verify}}' ]; then
-            mvn -Dkalix-sdk.version=${SDK_VERSION} verify --no-transfer-progress
+            mvn verify --no-transfer-progress
           fi
           if [ true == '${{matrix.it}}' ]; then
             ${PRE_CMD}
-            KALIX_TESTKIT_DEBUG=true mvn -Dkalix-sdk.version=${SDK_VERSION} verify -Pit --no-transfer-progress
+            KALIX_TESTKIT_DEBUG=true mvn verify -Pit --no-transfer-progress
           fi
 
       - name: ${{ matrix.sample }} rm & test-compile
@@ -678,11 +669,11 @@ jobs:
           cd samples/${DIR}
           echo "==== Verifying that generated unmanaged sources compile ===="
           rm -rf src/main/java src/test/java src/it/java
-          mvn -Dkalix-sdk.version=${SDK_VERSION} test-compile --no-transfer-progress
+          mvn test-compile --no-transfer-progress
 
   sbt-samples:
     name: sbt
-    needs: check-sample-sdk-versions
+    needs: check-samples-in-ci
     runs-on: ubuntu-22.04
 
     strategy:
@@ -707,6 +698,8 @@ jobs:
 
           - { sample: scala-protobuf-replicatedentity-shopping-cart, test: true }
           - { sample: scala-protobuf-replicatedentity-examples, test: true }
+
+          - { sample: scala-protobuf-tracing, it: false }
 
           - { sample: scala-protobuf-reliable-timers, test: true }
 

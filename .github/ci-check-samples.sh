@@ -3,7 +3,7 @@ ALL_OK=true
 for SAMPLE in samples/java* samples/scala*
 do
   SAMPLE_NAME="${SAMPLE#samples/}"
-  if [ $(grep -c ${SAMPLE_NAME} .github/workflows/samples.yml) -lt 1 ] ; then
+  if [ $(grep -c ${SAMPLE_NAME} .github/workflows/ci.yml) -lt 1 ] ; then
     echo "${SAMPLE_NAME} is missing CI-tests"
     ALL_OK=false
   else
