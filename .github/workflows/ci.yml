@@ -632,7 +632,7 @@ jobs:
           cd
           tar -xf dependencies.tar.gz
 
-      - name: Update sdk verison in samples
+      - name: Update sdk version in samples
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           ./updateSdkVersions.sh java samples/
