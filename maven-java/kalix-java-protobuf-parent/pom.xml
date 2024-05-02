@@ -142,11 +142,12 @@
                         <!-- generate Java code for protobuf types -->
                         <id>protobuf</id>
                         <goals>
-                        <goal>compile</goal>
+                            <goal>compile</goal>
                         </goals>
                         <configuration>
                         <writeDescriptorSet>true</writeDescriptorSet>
                         <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
+                        <includeDependenciesInDescriptorSet>true</includeDependenciesInDescriptorSet>
                         <descriptorSetFileName>user-function.desc</descriptorSetFileName>
                         <checkStaleness>true</checkStaleness>
                         <protocArtifact>com.google.protobuf:protoc:3.21.7:exe:${os.detected.classifier}</protocArtifact>
