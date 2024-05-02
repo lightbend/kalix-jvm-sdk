@@ -703,6 +703,8 @@ jobs:
           - { sample: scala-protobuf-replicatedentity-shopping-cart, test: true }
           - { sample: scala-protobuf-replicatedentity-examples, test: true }
 
+          - { sample: scala-protobuf-tracing, it: false }
+
           - { sample: scala-protobuf-reliable-timers, test: true }
 
           - { sample: scala-protobuf-web-resources, test: true }
