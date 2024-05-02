@@ -21,7 +21,6 @@
     <mainClass>shopping.cart.Main</mainClass>
   </properties>
 
-
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>

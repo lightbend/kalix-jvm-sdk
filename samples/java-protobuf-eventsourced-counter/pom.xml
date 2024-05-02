@@ -20,7 +20,6 @@
     <mainClass>com.example.Main</mainClass>
   </properties>
 
-
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>

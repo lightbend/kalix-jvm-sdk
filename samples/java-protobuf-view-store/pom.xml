@@ -20,7 +20,6 @@
     <mainClass>store.Main</mainClass>
   </properties>
 
-
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>

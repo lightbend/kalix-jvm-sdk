@@ -21,7 +21,6 @@
     <mainClass>customer.Main</mainClass>
   </properties>
 
-
   <dependencies>
     <dependency>
       <groupId>io.kalix</groupId>

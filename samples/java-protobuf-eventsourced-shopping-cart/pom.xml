@@ -12,7 +12,7 @@
   <version>0.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-    <name>Shopping Cart as Event Sourced Entity</name>
+  <name>Shopping Cart as Event Sourced Entity</name>
 
   <properties>
     <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
@@ -20,7 +20,6 @@
     <kalixOrganization>acme</kalixOrganization>
     <mainClass>com.example.shoppingcart.Main</mainClass>
   </properties>
-
 
   <dependencies>
     <dependency>

@@ -6,7 +6,7 @@
     <groupId>io.kalix</groupId>
     <artifactId>kalix-spring-boot-parent</artifactId>
     <version>1.4.1</version>
-</parent>
+  </parent>
 
   <groupId>com.example</groupId>
   <artifactId>java-spring-doc-snippets</artifactId>
@@ -15,14 +15,11 @@
 
   <name>java-spring-doc-snippets</name>
   <properties>
-
     <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
     <kalixContainerRegistry>kcr.us-east-1.kalix.io</kalixContainerRegistry>
     <kalixOrganization>acme</kalixOrganization>
     <mainClass>com.example.Main</mainClass>
-
   </properties>
-
 
   <dependencies>
     <dependency>
@@ -34,7 +31,6 @@
       <artifactId>kalix-spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
@@ -45,6 +41,5 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
-    
   </dependencies>
 </project>
