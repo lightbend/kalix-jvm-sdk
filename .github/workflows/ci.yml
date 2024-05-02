@@ -632,12 +632,10 @@ jobs:
           cd
           tar -xf dependencies.tar.gz
 
-      - name: ${{ matrix.sample }} update sdk verison
-        env:
-          DIR: ${{ matrix.sample }}
+      - name: Update sdk verison in samples
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
-          ./updateSdkVersions.sh java samples/${DIR}
+          ./updateSdkVersions.sh java samples/
 
       - name: ${{ matrix.sample }} test-compile
         env:
@@ -656,6 +654,7 @@ jobs:
           PRE_CMD: ${{ matrix.pre_cmd }}
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
+          ./updateSdkVersions.sh java samples/${DIR}
           cd samples/${DIR}
           if [ true == '${{matrix.verify}}' ]; then
             mvn verify --no-transfer-progress
