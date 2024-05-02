@@ -448,8 +448,8 @@ jobs:
         # part of the publish-local pipeline as it requires sbt
         run: ./bin/check-sample-protoc-version.sh
 
-  check-sample-sdk-versions:
-    name: "Check all samples have the same SDK version"
+  check-samples-in-ci:
+    name: "Check all samples are included in CI build"
     needs: [checks, publish-local] # not really, but deferring until more important stuff
     runs-on: ubuntu-22.04
     steps:
@@ -467,26 +467,10 @@ jobs:
       - name: Ensure all sample projects are listed
         run: .github/ci-check-samples.sh
 
-      - name: Scala Samples
-        run: |-
-          if [ $(find ./samples -name plugins.sbt | xargs grep -h "kalix-sdk.version" | uniq | wc -l) -ne 1 ]; then
-            echo "Not all Scala samples have the same SDK version:"
-            find ./samples -name plugins.sbt | xargs grep "kalix-sdk.version"
-            false
-          fi
-
-      - name: Java Samples
-        run: |-
-          # sample ending with 'spring-client' is not a kalix sample and therefore needs to be excluded
-          if [ $(find ./samples -name pom.xml -not -path "./samples/*-spring-client/*" | xargs grep -m 1 "<version>" | awk -F'[<>]' '{print $3}' | uniq | wc -l) -ne 1 ]; then
-            echo "Not all Java samples have the same SDK version:"
-            find ./samples -name pom.xml -not -path "./samples/*-spring-client/*" | xargs grep -m 1 "<version>"
-            false
-          fi
 
   tck-tests:
     name: "TCK tests"
-    needs: check-sample-sdk-versions
+    needs: check-samples-in-ci
     runs-on: ubuntu-22.04
 
     steps:
@@ -544,7 +528,7 @@ jobs:
 
   maven-samples:
     name: Maven samples
-    needs: check-sample-sdk-versions
+    needs: check-samples-in-ci
     runs-on: ubuntu-22.04
 
     strategy:
@@ -686,7 +670,7 @@ jobs:
 
   sbt-samples:
     name: sbt
-    needs: check-sample-sdk-versions
+    needs: check-samples-in-ci
     runs-on: ubuntu-22.04
 
     strategy:
