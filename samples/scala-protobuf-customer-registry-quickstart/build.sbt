@@ -4,7 +4,7 @@ organization := "customer"
 organizationHomepage := Some(url("https://kalix.io"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
-scalaVersion := "2.13.13"
+scalaVersion := "2.13.14"
 
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 
