@@ -56,8 +56,7 @@ public class ViewCallBuilder {
   public <T, R> DeferredCall<Any, R> call(Function<T, R> methodRef) {
     Method method = MethodRefResolver.resolveMethodRef(methodRef);
     ViewCallValidator.validate(method);
-    DeferredCall<Any, R> result =  ComponentCall.noParams(kalixClient, method, List.of());
-    return result.withMetadata(ComponentCall.addTracing(result.metadata(), callMetadata));
+    return ComponentCall.noParams(kalixClient, method, List.of(), callMetadata);
   }
 
   /**

@@ -49,8 +49,7 @@ public class ActionCallBuilder {
    * Pass in an Action method reference annotated as a REST endpoint, e.g. <code>MyAction::create</code>
    */
   public <T, R> DeferredCall<Any, R> call(Function<T, Action.Effect<R>> methodRef) {
-    DeferredCall<Any, R> result = ComponentCall.noParams(kalixClient, methodRef, List.of());
-    return result.withMetadata(ComponentCall.addTracing(result.metadata(), callMetadata));
+    return ComponentCall.noParams(kalixClient, methodRef, List.of(), callMetadata);
   }
 
   /**
