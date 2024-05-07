@@ -42,28 +42,24 @@ class ReflectiveActionRouter[A <: Action](
     // lookup ComponentClient
     val componentClients = Reflect.lookupComponentClientFields(action)
 
-    try {
-      componentClients.foreach(_.setCallMetadata(message.metadata()))
+    componentClients.foreach(_.setCallMetadata(message.metadata()))
 
-      methodInvoker match {
-        case Some(invoker) =>
-          inputTypeUrl match {
-            case ProtobufEmptyTypeUrl =>
-              invoker
-                .invoke(action)
-                .asInstanceOf[Action.Effect[_]]
-            case _ =>
-              invoker
-                .invoke(action, invocationContext)
-                .asInstanceOf[Action.Effect[_]]
-          }
-        case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
-        case None =>
-          throw new NoSuchElementException(
-            s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
-      }
-    } finally {
-      componentClients.foreach(_.clearCallMetadata())
+    methodInvoker match {
+      case Some(invoker) =>
+        inputTypeUrl match {
+          case ProtobufEmptyTypeUrl =>
+            invoker
+              .invoke(action)
+              .asInstanceOf[Action.Effect[_]]
+          case _ =>
+            invoker
+              .invoke(action, invocationContext)
+              .asInstanceOf[Action.Effect[_]]
+        }
+      case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
+      case None =>
+        throw new NoSuchElementException(
+          s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
     }
   }
 
