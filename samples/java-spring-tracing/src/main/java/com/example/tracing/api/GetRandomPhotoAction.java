@@ -5,9 +5,10 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.Scope;
 import kalix.javasdk.action.Action;
 import kalix.javasdk.annotations.Subscribe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
@@ -16,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Subscribe.EventSourcedEntity(value = UserEntity.class, ignoreUnknown = true)
 public class GetRandomPhotoAction extends Action {
-  private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GetRandomPhotoAction.class);
+  private static final Logger log = LoggerFactory.getLogger(GetRandomPhotoAction.class);
 
   private final Tracer tracer;
   private final WebClient webClient;
@@ -60,24 +61,21 @@ public class GetRandomPhotoAction extends Action {
         .spanBuilder("random-photo-async")
         .setParent(otelCurrentContext)
         .setSpanKind(SpanKind.CLIENT)
-        .startSpan();
+        .startSpan()
+        .setAttribute("user.id", actionContext().eventSubject().orElse("unknown"));
 
-    try (Scope ignored = span.makeCurrent()) {
-
-      return webClient
-          .get()
-          .retrieve()
-          .bodyToMono(RandomUserApi.Photo.class)
-          .map(photoResult -> {
-            span.setAttribute("user.id", actionContext().eventSubject().orElse("unknown"));
-            span.setAttribute("random.photo", photoResult.url());
-            span.end();
-            return photoResult.url();
-          }).doOnError(throwable -> {
-            span.setStatus(StatusCode.ERROR, "Failed to fetch name: " + throwable.getMessage());
-            span.end();
-          }).toFuture();
-    }
+    return webClient
+        .get()
+        .retrieve()
+        .bodyToMono(RandomUserApi.Photo.class)
+        .map(photoResult -> {
+          span.setAttribute("random.photo", photoResult.url());
+          span.end();
+          return photoResult.url();
+        }).doOnError(throwable -> {
+          span.setStatus(StatusCode.ERROR, "Failed to fetch name: " + throwable.getMessage());
+          span.end();
+        }).toFuture();
   }
 
 }
