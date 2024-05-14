@@ -9,6 +9,8 @@ import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 @Id("userId")
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @ForwardHeaders("traceparent")
 public class UserEntity extends EventSourcedEntity<User, UserEvent> {
 
-  private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UserEntity.class);
+  private static final Logger log = LoggerFactory.getLogger(UserEntity.class);
 
   private final String entityId;
 
@@ -39,7 +41,7 @@ public class UserEntity extends EventSourcedEntity<User, UserEvent> {
 
   @GetMapping
   public Effect<User> get() {
-    if (currentState() == emptyState())
+    if (currentState().equals(emptyState()))
       return effects().error("User does not exist", StatusCode.ErrorCode.NOT_FOUND);
 
     return effects().reply(currentState());
@@ -60,8 +62,8 @@ public class UserEntity extends EventSourcedEntity<User, UserEvent> {
   }
 
   @PutMapping("/name")
-  public EventSourcedEntity.Effect<String> updateName(@RequestBody UserCmd.UpdateNameCmd updateNameCmd) {
-    if (currentState() == emptyState()){
+  public Effect<String> updateName(@RequestBody UserCmd.UpdateNameCmd updateNameCmd) {
+    if (currentState().equals(emptyState())) {
       return effects().error("User does not exist");
     }
 
@@ -73,8 +75,8 @@ public class UserEntity extends EventSourcedEntity<User, UserEvent> {
   }
 
   @PutMapping("/photo")
-  public EventSourcedEntity.Effect<String> updatePhoto(@RequestParam String url) {
-    if (currentState() == emptyState()){
+  public Effect<String> updatePhoto(@RequestParam String url) {
+    if (currentState().equals(emptyState())) {
       return effects().error("User does not exist");
     }
 
