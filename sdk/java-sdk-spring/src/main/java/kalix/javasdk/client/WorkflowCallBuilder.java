@@ -32,6 +32,7 @@ import kalix.javasdk.workflow.Workflow;
 import kalix.spring.impl.KalixClient;
 
 import java.util.List;
+import java.util.Optional;
 
 public class WorkflowCallBuilder {
 
@@ -55,7 +56,7 @@ public class WorkflowCallBuilder {
    * Pass in a Workflow method reference annotated as a REST endpoint, e.g. <code>MyWorkflow::start</code>
    */
   public <T, R> DeferredCall<Any, R> call(Function<T, Workflow.Effect<R>> methodRef) {
-    return ComponentCall.noParams(kalixClient, methodRef, workflowIds);
+    return ComponentCall.noParams(kalixClient, methodRef, workflowIds, Optional.empty());
   }
 
   /**

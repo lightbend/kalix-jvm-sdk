@@ -61,8 +61,7 @@ public class EventSourcedEntityCallBuilder {
    * Pass in an Event Sourced Entity method reference annotated as a REST endpoint, e.g. <code>UserEntity::create</code>
    */
   public <T, R> DeferredCall<Any, R> call(Function<T, EventSourcedEntity.Effect<R>> methodRef) {
-    DeferredCall<Any, R> result = ComponentCall.noParams(kalixClient, methodRef, entityIds);
-    return result.withMetadata(ComponentCall.addTracing(result.metadata(), callMetadata));
+    return ComponentCall.noParams(kalixClient, methodRef, entityIds, callMetadata);
   }
 
   /**

@@ -57,15 +57,23 @@ final class ComponentCall[A1, R](
 
 object ComponentCall {
 
-  def noParams[R](kalixClient: KalixClient, lambda: scala.Any, ids: util.List[String]): DeferredCall[Any, R] = {
-    invoke(Seq.empty, kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids.asScala.toList)
+  def noParams[R](
+      kalixClient: KalixClient,
+      lambda: scala.Any,
+      ids: util.List[String],
+      callMetadata: Optional[Metadata]): DeferredCall[Any, R] = {
+    invoke(Seq.empty, kalixClient, MethodRefResolver.resolveMethodRef(lambda), ids.asScala.toList, callMetadata)
   }
 
-  def noParams[R](kalixClient: KalixClient, method: Method, ids: util.List[String]): DeferredCall[Any, R] = {
-    invoke(Seq.empty, kalixClient, method, ids.asScala.toList)
+  def noParams[R](
+      kalixClient: KalixClient,
+      method: Method,
+      ids: util.List[String],
+      callMetadata: Optional[Metadata]): DeferredCall[Any, R] = {
+    invoke(Seq.empty, kalixClient, method, ids.asScala.toList, callMetadata)
   }
 
-  def addTracing(metadata: Metadata, context: Optional[Metadata]): Metadata = {
+  private[client] def addTracing(metadata: Metadata, context: Optional[Metadata]): Metadata = {
     var currMetadata = metadata
     context.toScala match {
       case Some(metadata) =>
@@ -85,19 +93,7 @@ object ComponentCall {
       kalixClient: KalixClient,
       method: Method,
       ids: List[String],
-      metadataOpt: Optional[Metadata]): DeferredCall[Any, R] = {
-    metadataOpt.toScala match {
-      case Some(metadata) => invoke(params, kalixClient, method, ids).withMetadata(metadata)
-      case None           => invoke(params, kalixClient, method, ids)
-    }
-
-  }
-
-  private[client] def invoke[R](
-      params: Seq[scala.Any],
-      kalixClient: KalixClient,
-      method: Method,
-      ids: List[String]): DeferredCall[Any, R] = {
+      callMetadata: Optional[Metadata]): DeferredCall[Any, R] = {
 
     val declaringClass = method.getDeclaringClass
 
@@ -129,21 +125,24 @@ object ComponentCall {
 
     val pathTemplate = restMethod.parsedPath.path
 
-    requestMethod match {
-      case RequestMethod.GET =>
-        kalixClientImpl.runWithoutBody(HttpMethods.GET, pathTemplate, pathVariables, queryParams, returnType)
-      case RequestMethod.HEAD => notSupported(requestMethod, pathTemplate)
-      case RequestMethod.POST =>
-        kalixClientImpl.runWithBody(HttpMethods.POST, pathTemplate, pathVariables, queryParams, body, returnType)
-      case RequestMethod.PUT =>
-        kalixClientImpl.runWithBody(HttpMethods.PUT, pathTemplate, pathVariables, queryParams, body, returnType)
-      case RequestMethod.PATCH =>
-        kalixClientImpl.runWithBody(HttpMethods.PATCH, pathTemplate, pathVariables, queryParams, body, returnType)
-      case RequestMethod.DELETE =>
-        kalixClientImpl.runWithoutBody(HttpMethods.DELETE, pathTemplate, pathVariables, queryParams, returnType)
-      case RequestMethod.OPTIONS => notSupported(requestMethod, pathTemplate)
-      case RequestMethod.TRACE   => notSupported(requestMethod, pathTemplate)
-    }
+    val deferredCall =
+      requestMethod match {
+        case RequestMethod.GET =>
+          kalixClientImpl.runWithoutBody(HttpMethods.GET, pathTemplate, pathVariables, queryParams, returnType)
+        case RequestMethod.HEAD => notSupported(requestMethod, pathTemplate)
+        case RequestMethod.POST =>
+          kalixClientImpl.runWithBody(HttpMethods.POST, pathTemplate, pathVariables, queryParams, body, returnType)
+        case RequestMethod.PUT =>
+          kalixClientImpl.runWithBody(HttpMethods.PUT, pathTemplate, pathVariables, queryParams, body, returnType)
+        case RequestMethod.PATCH =>
+          kalixClientImpl.runWithBody(HttpMethods.PATCH, pathTemplate, pathVariables, queryParams, body, returnType)
+        case RequestMethod.DELETE =>
+          kalixClientImpl.runWithoutBody(HttpMethods.DELETE, pathTemplate, pathVariables, queryParams, returnType)
+        case RequestMethod.OPTIONS => notSupported(requestMethod, pathTemplate)
+        case RequestMethod.TRACE   => notSupported(requestMethod, pathTemplate)
+      }
+
+    deferredCall.withMetadata(ComponentCall.addTracing(deferredCall.metadata, callMetadata))
   }
 
   private def getReturnType[R](declaringClass: Class[_], method: Method): Class[R] = {

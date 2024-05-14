@@ -559,6 +559,7 @@ jobs:
 
           - { sample: java-spring-eventsourced-customer-registry, it: true }
           - { sample: java-spring-eventsourced-customer-registry-subscriber, it: true, pre_cmd: 'mvn -f ../java-spring-eventsourced-customer-registry/pom.xml package docker:build --no-transfer-progress' }
+          - { sample: java-spring-eventsourced-counter, pre_cmd: 'docker compose up gcloud-pubsub-emulator -d', it: true }
           - { sample: java-spring-eventsourced-shopping-cart, it: true }
 
           - { sample: java-protobuf-valueentity-counter, it: true }
@@ -569,12 +570,12 @@ jobs:
           - { sample: java-spring-valueentity-shopping-cart, it: true }
           - { sample: java-spring-valueentity-customer-registry, it: true }
 
-          - { sample: java-spring-eventsourced-counter, pre_cmd: 'docker compose up gcloud-pubsub-emulator -d', it: true }
 
           - { sample: java-protobuf-replicatedentity-shopping-cart, it: true }
           - { sample: java-protobuf-replicatedentity-examples, it: true }
 
           - { sample: java-protobuf-tracing, it: false }
+          - { sample: java-spring-tracing, it: false }
 
           - { sample: java-protobuf-web-resources, it: false }
 
