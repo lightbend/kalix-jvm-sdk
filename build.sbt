@@ -28,22 +28,29 @@ def commonCompilerSettings: Seq[Setting[_]] =
     Compile / javacOptions ++= Seq("-encoding", "UTF-8"),
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation"))
 
+lazy val sharedScalacOptions =
+  Seq("-feature",
+    "-unchecked",
+    "-Wunused:imports,privates,locals")
+
+lazy val scala2Options = sharedScalacOptions ++
+  Seq("-Xfatal-warnings", // discipline only in Scala 2 for now
+    "-Wconf:src=.*/target/.*:s",
+    // silence warnings from generated sources
+    "-Wconf:src=.*/src_managed/.*:s",
+    // silence warnings from deprecated protobuf fields
+    "-Wconf:src=.*/akka-grpc/.*:s")
+
+// -Wconf configs will be available once https://github.com/scala/scala3/pull/20282 is merged and 3.3.4 is released
+lazy val scala3Options = sharedScalacOptions ++ Seq("-explain")
+
 def disciplinedScalacSettings: Seq[Setting[_]] = {
   if (sys.props.get("kalix.no-discipline").isEmpty) {
     Seq(
-      Compile / scalacOptions ++= Seq(
-        "-Xfatal-warnings",
-        "-encoding",
-        "UTF-8",
-        "-feature",
-        "-deprecation",
-        "-unchecked",
-        "-Ywarn-unused:_",
-        "-Wconf:src=.*/target/.*:s",
-        // silence warnings from generated sources
-        "-Wconf:src=.*/src_managed/.*:s",
-        // silence warnings from deprecated protobuf fields
-        "-Wconf:src=.*/akka-grpc/.*:s"))
+    Compile / scalacOptions ++= {
+        if (scalaVersion.value.startsWith("3.")) scala3Options
+        else scala2Options
+      })
   } else Seq.empty
 }
 
@@ -58,6 +65,7 @@ lazy val coreSdk = project
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
+    crossScalaVersions := Seq(Dependencies.ScalaVersion, Dependencies.Scala3Version),
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -85,6 +93,7 @@ lazy val javaSdkProtobuf = project
       "scalaVersion" -> scalaVersion.value,
       "akkaVersion" -> Dependencies.AkkaVersion),
     buildInfoPackage := "kalix.javasdk",
+    crossScalaVersions := Seq(Dependencies.ScalaVersion, Dependencies.Scala3Version),
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -323,6 +332,7 @@ lazy val scalaSdkProtobuf = project
       "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value,
       "akkaVersion" -> Dependencies.AkkaVersion),
+    crossScalaVersions := Seq(Dependencies.ScalaVersion, Dependencies.Scala3Version),
     buildInfoPackage := "kalix.scalasdk",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
@@ -384,7 +394,8 @@ def githubUrl(v: String): String = {
 lazy val devTools = devToolsCommon(
   project
     .in(file("devtools"))
-    .settings(name := "kalix-devtools", scalaVersion := Dependencies.ScalaVersion))
+    .settings(name := "kalix-devtools", scalaVersion := Dependencies.ScalaVersion,
+      crossScalaVersions := Seq(Dependencies.ScalaVersion, Dependencies.Scala3Version)))
 
 /*
   This variant devTools compiles with Scala 2.12, but uses the same source files as the 2.13 version (above).
