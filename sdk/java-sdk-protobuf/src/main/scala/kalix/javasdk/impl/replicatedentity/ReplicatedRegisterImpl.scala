@@ -57,6 +57,6 @@ private[kalix] final class ReplicatedRegisterImpl[T](
         ReplicatedEntityClock.REPLICATED_ENTITY_CLOCK_CUSTOM_AUTO_INCREMENT
     }
 
-  override def toString = s"ReplicatedRegister($value)"
+  override def toString: String = s"ReplicatedRegister($value)"
 
 }

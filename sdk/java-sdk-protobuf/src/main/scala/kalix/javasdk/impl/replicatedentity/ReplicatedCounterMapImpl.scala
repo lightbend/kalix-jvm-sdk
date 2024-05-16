@@ -94,6 +94,6 @@ private[kalix] final class ReplicatedCounterMapImpl[K](
       new ReplicatedCounterMapImpl(anySupport, updatedCounters)
   }
 
-  override def toString = s"ReplicatedCounterMap(${counters.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+  override def toString: String = s"ReplicatedCounterMap(${counters.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
 }

@@ -41,29 +41,29 @@ object AnySupport {
   private val log = LoggerFactory.getLogger(classOf[AnySupport])
 
   sealed abstract class Primitive[T: ClassTag] {
-    val name = fieldType.name().toLowerCase(Locale.ROOT)
-    val fullName = KalixPrimitive + name
-    final val clazz = implicitly[ClassTag[T]].runtimeClass
+    val name: String = fieldType.name().toLowerCase(Locale.ROOT)
+    val fullName: String = KalixPrimitive + name
+    final val clazz: Class[_] = implicitly[ClassTag[T]].runtimeClass
     def write(stream: CodedOutputStream, t: T): Unit
     def read(stream: CodedInputStream): T
     def fieldType: WireFormat.FieldType
     def defaultValue: T
-    val tag = (KalixPrimitiveFieldNumber << 3) | fieldType.getWireType
+    val tag: Int = (KalixPrimitiveFieldNumber << 3) | fieldType.getWireType
   }
 
-  private final object StringPrimitive extends Primitive[String] {
+  private object StringPrimitive extends Primitive[String] {
     override def fieldType = WireFormat.FieldType.STRING
     override def defaultValue = ""
-    override def write(stream: CodedOutputStream, t: String) = stream.writeString(KalixPrimitiveFieldNumber, t)
-    override def read(stream: CodedInputStream) = stream.readString()
+    override def write(stream: CodedOutputStream, t: String): Unit = stream.writeString(KalixPrimitiveFieldNumber, t)
+    override def read(stream: CodedInputStream): String = stream.readString()
   }
 
-  final object BytesPrimitive extends Primitive[ByteString] {
+  object BytesPrimitive extends Primitive[ByteString] {
     override def fieldType = WireFormat.FieldType.BYTES
     override def defaultValue = ByteString.EMPTY
-    override def write(stream: CodedOutputStream, t: ByteString) =
+    override def write(stream: CodedOutputStream, t: ByteString): Unit =
       stream.writeBytes(KalixPrimitiveFieldNumber, t)
-    override def read(stream: CodedInputStream) = stream.readBytes()
+    override def read(stream: CodedInputStream): ByteString = stream.readBytes()
   }
 
   private final val Primitives = Seq(
@@ -155,7 +155,7 @@ object AnySupport {
    * should be preferred.
    */
   sealed trait Prefer
-  final object Prefer {
+  object Prefer {
     case object Java extends Prefer
     case object Scala extends Prefer
   }

@@ -19,7 +19,7 @@ import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
 import akka.actor.CoordinatedShutdown.Reason
 import akka.http.scaladsl._
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.{ HttpResponse => AkkaHttpResponse, _ }
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -47,9 +47,10 @@ import kalix.protocol.value_entity.ValueEntitiesHandler
 import kalix.protocol.view.ViewsHandler
 import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
 import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 object KalixRunner {
-  val logger = LoggerFactory.getLogger(classOf[KalixRunner])
+  val logger: Logger = LoggerFactory.getLogger(classOf[KalixRunner])
 
   object BindFailure extends Reason
 
@@ -149,32 +150,42 @@ final class KalixRunner private[javasdk] (
       aclDescriptor = aclDescriptor,
       sdkName)
 
-  private[this] def createRoutes(): PartialFunction[HttpRequest, Future[HttpResponse]] = {
+  private[this] def createRoutes(): PartialFunction[HttpRequest, Future[AkkaHttpResponse]] = {
 
     val serviceRoutes =
-      services.groupBy(_._2.getClass).foldLeft(PartialFunction.empty[HttpRequest, Future[HttpResponse]]) {
+      services.groupBy(_._2.getClass).foldLeft(PartialFunction.empty[HttpRequest, Future[AkkaHttpResponse]]) {
 
-        case (route, (serviceClass, eventSourcedServices: Map[String, EventSourcedEntityService] @unchecked))
+        case (
+              route: PartialFunction[HttpRequest, Future[AkkaHttpResponse]],
+              (serviceClass, eventSourcedServices: Map[String, EventSourcedEntityService] @unchecked))
             if serviceClass == classOf[EventSourcedEntityService] =>
           val eventSourcedImpl = new EventSourcedEntitiesImpl(system, eventSourcedServices, configuration)
           route.orElse(EventSourcedEntitiesHandler.partial(eventSourcedImpl))
 
-        case (route, (serviceClass, services: Map[String, ReplicatedEntityService] @unchecked))
+        case (
+              route: PartialFunction[HttpRequest, Future[AkkaHttpResponse]],
+              (serviceClass, services: Map[String, ReplicatedEntityService] @unchecked))
             if serviceClass == classOf[ReplicatedEntityService] =>
           val replicatedEntitiesImpl = new ReplicatedEntitiesImpl(system, services)
           route.orElse(ReplicatedEntitiesHandler.partial(replicatedEntitiesImpl))
 
-        case (route, (serviceClass, entityServices: Map[String, ValueEntityService] @unchecked))
+        case (
+              route: PartialFunction[HttpRequest, Future[AkkaHttpResponse]],
+              (serviceClass, entityServices: Map[String, ValueEntityService] @unchecked))
             if serviceClass == classOf[ValueEntityService] =>
           val valueEntityImpl = new ValueEntitiesImpl(system, entityServices, configuration)
           route.orElse(ValueEntitiesHandler.partial(valueEntityImpl))
 
-        case (route, (serviceClass, workflowServices: Map[String, WorkflowService] @unchecked))
+        case (
+              route: PartialFunction[HttpRequest, Future[AkkaHttpResponse]],
+              (serviceClass, workflowServices: Map[String, WorkflowService] @unchecked))
             if serviceClass == classOf[WorkflowService] =>
           val workflowImpl = new WorkflowImpl(system, workflowServices)
           route.orElse(WorkflowEntitiesHandler.partial(workflowImpl))
 
-        case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))
+        case (
+              route: PartialFunction[HttpRequest, Future[AkkaHttpResponse]],
+              (serviceClass, actionServices: Map[String, ActionService] @unchecked))
             if serviceClass == classOf[ActionService] =>
           val actionImpl = new ActionsImpl(system, actionServices)
           route.orElse(ActionsHandler.partial(actionImpl))
@@ -190,7 +201,7 @@ final class KalixRunner private[javasdk] (
 
     val discovery = DiscoveryHandler.partial(new DiscoveryImpl(system, services, aclDescriptor, sdkName))
 
-    serviceRoutes.orElse(discovery).orElse { case _ => Future.successful(HttpResponse(StatusCodes.NotFound)) }
+    serviceRoutes.orElse(discovery).orElse { case _ => Future.successful(AkkaHttpResponse(StatusCodes.NotFound)) }
   }
 
   /**

@@ -119,6 +119,6 @@ private[kalix] class ReplicatedSetImpl[E](
       new ReplicatedSetImpl(anySupport, updatedValue)
   }
 
-  override def toString = s"ReplicatedSet(${values.mkString(",")})"
+  override def toString: String = s"ReplicatedSet(${values.mkString(",")})"
 
 }

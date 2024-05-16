@@ -52,7 +52,7 @@ abstract class ReplicatedEntityRouter[D <: ReplicatedData, E <: ReplicatedEntity
     data = internalData.applyDelta
       .applyOrElse(
         delta.delta,
-        { noMatch: ReplicatedEntityDelta.Delta =>
+        { (noMatch: ReplicatedEntityDelta.Delta) =>
           throw ProtocolException(
             entityId,
             s"Received delta ${noMatch.value.getClass} which doesn't match the expected replicated data type: ${internalData.name}")
