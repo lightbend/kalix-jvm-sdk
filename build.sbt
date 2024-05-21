@@ -30,9 +30,9 @@ def commonCompilerSettings: Seq[Setting[_]] =
 
 lazy val sharedScalacOptions =
   Seq("-feature",
-    "-unchecked",
+    "-unchecked")
    //FIXME re-add when we have fixed all warnings
-   "-Wunused:imports,privates,locals")
+   //"-Wunused:imports,privates,locals")
 
 lazy val scala2Options = sharedScalacOptions ++
   Seq("-Xfatal-warnings", // discipline only in Scala 2 for now
