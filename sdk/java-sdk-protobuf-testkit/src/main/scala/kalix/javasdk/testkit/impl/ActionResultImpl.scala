@@ -100,6 +100,6 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
   }
 
   override def getSideEffects(): JList[DeferredCallDetails[_, _]] =
-    toDeferredCallDetails(effect.internalSideEffects())
+    toDeferredCallDetails(effect.internalSideEffects)
 
 }

@@ -28,7 +28,7 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
   }
 
   override def sideEffects: Seq[DeferredCallDetails[_, _]] =
-    EffectUtils.toDeferredCallDetails(effect.toJavaSdk.asInstanceOf[JavaPrimaryEffect[_]].internalSideEffects())
+    EffectUtils.toDeferredCallDetails(effect.toJavaSdk.asInstanceOf[JavaPrimaryEffect[_]].internalSideEffects)
 
   override def isForward: Boolean = effect.isInstanceOf[ActionEffectImpl.ForwardEffect[_]]
 
@@ -42,7 +42,7 @@ final class ActionResultImpl[T](val effect: ActionEffectImpl.PrimaryEffect[T]) e
 
   override def asyncResult: Future[ActionResult[T]] = effect match {
     case a: ActionEffectImpl.AsyncEffect[T] =>
-      a.effect.map { case p: ActionEffectImpl.PrimaryEffect[T] =>
+      a.effect.map { case p: ActionEffectImpl.PrimaryEffect[T @unchecked] =>
         new ActionResultImpl[T](p)
       }(ExecutionContext.global)
     case _ => throw new IllegalStateException(s"The effect was not an async effect but [$effectName]")

@@ -31,10 +31,14 @@ def commonCompilerSettings: Seq[Setting[_]] =
 lazy val sharedScalacOptions =
   Seq("-feature",
     "-unchecked",
-    "-Wunused:imports,privates,locals")
+   //FIXME re-add when we have fixed all warnings
+   "-Wunused:imports,privates,locals")
 
 lazy val scala2Options = sharedScalacOptions ++
   Seq("-Xfatal-warnings", // discipline only in Scala 2 for now
+    //"-Ytasty-reader",
+    //"-Xsource:3.0-migration",
+    //"-Xsource-features:case-apply-copy-access",
     "-Wconf:src=.*/target/.*:s",
     // silence warnings from generated sources
     "-Wconf:src=.*/src_managed/.*:s",
@@ -65,7 +69,7 @@ lazy val coreSdk = project
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
-    crossScalaVersions := Seq(Dependencies.ScalaVersion, Dependencies.Scala3Version),
+    crossScalaVersions := Dependencies.CrossScalaVersions,
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -93,7 +97,7 @@ lazy val javaSdkProtobuf = project
       "scalaVersion" -> scalaVersion.value,
       "akkaVersion" -> Dependencies.AkkaVersion),
     buildInfoPackage := "kalix.javasdk",
-    crossScalaVersions := Seq(Dependencies.ScalaVersion, Dependencies.Scala3Version),
+    crossScalaVersions := Dependencies.CrossScalaVersions,
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -139,6 +143,7 @@ lazy val javaSdkProtobufTestKit = project
       "runtimeVersion" -> Kalix.RuntimeVersion,
       "scalaVersion" -> scalaVersion.value),
     buildInfoPackage := "kalix.javasdk.testkit",
+    crossScalaVersions := Dependencies.CrossScalaVersions,
     // Generate javadocs by just including non generated Java sources
     Compile / doc / sources := {
       val javaSourceDir = (Compile / javaSource).value.getAbsolutePath
@@ -171,6 +176,8 @@ lazy val javaSdkSpring = project
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "17"),
     Compile / scalacOptions ++= Seq("-release", "17"),
+    //crossScalaVersions := Dependencies.CrossScalaVersions,
+    scalaVersion := Dependencies.ScalaVersion,
     buildInfoKeys := Seq[BuildInfoKey](
       name,
       version,
@@ -202,6 +209,9 @@ lazy val javaSdkSpring = project
       "java.lang"))
   .settings(inConfig(IntegrationTest)(JupiterPlugin.scopedSettings): _*)
   .settings(Dependencies.javaSdkSpring)
+  //.settings(
+  //  dependencyOverrides += "com.typesafe.akka" % "akka-http-core_3" % "10.6.1"
+  //)
 
 lazy val javaSdkSpringTestKit = project
   .in(file("sdk/java-sdk-spring-testkit"))
@@ -332,7 +342,7 @@ lazy val scalaSdkProtobuf = project
       "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value,
       "akkaVersion" -> Dependencies.AkkaVersion),
-    crossScalaVersions := Seq(Dependencies.ScalaVersion, Dependencies.Scala3Version),
+    crossScalaVersions := Dependencies.CrossScalaVersions,
     buildInfoPackage := "kalix.scalasdk",
     Compile / akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     Compile / akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
@@ -362,6 +372,7 @@ lazy val scalaSdkProtobufTestKit = project
       "protocolMajorVersion" -> Kalix.ProtocolVersionMajor,
       "protocolMinorVersion" -> Kalix.ProtocolVersionMinor,
       "scalaVersion" -> scalaVersion.value),
+    crossScalaVersions := Dependencies.CrossScalaVersions,
     buildInfoPackage := "kalix.scalasdk.testkit",
     inTask(doc)(
       Seq(
@@ -461,6 +472,7 @@ lazy val javaTck = project
     name := "kalix-tck-java-sdk",
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
+    crossScalaVersions := Dependencies.CrossScalaVersions,
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     ReflectiveCodeGen.copyUnmanagedSources := true,
     Compile / mainClass := Some("kalix.javasdk.tck.JavaSdkTck"),
@@ -478,6 +490,7 @@ lazy val scalaTck = project
     name := "kalix-tck-scala-sdk",
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
+    crossScalaVersions := Dependencies.CrossScalaVersions,
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"),
     ReflectiveCodeGen.copyUnmanagedSources := true,
@@ -542,6 +555,7 @@ lazy val codegenJavaCompilationTest = project
   .settings(disciplinedScalacSettings)
   .settings(libraryDependencies ++= Seq(Dependencies.junit4))
   .settings(
+    scalaVersion := Dependencies.ScalaVersion,
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     (publish / skip) := true,
     name := "kalix-codegen-java-compilation-tests",

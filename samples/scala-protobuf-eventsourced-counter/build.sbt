@@ -29,7 +29,8 @@ dockerBuildCommand := {
 ThisBuild / dynverSeparator := "-"
 
 Compile / scalacOptions ++= Seq(
-  "-release:21",
+  //FIXME why does this need to be removed?
+  //"-release:21",
   "-deprecation",
   "-feature",
   "-unchecked",
