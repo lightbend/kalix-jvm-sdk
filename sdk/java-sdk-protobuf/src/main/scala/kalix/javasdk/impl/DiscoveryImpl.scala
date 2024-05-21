@@ -83,7 +83,7 @@ class DiscoveryImpl(
 
     // possibly filtered or hidden env, passed along for substitution in descriptor options
     val env: Map[String, String] = system.settings.config.getAnyRef("kalix.discovery.pass-along-env-allow") match {
-      case bool: Boolean => if (bool) sys.env else Map.empty
+      case bool: java.lang.Boolean => if (bool) sys.env else Map.empty
       case allowed: util.ArrayList[String @unchecked] =>
         allowed.asScala.flatMap(name => sys.env.get(name).map(value => name -> value)).toMap
       case unexpected =>
