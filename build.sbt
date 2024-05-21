@@ -29,13 +29,13 @@ def commonCompilerSettings: Seq[Setting[_]] =
     Compile / scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation"))
 
 lazy val sharedScalacOptions =
-  Seq("-feature",
-    "-unchecked")
-   //FIXME re-add when we have fixed all warnings
-   //"-Wunused:imports,privates,locals")
+  Seq("-feature", "-unchecked")
+//FIXME re-add when we have fixed all warnings
+//"-Wunused:imports,privates,locals")
 
 lazy val scala2Options = sharedScalacOptions ++
-  Seq("-Xfatal-warnings", // discipline only in Scala 2 for now
+  Seq(
+    "-Xfatal-warnings", // discipline only in Scala 2 for now
     //"-Ytasty-reader",
     //"-Xsource:3.0-migration",
     //"-Xsource-features:case-apply-copy-access",
@@ -45,16 +45,19 @@ lazy val scala2Options = sharedScalacOptions ++
     // silence warnings from deprecated protobuf fields
     "-Wconf:src=.*/akka-grpc/.*:s")
 
+lazy val scala213Options = scala2Options ++
+  Seq("-Ytasty-reader")
+
 // -Wconf configs will be available once https://github.com/scala/scala3/pull/20282 is merged and 3.3.4 is released
 lazy val scala3Options = sharedScalacOptions ++ Seq("-explain")
 
 def disciplinedScalacSettings: Seq[Setting[_]] = {
   if (sys.props.get("kalix.no-discipline").isEmpty) {
-    Seq(
-    Compile / scalacOptions ++= {
-        if (scalaVersion.value.startsWith("3.")) scala3Options
-        else scala2Options
-      })
+    Seq(Compile / scalacOptions ++= {
+      if (scalaVersion.value.startsWith("3.")) scala3Options
+      else if (scalaVersion.value.startsWith("2.13")) scala213Options
+      else scala2Options
+    })
   } else Seq.empty
 }
 
@@ -176,7 +179,6 @@ lazy val javaSdkSpring = project
     crossPaths := false,
     Compile / javacOptions ++= Seq("--release", "17"),
     Compile / scalacOptions ++= Seq("-release", "17"),
-    //crossScalaVersions := Dependencies.CrossScalaVersions,
     scalaVersion := Dependencies.ScalaVersion,
     buildInfoKeys := Seq[BuildInfoKey](
       name,
@@ -209,9 +211,9 @@ lazy val javaSdkSpring = project
       "java.lang"))
   .settings(inConfig(IntegrationTest)(JupiterPlugin.scopedSettings): _*)
   .settings(Dependencies.javaSdkSpring)
-  //.settings(
-  //  dependencyOverrides += "com.typesafe.akka" % "akka-http-core_3" % "10.6.1"
-  //)
+//.settings(
+//  dependencyOverrides += "com.typesafe.akka" % "akka-http-core_3" % "10.6.1"
+//)
 
 lazy val javaSdkSpringTestKit = project
   .in(file("sdk/java-sdk-spring-testkit"))
@@ -405,8 +407,10 @@ def githubUrl(v: String): String = {
 lazy val devTools = devToolsCommon(
   project
     .in(file("devtools"))
-    .settings(name := "kalix-devtools", scalaVersion := Dependencies.ScalaVersion,
-      crossScalaVersions := Seq(Dependencies.ScalaVersion, Dependencies.Scala3Version)))
+    .settings(
+      name := "kalix-devtools",
+      scalaVersion := Dependencies.ScalaVersion,
+      crossScalaVersions := Dependencies.CrossScalaVersions))
 
 /*
   This variant devTools compiles with Scala 2.12, but uses the same source files as the 2.13 version (above).
