@@ -22,17 +22,17 @@ private[scalasdk] object ActionEffectImpl {
     def toJavaSdk: javasdk.action.Action.Effect[T]
 
     override def addSideEffect(sideEffects: SideEffect*): Action.Effect[T] =
-      withSideEffects(internalSideEffects() ++ sideEffects)
+      withSideEffects(internalSideEffects ++ sideEffects)
     override def addSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T] =
-      withSideEffects(internalSideEffects() ++ sideEffects)
+      withSideEffects(internalSideEffects ++ sideEffects)
 
-    protected def internalSideEffects(): Seq[SideEffect]
+    protected def internalSideEffects: Seq[SideEffect]
     protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
 
     def canHaveSideEffects: Boolean = true
   }
 
-  final case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])
+  case class ReplyEffect[T](msg: T, metadata: Option[Metadata], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -46,7 +46,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: Seq[SideEffect])
+  case class AsyncEffect[T](effect: Future[Action.Effect[T]], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -55,11 +55,11 @@ private[scalasdk] object ActionEffectImpl {
 
     private def convertEffect(effect: Action.Effect[T]): Future[javasdk.action.Action.Effect[T]] = {
       effect match {
-        case eff: AsyncEffect[T] =>
+        case eff: AsyncEffect[T @unchecked] =>
           // FIXME? the Future may wrap another AsyncEffect.
           //  Should we put a limit on it to avoid a stackoverflow?
           eff.effect.flatMap(convertEffect)(ExecutionContext.parasitic)
-        case eff: PrimaryEffect[T] => Future.successful(eff.toJavaSdk)
+        case eff: PrimaryEffect[T @unchecked] => Future.successful(eff.toJavaSdk)
       }
     }
 
@@ -70,7 +70,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class ForwardEffect[T](serviceCall: DeferredCall[_, T], internalSideEffects: Seq[SideEffect])
+  case class ForwardEffect[T](serviceCall: DeferredCall[_, T], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -86,10 +86,7 @@ private[scalasdk] object ActionEffectImpl {
     }
   }
 
-  final case class ErrorEffect[T](
-      description: String,
-      statusCode: Option[Status.Code],
-      internalSideEffects: Seq[SideEffect])
+  case class ErrorEffect[T](description: String, statusCode: Option[Status.Code], internalSideEffects: Seq[SideEffect])
       extends PrimaryEffect[T] {
 
     def isEmpty: Boolean = false
@@ -104,9 +101,9 @@ private[scalasdk] object ActionEffectImpl {
   }
 
   def IgnoreEffect[T](): PrimaryEffect[T] = IgnoreEffect.asInstanceOf[PrimaryEffect[T]]
-  final case object IgnoreEffect extends PrimaryEffect[Nothing] {
+  case object IgnoreEffect extends PrimaryEffect[Nothing] {
     def isEmpty: Boolean = true
-    override def internalSideEffects() = Nil
+    override def internalSideEffects: Seq[SideEffect] = Nil
 
     override def canHaveSideEffects: Boolean = false
 
