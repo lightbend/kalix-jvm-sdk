@@ -64,13 +64,12 @@ object HttpEndpointMethodDefinition {
 
   // This is used to support the "*" custom pattern
   val ANY_METHOD =
-    HttpMethod.custom(
+    HttpMethod(
       "ANY",
-      safe = false,
-      idempotent = false,
+      isSafe = false,
+      isIdempotent = false,
       requestEntityAcceptance = RequestEntityAcceptance.Tolerated,
-      contentLengthAllowed = false
-    ) // FIXME get his back: (forStatus: StatusCode) => forStatus.intValue < 200 || forStatus.intValue >= 300)
+      contentLengthAllowed = (forStatus: StatusCode) => forStatus.intValue < 200 || forStatus.intValue >= 300)
 
   /**
    * INTERNAL API

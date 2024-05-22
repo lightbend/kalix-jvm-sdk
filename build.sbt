@@ -69,7 +69,7 @@ lazy val coreSdk = project
   .settings(disciplinedScalacSettings)
   .settings(
     name := "kalix-jvm-core-sdk",
-    crossPaths := false,
+    crossPaths := scalaVersion.value.startsWith("3."),
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
     crossScalaVersions := Dependencies.CrossScalaVersions,
@@ -87,7 +87,7 @@ lazy val javaSdkProtobuf = project
   .settings(disciplinedScalacSettings)
   .settings(
     name := "kalix-java-sdk-protobuf",
-    crossPaths := false,
+    crossPaths := scalaVersion.value.startsWith("3."),
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
     buildInfoKeys := Seq[BuildInfoKey](
@@ -136,7 +136,7 @@ lazy val javaSdkProtobufTestKit = project
   .settings(commonCompilerSettings)
   .settings(
     name := "kalix-java-sdk-protobuf-testkit",
-    crossPaths := false,
+    crossPaths := scalaVersion.value.startsWith("3."),
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
     buildInfoKeys := Seq[BuildInfoKey](
@@ -211,9 +211,6 @@ lazy val javaSdkSpring = project
       "java.lang"))
   .settings(inConfig(IntegrationTest)(JupiterPlugin.scopedSettings): _*)
   .settings(Dependencies.javaSdkSpring)
-//.settings(
-//  dependencyOverrides += "com.typesafe.akka" % "akka-http-core_3" % "10.6.1"
-//)
 
 lazy val javaSdkSpringTestKit = project
   .in(file("sdk/java-sdk-spring-testkit"))
