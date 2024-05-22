@@ -96,7 +96,7 @@ class CounterServiceIntegrationSpec
       counter.value shouldBe 15
 
       // verify message published to topic
-      val Message(decEvent, md): Message[Decreased] = eventsTopic.expectOneTyped
+      val Message(decEvent, md) = eventsTopic.expectOneTyped[Decreased]
       decEvent shouldBe Decreased(15)
       md.get("ce-type") should contain(classOf[Decreased].getName)
       md.get("Content-Type") should contain("application/protobuf")
@@ -107,8 +107,8 @@ class CounterServiceIntegrationSpec
       commandsTopic.publish(IncreaseValue(counterId, 4), counterId) // <4>
       commandsTopic.publish(DecreaseValue(counterId, 1), counterId)
 
-      val Message(incEvent, _): Message[Increased] = eventsTopic.expectOneTyped // <5>
-      val Message(decEvent, _): Message[Decreased] = eventsTopic.expectOneTyped
+      val Message(incEvent, _) = eventsTopic.expectOneTyped[Increased] // <5>
+      val Message(decEvent, _) = eventsTopic.expectOneTyped[Decreased]
       incEvent shouldBe Increased(4) // <6>
       decEvent shouldBe Decreased(1)
     }
@@ -127,7 +127,7 @@ class CounterServiceIntegrationSpec
 
       commandsTopic.publish(Message(increaseCmd, md)) // <4>
 
-      val Message(incEvent, actualMd): Message[Increased] = eventsTopicWithMeta.expectOneTyped // <5>
+      val Message(incEvent, actualMd) = eventsTopicWithMeta.expectOneTyped[Increased] // <5>
       incEvent shouldBe Increased(4)
       actualMd.get("Content-Type") should contain("application/protobuf") // <6>
       actualMd.asCloudEvent.subject should contain(counterId)
