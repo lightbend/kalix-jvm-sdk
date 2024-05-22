@@ -24,8 +24,7 @@ import scala.reflect.ClassTag
 import kalix.scalasdk.testkit.IncomingMessages
 import kalix.scalasdk.testkit.OutgoingMessages
 
-private[testkit] case class IncomingMessagesImpl private (delegate: JEventingTestKit.IncomingMessages)
-    extends IncomingMessages {
+private[testkit] case class IncomingMessagesImpl(delegate: JEventingTestKit.IncomingMessages) extends IncomingMessages {
 
   override def publish(message: ByteString): Unit = delegate.publish(message)
 
@@ -44,9 +43,7 @@ private[testkit] case class IncomingMessagesImpl private (delegate: JEventingTes
   override def publishDelete(subject: String): Unit = delegate.publishDelete(subject)
 }
 
-private[testkit] case class OutgoingMessagesImpl private (
-    delegate: JEventingTestKit.OutgoingMessages,
-    codec: MessageCodec)
+private[testkit] case class OutgoingMessagesImpl(delegate: JEventingTestKit.OutgoingMessages, codec: MessageCodec)
     extends OutgoingMessages {
 
   override def expectNone(): Unit = delegate.expectNone()

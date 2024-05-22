@@ -78,7 +78,7 @@ trait IncomingMessages {
 
 @InternalApi
 object IncomingMessages {
-  def apply(delegate: JEventingTestKit.IncomingMessages): IncomingMessages = IncomingMessagesImpl(delegate)
+  def apply(delegate: JEventingTestKit.IncomingMessages): IncomingMessages = IncomingMessagesImpl.apply(delegate)
 }
 
 /**
@@ -213,7 +213,7 @@ trait OutgoingMessages {
 @InternalApi
 object OutgoingMessages {
   def apply(delegate: JEventingTestKit.OutgoingMessages, codec: MessageCodec): OutgoingMessages =
-    OutgoingMessagesImpl(delegate, codec)
+    OutgoingMessagesImpl.apply(delegate, codec)
 }
 
 @ApiMayChange
