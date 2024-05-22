@@ -66,13 +66,13 @@ class JwtIntegrationSpec extends AnyWordSpec with Matchers with BeforeAndAfterEa
 
   private def bearerTokenWith(claims: Map[String, String]): String = {
     // setting algorithm to none
-    val alg = Base64.getEncoder.encodeToString("""{"alg":"none"}""".getBytes); // <4>
+    val alg = Base64.getEncoder.encodeToString(s"""{"alg":"none"}""".getBytes); // <4>
 
     import spray.json.DefaultJsonProtocol._
-    val claimsJson: JsValue = claims.toJson
+    val claimsJson = s"${claims.toJson}"
 
     // no validation is done for integration tests, thus no valid signature required
-    s"$alg.${Base64.getEncoder.encodeToString(claimsJson.toString().getBytes)}" // <5>
+    s"$alg.${Base64.getEncoder.encodeToString(claimsJson.getBytes)}" // <5>
   }
   // end::jwt-util[]
 

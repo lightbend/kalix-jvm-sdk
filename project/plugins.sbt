@@ -1,7 +1,6 @@
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")
-//addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.10.0")
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
 // even updated `akka-grpc.version` in pom.xml files
 addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.4.3")
@@ -13,6 +12,3 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
 addSbtPlugin("net.aichler" % "sbt-jupiter-interface" % "0.11.0")
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.3")
 addSbtPlugin("com.thoughtworks.sbt-api-mappings" % "sbt-api-mappings" % "3.0.2")
-// FIXME remove this
-addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.6.4")
-addDependencyTreePlugin

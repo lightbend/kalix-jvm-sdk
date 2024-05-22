@@ -52,4 +52,4 @@ Global / cancelable := false // ctrl-c
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.12" % Test,
-  "org.scalamock" %% "scalamock" % "5.2.0" % Test)
+  "org.scalamock" %% "scalamock" % "6.0.0" % Test)

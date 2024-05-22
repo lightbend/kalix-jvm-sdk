@@ -40,5 +40,5 @@ Compile / javacOptions ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "3.2.7" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.18" % Test,
   "com.google.api.grpc" % "proto-google-common-protos" % "2.15.0" % Test)

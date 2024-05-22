@@ -40,7 +40,7 @@ trait ComponentDescriptorSuite extends Matchers {
 
   def assertFieldIsProto3Optional(method: CommandHandler, fieldName: String): Assertion = {
     val field: Descriptors.FieldDescriptor = findField(method, fieldName)
-    field.hasOptionalKeyword shouldBe true
+    field.isOptional shouldBe true
     val oneofDesc = field.getContainingOneof
     oneofDesc.getName shouldBe "_" + fieldName
     method.requestMessageDescriptor.getOneofs should contain(oneofDesc)
