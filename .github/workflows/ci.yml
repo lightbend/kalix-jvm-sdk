@@ -767,7 +767,7 @@ jobs:
           echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
           sbt --client -Dkalix-sdk.version=$SDK_VERSION Test/compile
 
-      - name: sbt test
+      - name: sbt test scala 2.13
         if: matrix.test
         env:
           DIR: ${{ matrix.sample }}
@@ -776,7 +776,7 @@ jobs:
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           ${PRE_CMD}
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION test
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! test'
 
       - name: sbt test scala 3
         if: matrix.test
