@@ -61,6 +61,28 @@ message SomeMessage {
 }
 ----
 
+It is also possible to use a single nested `message` marked with `(kalix.field).id` where the nested message type
+in turn contains one or more fields with the actual id. This allows for sharing a common id structure among multiple
+messages:
+
+[source,proto]
+----
+message MyId {
+  string first_field = 1 [(kalix.field).id = true];
+  string second_field = 2 [(kalix.field).id = true];
+}
+
+message CommandOne {
+  MyId nested_id = 1 [(kalix.field).id = true];
+  ...
+}
+
+message CommandTwo {
+  MyId nested_id = 1 [(kalix.field).id = true];
+  ...
+}
+----
+
 ==== Generated entity ids
 
 In some cases, you may wish to generate a component id, this is typically done when an RPC method creates an entity or workflow, and the id is a surrogate id. To indicate to Kalix that an id should be generated, the incoming message must not have any `(kalix.field).id` annotated field. Instead, the rpc method should be annotated with `(kalix.method).id_generator.algorithm`, for example:
