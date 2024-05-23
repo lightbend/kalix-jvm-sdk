@@ -166,7 +166,7 @@ private[scalasdk] final class JavaWorkflowRouterAdapter[S >: Null](
 private[scalasdk] final class JavaWorkflowOptionsAdapter(scalaSdkWorkflowOptions: WorkflowOptions)
     extends javasdk.workflow.WorkflowOptions {
 
-  def forwardHeaders(): java.util.Set[String] = scalaSdkWorkflowOptions.forwardHeaders.asJava
+  def forwardHeaders: java.util.Set[String] = scalaSdkWorkflowOptions.forwardHeaders.asJava
 
   def withForwardHeaders(headers: java.util.Set[String]): javasdk.workflow.WorkflowOptions =
     new JavaWorkflowOptionsAdapter(scalaSdkWorkflowOptions.withForwardHeaders(Set.from(headers.asScala)))

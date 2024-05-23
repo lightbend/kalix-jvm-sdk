@@ -40,7 +40,7 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
   override def definition: AbstractWorkflow.WorkflowDef[TransferState] = {
 
     val withdraw = step("withdraw")
-      .asyncCall { withdraw: Withdraw =>
+      .asyncCall { (withdraw: Withdraw) =>
         logger.info("Running withdraw step: " + withdraw)
         timers
           .cancel("acceptationTimout-" + currentState().transferId)
@@ -68,7 +68,7 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
 
     // tag::compensation[]
     val deposit = step("deposit")
-      .call { deposit: Deposit =>
+      .call { (deposit: Deposit) =>
         // end::compensation[]
         logger.info("Running deposit step: " + deposit)
         // tag::compensation[]

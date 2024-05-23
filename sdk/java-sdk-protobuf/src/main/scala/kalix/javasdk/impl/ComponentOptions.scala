@@ -10,7 +10,7 @@ trait ComponentOptions {
    * @return
    *   the headers requested to be forwarded as metadata (cannot be mutated, use withForwardHeaders)
    */
-  def forwardHeaders(): java.util.Set[String]
+  def forwardHeaders: java.util.Set[String]
 
   /**
    * Ask Kalix to forward these headers from the incoming request as metadata headers for the incoming commands. By

@@ -41,6 +41,7 @@ object TracingPortExtractor {
             .map(removeColon)
             .filter(isValidPort)
             .map(_.toInt)
+        case _ => None
       }
       .filter(_ > 0)
   }

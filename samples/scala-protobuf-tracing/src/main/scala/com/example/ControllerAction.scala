@@ -47,6 +47,7 @@ class ControllerAction(creationContext: ActionCreationContext) extends AbstractC
     val request = quickRequest.get(uri"${url}/1")
     val response = request.send(Main.backend)
     response.map { response =>
+      import org.json4s.jvalue2extractable
       val post = JsonMethods.parse(response.body).extract[Post]
       MessageResponse(post.title)
     }

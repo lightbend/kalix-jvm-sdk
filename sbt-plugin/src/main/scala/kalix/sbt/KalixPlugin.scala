@@ -59,7 +59,7 @@ object KalixPlugin extends AutoPlugin {
     Def.settings(
       libraryDependencies ++= Seq(
         "io.kalix" % "kalix-sdk-protocol" % KalixProtocolVersion % "protobuf-src",
-        "com.google.protobuf" % "protobuf-java" % "3.17.3" % "protobuf",
+        "com.google.protobuf" % "protobuf-java" % "3.25.3" % "protobuf",
         "io.kalix" %% "kalix-scala-sdk-protobuf-testkit" % KalixSdkVersion % Test),
 
       // -------------------------------------------------------------------------------------------

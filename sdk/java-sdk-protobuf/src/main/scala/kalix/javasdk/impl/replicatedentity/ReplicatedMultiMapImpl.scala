@@ -109,6 +109,6 @@ private[kalix] final class ReplicatedMultiMapImpl[K, V](
       new ReplicatedMultiMapImpl(anySupport, updatedEntries)
   }
 
-  override def toString = s"ReplicatedMultiMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+  override def toString: String = s"ReplicatedMultiMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
 }

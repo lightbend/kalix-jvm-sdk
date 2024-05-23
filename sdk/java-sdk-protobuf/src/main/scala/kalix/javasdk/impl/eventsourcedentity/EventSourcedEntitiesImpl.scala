@@ -96,7 +96,7 @@ final class EventSourcedEntitiesImpl(
     // FIXME overlay configuration provided by _system
     (name, if (service.snapshotEvery == 0) service.withSnapshotEvery(configuration.snapshotEvery) else service)
   }.toMap
-  val telemetry = Telemetry(system)
+  val telemetry: Telemetry = Telemetry(system)
   lazy val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, EventSourcedEntityCategory))
   }.toMap

@@ -79,7 +79,7 @@ final class ValueEntitiesImpl(
 
   private final val log = LoggerFactory.getLogger(this.getClass)
 
-  val telemetry = Telemetry(system)
+  val telemetry: Telemetry = Telemetry(system)
   lazy val instrumentations: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ValueEntityCategory))
   }.toMap

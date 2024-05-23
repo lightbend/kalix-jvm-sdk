@@ -31,7 +31,7 @@ class Counter(context: EventSourcedEntityContext) extends AbstractCounter {
     if (increaseValue.value < 0) {
       effects.error("Value must be a zero or a positive number")
     } else {
-      val valIncrease = if (commandContext.metadata.get("myKey") == Some("myValue")){
+      val valIncrease = if (commandContext().metadata.get("myKey").contains("myValue")){
         ValueIncreased(2 * increaseValue.value) 
       } else {
         ValueIncreased(increaseValue.value)

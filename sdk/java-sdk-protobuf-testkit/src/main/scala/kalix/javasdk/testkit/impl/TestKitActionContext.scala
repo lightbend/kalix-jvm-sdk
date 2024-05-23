@@ -16,7 +16,7 @@ import java.util.Optional
 /**
  * INTERNAL API Used by the generated testkit
  */
-final class TestKitActionContext(metadata: Metadata, mockRegistry: MockRegistry = MockRegistry.EMPTY)
+final class TestKitActionContext(override val metadata: Metadata, mockRegistry: MockRegistry = MockRegistry.EMPTY)
     extends AbstractTestKitContext(mockRegistry)
     with ActionContext
     with ActionCreationContext
@@ -30,7 +30,7 @@ final class TestKitActionContext(metadata: Metadata, mockRegistry: MockRegistry 
     this(metadata, MockRegistry.EMPTY)
   }
 
-  override def metadata() = metadata
+  //override def metadata() = metadata
 
   override def eventSubject() = metadata.get("ce-subject")
 

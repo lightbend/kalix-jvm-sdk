@@ -10,12 +10,12 @@ case class DocLinks(sdkName: String) {
   // sdkName is of format e.g. kalix-java-sdk-protobuf
   private val sdkPath = if (sdkName.endsWith("-protobuf")) "java-protobuf" else "java"
 
-  val errorCodes = Map(
+  private val errorCodes = Map(
     "KLX-00112" -> "views.html#changing",
     "KLX-00415" -> "publishing-subscribing.html#_subscribing_to_state_changes_from_a_value_entity")
 
   // fallback if not defined in errorCodes
-  val errorCodeCategories = Map(
+  private val errorCodeCategories = Map(
     "KLX-001" -> "views.html",
     "KLX-002" -> "value-entity.html",
     "KLX-003" -> "event-sourced-entities.html",

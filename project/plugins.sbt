@@ -3,7 +3,7 @@ resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.16")
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
 // even updated `akka-grpc.version` in pom.xml files
-addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.4.1")
+addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "2.4.3")
 addSbtPlugin("com.lightbend.sbt" % "sbt-java-formatter" % "0.7.0")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.7.0")

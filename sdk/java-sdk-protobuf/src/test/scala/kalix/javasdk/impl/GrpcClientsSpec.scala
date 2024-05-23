@@ -21,6 +21,7 @@ import scala.concurrent.Promise
 import scala.jdk.FutureConverters.FutureOps
 
 import akka.actor.ClassicActorSystemProvider
+import com.typesafe.config.Config
 
 // dummy instead of depending on actual generated Akka gRPC client to keep it simple
 trait PretendService {}
@@ -40,7 +41,7 @@ class PretendServiceClient(val settings: GrpcClientSettings) extends PretendServ
 }
 
 object GrpcClientsSpec {
-  def config = ConfigFactory.parseString("""
+  def config: Config = ConfigFactory.parseString("""
      |akka.grpc.client.c {
      |  service-discovery {
      |    service-name = "my-service"

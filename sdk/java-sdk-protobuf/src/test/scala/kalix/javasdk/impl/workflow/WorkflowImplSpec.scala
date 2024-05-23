@@ -249,10 +249,10 @@ object WorkflowImplSpec {
     def testWorkflow: TestWorkflow =
       TestWorkflow.service(TransferWorkflowProvider.of(_ => new TransferWorkflow()));
 
-    def owner(name: String) =
+    def owner(name: String): MoneyTransferApi.Owner =
       MoneyTransferApi.Owner.newBuilder().setName(name).build()
 
-    def transfer(workflowId: String, from: String, to: String, amount: Double) =
+    def transfer(workflowId: String, from: String, to: String, amount: Double): MoneyTransferApi.Transfer =
       MoneyTransferApi.Transfer
         .newBuilder()
         .setWorkflowId(workflowId)

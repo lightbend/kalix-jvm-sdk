@@ -107,7 +107,7 @@ private[kalix] object TraceInstrumentation {
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)
 
-  lazy val otelGetter = new TextMapGetter[Metadata]() {
+  lazy val otelGetter: TextMapGetter[Metadata] = new TextMapGetter[Metadata]() {
     override def get(carrier: Metadata, key: String): String = {
       if (logger.isTraceEnabled) logger.trace("For the key [{}] the value is [{}]", key, carrier.get(key))
       carrier.get(key).toScala.getOrElse("")

@@ -4,8 +4,8 @@
 
 package kalix.javasdk.impl
 
-import kalix.javasdk.eventsourcedentity
-import kalix.javasdk.valueentity
+import kalix.javasdk.eventsourcedentity.{ CommandContext => ESECommandContext }
+import kalix.javasdk.valueentity.{ CommandContext => VECommandContext }
 import kalix.protocol.entity.Command
 import kalix.protocol.event_sourced_entity.EventSourcedInit
 import kalix.protocol.replicated_entity.ReplicatedEntityInit
@@ -37,16 +37,16 @@ object EntityExceptions {
     def apply(command: Command, message: String, cause: Option[Throwable]): EntityException =
       EntityException(command.entityId, command.id, command.name, message, cause)
 
-    def apply(context: valueentity.CommandContext, message: String): EntityException =
+    def apply(context: VECommandContext, message: String): EntityException =
       EntityException(context.entityId, context.commandId, context.commandName, message, None)
 
-    def apply(context: valueentity.CommandContext, message: String, cause: Option[Throwable]): EntityException =
+    def apply(context: VECommandContext, message: String, cause: Option[Throwable]): EntityException =
       EntityException(context.entityId, context.commandId, context.commandName, message, cause)
 
-    def apply(context: eventsourcedentity.CommandContext, message: String): EntityException =
+    def apply(context: ESECommandContext, message: String): EntityException =
       EntityException(context.entityId, context.commandId, context.commandName, message, None)
 
-    def apply(context: eventsourcedentity.CommandContext, message: String, cause: Option[Throwable]): EntityException =
+    def apply(context: ESECommandContext, message: String, cause: Option[Throwable]): EntityException =
       EntityException(context.entityId, context.commandId, context.commandName, message, cause)
   }
 

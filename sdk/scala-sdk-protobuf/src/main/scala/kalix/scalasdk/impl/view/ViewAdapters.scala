@@ -62,7 +62,7 @@ private[scalasdk] class JavaViewRouterAdapter[S](
 
   override def handleUpdate(commandName: String, state: S, event: Any): javasdk.view.View.UpdateEffect[S] = {
     scalaSdkRouter.handleUpdate(commandName, state, event) match {
-      case effect: ViewUpdateEffectImpl.PrimaryUpdateEffect[S] => effect.toJavaSdk
+      case effect: ViewUpdateEffectImpl.PrimaryUpdateEffect[S @unchecked] => effect.toJavaSdk
     }
   }
 }

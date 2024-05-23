@@ -123,7 +123,7 @@ jobs:
       - name: Build and publish artifacts and plugins
         id: build_sdk
         run: |-
-          sbt -Ddisable.apidocs=true publishM2 publishLocal
+          sbt -Ddisable.apidocs=true publishM2 +publishLocal
           # the SDK_VERSION is later used to run the maven tests (see below)
           .github/determine-sdk-version.sh
           SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
@@ -676,7 +676,6 @@ jobs:
     name: sbt
     needs: check-samples-in-ci
     runs-on: ubuntu-22.04
-
     strategy:
       fail-fast: false
       matrix:
@@ -759,13 +758,17 @@ jobs:
           tar -xf dependencies.tar.gz
 
       - name: sbt Test/compile
+        if: matrix.test == false # only run this if not running the next step
         env:
           DIR: ${{ matrix.sample }}
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
-          sbt --client -Dkalix-sdk.version=$SDK_VERSION Test/compile
+          echo "==== Testing with Scala 2.13 ===="
+          sbt --client -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! Test/compile'
+          echo "==== Testing with Scala 3 ===="
+          sbt --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! Test/compile'
 
       - name: sbt test
         if: matrix.test
@@ -776,7 +779,10 @@ jobs:
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           ${PRE_CMD}
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION test
+          echo "==== Testing with Scala 2.13 ===="
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! test'
+          echo "==== Testing with Scala 3 ===="
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! test'
 
       - name: rm & sbt Test/compile
         env:
@@ -784,6 +790,8 @@ jobs:
         run: |-
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
-          echo "==== Verifying that generated unmanaged sources compile ===="
+          echo "==== Verifying that generated unmanaged sources compile with Scala 2.13 ===="
           rm -rf src/main/scala src/test/scala src/it/scala
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION Test/compile
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! Test/compile'
+          echo "==== Verifying that generated unmanaged sources compile with Scala 3 ===="
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! Test/compile'

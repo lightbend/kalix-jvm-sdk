@@ -45,6 +45,6 @@ private[kalix] final class ReplicatedVoteImpl(
       new ReplicatedVoteImpl(selfVote, votesFor, voters)
   }
 
-  override def toString = s"Vote($selfVote)"
+  override def toString: String = s"Vote($selfVote)"
 
 }

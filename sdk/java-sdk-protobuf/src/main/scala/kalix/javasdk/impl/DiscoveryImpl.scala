@@ -8,13 +8,11 @@ import java.time.Duration
 import java.util
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
-
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
-
 import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
@@ -85,8 +83,7 @@ class DiscoveryImpl(
 
     // possibly filtered or hidden env, passed along for substitution in descriptor options
     val env: Map[String, String] = system.settings.config.getAnyRef("kalix.discovery.pass-along-env-allow") match {
-      case false => Map.empty
-      case true  => sys.env
+      case bool: java.lang.Boolean => if (bool) sys.env else Map.empty
       case allowed: util.ArrayList[String @unchecked] =>
         allowed.asScala.flatMap(name => sys.env.get(name).map(value => name -> value)).toMap
       case unexpected =>
@@ -132,7 +129,7 @@ class DiscoveryImpl(
       }
 
       val components = services.map { case (name, service) =>
-        val forwardHeaders = service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Seq.empty)
+        val forwardHeaders = service.componentOptions.map(_.forwardHeaders.asScala.toSeq).getOrElse(Seq.empty)
         service.componentType match {
           case Actions.name =>
             Component(
@@ -153,7 +150,7 @@ class DiscoveryImpl(
                 EntitySettings(
                   service.serviceName,
                   passivationStrategy,
-                  service.componentOptions.map(_.forwardHeaders().asScala.toSeq).getOrElse(Nil),
+                  service.componentOptions.map(_.forwardHeaders.asScala.toSeq).getOrElse(Nil),
                   replicatedEntitySpecificSettings)))
         }
       }.toSeq

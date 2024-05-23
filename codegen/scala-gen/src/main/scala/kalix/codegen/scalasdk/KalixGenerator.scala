@@ -15,9 +15,5 @@ object KalixGenerator extends AbstractKalixGenerator {
 
   // FIXME #382 add reference to the runtime lib here
   override def suggestedDependencies: Seq[Artifact] = Seq(
-    Artifact(
-      BuildInfo.organization,
-      // FIXME determine scala version properly
-      "kalix-scala-sdk-protobuf" + "_2.13",
-      BuildInfo.version))
+    Artifact(BuildInfo.organization, "kalix-scala-sdk-protobuf", BuildInfo.version, crossVersion = true))
 }

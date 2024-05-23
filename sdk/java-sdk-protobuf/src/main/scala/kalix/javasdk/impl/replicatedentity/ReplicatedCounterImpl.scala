@@ -35,6 +35,6 @@ private[kalix] final class ReplicatedCounterImpl(value: Long = 0, delta: Long = 
       new ReplicatedCounterImpl(value + increment)
   }
 
-  override def toString = s"ReplicatedCounter($value)"
+  override def toString: String = s"ReplicatedCounter($value)"
 
 }

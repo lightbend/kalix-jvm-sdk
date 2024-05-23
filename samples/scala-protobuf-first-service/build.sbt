@@ -1,6 +1,6 @@
 organization := "com.example"
 
-scalaVersion := "2.13.14"
+scalaVersion := "3.3.3"
 
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 

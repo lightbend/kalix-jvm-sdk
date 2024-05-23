@@ -5,7 +5,7 @@ organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://kalix.io"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
-scalaVersion := "2.13.14"
+scalaVersion := "3.3.3"
 
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 
@@ -48,5 +48,5 @@ Compile / javacOptions ++= Seq(
 libraryDependencies ++= Seq(
   "com.softwaremill.sttp.client4" %% "core" % "4.0.0-M11" % Compile,
   "org.json4s" %% "json4s-native" % "4.1.0-M5"% Compile,
-  "org.scalatest" %% "scalatest" % "3.2.7" % Test
+  "org.scalatest" %% "scalatest" % "3.2.18" % Test
 )

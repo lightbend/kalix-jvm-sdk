@@ -274,7 +274,7 @@ object MetadataImpl {
     (key, attr)
   }.toMap
 
-  val Empty = MetadataImpl.of(Vector.empty)
+  val Empty: MetadataImpl = MetadataImpl.of(Vector.empty)
 
   val JwtClaimPrefix = "_kalix-jwt-claim-"
 

@@ -47,9 +47,10 @@ import kalix.protocol.value_entity.ValueEntitiesHandler
 import kalix.protocol.view.ViewsHandler
 import kalix.protocol.workflow_entity.WorkflowEntitiesHandler
 import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 object KalixRunner {
-  val logger = LoggerFactory.getLogger(classOf[KalixRunner])
+  val logger: Logger = LoggerFactory.getLogger(classOf[KalixRunner])
 
   object BindFailure extends Reason
 

@@ -153,6 +153,6 @@ private[kalix] final class ReplicatedMapImpl[K, V <: ReplicatedData](
       new ReplicatedMapImpl(anySupport, newEntries)
   }
 
-  override def toString = s"ReplicatedMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+  override def toString: String = s"ReplicatedMap(${entries.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
 }

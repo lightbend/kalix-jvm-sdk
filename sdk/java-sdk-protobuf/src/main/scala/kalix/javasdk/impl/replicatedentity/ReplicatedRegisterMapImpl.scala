@@ -94,6 +94,6 @@ private[kalix] final class ReplicatedRegisterMapImpl[K, V](
       new ReplicatedRegisterMapImpl(anySupport, updatedRegisters)
   }
 
-  override def toString = s"ReplicatedRegisterMap(${registers.map { case (k, v) => s"$k->$v" }.mkString(",")})"
+  override def toString: String = s"ReplicatedRegisterMap(${registers.map { case (k, v) => s"$k->$v" }.mkString(",")})"
 
 }

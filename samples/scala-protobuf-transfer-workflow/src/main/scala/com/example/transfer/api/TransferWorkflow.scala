@@ -21,7 +21,7 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
   override def definition: AbstractWorkflow.WorkflowDef[TransferState] = {
 
     val withdraw = step("withdraw") // <1>
-      .call { withdraw: Withdraw =>
+      .call { (withdraw: Withdraw) =>
         val withdrawRequest = WithdrawRequest(withdraw.from, withdraw.amount)
         components.walletEntity.withdraw(withdrawRequest)
       } // <2>
@@ -33,7 +33,7 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
       }
 
     val deposit = step("deposit") // <1>
-      .call { deposit: Deposit =>
+      .call { (deposit: Deposit) =>
         val depositRequest = DepositRequest(deposit.to, deposit.amount)
         components.walletEntity.deposit(depositRequest)
       } // <4>

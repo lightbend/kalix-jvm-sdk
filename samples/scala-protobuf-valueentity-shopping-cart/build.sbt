@@ -4,7 +4,7 @@ organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://kalix.io"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
-scalaVersion := "2.13.14"
+scalaVersion := "3.3.3"
 
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 
@@ -52,4 +52,4 @@ Global / cancelable := false // ctrl-c
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.12" % Test,
-  "org.scalamock" %% "scalamock" % "5.2.0" % Test)
+  "org.scalamock" %% "scalamock" % "6.0.0" % Test)

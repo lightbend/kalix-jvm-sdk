@@ -97,7 +97,7 @@ object WorkflowMessages extends EntityMessages {
     Some(WorkflowClientAction(WorkflowClientAction.Action.Reply(component.Reply(payload, None))))
   }
 
-  def stepTransition(stepName: String) =
+  def stepTransition(stepName: String): WorkflowEffect.Transition.StepTransition =
     WorkflowEffect.Transition.StepTransition(StepTransition(stepName))
 
   def reply(id: Long, payload: ScalaPbAny): OutMessage =

@@ -23,11 +23,11 @@ import kalix.javasdk.HttpResponse
 object ActionEffectImpl {
   sealed abstract class PrimaryEffect[T] extends Action.Effect[T] {
     override def addSideEffect(sideEffects: SideEffect*): Action.Effect[T] =
-      withSideEffects(internalSideEffects() ++ sideEffects)
+      withSideEffects(internalSideEffects ++ sideEffects)
     override def addSideEffects(sideEffects: util.Collection[SideEffect]): Action.Effect[T] =
-      withSideEffects(internalSideEffects() ++ sideEffects.asScala)
+      withSideEffects(internalSideEffects ++ sideEffects.asScala)
     override def canHaveSideEffects: Boolean = true
-    def internalSideEffects(): Seq[SideEffect]
+    def internalSideEffects: Seq[SideEffect]
     protected def withSideEffects(sideEffects: Seq[SideEffect]): Action.Effect[T]
   }
 
@@ -67,7 +67,7 @@ object ActionEffectImpl {
     def isEmpty: Boolean = true
     override def canHaveSideEffects: Boolean = false
 
-    override def internalSideEffects() = Nil
+    override def internalSideEffects: Seq[SideEffect] = Nil
 
     protected def withSideEffects(sideEffect: Seq[SideEffect]): PrimaryEffect[Nothing] = {
       throw new IllegalArgumentException("adding side effects to 'ignore' is not allowed.")

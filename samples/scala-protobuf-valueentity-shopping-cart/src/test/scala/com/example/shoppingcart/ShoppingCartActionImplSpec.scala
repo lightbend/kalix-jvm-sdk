@@ -44,7 +44,7 @@ class ShoppingCartActionImplSpec
         .when(*)
         .returns(Future.successful(Empty.defaultInstance))
       (mockShoppingCart.addItem _)
-        .when(where { li: AddLineItem => li.name == "eggplant"})
+        .when(where { (li: AddLineItem) => li.name == "eggplant"})
         .returns(Future.successful(Empty.defaultInstance))
       val mockRegistry = MockRegistry.withMock(mockShoppingCart) // <3>
 
@@ -55,10 +55,10 @@ class ShoppingCartActionImplSpec
       // end::createPrePopulated[]
       cartId.map { newCart =>
         (mockShoppingCart.create _)
-          .verify(where { c: CreateCart => c.cartId == newCart.reply.cartId })
+          .verify(where { (c: CreateCart) => c.cartId == newCart.reply.cartId })
           .once()
         (mockShoppingCart.addItem _)
-          .verify(where { li: AddLineItem => li.cartId == newCart.reply.cartId })
+          .verify(where { (li: AddLineItem) => li.cartId == newCart.reply.cartId })
           .once()
         succeed
       }

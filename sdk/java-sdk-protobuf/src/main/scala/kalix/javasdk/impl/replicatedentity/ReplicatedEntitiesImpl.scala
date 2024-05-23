@@ -135,7 +135,7 @@ object ReplicatedEntitiesImpl {
       initialData: Option[InternalReplicatedData],
       system: ActorSystem) {
 
-    val router = {
+    val router: ReplicatedEntityRouter[_ <: Object, _ <: Object] = {
       val context = new ReplicatedEntityCreationContext(entityId, system)
       try {
         service.factory.create(context)
