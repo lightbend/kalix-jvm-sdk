@@ -16,11 +16,6 @@ concurrency:
   group: samples-${{ github.ref }}
   cancel-in-progress: true
 
-# variable to be reused in jobs
-env:
-  SCALA_213_VERSION: 2.13.14
-  SCALA_3_VERSION: 3.3.3
-
 jobs:
   checks:
     name: Basic checks
@@ -681,7 +676,9 @@ jobs:
     name: sbt
     needs: check-samples-in-ci
     runs-on: ubuntu-22.04
-
+    env:
+      SCALA_213_VERSION: "2.13.14"
+      SCALA_3_VERSION: "3.3.3"
     strategy:
       fail-fast: false
       matrix:
