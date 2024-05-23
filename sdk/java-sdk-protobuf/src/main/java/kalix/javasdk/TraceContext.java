@@ -4,6 +4,8 @@
 
 package kalix.javasdk;
 
+import io.opentelemetry.context.Context;
+
 import java.util.Optional;
 
 /** Utility interface for trace context helper methods. */
@@ -15,7 +17,7 @@ public interface TraceContext {
    *
    * @return the trace context as an OpenTelemetry context.
    */
-  io.opentelemetry.context.Context asOpenTelemetryContext();
+  Context asOpenTelemetryContext();
 
   /**
    * Allows retrieving the trace parent for easier injection in external calls (e.g. HTTP request

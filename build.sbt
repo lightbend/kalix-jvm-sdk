@@ -30,33 +30,29 @@ def commonCompilerSettings: Seq[Setting[_]] =
 
 lazy val sharedScalacOptions =
   Seq("-feature", "-unchecked")
-//FIXME re-add when we have fixed all warnings
-//"-Wunused:imports,privates,locals")
 
-lazy val scala2Options = sharedScalacOptions ++
-  Seq(
-    "-Xfatal-warnings", // discipline only in Scala 2 for now
-    //"-Ytasty-reader",
-    //"-Xsource:3.0-migration",
-    //"-Xsource-features:case-apply-copy-access",
-    "-Wconf:src=.*/target/.*:s",
-    // silence warnings from generated sources
-    "-Wconf:src=.*/src_managed/.*:s",
-    // silence warnings from deprecated protobuf fields
-    "-Wconf:src=.*/akka-grpc/.*:s")
+lazy val fatalWarnings = Seq(
+  "-Xfatal-warnings", // discipline only in Scala 2 for now
+  "-Wconf:src=.*/target/.*:s",
+  // silence warnings from generated sources
+  "-Wconf:src=.*/src_managed/.*:s",
+  // silence warnings from deprecated protobuf fields
+  "-Wconf:src=.*/akka-grpc/.*:s")
 
-lazy val scala213Options = scala2Options ++
-  Seq("-Ytasty-reader")
+lazy val scala212Options = sharedScalacOptions ++ fatalWarnings
+
+lazy val scala213Options = scala212Options ++
+  Seq("-Wunused:imports,privates,locals")
 
 // -Wconf configs will be available once https://github.com/scala/scala3/pull/20282 is merged and 3.3.4 is released
-lazy val scala3Options = sharedScalacOptions ++ Seq("-explain")
+lazy val scala3Options = sharedScalacOptions ++ Seq("-Wunused:imports,privates,locals")
 
 def disciplinedScalacSettings: Seq[Setting[_]] = {
   if (sys.props.get("kalix.no-discipline").isEmpty) {
     Seq(Compile / scalacOptions ++= {
       if (scalaVersion.value.startsWith("3.")) scala3Options
       else if (scalaVersion.value.startsWith("2.13")) scala213Options
-      else scala2Options
+      else scala212Options
     })
   } else Seq.empty
 }
@@ -69,6 +65,8 @@ lazy val coreSdk = project
   .settings(disciplinedScalacSettings)
   .settings(
     name := "kalix-jvm-core-sdk",
+    // only packages that are to be released with scala 3 should have the _3 appended
+    // i.e. java sdk package names should remain without suffix
     crossPaths := scalaVersion.value.startsWith("3."),
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
@@ -87,6 +85,8 @@ lazy val javaSdkProtobuf = project
   .settings(disciplinedScalacSettings)
   .settings(
     name := "kalix-java-sdk-protobuf",
+    // only packages that are to be released with scala 3 should have the _3 appended
+    // i.e. java sdk package names should remain without suffix
     crossPaths := scalaVersion.value.startsWith("3."),
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
@@ -136,6 +136,8 @@ lazy val javaSdkProtobufTestKit = project
   .settings(commonCompilerSettings)
   .settings(
     name := "kalix-java-sdk-protobuf-testkit",
+    // only packages that are to be released with scala 3 should have the _3 appended
+    // i.e. java sdk package names should remain without suffix
     crossPaths := scalaVersion.value.startsWith("3."),
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
