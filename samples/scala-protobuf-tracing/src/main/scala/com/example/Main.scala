@@ -24,7 +24,8 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     log.info("starting the Kalix service")
-    Runtime.getRuntime.addShutdownHook { new Thread(() => backend.close()) }
+    def close: Runnable = () => backend.close()
+    Runtime.getRuntime.addShutdownHook { new Thread(close) }
     createKalix().start()
   }
 }
