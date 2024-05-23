@@ -770,7 +770,7 @@ jobs:
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
-          sbt --client -Dkalix-sdk.version=$SDK_VERSION '++${SCALA_213_VERSION}! Test/compile'
+          sbt --client -Dkalix-sdk.version=$SDK_VERSION '++$SCALA_213_VERSION! Test/compile'
 
       - name: sbt test Scala 2.13
         if: matrix.test
@@ -781,7 +781,7 @@ jobs:
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           ${PRE_CMD}
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++${SCALA_213_VERSION}! test'
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++$SCALA_213_VERSION! test'
 
       - name: sbt Test/compile Scala 3
         env:
@@ -790,7 +790,7 @@ jobs:
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
-          sbt --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++${SCALA_3_VERSION}! Test/compile'
+          sbt --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++$SCALA_3_VERSION! Test/compile'
 
       - name: sbt test Scala 3
         if: matrix.test
@@ -801,7 +801,7 @@ jobs:
           export SDK_VERSION=$(cat ~/kalix-sdk-version.txt)
           cd samples/${DIR}
           ${PRE_CMD}
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++${SCALA_3_VERSION}! test'
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++$SCALA_3_VERSION! test'
 
       - name: rm & sbt Test/compile
         env:
@@ -811,5 +811,5 @@ jobs:
           cd samples/${DIR}
           echo "==== Verifying that generated unmanaged sources compile ===="
           rm -rf src/main/scala src/test/scala src/it/scala
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++${SCALA_213_VERSION}! Test/compile'
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++${SCALA_3_VERSION}! Test/compile'
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++$SCALA_213_VERSION! Test/compile'
+          sbt  --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++$SCALA_3_VERSION! Test/compile'
