@@ -758,6 +758,7 @@ jobs:
           tar -xf dependencies.tar.gz
 
       - name: sbt Test/compile
+        if: matrix.test == false # only run this if not running the next step
         env:
           DIR: ${{ matrix.sample }}
         run: |-
