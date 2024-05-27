@@ -21,14 +21,5 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-protobuf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 </project>

@@ -22,24 +22,5 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 </project>

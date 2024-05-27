@@ -22,15 +22,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-protobuf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.1</version>

@@ -23,15 +23,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-protobuf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.kalix</groupId>
-      <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
       <version>3.5.1</version>
