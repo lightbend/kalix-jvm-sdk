@@ -109,22 +109,22 @@
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${maven-shade-plugin.version}</version>
                     <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                        <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                        <transformers>
-                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                <resource>reference.conf</resource>
-                            </transformer>
-                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>${mainClass}</mainClass>
-                            </transformer>
-                        </transformers>
-                        </configuration>
-                    </execution>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                            <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>reference.conf</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${mainClass}</mainClass>
+                                </transformer>
+                            </transformers>
+                            </configuration>
+                        </execution>
                     </executions>
                 </plugin>
 
@@ -389,12 +389,27 @@
                 <groupId>io.kalix</groupId>
                 <artifactId>kalix-java-sdk-protobuf</artifactId>
                 <version>${kalix-sdk.version}</version>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>io.kalix</groupId>
                 <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
                 <version>${kalix-sdk.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-java-sdk-protobuf</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
