@@ -49,10 +49,10 @@ jobs:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
           PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
-        run: sbt --client ci-release
+        run: sbt --client +publishSigned
 
       - name: sbt publishM2
-        run: sbt --client publishM2
+        run: sbt --client +publishM2
 
       - name: mvn deploy
         run: |-

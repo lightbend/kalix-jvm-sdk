@@ -1,4 +1,5 @@
 import Dependencies.Kalix
+import com.jsuereth.sbtpgp.PgpKeys.publishSignedConfiguration
 
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
@@ -638,6 +639,9 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
     scalaVersion := Dependencies.ScalaVersionForTooling,
+    publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
+      // avoid publishing the plugin jar twice
+      publishSignedConfiguration.value.artifacts.filter(!_._1.name.contains("2.12_1.0"))),
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
