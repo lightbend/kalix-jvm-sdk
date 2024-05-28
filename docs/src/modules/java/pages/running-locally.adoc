@@ -123,7 +123,7 @@ include::java:example$java-spring-eventsourced-customer-registry/docker-compose.
 === Customer Registry Subscriber Sample
 
 On the other hand, in the *customer-registry-subscriber* we will use port 8081 and 9001 respectively to avoid port conflicts with the *customer-registry* service. 
-The ports can be configured in the `.env` at the project's root folder.
+The ports can be configured in the `.env` located at the project's root folder.
 
 [source,indent=0]
 ----
