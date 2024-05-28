@@ -9,6 +9,13 @@ if [[ -z "$SDK_VERSION" ]]; then
     exit 1
 fi
 
+
+updateDocs() {
+  echo ">>> Update references in docs"
+  sed -i.bak "s/<kalix-sdk.version>\(.*\)<\/kalix-sdk.version>/<kalix-sdk.version>$SDK_VERSION<\/kalix-sdk.version>/" ./docs/src/modules/java/pages/spring-client.adoc
+  rm docs/src/modules/java/pages/spring-client.adoc.bak
+}
+
 updateJavaSamples() {
   echo ">>> Updating pom versions to $SDK_VERSION"
   PROJS=$(find $1 -type f -name "pom.xml")

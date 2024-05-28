@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.kalix</groupId>
     <artifactId>kalix-java-sdk-protobuf-parent</artifactId>
-    <version>1.5.0</version>
+    <version>1.4.1</version>
   </parent>
 
   <groupId>com.example</groupId>
