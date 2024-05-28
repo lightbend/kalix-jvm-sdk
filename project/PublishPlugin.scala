@@ -25,9 +25,7 @@ object DefaultPublishSettings extends AutoPlugin {
   override def projectSettings = Seq(
     publish / skip := true,
     publishTo := None,
-    pomIncludeRepository := (_ => false),
-    // Note: need to use the new s01.oss.sonatype.org host
-    sonatypeCredentialHost := Sonatype.sonatype01)
+    pomIncludeRepository := (_ => false))
 }
 
 /**

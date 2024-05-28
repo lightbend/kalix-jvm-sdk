@@ -58,6 +58,12 @@ def disciplinedScalacSettings: Seq[Setting[_]] = {
   } else Seq.empty
 }
 
+lazy val dontPublishTwice = Seq(
+  publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
+    // avoid publishing the plugin jar twice
+    publishSignedConfiguration.value.artifacts.filter(!_._1.name.contains("2.12_1.0")))
+)
+
 lazy val coreSdk = project
   .in(file("sdk/core"))
   .enablePlugins(Publish)
@@ -434,7 +440,8 @@ lazy val devToolsInternal =
         name := "kalix-devtools-internal",
         scalaVersion := Dependencies.ScalaVersionForTooling,
         // to avoid overwriting the 2.13 version
-        target := baseDirectory.value / "target-2.12"))
+        target := baseDirectory.value / "target-2.12")
+      .settings(dontPublishTwice))
 
 /*
  Common configuration to be applied to devTools modules (both 2.12 and 2.13)
@@ -520,6 +527,7 @@ lazy val codegenCore =
     .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(commonCompilerSettings)
     .settings(disciplinedScalacSettings)
+    .settings(dontPublishTwice)
     .settings(
       name := "kalix-codegen-core",
       testFrameworks += new TestFramework("munit.Framework"),
@@ -551,6 +559,7 @@ lazy val codegenJava =
     .settings(BuildInfoPlugin.buildInfoScopedSettings(Test) ++ BuildInfoPlugin.buildInfoDefaultSettings)
     .settings(commonCompilerSettings)
     .settings(disciplinedScalacSettings)
+    .settings(dontPublishTwice)
     .settings(Defaults.itSettings)
     .settings(name := "kalix-codegen-java", testFrameworks += new TestFramework("munit.Framework"))
     .settings(Dependencies.codegenJava)
@@ -587,6 +596,7 @@ lazy val codegenScala =
     .settings(Dependencies.codegenScala)
     .settings(commonCompilerSettings)
     .settings(disciplinedScalacSettings)
+    .settings(dontPublishTwice)
     .settings(
       name := "kalix-codegen-scala",
       Compile / javacOptions ++= Seq("--release", "11"),
@@ -649,13 +659,11 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(Dependencies.sbtPlugin)
   .settings(commonCompilerSettings)
+  .settings(dontPublishTwice)
   .settings(
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
     scalaVersion := Dependencies.ScalaVersionForTooling,
-    publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
-      // avoid publishing the plugin jar twice
-      publishSignedConfiguration.value.artifacts.filter(!_._1.name.contains("2.12_1.0"))),
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
