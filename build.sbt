@@ -48,6 +48,9 @@ lazy val scala213Options = scala212Options ++
 // -Wconf configs will be available once https://github.com/scala/scala3/pull/20282 is merged and 3.3.4 is released
 lazy val scala3Options = sharedScalacOptions ++ Seq("-Wunused:imports,privates,locals")
 
+// we use publishSigned, but use a pgp utility from CiReleasePlugin
+disablePlugins(CiReleasePlugin)
+
 def disciplinedScalacSettings: Seq[Setting[_]] = {
   if (sys.props.get("kalix.no-discipline").isEmpty) {
     Seq(Compile / scalacOptions ++= {
