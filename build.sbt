@@ -48,9 +48,6 @@ lazy val scala213Options = scala212Options ++
 // -Wconf configs will be available once https://github.com/scala/scala3/pull/20282 is merged and 3.3.4 is released
 lazy val scala3Options = sharedScalacOptions ++ Seq("-Wunused:imports,privates,locals")
 
-// we use publishSigned, but use a pgp utility from CiReleasePlugin
-disablePlugins(CiReleasePlugin)
-
 def disciplinedScalacSettings: Seq[Setting[_]] = {
   if (sys.props.get("kalix.no-discipline").isEmpty) {
     Seq(Compile / scalacOptions ++= {
@@ -64,6 +61,7 @@ def disciplinedScalacSettings: Seq[Setting[_]] = {
 lazy val coreSdk = project
   .in(file("sdk/core"))
   .enablePlugins(Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .dependsOn(devTools)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
@@ -85,6 +83,7 @@ lazy val javaSdkProtobuf = project
   .in(file("sdk/java-sdk-protobuf"))
   .dependsOn(coreSdk)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -137,6 +136,7 @@ lazy val javaSdkProtobufTestKit = project
   .in(file("sdk/java-sdk-protobuf-testkit"))
   .dependsOn(javaSdkProtobuf)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(
     name := "kalix-java-sdk-protobuf-testkit",
@@ -178,6 +178,7 @@ lazy val javaSdkSpring = project
   .dependsOn(devTools % IntegrationTest)
   .dependsOn(javaSdkProtobufTestKit % IntegrationTest)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish, IntegrationTests)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -223,6 +224,7 @@ lazy val javaSdkSpringTestKit = project
   .dependsOn(javaSdkSpring)
   .dependsOn(javaSdkProtobufTestKit)
   .enablePlugins(BuildInfoPlugin, Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -260,6 +262,7 @@ lazy val springBootStarter = project
   .in(file("sdk/spring-boot-starter"))
   .dependsOn(javaSdkSpring)
   .enablePlugins(BuildInfoPlugin, Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -297,6 +300,7 @@ lazy val springBootStarterTest = project
   .dependsOn(javaSdkSpring)
   .dependsOn(javaSdkSpringTestKit)
   .enablePlugins(BuildInfoPlugin, Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -333,6 +337,7 @@ lazy val scalaSdkProtobuf = project
   .in(file("sdk/scala-sdk-protobuf"))
   .dependsOn(javaSdkProtobuf)
   .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -365,6 +370,7 @@ lazy val scalaSdkProtobufTestKit = project
   .dependsOn(scalaSdkProtobuf)
   .dependsOn(javaSdkProtobufTestKit)
   .enablePlugins(BuildInfoPlugin, Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -438,6 +444,7 @@ lazy val devToolsInternal =
 def devToolsCommon(project: Project): Project =
   project
     .enablePlugins(BuildInfoPlugin, Publish)
+    .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(commonCompilerSettings)
     // TODO: need fix in KalixPlugin
     // .settings(disciplinedScalacSettings)
@@ -510,6 +517,7 @@ lazy val codegenCore =
   project
     .in(file("codegen/core"))
     .enablePlugins(sbtprotoc.ProtocPlugin, Publish)
+    .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(commonCompilerSettings)
     .settings(disciplinedScalacSettings)
     .settings(
@@ -529,6 +537,7 @@ lazy val codegenJava =
     .configs(IntegrationTest)
     .dependsOn(codegenCore % "compile->compile;test->test")
     .enablePlugins(Publish)
+    .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       // to provide access to protoc to tests
@@ -574,6 +583,7 @@ lazy val codegenScala =
     .in(file("codegen/scala-gen"))
     .enablePlugins(BuildInfoPlugin)
     .enablePlugins(Publish)
+    .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(Dependencies.codegenScala)
     .settings(commonCompilerSettings)
     .settings(disciplinedScalacSettings)
@@ -636,6 +646,7 @@ lazy val codegenScalaCompilationExampleSuite: CompositeProject =
 lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .enablePlugins(SbtPlugin)
   .enablePlugins(Publish)
+  .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(Dependencies.sbtPlugin)
   .settings(commonCompilerSettings)
   .settings(

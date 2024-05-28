@@ -19,7 +19,7 @@ object DefaultPublishSettings extends AutoPlugin {
   import DynVerPlugin.autoImport._
   import Sonatype.autoImport._
 
-  override def requires = CiReleasePlugin && SdkVersion
+  override def requires = SdkVersion
   override def trigger = allRequirements
 
   override def projectSettings = Seq(
