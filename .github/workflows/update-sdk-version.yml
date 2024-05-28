@@ -33,7 +33,7 @@ jobs:
         id: determine_sdk_version
         run: |-
           .github/determine-sdk-version.sh
-          SDK_VERSION="$(cat sdk-version.txt)"
+          SDK_VERSION="$(cat kalix-sdk-version.txt)"
           echo "SDK version: '${SDK_VERSION}'"
           echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
 
