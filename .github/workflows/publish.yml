@@ -51,15 +51,15 @@ jobs:
           PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
         run: sbt --client +publishSigned
 
-      - name: sbt publishM2
-        run: sbt --client +publishM2
+      #- name: sbt publishM2
+      #  run: sbt --client +publishM2
 
-      - name: mvn deploy
-        run: |-
-          export SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
-          ./.github/publish-maven.sh
-        env:
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-          SONATYPE_USERNAME: ${{ secrets.KALIX_IO_SONATYPE_USER }}
-          SONATYPE_PASSWORD: ${{ secrets.KALIX_IO_SONATYPE_PASSWORD }}
+      #- name: mvn deploy
+      #  run: |-
+      #    export SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
+      #    ./.github/publish-maven.sh
+      #  env:
+      #    PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+      #    PGP_SECRET: ${{ secrets.PGP_SECRET }}
+      #    SONATYPE_USERNAME: ${{ secrets.KALIX_IO_SONATYPE_USER }}
+      #    SONATYPE_PASSWORD: ${{ secrets.KALIX_IO_SONATYPE_PASSWORD }}
