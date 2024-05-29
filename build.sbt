@@ -23,6 +23,16 @@ lazy val `kalix-jvm-sdk` = project
     codegenScala,
     codegenScalaCompilationTest,
     sbtPlugin)
+  .settings(
+    (publish / skip) := true,
+    // https://github.com/sbt/sbt/issues/3465
+    // Libs and plugins must share a version. The root project must use that
+    // version (and set the crossScalaVersions as empty list) so each sub-project
+    // can then decide which scalaVersion and crossScalaVersions they use.
+    crossScalaVersions := Nil,
+    scalaVersion := Dependencies.ScalaVersion
+  )
+
 
 def commonCompilerSettings: Seq[Setting[_]] =
   Seq(
