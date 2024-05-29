@@ -38,7 +38,7 @@ object Publish extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[_]] =
     Seq(
       publish / skip := false, // re-enable publishing
-      dynverSonatypeSnapshots := false, // don't append -SNAPSHOT
+      dynverSonatypeSnapshots := true, // append -SNAPSHOT
       sonatypeProfileName := "com.typesafe",
       beforePublishTask := beforePublish(isSnapshot.value),
       publishSigned := publishSigned.dependsOn(beforePublishTask).value,
