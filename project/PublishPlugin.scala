@@ -45,11 +45,6 @@ object Publish extends AutoPlugin {
       sonatypeProfileName := "com.typesafe",
       beforePublishTask := beforePublish(isSnapshot.value),
       publishSigned := publishSigned.dependsOn(beforePublishTask).value,
-      publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
-        // avoid publishing the plugin jar twice
-        publishSignedConfiguration.value.artifacts.collect {
-          case tup @ (artifact, _) if artifact.name.contains("2.12_1.0") => tup
-        }),
       publishTo :=
         (if (isSnapshot.value)
            Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka-snapshots/"))
