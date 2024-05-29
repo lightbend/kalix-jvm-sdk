@@ -5,7 +5,7 @@
   <parent>
     <groupId>io.kalix</groupId>
     <artifactId>kalix-spring-boot-parent</artifactId>
-    <version>1.4.1</version>
+    <version>1.5.0-7-cddddd4c-dev</version>
   </parent>
 
   <groupId>com.example</groupId>
@@ -29,4 +29,18 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>akka-repository</id>
+      <name>Akka library repository</name>
+      <url>https://repo.akka.io/maven</url>
+    </repository>
+
+    <!-- remove snapshots before final release -->
+    <repository>
+      <id>akka-repository-snapshots</id>
+      <url>https://repo.akka.io/snapshots</url>
+    </repository>
+  </repositories>
 </project>
