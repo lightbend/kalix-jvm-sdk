@@ -25,7 +25,7 @@ object DefaultPublishSettings extends AutoPlugin {
   override def projectSettings = Seq(
     publish / skip := true,
     publishTo := None,
-    pomIncludeRepository := (_ => false),
+    pomIncludeRepository := (_ => false))
 }
 
 /**
