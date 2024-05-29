@@ -1,3 +1,5 @@
+# Antora seems to be unable to include hidden files. This is a copy of the default .env file we add to the projects. 
+#tag::env-file[] 
 # this is the port where the kalix runtime container will be exposed
 # when running multiple services on your local machine, make sure that this port is unique
 ADVERTISED_HTTP_PORT=9001
@@ -9,3 +11,4 @@ USER_SERVICE_PORT=8081
 # this variable defines the host where the kalix runtime (running in docker) 
 # will reach the user service in local development
 USER_SERVICE_HOST=host.docker.internal
+#end::env-file[]
