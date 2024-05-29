@@ -22,10 +22,7 @@ object DefaultPublishSettings extends AutoPlugin {
   override def requires = SdkVersion
   override def trigger = allRequirements
 
-  override def projectSettings = Seq(
-    publish / skip := true,
-    publishTo := None,
-    pomIncludeRepository := (_ => false))
+  override def projectSettings = Seq(publish / skip := true, publishTo := None, pomIncludeRepository := (_ => false))
 }
 
 /**

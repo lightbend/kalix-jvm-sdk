@@ -655,7 +655,7 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
     scalaVersion := Dependencies.ScalaVersionForTooling,
     publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
       // avoid publishing the plugin jar twice
-      publishSignedConfiguration.value.artifacts.filter(!_._1.name.contains("2.12_1.0"))),
+      publishSignedConfiguration.value.artifacts.filter(_._1.name.contains("2.12_1.0"))),
     scriptedLaunchOpts := {
       scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
