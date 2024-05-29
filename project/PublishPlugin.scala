@@ -16,9 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 object DefaultPublishSettings extends AutoPlugin {
 
-  import DynVerPlugin.autoImport._
-  import Sonatype.autoImport._
-
   override def requires = SdkVersion
   override def trigger = allRequirements
 

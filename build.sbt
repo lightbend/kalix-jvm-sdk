@@ -30,9 +30,7 @@ lazy val `kalix-jvm-sdk` = project
     // version (and set the crossScalaVersions as empty list) so each sub-project
     // can then decide which scalaVersion and crossScalaVersions they use.
     crossScalaVersions := Nil,
-    scalaVersion := Dependencies.ScalaVersion
-  )
-
+    scalaVersion := Dependencies.ScalaVersion)
 
 def commonCompilerSettings: Seq[Setting[_]] =
   Seq(
