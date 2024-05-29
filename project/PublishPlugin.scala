@@ -26,8 +26,6 @@ object DefaultPublishSettings extends AutoPlugin {
     publish / skip := true,
     publishTo := None,
     pomIncludeRepository := (_ => false),
-    // Note: need to use the new s01.oss.sonatype.org host
-    sonatypeCredentialHost := Sonatype.sonatype01)
 }
 
 /**
