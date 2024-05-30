@@ -7,12 +7,12 @@
     <parent>
         <groupId>io.kalix</groupId>
         <artifactId>kalix-maven-java</artifactId>
-        <version>1.4.1</version>
+        <version>1.5.0</version>
     </parent>
     
     <groupId>io.kalix</groupId>
     <artifactId>kalix-java-sdk-protobuf-parent</artifactId>
-    <version>1.4.1</version>
+    <version>1.5.0</version>
     <packaging>pom</packaging>
 
 
@@ -39,7 +39,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
     
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kalix-sdk.version>1.4.1</kalix-sdk.version>
+        <kalix-sdk.version>1.5.0</kalix-sdk.version>
         <akka-grpc.version>2.1.6</akka-grpc.version>
 
         <!-- plugin versions -->
