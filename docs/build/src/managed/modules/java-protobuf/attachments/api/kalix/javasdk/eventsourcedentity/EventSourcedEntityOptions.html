@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -88,7 +88,7 @@ extends <a href="../EntityOptions.html" title="interface in kalix.javasdk">Entit
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab6" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab6', 3)" class="table-tab">Deprecated Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
@@ -108,16 +108,9 @@ extends <a href="../EntityOptions.html" title="interface in kalix.javasdk">Entit
 <div class="block">Ask Kalix to forward these headers from the incoming request as metadata headers for the
  incoming commands.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3 method-summary-table-tab6"><code><a href="EventSourcedEntityOptions.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntityOptions</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3 method-summary-table-tab6"><code><a href="#withPassivationStrategy(kalix.javasdk.PassivationStrategy)" class="member-name-link">withPassivationStrategy</a><wbr>(<a href="../PassivationStrategy.html" title="interface in kalix.javasdk">PassivationStrategy</a>&nbsp;strategy)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3 method-summary-table-tab6">
-<div class="block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
-<div class="deprecation-comment">passivation strategy is ignored</div>
-</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="EventSourcedEntityOptions.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntityOptions</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#withSnapshotEvery(int)" class="member-name-link">withSnapshotEvery</a><wbr>(int&nbsp;numberOfEvents)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="EventSourcedEntityOptions.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntityOptions</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#withSnapshotEvery(int)" class="member-name-link">withSnapshotEvery</a><wbr>(int&nbsp;numberOfEvents)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Specifies how snapshots of the entity state should be made: Zero means use default from
  configuration file.</div>
 </div>
@@ -126,7 +119,7 @@ extends <a href="../EntityOptions.html" title="interface in kalix.javasdk">Entit
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-kalix.javasdk.EntityOptions">Methods inherited from interface&nbsp;kalix.javasdk.<a href="../EntityOptions.html" title="interface in kalix.javasdk">EntityOptions</a></h3>
-<code><a href="../EntityOptions.html#forwardHeaders()">forwardHeaders</a>, <a href="../EntityOptions.html#passivationStrategy()">passivationStrategy</a></code></div>
+<code><a href="../EntityOptions.html#forwardHeaders()">forwardHeaders</a></code></div>
 </section>
 </li>
 </ul>
@@ -155,27 +148,6 @@ extends <a href="../EntityOptions.html" title="interface in kalix.javasdk">Entit
  <p>It is strongly recommended to not disable snapshotting unless it is known that event sourced
  entity will never have more than 100 events (in which case the default will anyway not trigger
  any snapshots)</div>
-</section>
-</li>
-<li>
-<section class="detail" id="withPassivationStrategy(kalix.javasdk.PassivationStrategy)">
-<h3>withPassivationStrategy</h3>
-<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>(<a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Deprecated.html#since()" title="class or interface in java.lang" class="external-link">since</a>="1.1.4",
-            <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Deprecated.html#forRemoval()" title="class or interface in java.lang" class="external-link">forRemoval</a>=true)
-</span><span class="return-type"><a href="EventSourcedEntityOptions.html" title="interface in kalix.javasdk.eventsourcedentity">EventSourcedEntityOptions</a></span>&nbsp;<span class="element-name">withPassivationStrategy</span><wbr><span class="parameters">(<a href="../PassivationStrategy.html" title="interface in kalix.javasdk">PassivationStrategy</a>&nbsp;strategy)</span></div>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
-<div class="deprecation-comment">passivation strategy is ignored</div>
-</div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="../EntityOptions.html#withPassivationStrategy(kalix.javasdk.PassivationStrategy)">EntityOptions</a></code></span></div>
-<div class="block">Create an entity option with the given passivation strategy.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="../EntityOptions.html#withPassivationStrategy(kalix.javasdk.PassivationStrategy)">withPassivationStrategy</a></code>&nbsp;in interface&nbsp;<code><a href="../EntityOptions.html" title="interface in kalix.javasdk">EntityOptions</a></code></dd>
-<dt>Parameters:</dt>
-<dd><code>strategy</code> - to be used</dd>
-<dt>Returns:</dt>
-<dd>the entity option</dd>
-</dl>
 </section>
 </li>
 <li>

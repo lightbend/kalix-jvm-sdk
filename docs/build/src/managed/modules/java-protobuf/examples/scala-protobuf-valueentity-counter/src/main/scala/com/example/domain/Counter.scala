@@ -35,7 +35,7 @@ class Counter(context: ValueEntityContext) extends AbstractCounter { // <1>
     if (command.value < 0) // <1>
       effects.error(s"Increase requires a positive value. It was [${command.value}].", Code.INVALID_ARGUMENT)
     else {
-      if (commandContext.metadata.get("myKey").contains("myValue")) {
+      if (commandContext().metadata.get("myKey").contains("myValue")) {
       val newState = currentState.copy(value = currentState.value + command.value*2)
       effects
         .updateState(newState) 
