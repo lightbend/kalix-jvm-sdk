@@ -23,6 +23,14 @@ lazy val `kalix-jvm-sdk` = project
     codegenScala,
     codegenScalaCompilationTest,
     sbtPlugin)
+  .settings(
+    (publish / skip) := true,
+    // https://github.com/sbt/sbt/issues/3465
+    // Libs and plugins must share a version. The root project must use that
+    // version (and set the crossScalaVersions as empty list) so each sub-project
+    // can then decide which scalaVersion and crossScalaVersions they use.
+    crossScalaVersions := Nil,
+    scalaVersion := Dependencies.ScalaVersion)
 
 def commonCompilerSettings: Seq[Setting[_]] =
   Seq(
@@ -529,6 +537,7 @@ lazy val codegenCore =
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
       scalaVersion := Dependencies.ScalaVersionForTooling,
+      crossScalaVersions := Seq(Dependencies.ScalaVersionForTooling),
       Compile / PB.targets := Seq(PB.gens.java -> (Compile / sourceManaged).value))
 
 lazy val codegenJava =
@@ -557,7 +566,8 @@ lazy val codegenJava =
     .settings(
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
-      scalaVersion := Dependencies.ScalaVersionForTooling)
+      scalaVersion := Dependencies.ScalaVersionForTooling,
+      crossScalaVersions := Seq(Dependencies.ScalaVersionForTooling))
 
 lazy val codegenJavaCompilationTest = project
   .in(file("codegen/java-gen-compilation-tests"))
@@ -592,6 +602,7 @@ lazy val codegenScala =
       Compile / javacOptions ++= Seq("--release", "11"),
       Compile / scalacOptions ++= Seq("-release", "11"),
       scalaVersion := Dependencies.ScalaVersionForTooling,
+      crossScalaVersions := Seq(Dependencies.ScalaVersionForTooling),
       Test / fork := false, // needed to pass -D properties to ExampleSuite
       buildInfoKeys := Seq[BuildInfoKey](
         name,
@@ -653,6 +664,7 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
     Compile / javacOptions ++= Seq("--release", "11"),
     Compile / scalacOptions ++= Seq("-release", "11"),
     scalaVersion := Dependencies.ScalaVersionForTooling,
+    crossScalaVersions := Seq(Dependencies.ScalaVersionForTooling),
     publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
       // avoid publishing the plugin jar twice
       publishSignedConfiguration.value.artifacts.filter(!_._1.name.contains("2.12_1.0"))),

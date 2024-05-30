@@ -8,7 +8,7 @@ echo "------------------------------------------------------------------------"
 echo "Publishing version $SDK_VERSION"
 echo "------------------------------------------------------------------------"
 
-sbt 'publishM2; publishLocal'
+sbt 'publishM2; +publishLocal'
 (
   cd maven-java
   ../.github/patch-maven-versions.sh

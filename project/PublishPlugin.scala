@@ -16,18 +16,10 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 object DefaultPublishSettings extends AutoPlugin {
 
-  import DynVerPlugin.autoImport._
-  import Sonatype.autoImport._
-
   override def requires = SdkVersion
   override def trigger = allRequirements
 
-  override def projectSettings = Seq(
-    publish / skip := true,
-    publishTo := None,
-    pomIncludeRepository := (_ => false),
-    // Note: need to use the new s01.oss.sonatype.org host
-    sonatypeCredentialHost := Sonatype.sonatype01)
+  override def projectSettings = Seq(publish / skip := true, publishTo := None, pomIncludeRepository := (_ => false))
 }
 
 /**
@@ -47,11 +39,6 @@ object Publish extends AutoPlugin {
       sonatypeProfileName := "com.typesafe",
       beforePublishTask := beforePublish(isSnapshot.value),
       publishSigned := publishSigned.dependsOn(beforePublishTask).value,
-      publishSignedConfiguration := publishSignedConfiguration.value.withArtifacts(
-        // avoid publishing the plugin jar twice
-        publishSignedConfiguration.value.artifacts.collect {
-          case tup @ (artifact, _) if artifact.name.contains("2.12_1.0") => tup
-        }),
       publishTo :=
         (if (isSnapshot.value)
            Some("Cloudsmith API".at("https://maven.cloudsmith.io/lightbend/akka-snapshots/"))
