@@ -2,12 +2,16 @@ name: SDK version update
 
 on:
   workflow_dispatch: # for testing
-  push:
-    tags: ["v*"]
+  workflow_run:
+    workflows: ["Publish"]
+    types:
+      - completed
 
 jobs:
   open-pr-update-sample:
     runs-on: ubuntu-22.04
+    # run only when publish workflow is successful and it's a tag
+    if: github.event.workflow_run.conclusion == 'success' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -33,7 +37,7 @@ jobs:
         id: determine_sdk_version
         run: |-
           .github/determine-sdk-version.sh
-          SDK_VERSION="$(cat kalix-sdk-version.txt)"
+          SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
           echo "SDK version: '${SDK_VERSION}'"
           echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
 
