@@ -19,7 +19,7 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 ### Check availability
 
 - [ ] Check that [`docs/kalix-current`](https://github.com/lightbend/kalix-jvm-sdk/commits/docs/kalix-current) has been updated
-- [ ] Check the release on [Maven Central](https://repo1.maven.org/maven2/io/kalix/kalix-jvm-core-sdk/)
+- [ ] Check the release on [Maven Central](https://repo1.maven.org/maven2/io/kalix/kalix-java-sdk-protobuf-parent/)
 
 ### Fix and publish docs
 
