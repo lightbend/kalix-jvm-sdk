@@ -49,16 +49,13 @@ case ${option} in
       ;;
    plugin) updateMavenPlugin
       ;;
-   docs) updateDocs
-      ;;
    all)
-     updateDocs
      updateJavaSamples $sample
      updateScalaSamples $sample
      updateMavenPlugin
       ;;
    *)
-      echo "`basename ${0}`:usage: java|scala|plugin|docs|all [project-folder]"
+      echo "`basename ${0}`:usage: java|scala|plugin|all [project-folder]"
       echo "e.g.: `basename ${0}` java ./samples/java-protobuf-customer-registry-kafka-quickstart/"
       exit 1 # Command to come out of the program with status 1
       ;;
