@@ -40,6 +40,8 @@ jobs:
       - name: Copy example
         run: |
           rsync -r --delete kalix-jvm-sdk/samples/${{ matrix.sample }}/* ${{ matrix.public-repo }}
+          # copy .env but continue if it didn't exist 
+          cp kalix-jvm-sdk/samples/${{ matrix.sample }}/.env ${{ matrix.public-repo }} || :
 
       - name: Explicitly add the .env file
         run: |
