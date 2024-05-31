@@ -62,12 +62,6 @@
             <id>akka-repository</id>
             <url>https://repo.akka.io/maven</url>
         </pluginRepository>
-
-        <!-- remove snapshots before final release -->
-        <pluginRepository>
-            <id>akka-repository-snapshots</id>
-            <url>https://repo.akka.io/snapshots</url>
-        </pluginRepository>
     </pluginRepositories>
 
     <repositories>
@@ -75,12 +69,6 @@
             <id>akka-repository</id>
             <name>Akka library repository</name>
             <url>https://repo.akka.io/maven</url>
-        </repository>
-
-        <!-- remove snapshots before final release -->
-        <repository>
-            <id>akka-repository-snapshots</id>
-            <url>https://repo.akka.io/snapshots</url>
         </repository>
     </repositories>
 
