@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { sample: java-protobuf-shopping-cart-quickstart, public-repo: user-registry-choreography-saga }
+          - { sample: java-spring-choreography-saga-quickstart, public-repo: user-registry-choreography-saga }
 
     steps:
       - name: Checkout JVM SDK
