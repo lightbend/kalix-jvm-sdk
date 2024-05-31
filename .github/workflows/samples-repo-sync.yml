@@ -43,6 +43,7 @@ jobs:
 
       - name: Explicitly add the .env file
         run: |
+          cd ${{ matrix.public-repo }}
           git config user.name 'Kalix Bot'
           git config user.email 'noreply@github.com'
           git add .env
