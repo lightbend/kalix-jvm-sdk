@@ -16,7 +16,7 @@ import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
-import io.opentelemetry.semconv.resource.attributes.ResourceAttributes
+import io.opentelemetry.semconv.ServiceAttributes
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.{ MetadataImpl, ProxyInfoHolder, Service }
 import kalix.protocol.action.ActionCommand
@@ -136,7 +136,7 @@ private final class TraceInstrumentation(
   private val openTelemetry: OpenTelemetry = {
     val resource =
       Resource.getDefault.merge(
-        Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, s"$tracePrefix($componentName)")))
+        Resource.create(Attributes.of(ServiceAttributes.SERVICE_NAME, s"$tracePrefix($componentName)")))
     val sdkTracerProvider = SdkTracerProvider
       .builder()
       .addSpanProcessor(
