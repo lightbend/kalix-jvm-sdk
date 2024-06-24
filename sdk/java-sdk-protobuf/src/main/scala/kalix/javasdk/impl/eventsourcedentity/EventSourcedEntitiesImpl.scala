@@ -34,7 +34,7 @@ import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Failu
 import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ Reply => OutReply }
 import kalix.protocol.event_sourced_entity.EventSourcedStreamOut.Message.{ SnapshotReply => OutSnapshotReply }
 import kalix.protocol.event_sourced_entity._
-import org.slf4j.LoggerFactory
+import org.slf4j.{ LoggerFactory, MDC }
 
 import scala.util.control.NonFatal
 
@@ -170,6 +170,8 @@ final class EventSourcedEntitiesImpl(
           if (thisEntityId != command.entityId)
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
           val span = instrumentations(service.serviceName).buildSpan(service, command)
+          span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
+          val mdc = MDC.getCopyOfContextMap
           try {
             val cmd =
               service.messageCodec.decodeMessage(
@@ -234,7 +236,12 @@ final class EventSourcedEntitiesImpl(
                         serializedSnapshot,
                         delete))))
             }
-          } finally { span.foreach(_.end()) }
+          } finally {
+            span.foreach { s =>
+              mdc.remove(Telemetry.TRACE_ID)
+              s.end()
+            }
+          }
         case ((sequence, _), InSnapshotRequest(request)) =>
           val reply =
             EventSourcedSnapshotReply(request.requestId, Some(service.messageCodec.encodeScala(router._stateOrEmpty())))
