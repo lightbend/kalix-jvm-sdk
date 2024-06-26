@@ -33,6 +33,9 @@ import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import org.slf4j.LoggerFactory
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 class ActionsImplSpec
     extends ScalaTestWithActorTestKit
@@ -114,16 +117,25 @@ class ActionsImplSpec
           .getFullName)
 
       val traceParent = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
-      val md = Metadata(Seq(MetadataEntry("traceparent", MetadataEntry.Value.StringValue(traceParent))))
+      val metadata = Metadata(Seq(MetadataEntry("traceparent", MetadataEntry.Value.StringValue(traceParent))))
+
+      val expectedMDC = Map(Telemetry.TRACE_ID -> "0af7651916cd43dd8448eb211c80319c")
       val reply1 =
-        LoggingTestKit.empty.withMdc(Map(Telemetry.TRACE_ID -> "0af7651916cd43dd8448eb211c80319c")).expect {
-          service.handleUnary(ActionCommand(serviceName, "Endpoint", Some(cmd1), Some(md))).futureValue
+        LoggingTestKit.empty.withMdc(expectedMDC).expect {
+          service.handleUnary(ActionCommand(serviceName, "Endpoint", Some(cmd1), Some(metadata))).futureValue
         }
       inside(reply1.response) { case ActionResponse.Response.Reply(Reply(Some(payload), _, _)) =>
         val tp = decodeJson(classOf[String], toJavaProto(payload))
         tp should not be "not-found"
         tp should include("0af7651916cd43dd8448eb211c80319c") // trace id should be propagated
         (tp should not).include("b7ad6b7169203331") // new span id should be generated
+      }
+
+      val log = LoggerFactory.getLogger(classOf[ActionsImplSpec])
+      LoggingTestKit.empty.withMdc(Map.empty).expect {
+        Future {
+          log.info("checking the MDC is empty")
+        }(ExecutionContext.parasitic) //parasitic to checking that in the same thread there's no MDC any more
       }
     }
   }
