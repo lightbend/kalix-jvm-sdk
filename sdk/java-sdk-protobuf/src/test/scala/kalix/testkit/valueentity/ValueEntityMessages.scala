@@ -78,8 +78,21 @@ object ValueEntityMessages extends EntityMessages {
   def command(id: Long, entityId: String, name: String, payload: ScalaPbMessage): InMessage =
     command(id, entityId, name, messagePayload(payload))
 
-  def command(id: Long, entityId: String, name: String, payload: Option[ScalaPbAny]): InMessage =
-    InMessage.Command(Command(entityId, id, name, payload))
+  def command(
+      id: Long,
+      entityId: String,
+      name: String,
+      payload: ScalaPbMessage,
+      metadata: Option[Metadata]): InMessage =
+    command(id, entityId, name, messagePayload(payload), metadata)
+
+  def command(
+      id: Long,
+      entityId: String,
+      name: String,
+      payload: Option[ScalaPbAny],
+      metadata: Option[Metadata] = None): InMessage =
+    InMessage.Command(Command(entityId, id, name, payload, metadata))
 
   def reply(id: Long, payload: JavaPbMessage): OutMessage =
     reply(id, messagePayload(payload), None)

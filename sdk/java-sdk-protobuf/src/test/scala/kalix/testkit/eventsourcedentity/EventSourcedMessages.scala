@@ -94,6 +94,14 @@ object EventSourcedMessages extends EntityMessages {
   def command(id: Long, entityId: String, name: String, payload: ScalaPbMessage): InMessage =
     command(id, entityId, name, messagePayload(payload))
 
+  def command(
+      id: Long,
+      entityId: String,
+      name: String,
+      payload: ScalaPbMessage,
+      metadata: Option[Metadata]): InMessage =
+    InMessage.Command(Command(entityId, id, name, messagePayload(payload), metadata))
+
   def command(id: Long, entityId: String, name: String, payload: Option[ScalaPbAny]): InMessage =
     InMessage.Command(Command(entityId, id, name, payload))
 
