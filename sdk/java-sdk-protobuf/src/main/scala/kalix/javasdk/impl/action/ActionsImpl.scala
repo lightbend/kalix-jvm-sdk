@@ -177,7 +177,6 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
       case Some(service) =>
         val span = telemetries(service.serviceName).buildSpan(service, in)
         span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
-        val mdc = MDC.getCopyOfContextMap
         val fut =
           try {
             val context = createContext(in, service.messageCodec, span.map(_.getSpanContext), service.serviceName)
@@ -191,10 +190,11 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
             case NonFatal(ex) =>
               // command handler threw an "unexpected" error
               Future.successful(handleUnexpectedException(service, in, ex))
+          } finally {
+            MDC.remove(Telemetry.TRACE_ID)
           }
         fut.andThen { case _ =>
           span.foreach { s =>
-            mdc.remove(Telemetry.TRACE_ID)
             s.end()
           }
         }

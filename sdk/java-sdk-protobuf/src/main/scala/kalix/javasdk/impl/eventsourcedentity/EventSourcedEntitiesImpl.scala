@@ -171,7 +171,6 @@ final class EventSourcedEntitiesImpl(
             throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
           val span = instrumentations(service.serviceName).buildSpan(service, command)
           span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
-          val mdc = MDC.getCopyOfContextMap
           try {
             val cmd =
               service.messageCodec.decodeMessage(
@@ -238,7 +237,7 @@ final class EventSourcedEntitiesImpl(
             }
           } finally {
             span.foreach { s =>
-              mdc.remove(Telemetry.TRACE_ID)
+              MDC.remove(Telemetry.TRACE_ID)
               s.end()
             }
           }

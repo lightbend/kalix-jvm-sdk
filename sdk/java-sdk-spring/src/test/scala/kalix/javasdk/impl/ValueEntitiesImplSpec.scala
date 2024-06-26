@@ -6,13 +6,11 @@ package kalix.javasdk.impl
 
 import com.google.protobuf.ByteString._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.typesafe.config.ConfigFactory
+import kalix.javasdk.impl.telemetry.{ Telemetry, TraceInstrumentation }
 import kalix.javasdk.impl.valueentity.TestValueService
-import kalix.javasdk.valueentity.ReflectiveValueEntityProvider
-import kalix.javasdk.valueentity.TestVEState0
-import kalix.javasdk.valueentity.TestVEState1
-import kalix.javasdk.valueentity.TestVEState2
-import kalix.javasdk.valueentity.TestValueEntity
-import kalix.javasdk.valueentity.TestValueEntityMigration
+import kalix.javasdk.valueentity._
+import kalix.protocol.component.{ Metadata, MetadataEntry }
 import kalix.testkit.TestProtocol
 import kalix.testkit.valueentity.ValueEntityMessages
 import org.scalatest.BeforeAndAfterAll
@@ -71,6 +69,31 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
 
       protocol.terminate()
       service.terminate()
+    }
+
+    "Add the trace_id to the MDC" in {
+      val entityId = "1"
+      val jsonMessageCodec = new JsonMessageCodec()
+
+      val service: TestValueService = new TestValueService(
+        ReflectiveValueEntityProvider
+          .of[TestVEState1, TestValueEntity](classOf[TestValueEntity], jsonMessageCodec, _ => new TestValueEntity()),
+        Some(ConfigFactory.parseString(s"${TraceInstrumentation.TRACING_ENDPOINT}=\"http://fakeurl:1234\"")))
+      val protocol: TestProtocol = TestProtocol(service.port)
+      val entity = protocol.valueEntity.connect()
+      //old state
+      entity.send(
+        init(
+          classOf[TestValueEntity].getName,
+          entityId,
+          jsonMessageCodec.encodeJava(new TestVEState0("some-state", 1))))
+
+      val traceParent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+      val metadata = Metadata(Seq(MetadataEntry("traceparent", MetadataEntry.Value.StringValue(traceParent))))
+
+      service.expectLogMdc(Map(Telemetry.TRACE_ID -> "4bf92f3577b34da6a3ce929d0e0e4736")) {
+        entity.send(command(1, entityId, "Get", emptySyntheticRequest("Get"), Option(metadata)))
+      }
     }
   }
 

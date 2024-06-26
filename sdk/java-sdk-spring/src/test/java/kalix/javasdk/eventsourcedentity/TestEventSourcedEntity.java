@@ -7,6 +7,8 @@ package kalix.javasdk.eventsourcedentity;
 import kalix.javasdk.annotations.EventHandler;
 import kalix.javasdk.annotations.Id;
 import kalix.javasdk.annotations.TypeId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/es")
 public class TestEventSourcedEntity extends EventSourcedEntity<TestESState, TestESEvent> {
 
+  Logger logger  = LoggerFactory.getLogger(TestEventSourcedEntity.class);
+
   @Override
   public TestESState emptyState() {
     return new TestESState("", 0, false, "");
@@ -22,6 +26,7 @@ public class TestEventSourcedEntity extends EventSourcedEntity<TestESState, Test
 
   @GetMapping
   public Effect<TestESState> get() {
+    logger.info("registering a logging event");
     return effects().reply(currentState());
   }
 

@@ -4,7 +4,7 @@
 
 package kalix.javasdk.impl
 
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.testkit.typed.scaladsl.{ LoggingTestKit, ScalaTestWithActorTestKit }
 import akka.actor.typed.scaladsl.adapter._
 import com.google.protobuf.any.Any.toJavaProto
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -20,6 +20,7 @@ import kalix.javasdk.eventsourcedentity.OldTestESEvent.OldEvent3
 import kalix.javasdk.eventsourcedentity.TestESEvent.Event4
 import kalix.javasdk.impl.action.ActionService
 import kalix.javasdk.impl.action.ActionsImpl
+import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.action.ActionResponse
 import kalix.protocol.action.Actions
@@ -96,7 +97,7 @@ class ActionsImplSpec
       }
     }
 
-    "inject traces correctly into metadata" in {
+    "inject traces correctly into metadata and keeps trace_id in MDC" in {
       val jsonMessageCodec = new JsonMessageCodec()
       val actionProvider = ReflectiveActionProvider.of(
         classOf[TestTracingAction],
@@ -114,8 +115,10 @@ class ActionsImplSpec
 
       val traceParent = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
       val md = Metadata(Seq(MetadataEntry("traceparent", MetadataEntry.Value.StringValue(traceParent))))
-      val reply1 = service.handleUnary(ActionCommand(serviceName, "Endpoint", Some(cmd1), Some(md))).futureValue
-
+      val reply1 =
+        LoggingTestKit.empty.withMdc(Map(Telemetry.TRACE_ID -> "0af7651916cd43dd8448eb211c80319c")).expect {
+          service.handleUnary(ActionCommand(serviceName, "Endpoint", Some(cmd1), Some(md))).futureValue
+        }
       inside(reply1.response) { case ActionResponse.Response.Reply(Reply(Some(payload), _, _)) =>
         val tp = decodeJson(classOf[String], toJavaProto(payload))
         tp should not be "not-found"
