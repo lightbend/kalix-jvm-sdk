@@ -143,7 +143,6 @@ final class ValueEntitiesImpl(
           if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
           val span = instrumentations(service.serviceName).buildSpan(service, command)
           span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
-          val mdc = MDC.getCopyOfContextMap
           try {
             val cmd =
               service.messageCodec.decodeMessage(
@@ -198,7 +197,7 @@ final class ValueEntitiesImpl(
             }
           } finally {
             span.foreach { s =>
-              mdc.remove(Telemetry.TRACE_ID)
+              MDC.remove(Telemetry.TRACE_ID)
               s.end()
             }
           }
