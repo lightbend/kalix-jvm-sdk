@@ -4,6 +4,8 @@
 
 package kalix.javasdk.impl
 
+import akka.actor.testkit.typed.scaladsl.LoggingTestKit
+import akka.actor.typed.scaladsl.adapter.ClassicActorSystemOps
 import com.google.protobuf.ByteString._
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.typesafe.config.ConfigFactory
@@ -16,6 +18,9 @@ import kalix.testkit.valueentity.ValueEntityMessages
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.slf4j.LoggerFactory
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll {
   import ValueEntityMessages._
@@ -91,9 +96,19 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
       val traceParent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
       val metadata = Metadata(Seq(MetadataEntry("traceparent", MetadataEntry.Value.StringValue(traceParent))))
 
-      service.expectLogMdc(Map(Telemetry.TRACE_ID -> "4bf92f3577b34da6a3ce929d0e0e4736")) {
+      val expectedMDC = Map(Telemetry.TRACE_ID -> "4bf92f3577b34da6a3ce929d0e0e4736")
+      service.expectLogMdc(expectedMDC) {
         entity.send(command(1, entityId, "Get", emptySyntheticRequest("Get"), Option(metadata)))
       }
+
+      val log = LoggerFactory.getLogger(classOf[ActionsImplSpec])
+      LoggingTestKit.empty
+        .withMdc(Map.empty)
+        .expect {
+          Future {
+            log.info("checking the MDC is empty")
+          }(ExecutionContext.parasitic) //parasitic to check that in the same thread MDC is cleared
+        }(service.runner.system.toTyped)
     }
   }
 
