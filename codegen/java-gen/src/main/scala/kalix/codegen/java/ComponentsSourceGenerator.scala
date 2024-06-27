@@ -110,7 +110,7 @@ object ComponentsSourceGenerator {
         "kalix.javasdk.impl.MetadataImpl",
         "kalix.javasdk.impl.InternalContext"))
 
-    val componentGetters = components.sortBy(_.uniqueName).map { component =>
+    val componentGetters = components.map { component =>
       s"""@Override
          |public Components.${component.uniqueName}Calls ${lowerFirst(component.uniqueName)}() {
          |  return new ${component.uniqueName}CallsImpl();
