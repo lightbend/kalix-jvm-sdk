@@ -1,6 +1,5 @@
 # Kalix JVM SDKs
 
-
 The Kalix JVM SDKs are used to develop Kalix services using Java or Scala. Two different development approaches are available as listed below: 
 - Java SDK (code-first)
 - Java Protobuf SDK (protocol-first)
