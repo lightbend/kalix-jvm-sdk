@@ -46,6 +46,7 @@ object ComponentSourceGenerator {
           None
         }
       }
+      .sortBy(_.uniqueName)
 
     generateComponentsTrait(uniqueNamesAndComponents, mainPackageName) :: generateComponentsImpl(
       uniqueNamesAndComponents,
