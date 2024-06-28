@@ -5,9 +5,7 @@
 package kalix.codegen
 
 import java.util.Locale
-
 import scala.jdk.CollectionConverters._
-
 import com.google.common.base.CaseFormat
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.ServiceDescriptor
@@ -18,6 +16,8 @@ import kalix.ServiceOptions.ServiceType
 import kalix.ValueEntityDef
 import kalix.View
 import kalix.WorkflowDef
+
+import scala.annotation.nowarn
 
 /**
  * Builds a model of entities and their properties from a protobuf descriptor
@@ -675,6 +675,7 @@ object ModelBuilder {
           .copy(protoName = serviceName.protoName + postfix)
       }
 
+  @nowarn("msg=deprecated")
   private def extractEventSourcedEntity(
       serviceProtoDescriptor: ServiceDescriptor,
       entityDef: EventSourcedEntityDef,
@@ -684,7 +685,7 @@ object ModelBuilder {
 
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
 
-    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
     EventSourcedEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
       typeId,
