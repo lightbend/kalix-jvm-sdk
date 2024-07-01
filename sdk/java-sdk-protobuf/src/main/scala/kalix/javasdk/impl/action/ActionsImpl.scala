@@ -22,7 +22,7 @@ import kalix.javasdk.impl.telemetry.{ ActionCategory, Instrumentation, Telemetry
 import kalix.protocol.action.{ ActionCommand, ActionResponse, Actions }
 import kalix.protocol.component
 import kalix.protocol.component.{ Failure, MetadataEntry }
-import org.slf4j.{ Logger, LoggerFactory }
+import org.slf4j.{ Logger, LoggerFactory, MDC }
 
 import java.util.Optional
 import scala.compat.java8.OptionConverters.RichOptionForJava8
@@ -176,7 +176,7 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
     services.get(in.serviceName) match {
       case Some(service) =>
         val span = telemetries(service.serviceName).buildSpan(service, in)
-
+        span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
         val fut =
           try {
             val context = createContext(in, service.messageCodec, span.map(_.getSpanContext), service.serviceName)
@@ -190,9 +190,13 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
             case NonFatal(ex) =>
               // command handler threw an "unexpected" error
               Future.successful(handleUnexpectedException(service, in, ex))
+          } finally {
+            MDC.remove(Telemetry.TRACE_ID)
           }
         fut.andThen { case _ =>
-          span.foreach(_.end())
+          span.foreach { s =>
+            s.end()
+          }
         }
       case None =>
         Future.successful(

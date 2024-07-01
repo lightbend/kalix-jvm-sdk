@@ -4,7 +4,7 @@
 
 package kalix.javasdk.impl
 
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.testkit.typed.scaladsl.{ LoggingTestKit, ScalaTestWithActorTestKit }
 import akka.actor.typed.scaladsl.adapter._
 import com.google.protobuf.any.Any.toJavaProto
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -20,6 +20,7 @@ import kalix.javasdk.eventsourcedentity.OldTestESEvent.OldEvent3
 import kalix.javasdk.eventsourcedentity.TestESEvent.Event4
 import kalix.javasdk.impl.action.ActionService
 import kalix.javasdk.impl.action.ActionsImpl
+import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.action.ActionResponse
 import kalix.protocol.action.Actions
@@ -32,6 +33,9 @@ import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import org.slf4j.LoggerFactory
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 class ActionsImplSpec
     extends ScalaTestWithActorTestKit
@@ -96,7 +100,7 @@ class ActionsImplSpec
       }
     }
 
-    "inject traces correctly into metadata" in {
+    "inject traces correctly into metadata and keeps trace_id in MDC" in {
       val jsonMessageCodec = new JsonMessageCodec()
       val actionProvider = ReflectiveActionProvider.of(
         classOf[TestTracingAction],
@@ -113,14 +117,25 @@ class ActionsImplSpec
           .getFullName)
 
       val traceParent = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
-      val md = Metadata(Seq(MetadataEntry("traceparent", MetadataEntry.Value.StringValue(traceParent))))
-      val reply1 = service.handleUnary(ActionCommand(serviceName, "Endpoint", Some(cmd1), Some(md))).futureValue
+      val metadata = Metadata(Seq(MetadataEntry("traceparent", MetadataEntry.Value.StringValue(traceParent))))
 
+      val expectedMDC = Map(Telemetry.TRACE_ID -> "0af7651916cd43dd8448eb211c80319c")
+      val reply1 =
+        LoggingTestKit.empty.withMdc(expectedMDC).expect {
+          service.handleUnary(ActionCommand(serviceName, "Endpoint", Some(cmd1), Some(metadata))).futureValue
+        }
       inside(reply1.response) { case ActionResponse.Response.Reply(Reply(Some(payload), _, _)) =>
         val tp = decodeJson(classOf[String], toJavaProto(payload))
         tp should not be "not-found"
         tp should include("0af7651916cd43dd8448eb211c80319c") // trace id should be propagated
         (tp should not).include("b7ad6b7169203331") // new span id should be generated
+      }
+
+      val log = LoggerFactory.getLogger(classOf[ActionsImplSpec])
+      LoggingTestKit.empty.withMdc(Map.empty).expect {
+        Future {
+          log.info("checking the MDC is empty")
+        }(ExecutionContext.parasitic) //parasitic to checking that in the same thread there's no MDC any more
       }
     }
   }

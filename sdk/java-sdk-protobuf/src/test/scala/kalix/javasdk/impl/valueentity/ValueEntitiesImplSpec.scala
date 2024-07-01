@@ -4,9 +4,9 @@
 
 package kalix.javasdk.impl.valueentity
 
+import com.typesafe.config.Config
 import io.grpc.Status.Code.INVALID_ARGUMENT
-import kalix.javasdk.valueentity.CartEntity
-import kalix.javasdk.valueentity.CartEntityProvider
+import kalix.javasdk.valueentity.{ CartEntity, CartEntityProvider }
 import kalix.testkit.TestProtocol
 import kalix.testkit.valueentity.ValueEntityMessages
 import org.scalatest.BeforeAndAfterAll
@@ -19,7 +19,7 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
   import ShoppingCart.Protocol._
   import ValueEntityMessages._
 
-  private val service: TestValueService = ShoppingCart.testService
+  private val service: TestValueService = ShoppingCart.testService()
   private val protocol: TestProtocol = TestProtocol(service.port)
 
   override def afterAll(): Unit = {
@@ -176,10 +176,11 @@ object ValueEntitiesImplSpec {
 
     val Name: String = ShoppingCartApi.getDescriptor.findServiceByName("ShoppingCartService").getFullName
 
-    def testService: TestValueService =
+    def testService(extraConfig: Option[Config] = None): TestValueService =
       TestValueEntity.service(
         CartEntityProvider
-          .of(new CartEntity(_)))
+          .of(new CartEntity(_)),
+        extraConfig)
 
     case class Item(id: String, name: String, quantity: Int)
 

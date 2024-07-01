@@ -6,38 +6,31 @@ package kalix.javasdk.impl.valueentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.Flow
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{ Flow, Source }
 import io.grpc.Status
 import kalix.javasdk.KalixRunner.Configuration
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
-import kalix.javasdk.impl.telemetry.Instrumentation
-import kalix.javasdk.impl.telemetry.Telemetry
-import kalix.javasdk.impl.telemetry.ValueEntityCategory
+import kalix.javasdk.impl.telemetry.{ Instrumentation, Telemetry, ValueEntityCategory }
 import kalix.protocol.component.Failure
-import org.slf4j.LoggerFactory
+import org.slf4j.{ LoggerFactory, MDC }
 
 import scala.util.control.NonFatal
 
 // FIXME these don't seem to be 'public API', more internals?
 import com.google.protobuf.Descriptors
 import kalix.javasdk.Metadata
-import kalix.javasdk.impl.ValueEntityFactory
 import kalix.javasdk.impl._
-import kalix.javasdk.impl.effect.EffectSupport
-import kalix.javasdk.impl.effect.ErrorReplyImpl
-import kalix.javasdk.impl.effect.MessageReplyImpl
-import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.DeleteEntity
-import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.UpdateState
+import kalix.javasdk.impl.effect.{ EffectSupport, ErrorReplyImpl, MessageReplyImpl }
+import kalix.javasdk.impl.valueentity.ValueEntityEffectImpl.{ DeleteEntity, UpdateState }
 import kalix.javasdk.impl.valueentity.ValueEntityRouter.CommandResult
 import kalix.javasdk.valueentity._
-import kalix.protocol.value_entity.ValueEntityAction.Action.Delete
-import kalix.protocol.value_entity.ValueEntityAction.Action.Update
-import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Command => InCommand }
-import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Empty => InEmpty }
-import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{ Init => InInit }
-import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Failure => OutFailure }
-import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Reply => OutReply }
+import kalix.protocol.value_entity.ValueEntityAction.Action.{ Delete, Update }
+import kalix.protocol.value_entity.ValueEntityStreamIn.Message.{
+  Command => InCommand,
+  Empty => InEmpty,
+  Init => InInit
+}
+import kalix.protocol.value_entity.ValueEntityStreamOut.Message.{ Failure => OutFailure, Reply => OutReply }
 import kalix.protocol.value_entity._
 
 final class ValueEntityService(
@@ -149,7 +142,7 @@ final class ValueEntitiesImpl(
 
           if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
           val span = instrumentations(service.serviceName).buildSpan(service, command)
-
+          span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
           try {
             val cmd =
               service.messageCodec.decodeMessage(
@@ -203,7 +196,10 @@ final class ValueEntitiesImpl(
                       action)))
             }
           } finally {
-            span.foreach(_.end())
+            span.foreach { s =>
+              MDC.remove(Telemetry.TRACE_ID)
+              s.end()
+            }
           }
 
         case InInit(_) =>
