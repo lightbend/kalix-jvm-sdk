@@ -24,7 +24,7 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 ### Fix and publish docs
 
 - [ ] In case there were important updates, update the [supported version in the main docs](https://github.com/lightbend/kalix-docs/blob/main/docs/modules/ROOT/partials/include.adoc#L21) (affects [Supported Languages](https://docs.kalix.io/sdk-support/supported-languages.html))
-- [ ] Add an item to the [Release Notes](https://github.com/lightbend/kalix-docs/blob/main/docs/modules/release-notes/pages/index.adoc) in the documentation
+- [ ] Add an item to the [Release Notes](https://github.com/lightbend/kalix-docs/blob/main/docs/modules/reference/pages/release-notes.adoc) in the documentation
 - [ ] Release the Kalix documentation to get the SDK docs updates published
 
 ### Update to the latest version
