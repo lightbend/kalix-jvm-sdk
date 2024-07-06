@@ -81,7 +81,7 @@ public abstract class Action {
   }
 
   public final Effect.Builder effects() {
-    return ActionEffectImpl.builder();
+    return ActionEffectImpl.builder(actionContext().metadata());
   }
 
   /**

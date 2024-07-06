@@ -7,12 +7,10 @@ package kalix.javasdk.impl.action
 import akka.NotUsed
 import akka.stream.javadsl.Source
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.javasdk.action.Action
-import kalix.javasdk.action.MessageEnvelope
+import kalix.javasdk.action.{ Action, MessageEnvelope }
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
-import kalix.javasdk.impl.CommandHandler
-import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.impl.reflection.Reflect
+import kalix.javasdk.impl.{ CommandHandler, InvocationContext }
 
 // TODO: abstract away reactor dependency
 import reactor.core.publisher.Flux
@@ -56,7 +54,8 @@ class ReflectiveActionRouter[A <: Action](
               .invoke(action, invocationContext)
               .asInstanceOf[Action.Effect[_]]
         }
-      case None if ignoreUnknown => ActionEffectImpl.Builder.ignore()
+      case None if ignoreUnknown =>
+        new ActionEffectImpl.Builder(invocationContext.metadata).ignore()
       case None =>
         throw new NoSuchElementException(
           s"Couldn't find any method with input type [$inputTypeUrl] in Action [$action].")
