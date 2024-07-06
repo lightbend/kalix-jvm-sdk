@@ -189,14 +189,13 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
           } catch {
             case NonFatal(ex) =>
               // command handler threw an "unexpected" error
+              span.foreach(_.end())
               Future.successful(handleUnexpectedException(service, in, ex))
           } finally {
             MDC.remove(Telemetry.TRACE_ID)
           }
         fut.andThen { case _ =>
-          span.foreach { s =>
-            s.end()
-          }
+          span.foreach(_.end())
         }
       case None =>
         Future.successful(

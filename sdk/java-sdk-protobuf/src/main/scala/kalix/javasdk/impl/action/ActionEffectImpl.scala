@@ -4,20 +4,18 @@
 
 package kalix.javasdk.impl.action
 
-import kalix.javasdk.{ DeferredCall, Metadata, SideEffect }
-import kalix.javasdk.action.Action
-import java.util
-import java.util.concurrent.CompletionStage
-
 import io.grpc.Status
 import kalix.javasdk.StatusCode.ErrorCode
+import kalix.javasdk._
+import kalix.javasdk.action.Action
 import kalix.javasdk.impl.StatusCodeConverter
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import kalix.javasdk.impl.telemetry.Telemetry
+
+import java.util
+import java.util.concurrent.CompletionStage
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
-
-import kalix.javasdk.HttpResponse
 
 /** INTERNAL API */
 object ActionEffectImpl {
@@ -74,21 +72,22 @@ object ActionEffectImpl {
     }
   }
 
-  object Builder extends Action.Effect.Builder {
+  class Builder(val actionContextMetadata: Metadata) extends Action.Effect.Builder {
+
     def reply[S](message: S): Action.Effect[S] = {
       message match {
         case httpResponse: HttpResponse =>
-          ReplyEffect(message, Some(Metadata.EMPTY.withStatusCode(httpResponse.getStatusCode)), Nil)
-        case _ => ReplyEffect(message, None, Nil)
+          ReplyEffect(message, Some(Metadata.EMPTY.withStatusCode(httpResponse.getStatusCode).addTracing()), Nil)
+        case _ => ReplyEffect(message, Some(Metadata.EMPTY.addTracing()), Nil)
       }
     }
     def reply[S](message: S, metadata: Metadata): Action.Effect[S] = {
       message match {
         case httpResponse: HttpResponse =>
-          ReplyEffect(message, Some(metadata.withStatusCode(httpResponse.getStatusCode)), Nil)
-        case _ => ReplyEffect(message, Some(metadata), Nil)
+          ReplyEffect(message, Some(metadata.withStatusCode(httpResponse.getStatusCode).addTracing()), Nil)
+        case _ => ReplyEffect(message, Some(metadata.addTracing()), Nil)
       }
-      ReplyEffect(message, Some(metadata), Nil)
+      ReplyEffect(message, Some(metadata.addTracing()), Nil)
     }
     def forward[S](serviceCall: DeferredCall[_, S]): Action.Effect[S] = ForwardEffect(serviceCall, Nil)
     def error[S](description: String): Action.Effect[S] = ErrorEffect(description, None, Nil)
@@ -101,13 +100,26 @@ object ActionEffectImpl {
     def asyncReply[S](futureMessage: CompletionStage[S]): Action.Effect[S] =
       asyncReply(futureMessage, Metadata.EMPTY)
     def asyncReply[S](futureMessage: CompletionStage[S], metadata: Metadata): Action.Effect[S] =
-      AsyncEffect(futureMessage.asScala.map(s => Builder.reply[S](s, metadata))(ExecutionContext.parasitic), Nil)
+      AsyncEffect(futureMessage.asScala.map(s => reply[S](s, metadata.addTracing()))(ExecutionContext.parasitic), Nil)
     def asyncEffect[S](futureEffect: CompletionStage[Action.Effect[S]]): Action.Effect[S] =
       AsyncEffect(futureEffect.asScala, Nil)
     def ignore[S](): Action.Effect[S] =
       IgnoreEffect()
+
+    import scala.jdk.OptionConverters._
+
+    implicit class TracingWrapper(metadata: Metadata) {
+      def addTracing(): Metadata = {
+        actionContextMetadata.traceContext().traceParent().toScala match {
+          case Some(traceparent) if !metadata.has(Telemetry.TRACE_PARENT_KEY) =>
+            metadata.add(Telemetry.TRACE_PARENT_KEY, traceparent)
+          case _ => metadata
+        }
+      }
+    }
+
   }
 
-  def builder(): Action.Effect.Builder = Builder
+  def builder(context: Metadata): Action.Effect.Builder = new Builder(context)
 
 }
