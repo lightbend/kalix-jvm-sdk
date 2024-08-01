@@ -17,7 +17,8 @@ class ActionResultSpec extends AnyWordSpec with Matchers {
   "Action Results" must {
     "extract side effects" in {
       val replyWithSideEffectResult = new ActionResultImpl[String](
-        new ActionEffectImpl.Builder(Metadata.EMPTY)
+        ActionEffectImpl
+          .builder(Metadata.EMPTY)
           .reply("reply")
           .addSideEffect(SideEffectImpl(
             GrpcDeferredCall[String, Any]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", _ => ???),
@@ -28,8 +29,9 @@ class ActionResultSpec extends AnyWordSpec with Matchers {
     }
 
     "extract forward details" in {
-      val forwardResult = new ActionResultImpl[String](
-        new ActionEffectImpl.Builder(Metadata.EMPTY).forward(
+      val forwardResult = new ActionResultImpl[String](ActionEffectImpl
+        .builder(Metadata.EMPTY)
+        .forward(
           GrpcDeferredCall[String, String]("request", MetadataImpl.Empty, "full.service.Name", "MethodName", _ => ???)))
 
       forwardResult.isForward() should ===(true)
