@@ -8,7 +8,7 @@ import com.example.Main;
 import com.example.wiring.pubsub.DockerIntegrationTest;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -37,20 +38,25 @@ public class TracingIntegrationTest extends DockerIntegrationTest {
         super(applicationContext, config);
     }
 
-    @Disabled //disabled ATM for https://github.com/lightbend/kalix-jvm-sdk/pull/1810
+    @Test //disabled ATM for https://github.com/lightbend/kalix-jvm-sdk/pull/1810
     public void shouldSendTraces() {
         String counterId = "some-counter";
         callTCounter(counterId, 10);
 
-        await().ignoreExceptions().atMost(60, TimeUnit.of(SECONDS)).untilAsserted(() -> {
+        await().ignoreExceptions().atMost(20, TimeUnit.of(SECONDS)).untilAsserted(() -> {
            Traces traces = selectTraces();
+           logger.debug("Traces found: {}", traces);
            assertThat(traces.traces().isEmpty()).isFalse();
            Batches batches = selectBatches(traces.traces().get(0).traceID());
            assertThat(batches.batches().isEmpty()).isFalse();
            logger.debug("Batches found: [{}]", batches.batches());
-           assertThat(batches.batches().get(0).scopeSpans().get(0).scope().name()).isEqualTo("kalix.proxy.telemetry.TraceInstrumentationImpl");
-           assertThat(batches.batches().get(1).scopeSpans().get(0).spans().get(0).name()).isEqualTo("some-counter");
-           assertThat(batches.batches().get(2).scopeSpans().get(0).spans().get(0).name()).isEqualTo("PrintIncrease");
+           //Name of the tracer when the span is built. See `Telemetry.buildSpan`
+           var javaSdkBatches =  Batches.findBatchesWithScopeName(batches, "java-sdk");
+           assertThat(Batches.findSpansWithName(javaSdkBatches, "Increase")).isNotEmpty();
+
+
+           var javaSdkBatches2 =  Batches.findBatchesWithScopeName(batches, "kalix");
+           assertThat(Batches.findSpansWithName(javaSdkBatches2,"PrintIncrease")).isNotEmpty();
         }
         );
 

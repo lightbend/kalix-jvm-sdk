@@ -10,6 +10,8 @@ services:
       JAVA_TOOL_OPTIONS: >
         -Dkalix.proxy.eventing.support=google-pubsub-emulator
         -Dkalix.proxy.telemetry.metrics.prometheus.use-default-registry=false
+        -Dkalix.proxy.telemetry.tracing.enabled=true
+        -Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:4317
       # those variables are defined in the .env file
       # when running multiple services on your local machine, make sure that 
       # the ports are unique by editing the corresponding .env files
@@ -45,13 +47,3 @@ services:
       - "4317:4317"  # otlp grpc
       - "4318:4318"  # otlp http
       - "9411:9411"   # zipkin
-
-  tempo-query:
-    image: grafana/tempo-query:latest
-    command: [ "--grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml" ]
-    volumes:
-      - ./tempo-query.yaml:/etc/tempo-query.yaml
-    ports:
-      - "16686:16686"  # jaeger-ui
-    depends_on:
-      - tempo
