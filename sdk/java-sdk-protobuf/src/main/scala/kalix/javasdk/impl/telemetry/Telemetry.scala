@@ -60,7 +60,7 @@ final class Telemetry(system: ActorSystem) extends Extension {
 
   private val collectorEndpointSDK = system.settings.config.getString(TraceInstrumentation.TRACING_ENDPOINT)
 
-  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
+  implicit val ec: ExecutionContext = system.dispatcher
 
   /**
    * This method assumes the instrumentation won't be consumed until discovery from the proxy is requested. Therefore
