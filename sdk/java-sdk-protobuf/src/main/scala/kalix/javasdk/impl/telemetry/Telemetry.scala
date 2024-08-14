@@ -28,6 +28,7 @@ import org.slf4j.{ Logger, LoggerFactory }
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
 import scala.jdk.OptionConverters._
+import scala.util.matching.Regex
 
 object Telemetry extends ExtensionId[Telemetry] {
 
@@ -36,6 +37,14 @@ object Telemetry extends ExtensionId[Telemetry] {
   val TRACE_ID: String = "trace_id"
   override def createExtension(system: ExtendedActorSystem): Telemetry =
     new Telemetry(system)
+
+  private val traceParentPattern: Regex = """^[0-9a-f]{2}-([0-9a-f]{32})-[0-9a-f]{16}-[0-9a-f]{2}$""".r
+
+  def extractTraceId(traceParent: String): String =
+    traceParent match {
+      case traceParentPattern(traceId) => traceId
+      case _                           => ""
+    }
 }
 
 sealed trait ComponentCategory {

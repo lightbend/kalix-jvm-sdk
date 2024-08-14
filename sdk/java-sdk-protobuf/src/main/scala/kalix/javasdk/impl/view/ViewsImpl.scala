@@ -4,19 +4,26 @@
 
 package kalix.javasdk.impl.view
 
-import java.util.Optional
-import scala.compat.java8.OptionConverters._
-import scala.util.control.NonFatal
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
-import kalix.javasdk.impl.{ Service, ViewFactory }
-import kalix.javasdk.Metadata
-import kalix.javasdk.impl._
-import kalix.javasdk.view.{ UpdateContext, ViewContext, ViewCreationContext, ViewOptions }
-import kalix.protocol.{ view => pv }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.javasdk.Metadata
+import kalix.javasdk.impl._
+import kalix.javasdk.impl.telemetry.Telemetry
+import kalix.javasdk.impl.Service
+import kalix.javasdk.impl.ViewFactory
+import kalix.javasdk.view.UpdateContext
+import kalix.javasdk.view.ViewContext
+import kalix.javasdk.view.ViewCreationContext
+import kalix.javasdk.view.ViewOptions
+import kalix.protocol.{ view => pv }
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
+
+import java.util.Optional
+import scala.jdk.OptionConverters._
+import scala.util.control.NonFatal
 
 /** INTERNAL API */
 final class ViewService(
@@ -38,7 +45,7 @@ final class ViewService(
     this(factory, descriptor, additionalDescriptors, messageCodec, viewId, Some(viewOptions))
 
   override def resolvedMethods: Option[Map[String, ResolvedServiceMethod[_, _]]] =
-    factory.asScala.collect { case resolved: ResolvedEntityFactory =>
+    factory.toScala.collect { case resolved: ResolvedEntityFactory =>
       resolved.resolvedMethods
     }
 
@@ -93,6 +100,9 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) 
               val commandName = receiveEvent.commandName
               val msg = service.messageCodec.decodeMessage(receiveEvent.payload.get)
               val metadata = MetadataImpl.of(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
+              metadata.traceContext.traceParent().toScala.foreach { traceParent =>
+                MDC.put(Telemetry.TRACE_ID, Telemetry.extractTraceId(traceParent))
+              }
               val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 
               val effect =
@@ -102,6 +112,8 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) 
                   case e: ViewException => throw e
                   case NonFatal(error) =>
                     throw ViewException(context, s"View unexpected failure: ${error.getMessage}", Some(error))
+                } finally {
+                  MDC.remove(Telemetry.TRACE_ID)
                 }
 
               effect match {
