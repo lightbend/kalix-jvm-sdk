@@ -10,11 +10,10 @@ import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import io.opentelemetry.api.trace.TraceId
 import kalix.javasdk.Metadata
-import kalix.javasdk.impl._
-import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.javasdk.impl.Service
 import kalix.javasdk.impl.ViewFactory
-import kalix.javasdk.impl.telemetry.TraceInstrumentation
+import kalix.javasdk.impl._
+import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.javasdk.view.UpdateContext
 import kalix.javasdk.view.ViewContext
 import kalix.javasdk.view.ViewCreationContext
@@ -102,9 +101,8 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) 
               val commandName = receiveEvent.commandName
               val msg = service.messageCodec.decodeMessage(receiveEvent.payload.get)
               val metadata = MetadataImpl.of(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
-              val traceId = TraceInstrumentation.extractTraceId(metadata)
-              if (TraceId.isValid(traceId)) {
-                MDC.put(Telemetry.TRACE_ID, traceId)
+              if (TraceId.isValid(metadata.traceContext.traceId())) {
+                MDC.put(Telemetry.TRACE_ID, metadata.traceContext.traceId())
               }
               val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 

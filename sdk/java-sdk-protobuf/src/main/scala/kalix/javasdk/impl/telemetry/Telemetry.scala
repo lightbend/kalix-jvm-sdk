@@ -17,7 +17,7 @@ import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
 import io.opentelemetry.context.propagation.ContextPropagators
 import io.opentelemetry.context.propagation.TextMapGetter
 import io.opentelemetry.context.propagation.TextMapSetter
-import io.opentelemetry.context.{Context => OtelContext}
+import io.opentelemetry.context.{ Context => OtelContext }
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
@@ -129,10 +129,6 @@ private[kalix] object TraceInstrumentation {
 
   lazy val setter: TextMapSetter[mutable.Buffer[MetadataEntry]] = (carrier, key, value) => {
     carrier.addOne(new MetadataEntry(key, StringValue(value)))
-  }
-
-  def extractTraceId(metadata: Metadata): String = {
-    Span.fromContext(metadata.traceContext().asOpenTelemetryContext()).getSpanContext.getTraceId
   }
 }
 
