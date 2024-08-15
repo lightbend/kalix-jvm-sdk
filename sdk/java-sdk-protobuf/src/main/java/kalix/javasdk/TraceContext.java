@@ -41,7 +41,8 @@ public interface TraceContext {
 
   /**
    * @return the traceId of the traceParent if any, otherwise "00000000000000000000000000000000"
-   * @see <a href="https://github.com/open-telemetry/opentelemetry-java/blob/ad120a5bff0887dffedb9c73af8e8e0aeb63659a/api/all/src/main/java/io/opentelemetry/api/trace/TraceId.java#L3"
+   * @see <a
+   *     href="https://github.com/open-telemetry/opentelemetry-java/blob/ad120a5bff0887dffedb9c73af8e8e0aeb63659a/api/all/src/main/java/io/opentelemetry/api/trace/TraceId.java#L3"
    */
   String traceId();
 }
