@@ -14,11 +14,10 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.SpanKind
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
-import io.opentelemetry.context.Context
 import io.opentelemetry.context.propagation.ContextPropagators
 import io.opentelemetry.context.propagation.TextMapGetter
 import io.opentelemetry.context.propagation.TextMapSetter
-import io.opentelemetry.context.{ Context => OtelContext }
+import io.opentelemetry.context.{Context => OtelContext}
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.resources.Resource
@@ -133,8 +132,7 @@ private[kalix] object TraceInstrumentation {
   }
 
   def extractTraceId(metadata: Metadata): String = {
-    val context = W3CTraceContextPropagator.getInstance().extract(Context.root(), metadata, otelGetter)
-    Span.fromContext(context).getSpanContext.getTraceId
+    Span.fromContext(metadata.traceContext().asOpenTelemetryContext()).getSpanContext.getTraceId
   }
 }
 
