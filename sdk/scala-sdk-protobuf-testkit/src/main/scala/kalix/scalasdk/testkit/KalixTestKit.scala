@@ -42,6 +42,8 @@ object KalixTestKit {
     def stopTimeout: FiniteDuration = jSettings.stopTimeout.toScala
     def serviceName: String = jSettings.serviceName
     def aclEnabled: Boolean = jSettings.aclEnabled
+    def tracingEnabled: Boolean = jSettings.tracingEnabled
+    def withTracingEnabled(): Settings = new Settings(jSettings.withTracingEnabled())
     def withStopTimeout(timeout: FiniteDuration): Settings = new Settings(jSettings.withStopTimeout(timeout.toJava))
     def withServiceName(name: String): Settings = new Settings(jSettings.withServiceName(name))
     def withAclDisabled(): Settings = new Settings(jSettings.withAclDisabled())
