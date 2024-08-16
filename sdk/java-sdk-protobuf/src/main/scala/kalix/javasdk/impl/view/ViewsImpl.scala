@@ -8,7 +8,6 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import io.opentelemetry.api.trace.TraceId
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.Service
 import kalix.javasdk.impl.ViewFactory
@@ -101,9 +100,13 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) 
               val commandName = receiveEvent.commandName
               val msg = service.messageCodec.decodeMessage(receiveEvent.payload.get)
               val metadata = MetadataImpl.of(receiveEvent.metadata.map(_.entries.toVector).getOrElse(Nil))
-              if (TraceId.isValid(metadata.traceContext.traceId())) {
-                MDC.put(Telemetry.TRACE_ID, metadata.traceContext.traceId())
+              val addedToMDC = metadata.traceContext.traceId().toScala match {
+                case Some(traceId) =>
+                  MDC.put(Telemetry.TRACE_ID, traceId)
+                  true
+                case None => false
               }
+
               val context = new UpdateContextImpl(service.viewId, commandName, metadata)
 
               val effect =
@@ -114,7 +117,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) 
                   case NonFatal(error) =>
                     throw ViewException(context, s"View unexpected failure: ${error.getMessage}", Some(error))
                 } finally {
-                  MDC.remove(Telemetry.TRACE_ID)
+                  if (addedToMDC) MDC.remove(Telemetry.TRACE_ID)
                 }
 
               effect match {

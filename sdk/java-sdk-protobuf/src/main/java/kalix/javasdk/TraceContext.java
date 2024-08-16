@@ -42,9 +42,7 @@ public interface TraceContext {
   /**
    * Allows retrieving the trace id of the trace parent if any.
    *
-   * @return the traceId of the traceParent if any, otherwise "00000000000000000000000000000000"
-   * @see <a
-   *     href="https://github.com/open-telemetry/opentelemetry-java/blob/main/api/all/src/main/java/io/opentelemetry/api/trace/TraceId.java#L32">TraceId.INVALID</a>
+   * @return the traceId of the traceParent if any
    */
-  String traceId();
+  Optional<String> traceId();
 }

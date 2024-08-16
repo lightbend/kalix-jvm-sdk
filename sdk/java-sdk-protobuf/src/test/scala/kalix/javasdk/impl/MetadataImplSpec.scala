@@ -161,13 +161,13 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
           MetadataEntry(
             "traceparent",
             MetadataEntry.Value.StringValue("00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"))))
-      metadata.traceContext.traceId() shouldBe "4bf92f3577b34da6a3ce929d0e0e4736"
+      metadata.traceContext.traceId() shouldBe Some("4bf92f3577b34da6a3ce929d0e0e4736")
     }
 
     "return '00000000000000000000000000000000' if no traceId is found" in {
       Metadata.EMPTY
         .traceContext()
-        .traceId() shouldBe "00000000000000000000000000000000" //see INVALID in TraceId https://github.com/open-telemetry/opentelemetry-java/blob/ad120a5bff0887dffedb9c73af8e8e0aeb63659a/api/all/src/main/java/io/opentelemetry/api/trace/TraceId.java#L32
+        .traceId() shouldBe Optional.empty()
 
     }
   }
