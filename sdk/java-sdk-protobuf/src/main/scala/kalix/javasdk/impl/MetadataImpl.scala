@@ -230,7 +230,7 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
     override def traceId(): Optional[String] = {
       Span.fromContext(asOpenTelemetryContext()).getSpanContext.getTraceId match {
         case "00000000000000000000000000000000" =>
-          Optional.empty() // when no traceId returns io.opentelemetry.api.trace.TraceId.INVALID,
+          Optional.empty() // when no traceId returns io.opentelemetry.api.trace.TraceId.INVALID
         case traceId => Some(traceId).asJava
       }
     }
