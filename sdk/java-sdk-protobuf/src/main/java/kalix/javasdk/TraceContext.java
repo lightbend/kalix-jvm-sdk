@@ -38,4 +38,11 @@ public interface TraceContext {
    *     Context section 3</a>
    */
   Optional<String> traceState();
+
+  /**
+   * Allows retrieving the trace id of the trace parent if any.
+   *
+   * @return the traceId of the traceParent if any
+   */
+  Optional<String> traceId();
 }

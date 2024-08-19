@@ -4,12 +4,19 @@
 
 package kalix.javasdk.impl.telemetry
 
-import akka.actor.{ ActorSystem, ExtendedActorSystem, Extension, ExtensionId }
+import akka.actor.ActorSystem
+import akka.actor.ExtendedActorSystem
+import akka.actor.Extension
+import akka.actor.ExtensionId
 import io.opentelemetry.api.OpenTelemetry
 import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
-import io.opentelemetry.api.trace.{ Span, SpanKind, Tracer }
-import io.opentelemetry.context.propagation.{ ContextPropagators, TextMapGetter, TextMapSetter }
+import io.opentelemetry.context.propagation.ContextPropagators
+import io.opentelemetry.context.propagation.TextMapGetter
+import io.opentelemetry.context.propagation.TextMapSetter
 import io.opentelemetry.context.{ Context => OtelContext }
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
@@ -18,12 +25,15 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
 import io.opentelemetry.semconv.ServiceAttributes
 import kalix.javasdk.Metadata
-import kalix.javasdk.impl.{ MetadataImpl, ProxyInfoHolder, Service }
+import kalix.javasdk.impl.MetadataImpl
+import kalix.javasdk.impl.ProxyInfoHolder
+import kalix.javasdk.impl.Service
 import kalix.protocol.action.ActionCommand
 import kalix.protocol.component.MetadataEntry
 import kalix.protocol.component.MetadataEntry.Value.StringValue
 import kalix.protocol.entity.Command
-import org.slf4j.{ Logger, LoggerFactory }
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext
@@ -103,7 +113,6 @@ private[kalix] object TraceInstrumentation {
 
   val TRACE_PARENT_KEY = "traceparent"
   val TRACE_STATE_KEY = "tracestate"
-
   val TRACING_ENDPOINT = "kalix.telemetry.tracing.collector-endpoint"
 
   private val logger: Logger = LoggerFactory.getLogger(getClass)

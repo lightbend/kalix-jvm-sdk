@@ -154,6 +154,22 @@ class MetadataImplSpec extends AnyWordSpec with Matchers with OptionValues {
       ce.specversion() shouldBe "1.0"
       ce.`type`() shouldBe "foo"
     }
+
+    "be able to find the traceId in a traceParent" in {
+      val metadata = MetadataImpl.of(
+        Seq(
+          MetadataEntry(
+            "traceparent",
+            MetadataEntry.Value.StringValue("00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"))))
+      metadata.traceContext.traceId() shouldBe Optional.of("4bf92f3577b34da6a3ce929d0e0e4736")
+    }
+
+    "return '00000000000000000000000000000000' if no traceId is found" in {
+      Metadata.EMPTY
+        .traceContext()
+        .traceId() shouldBe Optional.empty()
+
+    }
   }
 
   private def metadata(entries: (String, String)*): Metadata = {

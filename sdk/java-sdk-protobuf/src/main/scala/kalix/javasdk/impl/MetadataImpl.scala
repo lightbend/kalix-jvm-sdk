@@ -5,6 +5,7 @@
 package kalix.javasdk.impl
 
 import com.google.protobuf.ByteString
+import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
 import kalix.javasdk.CloudEvent
 import kalix.javasdk.JwtClaims
@@ -225,6 +226,14 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
     override def asOpenTelemetryContext(): OtelContext = W3CTraceContextPropagator
       .getInstance()
       .extract(OtelContext.current(), asMetadata(), otelGetter)
+
+    override def traceId(): Optional[String] = {
+      Span.fromContext(asOpenTelemetryContext()).getSpanContext.getTraceId match {
+        case "00000000000000000000000000000000" =>
+          Optional.empty() // when no traceId returns io.opentelemetry.api.trace.TraceId.INVALID
+        case traceId => Some(traceId).asJava
+      }
+    }
 
     override def traceParent(): Optional[String] = getScala(TraceInstrumentation.TRACE_PARENT_KEY).asJava
 
