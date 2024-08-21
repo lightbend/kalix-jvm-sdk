@@ -1,0 +1,5 @@
+# This is used to configure the sbt instance for local development
+# and running tests on Github Actions
+
+-Xms2G
+-Xmx4G
