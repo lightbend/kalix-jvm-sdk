@@ -9,7 +9,7 @@ on:
 
 jobs:
   debug:
-    if:  github.event_name != 'workflow_dispatch'
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-22.04
     steps:
       - name: Debugging
