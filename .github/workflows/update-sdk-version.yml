@@ -52,7 +52,7 @@ jobs:
 
       - name: Determine SDK version (manual triggered) # provisional until normal flow gets fixed)
         if:  github.event_name == 'workflow_dispatch'
-        id: determine_sdk_version
+        id: determine_sdk_version_on_manual_trigger
         run: |-
           .github/determine-sdk-version.sh
           SDK_VERSION="$(cat ~/kalix-sdk-version.txt)" | sed 's/-.*//' 
