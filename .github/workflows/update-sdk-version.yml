@@ -9,7 +9,7 @@ on:
 
 jobs:
   debug:
-    if: github.event.name != 'workflow_dispatch'
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-22.04
     steps:
       - name: Debugging
@@ -42,10 +42,20 @@ jobs:
           jvm: temurin:1.21
 
       - name: Determine SDK version
+        if:  github.event_name != 'workflow_dispatch'
         id: determine_sdk_version
         run: |-
           .github/determine-sdk-version.sh
           SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
+          echo "SDK version: '${SDK_VERSION}'"
+          echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Determine SDK version (manual triggered) # provisional until normal flow gets fixed)
+        if:  github.event_name == 'workflow_dispatch'
+        id: determine_sdk_version
+        run: |-
+          .github/determine-sdk-version.sh
+          SDK_VERSION="$(cat ~/kalix-sdk-version.txt)" | sed 's/-.*//' 
           echo "SDK version: '${SDK_VERSION}'"
           echo "sdk_version=${SDK_VERSION}" >> $GITHUB_OUTPUT
 
@@ -63,5 +73,5 @@ jobs:
           git commit . -m "chore: bump SDK versions to ${SDK_VERSION}"
           git remote add origin-rw https://${GH_TOKEN}@github.com/lightbend/kalix-jvm-sdk
           git push --set-upstream origin-rw ${BRANCH}
-        
+          
           gh pr create -B main -t "Auto PR - Bump SDK versions to ${SDK_VERSION}" -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay." || echo "No changes"; exit 0
