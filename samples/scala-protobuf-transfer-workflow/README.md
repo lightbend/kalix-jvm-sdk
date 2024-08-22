@@ -29,25 +29,25 @@ With both the Kalix Runtime and your service running, any defined endpoints shou
 Create wallet `a` with an initial balance
 
 ```shell
-grpcurl -plaintext -d '{"wallet_id": "a", "balance": 100}' localhost:9000 com.example.wallet.api.TransferWorkflowService/Create
+grpcurl -plaintext -d '{"wallet_id": "a", "balance": 100}' localhost:9000 com.example.wallet.api.WalletService/Create
 ```
 
 Create wallet `b` with an initial balance
 
 ```shell
-grpcurl -plaintext -d '{"wallet_id": "b", "balance": 100}' localhost:9000 com.example.wallet.api.TransferWorkflowService/Create
+grpcurl -plaintext -d '{"wallet_id": "b", "balance": 100}' localhost:9000 com.example.wallet.api.WalletService/Create
 ```
 
 Get wallet `a` current balance
 
 ```shell
-grpcurl -plaintext -d '{"wallet_id": "a"}' localhost:9000 com.example.wallet.api.TransferWorkflowService/GetWalletState
+grpcurl -plaintext -d '{"wallet_id": "a"}' localhost:9000 com.example.wallet.api.WalletService/GetWalletState
 ```
 
 Get wallet `b` current balance
 
 ```shell
-grpcurl -plaintext -d '{"wallet_id": "b"}' localhost:9000 com.example.wallet.api.TransferWorkflowService/GetWalletState
+grpcurl -plaintext -d '{"wallet_id": "b"}' localhost:9000 com.example.wallet.api.WalletService/GetWalletState
 ```
 
 Start transfer from wallet `a` to wallet `b`
