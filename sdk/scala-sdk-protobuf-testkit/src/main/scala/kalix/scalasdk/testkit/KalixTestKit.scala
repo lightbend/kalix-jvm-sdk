@@ -8,6 +8,7 @@ import scala.concurrent.ExecutionContext
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import com.typesafe.config.Config
 import kalix.scalasdk.{ Kalix, Principal }
 import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
 import kalix.javasdk.testkit.KalixTestKit.Settings.{ EventingSupport => JEventingSupport }
@@ -101,6 +102,11 @@ object KalixTestKit {
 class KalixTestKit private (delegate: JTestKit) {
   def start(): KalixTestKit = {
     delegate.start()
+    this
+  }
+
+  def start(config: Config): KalixTestKit = {
+    delegate.start(config)
     this
   }
 
