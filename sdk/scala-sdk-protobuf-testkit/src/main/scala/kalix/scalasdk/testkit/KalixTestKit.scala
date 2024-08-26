@@ -8,6 +8,7 @@ import scala.concurrent.ExecutionContext
 
 import akka.actor.ActorSystem
 import akka.stream.Materializer
+import com.typesafe.config.Config
 import kalix.scalasdk.{ Kalix, Principal }
 import kalix.javasdk.testkit.{ KalixTestKit => JTestKit }
 import kalix.javasdk.testkit.KalixTestKit.Settings.{ EventingSupport => JEventingSupport }
@@ -25,7 +26,7 @@ import kalix.javasdk.impl.MessageCodec
  *
  * <p>Requires Docker for starting a local instance of the Kalix Runtime.
  *
- * <p>Create a KalixTestKit with an [[Kalix]] service descriptor, and then [[KalixTestKit.start]] the testkit before
+ * <p>Create a KalixTestKit with an [[Kalix]] service descriptor, and then [[KalixTestKit.start()*]] the testkit before
  * testing the service with gRPC or HTTP clients. Call [[KalixTestKit.stop]] after tests are complete.
  */
 object KalixTestKit {
@@ -101,6 +102,15 @@ object KalixTestKit {
 class KalixTestKit private (delegate: JTestKit) {
   def start(): KalixTestKit = {
     delegate.start()
+    this
+  }
+
+  /**
+   * @param config
+   * @return
+   */
+  def start(config: Config): KalixTestKit = {
+    delegate.start(config)
     this
   }
 
