@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package store.customer.api;
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+message Customer {
+  string customer_id = 1 [(kalix.field).id = true];
+  string email = 2;
+  string name = 3;
+  Address address = 4;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+}
+
+message GetCustomer {
+  string customer_id = 1 [(kalix.field).id = true];
+}
+
+message ChangeCustomerName {
+  string customer_id = 1 [(kalix.field).id = true];
+  string new_name = 2;
+}
+
+message ChangeCustomerAddress {
+  string customer_id = 1 [(kalix.field).id = true];
+  Address new_address = 2;
+}
+
+service Customers {
+  option (kalix.codegen) = {
+    event_sourced_entity: {
+      name: "store.customer.domain.CustomerEntity"
+      type_id: "customers"
+      state: "store.customer.domain.CustomerState"
+      events: [
+        "store.customer.domain.CustomerCreated",
+        "store.customer.domain.CustomerNameChanged",
+        "store.customer.domain.CustomerAddressChanged"
+      ]
+    }
+  };
+
+  rpc Create(Customer) returns (google.protobuf.Empty);
+  rpc Get(GetCustomer) returns (Customer);
+  rpc ChangeName(ChangeCustomerName) returns (google.protobuf.Empty);
+  rpc ChangeAddress(ChangeCustomerAddress) returns (google.protobuf.Empty);
+}

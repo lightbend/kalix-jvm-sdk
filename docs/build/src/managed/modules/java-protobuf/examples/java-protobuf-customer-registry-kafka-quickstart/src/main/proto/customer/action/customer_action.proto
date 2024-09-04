@@ -1,0 +1,26 @@
+// tag::declarations[]
+syntax = "proto3";
+package customer.action;
+
+option java_outer_classname = "CustomerAction";
+
+import "customer/api/customer_api.proto";
+import "customer/domain/customer_domain.proto";
+import "kalix/annotations.proto";
+// end::declarations[]
+// tag::service[]
+service CustomerStateSubscription {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc OnStateChange (customer.domain.CustomerState) returns (customer.api.Customer) {
+    option (kalix.method).eventing.in = {
+      value_entity: "customers"
+    };
+    option (kalix.method).eventing.out = {
+      topic: "customer_changes"
+    };
+  }
+}
+// end::service[]

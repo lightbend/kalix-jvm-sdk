@@ -1,0 +1,94 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This is the public API offered by the Shopping Cart Event Sourced Entity.
+
+// tag::declarations[]
+syntax = "proto3";
+
+package shopping.cart.api;
+
+option java_outer_classname = "ShoppingCartApi";
+
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+// end::declarations[]
+
+// tag::messages[]
+message Cart {
+  repeated LineItem items = 1;
+}
+
+message LineItem {
+  string product_id = 1;
+  string name = 2;
+  int32 quantity = 3;
+}
+// end::messages[]
+
+// tag::method-messages[]
+message AddLineItem {
+  string cart_id = 1 [(kalix.field).id = true];
+  string product_id = 2;
+  string name = 3;
+  int32 quantity = 4;
+}
+
+message RemoveLineItem {
+  string cart_id = 1 [(kalix.field).id = true];
+  string product_id = 2;
+}
+
+message GetShoppingCart {
+  string cart_id = 1 [(kalix.field).id = true];
+}
+// end::method-messages[]
+
+// tag::service[]
+service ShoppingCart {
+  option (kalix.codegen) = {
+    event_sourced_entity: {
+      name: "shopping.cart.domain.ShoppingCartEntity"
+      type_id: "eventsourced-shopping-cart"
+      state: "shopping.cart.domain.CartState"
+      events: [
+        "shopping.cart.domain.ItemAdded",
+        "shopping.cart.domain.ItemRemoved"]
+    }
+  };
+  // end::service[]
+  option (kalix.service).acl.allow = { principal: ALL };
+  // tag::service[]
+
+  rpc AddItem(AddLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/cart/{cart_id}/items/add"
+      body: "*"
+    };
+  }
+  rpc RemoveItem(RemoveLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http).post = "/cart/{cart_id}/items/{product_id}/remove";
+  }
+  rpc GetCart(GetShoppingCart) returns (Cart) {
+    option (google.api.http) = {
+      get: "/carts/{cart_id}"
+      additional_bindings: {
+        get: "/carts/{cart_id}/items"
+        response_body: "items"
+      }
+    };
+  }
+}
+// end::service[]

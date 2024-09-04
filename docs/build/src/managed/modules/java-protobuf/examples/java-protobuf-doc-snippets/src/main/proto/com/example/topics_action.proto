@@ -1,0 +1,54 @@
+// tag::text[]
+// tag::bytes[]
+// tag::cloudEvent[]
+syntax = "proto3";
+package com.example;
+
+import "kalix/annotations.proto";
+// end::cloudEvent[]
+import "google/protobuf/wrappers.proto"; // <1>
+// tag::cloudEvent[]
+import "google/protobuf/empty.proto";
+
+option java_outer_classname = "MyTopics";
+
+// end::bytes[]
+// end::text[]
+message TopicOperation {
+  string operation = 1;
+}
+// tag::bytes[]
+// tag::text[]
+
+service MyTopicsAction {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  // end::bytes[]
+  // end::cloudEvent[]
+  rpc ConsumeStringTopic(google.protobuf.StringValue) returns (google.protobuf.Empty) { // <2>
+    option (kalix.method).eventing.in = {
+      topic: "strings_topic"
+    };
+  }
+  // end::text[]
+  // tag::bytes[]
+  rpc ConsumeRawBytesTopic(google.protobuf.BytesValue) returns (google.protobuf.Empty) { // <2>
+    option (kalix.method).eventing.in = {
+      topic: "bytes_topic"
+    };
+  }
+  // end::bytes[]
+  // tag::cloudEvent[]
+  rpc ProtobufFromTopic(TopicOperation) returns (google.protobuf.Empty) { // <1>
+    option (kalix.method).eventing.in = {
+      topic:  "shopping-cart-protobuf-cloudevents"
+    };
+  }
+  // tag::bytes[]
+  // tag::text[]
+}
+// end::bytes[]
+// end::text[]
+// end::cloudEvent[]

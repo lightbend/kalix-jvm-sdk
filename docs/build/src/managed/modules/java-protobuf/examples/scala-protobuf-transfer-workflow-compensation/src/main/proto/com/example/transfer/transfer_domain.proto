@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package com.example.transfer.domain;
+
+enum TransferStatus {
+    STARTED = 0;
+    WITHDRAW_FAILED = 1;
+    WITHDRAW_SUCCEED = 2;
+    DEPOSIT_FAILED = 3;
+    COMPLETED = 4;
+    COMPENSATION_COMPLETED = 5;
+    WAITING_FOR_ACCEPTATION = 6;
+    TRANSFER_ACCEPTATION_TIMED_OUT = 7;
+    REQUIRES_MANUAL_INTERVENTION = 8;
+}
+
+message TransferState {
+    string transferId = 1;
+    string from = 2;
+    string to = 3;
+    int32 amount = 4;
+    TransferStatus status = 5;
+}
+
+message Withdraw {
+    string from = 1;
+    int32 amount = 2;
+}
+
+message Deposit {
+    string to = 1;
+    int32 amount = 2;
+}

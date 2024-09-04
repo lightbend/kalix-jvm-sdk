@@ -1,0 +1,257 @@
+// tag::grpc[]
+// tag::spring[]
+== Query syntax reference
+
+Define View queries in a language that is similar to SQL. The following examples illustrate the syntax. To retrieve:
+
+* All customers without any filtering conditions (no WHERE clause):
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers
+----
+
+* Customers with a name matching the `customer_name` property of the request message:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name
+----
+
+* Customers matching the `customer_name` AND `city` properties of the request message:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name AND address.city = :city
+----
+
+* Customers in a city matching a literal value:
++
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE address.city = 'New York'
+----
+
+=== Filter predicates
+
+Use filter predicates in `WHERE` conditions to further refine results.
+
+==== Comparison operators
+
+The following comparison operators are supported:
+
+* `=` equals
+* `!=` not equals
+* `>` greater than
+* `>=` greater than or equals
+* `<` less than
+* `\<=` less than or equals
+
+==== Logical operators
+
+////
+Combine filter conditions with the `AND` and `OR` operators, and negate using the `NOT` operator. Group conditions using parentheses. Note that `AND` has precedence over `OR`.
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE
+  name = :customer_name AND address.city = 'New York' OR
+  NOT (name = :customer_name AND address.city = 'San Francisco')
+----
+////
+
+Combine filter conditions with the `AND` operator, and negate using the `NOT` operator. Group conditions using parentheses.
+
+NOTE: `OR` support is currently disabled, until it can be more efficiently indexed.
+
+----
+SELECT * FROM customers WHERE
+  name = :customer_name AND NOT (address.city = 'New York' AND age > 65)
+----
+
+==== Array operators
+
+Use `IN` or `= ANY` to check whether a value is contained in a group of values or in an array column or parameter (a `repeated` field in the Protobuf message).
+
+Use `IN` with a list of values or parameters:
+
+----
+SELECT * FROM customers WHERE email IN ('bob@example.com', :some_email)
+----
+
+Use `= ANY` to check against an array column (a `repeated` field in the Protobuf message):
+
+----
+SELECT * FROM customers WHERE :some_email = ANY(emails)
+----
+
+Or use `= ANY` with a repeated field in the request parameters:
+
+----
+SELECT * FROM customers WHERE email = ANY(:some_emails)
+----
+
+==== Pattern matching
+
+Use `LIKE` to pattern match on strings. The standard SQL `LIKE` patterns are supported, with `_` (underscore) matching a single character, and `%` (percent sign) matching any sequence of zero or more characters.
+
+----
+SELECT * FROM customers WHERE name LIKE 'Bob%'
+----
+
+NOTE: For index efficiency, the pattern must have a non-wildcard prefix or suffix. A pattern like `'%foo%'` is not supported. Given this limitation, only constant patterns with literal strings are supported; patterns in request parameters are not allowed.
+
+==== Text search
+
+Use the `text_search` function to search text values for words, with automatic tokenization and normalization based on language-specific configuration. The `text_search` function takes the text column to search, the query (as a parameter or literal string), and an optional language configuration.
+
+----
+text_search(<column>, <query parameter or string>, [<configuration>])
+----
+
+If the query contains multiple words, the text search will find values that contain all of these words (logically combined with AND), with tokenization and normalization automatically applied.
+
+The following text search language configurations are supported: `'danish'`, `'dutch'`, `'english'`, `'finnish'`, `'french'`, `'german'`, `'hungarian'`, `'italian'`, `'norwegian'`, `'portuguese'`, `'romanian'`, `'russian'`, `'simple'`, `'spanish'`, `'swedish'`, `'turkish'`. By default, a `'simple'` configuration will be used, without language-specific features.
+
+----
+SELECT * FROM customers WHERE text_search(profile, :search_words, 'english')
+----
+
+NOTE: Text search is currently only available for deployed services, and can't be used in local testing.
+
+==== Data types
+// end::spring[]
+
+The following data types are supported, for their corresponding Protobuf types. Arrays are created for a repeated field in a Protobuf message. Timestamps can be stored and compared using the `google.protobuf.Timestamp` message type.
+
+[cols="1,1"]
+|===
+| Data type | Protobuf type
+
+| Text
+| `string`
+
+| Integer
+| `int32`
+
+| Long (Big Integer)
+| `int64`
+
+| Float (Real)
+| `float`
+
+| Double
+| `double`
+
+| Boolean
+| `bool`
+
+| Byte String
+| `bytes`
+
+| Array
+| repeated fields
+
+| Timestamp
+| `google.protobuf.Timestamp`
+
+|===
+
+==== Optional fields
+
+Fields in a Protobuf message that were not given a value are handled as https://developers.google.com/protocol-buffers/docs/proto3#default[the default value] of the field data type.
+
+In some use cases it is important to explicitly express that a value is missing, doing that in a view column can be done in three ways:
+
+ * mark the message field as `optional`
+ * use one of the Protobuf "wrapper" types for the field (messages in the package `google.protobuf` ending with `Value`)
+ * make the field a part of a nested message and omit that whole nested message, for example `address.street` where the lack of an `address` message implies there is no `street` field.
+
+Optional fields with values present can be queried just like regular view fields:
+
+// end::grpc[]
+
+
+// tag::spring[]
+
+When modeling your queries, the following data types are supported:
+
+[cols="1,1"]
+|===
+| Data type | Java type
+
+| Text
+| `String`
+
+| Integer
+| `int` / `Integer`
+
+| Long (Big Integer)
+| `long` / `Long`
+
+| Float (Real)
+| `float` / `Float`
+
+| Double
+| `double` / `Double`
+
+| Boolean
+| `boolean` / `Boolean`
+
+| Byte String
+| `ByteString`
+
+| Array
+| `Collection<T>` and derived
+
+| Timestamp
+| `java.time.Instant`
+|===
+
+NOTE: `Instant` is only supported for queries with a `@RequestBody`. It's currently not possible to pass an `Instant` as a `@PathVariable` or `@RequestParam`.
+
+==== Optional fields
+
+Fields in a view type that were not given a value are handled as the default value for primitive Java data types.
+
+However, in some use cases it is important to explicitly express that a value is missing, doing that in a view column can be done in two ways:
+
+* use one of the Java non-primitive types for the field (e.g. use `Integer` instead of `int`)
+* make the field a part of another class and leave it uninitialized (i.e. `null`), for example `address.street` where the lack of an `address` message implies there is no `street` field.
+
+Optional fields with values present can be queried just like regular view fields:
+
+// tag::grpc[]
+
+----
+SELECT * FROM customers WHERE phone_number = :number
+----
+
+Finding results with missing values can be done using `IS NULL`:
+
+----
+SELECT * FROM customers WHERE phone_number IS NULL
+----
+
+Finding entries with any value present can be queried using `IS NOT NULL`:
+
+----
+SELECT * FROM customers WHERE phone_number IS NOT NULL
+----
+
+Optional fields in query requests messages are handled like normal fields if they have a value, however missing optional request parameters are seen as an invalid request and lead to a bad request response.
+
+=== Sorting
+
+Results for a view query can be sorted. Use `ORDER BY` with view columns to sort results in ascending (`ASC`, by default) or descending (`DESC`) order.
+
+If no explicit ordering is specified in a view query, results will be returned in the natural index order, which is based on the filter predicates in the query.
+
+----
+SELECT * FROM customers WHERE name = :name AND age > :min_age ORDER BY age DESC
+----
+
+NOTE: Some orderings may be rejected, if the view index cannot be efficiently ordered. Generally, to order by a column it should also appear in the `WHERE` conditions.
+
+// end::grpc[]
+// end::spring[]

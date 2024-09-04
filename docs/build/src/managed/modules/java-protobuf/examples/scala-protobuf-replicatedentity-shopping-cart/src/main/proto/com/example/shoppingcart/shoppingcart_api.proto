@@ -1,0 +1,79 @@
+// This is the public API offered by the Shopping Cart Replicated Entity.
+
+syntax = "proto3";
+
+package com.example.shoppingcart;  // <1>
+
+import "google/protobuf/empty.proto"; // <2>
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+
+message AddLineItem { // <3>
+  string cart_id = 1 [(kalix.field).id = true];  // <4>
+  string product_id = 2;
+  string name = 3;
+  int32 quantity = 4;
+}
+
+message RemoveLineItem {
+  string cart_id = 1 [(kalix.field).id = true];
+  string product_id = 2;
+  string name = 3;
+}
+
+message GetShoppingCart {
+  string cart_id = 1 [(kalix.field).id = true];
+}
+
+message RemoveShoppingCart {
+  string cart_id = 1 [(kalix.field).id = true];
+}
+
+message LineItem {
+  string product_id = 1;
+  string name = 2;
+  int64 quantity = 3;
+}
+
+message Cart {  // <5>
+  repeated LineItem items = 1;
+}
+
+service ShoppingCartService {  // <6>
+  option (kalix.codegen) = { // <7>
+    replicated_entity: { // <8>
+      name: "com.example.shoppingcart.domain.ShoppingCart" // <9>
+      type_id: "shopping-cart" // <10>
+      replicated_counter_map: { // <11>
+        key: "com.example.shoppingcart.domain.Product" // <12>
+      }
+    }
+  };
+
+  rpc AddItem (AddLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/cart/{cart_id}/items/add"
+      body: "*"
+    };
+  }
+
+  rpc RemoveItem (RemoveLineItem) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/cart/{cart_id}/items/{product_id}/remove"
+    };
+  }
+
+  rpc GetCart (GetShoppingCart) returns (Cart) {
+    option (google.api.http) = {
+      get: "/carts/{cart_id}"
+      additional_bindings: {
+        get: "/carts/{cart_id}/items"
+        response_body: "items"
+      }
+    };
+  }
+
+  rpc RemoveCart (RemoveShoppingCart) returns (google.protobuf.Empty) {
+    option (google.api.http).post = "/carts/{cart_id}/remove";
+  }
+}

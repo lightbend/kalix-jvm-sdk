@@ -1,0 +1,87 @@
+= Developer Tools
+:page-supergroup-java-scala: Language
+
+include::ROOT:partial$include.adoc[]
+include::partial$attributes.adoc[]
+Select your preferred language (Java/Scala) above.
+
+[.group-java]
+The Java tooling is published to https://mvnrepository.com/artifact/kalix[Maven Central]. 
+
+[.group-java]
+== Maven archetype
+
+[.group-java]
+A https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetype]; _kalix-maven-archetype_ provides the tooling to xref:project-template.adoc[kickstart a Maven project]. You supply details such as the desired artifact and group IDs, and the archetype provides a new Maven project directory with the Kalix SDK and associated development support tooling set up.
+
+[.group-java]
+The archetype can be used via the `mvn` CLI.
+[.tabset]
+Linux or MacOS::
++
+[source,command line,subs="attributes"]
+----
+mvn \
+  archetype:generate \
+  -DarchetypeGroupId=io.kalix \
+  -DarchetypeArtifactId=kalix-maven-archetype \
+  -DarchetypeVersion={kalix-jvm-sdk-version}
+----
+
+Windows::
++
+[source,command line,subs="attributes"]
+----
+mvn ^
+  archetype:generate ^
+  -DarchetypeGroupId=io.kalix ^
+  -DarchetypeArtifactId=kalix-maven-archetype ^
+  -DarchetypeVersion={kalix-jvm-sdk-version}
+----
+
+
+[.group-java]
+== Ongoing development support
+The development support tooling is provided via a single Maven plugin; _kalix-maven-plugin_. This plugin provides two Maven goals to support Protobuf driven interface-first development.
+
+[.group-java]
+=== Goals
+This plugin implements the following https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html[Maven Build Lifecycle] goals:
+
+* `generate`; generates implementation stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend. If you make further updates to your Protobuf specification after the initial generation, existing implementation is left unchanged but the abstract class is updated to align. This allows you to leverage native developer tooling to guide the desired changes.
+* `deploy`; simply invokes the `kalix` command line tool to deploy the service to Kalix. This relies on an existing installation of the CLI and uses configuration and credentials from that installation.
+
+NOTE: The deploy goal requires the Kalix CLI to be installed on your system.
+
+[.group-java]
+=== Configuration
+The behaviour of the plugin can be adjusted by adding a `<configuration>` tag to the plugin definition in your POM with any of the following options:
+
+* `kalixPath` path and name of the `kalix` command line tool 
+* `kalixContext` selects the context when calling `kalix` if set
+* `dockerImage` the Docker image name (use e.g. `<dockerImage>${kalix.dockerImage}:${kalix.dockerTag}</dockerImage>`)
+
+[.group-scala]
+== sbt Giter8 template
+A https://github.com/foundweekends/giter8[Giter8 template]; https://github.com/lightbend/kalix-value-entity.g8[lightbend/kalix-value-entity.g8] provides the tooling to xref:project-template.adoc[kickstart an sbt project]. The Giter8 template can be used via the `sbt` CLI.
+
+[source,command line,subs="attributes"]
+----
+sbt new lightbend/kalix-value-entity.g8
+----
+
+[.group-scala]
+== Ongoing development support
+
+The development support tooling is provided via an sbt plugin; _sbt-kalix_. This plugin provides commands to support Protobuf driven interface-first development.
+
+[.group-scala]
+=== Commands
+The sbt plugin hooks into the standard `sbt` commands for compiling, testing, and packaging. Code is automatically generated from Protobuf interfaces when using `compile`, `Test/compile`, `test`, and other commands that depend on these commands. The `sbt-native-packager` plugin is included in the Giter8 template, which can be used for building and publishing Docker images, respectively using the `Docker/publishLocal` and `Docker/publish` commands.
+
+[.group-scala]
+=== Configuration
+The behaviour of the plugin can be adjusted, by specifying system properties when starting sbt with a `-D` flag, for the following options:
+
+* The `docker.username` sets the username used to publish the image, for example `sbt -Ddocker.username=myuser Docker/publish`.
+* The `docker.registry` sets the docker registry to publish to, which is only needed for a docker registry other than docker hub.

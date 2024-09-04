@@ -1,0 +1,53 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+package com.example; // <1>
+
+import "kalix/annotations.proto"; // <2>
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option java_outer_classname = "CounterApi"; // <3>
+
+message IncreaseValue { // <4>
+  string counter_id = 1 [(kalix.field).id = true]; // <5>
+  int32 value = 2;
+}
+
+message DecreaseValue {
+  string counter_id = 1 [(kalix.field).id = true];
+  int32 value = 2;
+}
+
+message ResetValue {
+  string counter_id = 1 [(kalix.field).id = true];
+}
+
+message GetCounter {
+  string counter_id = 1 [(kalix.field).id = true];
+}
+
+message DeleteCounter {
+  string counter_id = 1 [(kalix.field).id = true];
+}
+
+message CurrentCounter { // <6>
+  int32 value = 1;
+}
+
+service CounterService { // <7>
+  option (kalix.codegen) = { // <8>
+    value_entity: { // <9>
+      name: "com.example.domain.Counter" // <10>
+      type_id: "counter" // <11>
+      state: "com.example.domain.CounterState" // <12>
+    }
+  };
+
+  rpc Increase (IncreaseValue) returns (google.protobuf.Empty);
+  rpc IncreaseWithConditional (IncreaseValue) returns (google.protobuf.Empty);
+  rpc Decrease (DecreaseValue) returns (google.protobuf.Empty);
+  rpc Reset (ResetValue) returns (google.protobuf.Empty);
+  rpc GetCurrentCounter (GetCounter) returns (CurrentCounter);
+  rpc Delete (DeleteCounter) returns (google.protobuf.Empty);
+}

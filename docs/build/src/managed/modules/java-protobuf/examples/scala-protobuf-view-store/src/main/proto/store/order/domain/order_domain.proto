@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package store.order.domain;
+
+// tag::domain[]
+import "google/protobuf/timestamp.proto";
+
+message OrderState {
+  string order_id = 1;
+  string product_id = 2;
+  string customer_id = 3;
+  int32 quantity = 4;
+  google.protobuf.Timestamp created = 5;
+}
+// end::domain[]

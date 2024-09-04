@@ -1,0 +1,329 @@
+= Using the project template
+:page-aliases: java:kickstart.adoc
+:page-aliases: java:quickstart-java-maven.adoc
+:page-supergroup-java-scala: Language
+
+include::ROOT:partial$include.adoc[]
+include::partial$attributes.adoc[]
+
+Select your preferred language (Java/Scala) above.
+
+The Kalix code generation tools help you to get started quickly. They include:
+
+* A [.group-java]#*Maven archetype*# [.group-scala]#*giter8 template*# that generates the recommended project structure, a simple Counter service containing a Value Entity, and unit tests. A `README.md` explains what was created and how to work with the newly created service.
+
+* [.group-java]#A *Maven plugin*# [.group-scala]#An *sbt plugin*# that runs the gRPC compiler and generates code stubs. You can modify the `.proto` and source files, and the Kalix plugin will not overwrite your work but will generate code stubs for the elements you changed or added.
+
+The generated project also contains configuration for packaging and deploying the service.
+
+== Prerequisites
+
+Before running the code generation tools, make sure you have the following:
+
+* JDK {java-pb-version} or later
+* [.group-java]#Apache Maven {minimum_maven_version} or later# [.group-scala]#sbt {minimum_sbt_version} or later#
+* Docker {minimum_docker_version} or higher (to run locally)
+
+To deploy the Kalix service, you need:
+
+* A https://console.kalix.io[Kalix account]
+* A https://docs.kalix.io/projects/create-project.html[Kalix project]
+* The https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI (kalix)]
+* A configured registry in which to publish the service container image. Refer to https://docs.kalix.io/projects/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Kalix.
+
+:sectnums:
+
+== Generate and build the Kalix project
+
+The [.group-java]#Maven archetype# [.group-scala]#giter8 template# prompts you to specify the project's group ID, name and version interactively. Run it using the commands shown for your OS.
+
+[.group-java]
+[sidebar]
+In IntelliJ, you can skip the command line. Open the IDE, select
+*File > New > Project*, and click to activate *Create from archetype*. Use the UI to locate the archetype and fill in the blanks.
+
+Follow these steps to generate and build your project:
+
+[.group-java]
+. From a command window, run the template in a convenient location:
++
+[.tabset]
+Linux or macOS::
++
+--
+[source,command window, subs="attributes"]
+----
+mvn archetype:generate \
+  -DarchetypeGroupId=io.kalix \
+  -DarchetypeArtifactId=kalix-maven-archetype \
+  -DarchetypeVersion={kalix-jvm-sdk-version}
+----
+--
+Windows 10+::
++
+--
+[source,command window, subs="attributes"]
+----
+mvn archetype:generate ^
+  -DarchetypeGroupId=io.kalix ^
+  -DarchetypeArtifactId=kalix-maven-archetype ^
+  -DarchetypeVersion={kalix-jvm-sdk-version}
+----
+--
+
+[.group-scala]
+. From a command window, run the template in a convenient location:
++
+[source,command window, subs="attributes"]
+----
+sbt new lightbend/kalix-value-entity.g8
+----
+
+. Navigate to the new project directory.
+
+. Enter [.group-java]#`mvn compile`# [.group-scala]#`sbt` and run `compile`# to generate and compile the sources.
+
+As you develop your own logic, you can change the `.proto` file definitions and build again. The build generates classes and tests as you develop the project, but will not overwrite your work.
+
+== Examine the project
+
+The template created the source files outlined in xref:developing:development-process-proto.adoc[]. Take a look at the pieces it provided for you:
+
+=== Descriptors for the service interface and domain model
+
+Kalix uses gRPC Protocol Buffers language to describe the service interface and the entity domain model. The archetype generates a `CounterService` API implemented as a https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity]. The entity descriptors include:
+
+- `src/main/proto/com/example/counter_api.proto` the service API to be used by clients
+- `src/main/proto/com/example/counter_domain.proto` the domain model of the Value Entity's state
+
+[.tabset]
+Default API protobuf file::
++
+.src/main/proto/com/example/counter_api.proto
+--
+[source,protobuf]
+----
+include::example$java-protobuf-first-service/src/main/proto/com/example/counter_api.proto[]
+----
+--
+Default domain protobuf file::
++
+.src/main/proto/com/example/domain/counter_domain.proto
+--
+[source,protobuf]
+----
+include::example$java-protobuf-first-service/src/main/proto/com/example/domain/counter_domain.proto[]
+----
+--
+
+For more information on descriptors, see xref:java-protobuf:proto.adoc[].
+
+=== Component implementation
+
+For the default service description in the template, the plugin creates an abstract base class (e.g., `AbstractCounter`) which always reflects the latest service description.
+
+IMPORTANT: Do not modify the base class as it is regenerated on each invocation of [.group-java]#`mvn compile`# [.group-scala]#`compile`#
+
+On the first build, the plugin creates a Value Entity implementation class where you implement the business logic for command handlers (e.g., `Counter`) .
+
+[.tabset]
+Java::
++
+[source,java]
+.src/main/java/com/example/domain/Counter.java
+----
+include::example$java-protobuf-first-service/src/main/java/com/example/domain/Counter.java[]
+----
+
+Scala::
++
+.src/main/scala/com/example/domain/Counter.scala
+[source,scala]
+----
+include::example$scala-protobuf-first-service/src/main/scala/com/example/domain/Counter.scala[]
+----
+
+The plugin provides the `Main` class implementation that registers service components with Kalix.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/Main.java
+[source,java]
+----
+include::example$java-protobuf-first-service/src/main/java/com/example/Main.java[]
+----
+
+Scala::
++
+.src/main/scala/com/example/Main.scala
+[source,scala]
+----
+include::example$scala-protobuf-first-service/src/main/scala/com/example/Main.scala[]
+----
+
+This class is the entry point for running Kalix within the container.
+
+For more details see xref:java-protobuf:value-entity.adoc[].
+
+=== Unit [.source-java]#and integration# tests
+
+The Kalix plugin creates a unit test stub for the Entity. Use this stub as a starting point to test the logic in your implementation. [.group-java]#The Kalix Java/Protobuf SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].#
+
+[.tabset]
+Java::
++
+.src/test/java/com/example/domain/CounterTest.java
+[source,java]
+----
+include::example$java-protobuf-first-service/src/test/java/com/example/domain/CounterTest.java[]
+----
+
+Scala::
++
+.src/test/scala/com/example/domain/CounterSpec.scala
+[source,scala]
+----
+include::example$scala-protobuf-first-service/src/test/scala/com/example/domain/CounterSpec.scala[]
+----
+
+Use [.group-java]#`mvn verify`# [.group-scala]#`sbt -DonlyUnitTest test`# to run all unit tests.
+
+[.tabset]
+Java::
++
+[source,bash]
+----
+mvn verify
+----
+
+Scala::
++
+[source,bash]
+----
+sbt -DonlyUnitTest test
+----
+By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`
+
+For more details, see xref:java-protobuf:value-entity.adoc#_testing_the_entity[Testing a Value Entity].
+xref:java-protobuf:event-sourced-entities.adoc#_testing_the_entity[Testing an Event Sourced Entity].
+xref:java-protobuf:actions.adoc#_testing_the_action[Testing an Action].
+
+[.group-java]
+The Maven plugin also provides you with an initial setup for integration tests based on the Kalix Java/Protobuf SDK test kit which leverages link:https://www.testcontainers.org/[TestContainers] and link:https://junit.org/junit4/[JUnit].
+
+[.group-java]
+.src/it/java/com/example/domain/CounterIntegrationTest.java
+[source,java]
+----
+include::example$java-protobuf-first-service/src/it/java/com/example/CounterIntegrationTest.java[]
+----
+
+[.group-java]
+The Maven Failsafe plugin runs the integration tests when the `it` profile is enabled via `-Pit`.
+
+[.group-java]
+[source,bash]
+----
+mvn verify -Pit
+----
+
+[.group-scala]
+By default the integration and unit test are both invoked by `sbt test`.
+
+[.group-scala]
+[source,bash]
+----
+sbt test
+----
+
+== Package service
+
+The project is configured to package your service into a Docker image which can be deployed to Kalix. The Docker image name can be changed in the [.group-java]#`pom.xml` file's `properties` section.# [.group-scala]#`build.sbt`.# Update this file to publish your image to your Docker repository.
+
+This uses JDK {java-pb-version} and the image is based on the link:https://adoptium.net/[Eclipse Adoptium] JDK image (formerly Adopt OpenJDK). Choose a different image in the [.group-java]#`docker-maven-plugin` configuration  `pom.xml` file.# [.group-scala]#`build.sbt`.#
+
+[.tabset]
+Java::
++
+[source,bash]
+----
+mvn install
+----
+
+Scala::
++
+[source,bash]
+----
+sbt -Ddocker.username=alice Docker/publish
+----
+
+TIP: For more details see xref:developing:development-process-proto.adoc#_package_service[Development Process - Package service].
+
+== Run locally
+
+You can run your service locally for manual testing via HTTP or gRPC requests. 
+
+To start your service locally, run:
+
+[.tabset]
+Java::
++
+[source,bash]
+----
+mvn kalix:runAll
+----
+
+Scala::
++
+[source,bash]
+----
+sbt runAll
+----
+
+This command will start your Kalix service and a companion Kalix Runtime as configured in `docker-compose.yml` file.
+
+If you prefer, you can also start docker-compose directly by running `docker-compose up` in one terminal and in another terminal start your Kalix service with:
+
+
+[.tabset]
+Java::
++
+[source,bash]
+----
+mvn kalix:run
+----
+
+Scala::
++
+[source,bash]
+----
+sbt run
+----
+
+== Deploy to Kalix
+
+To deploy your service to Kalix:
+
+[.group-java]
+First make sure you have updated the `dockerImage` property in the `pom.xml` to point at your Docker registry. Then:
+[.group-java]
+- Run `mvn deploy kalix:deploy`.
+
+[.group-java]
+`deploy` packages and publishes your Docker image to your repository and `kalix:deploy` deploys the service with your image to Kalix. If `kalixProject` is set, that is the project where the service will be deployed. If it is not set, the service will be deployed in your currently selected project.
+[.group-java]
+include::partial$important-mvn-kalixdeploy.adoc[]
+[.group-java]
+If you time stamp your image. For example,
+When using the CLI, in your command window, set your Kalix project to be the current project:
+
+[source, command window]
+----
+kalix config set project <project-name>
+----
+
+[.group-scala]
+- Run `sbt Docker/publish` which conveniently packages and publishes your Docker image prior to deployment.
+
+- Deploy your service following the instructions at xref:developing:development-process-proto.adoc#_deploy_to_kalix[Development Process - Deploy to Kalix].

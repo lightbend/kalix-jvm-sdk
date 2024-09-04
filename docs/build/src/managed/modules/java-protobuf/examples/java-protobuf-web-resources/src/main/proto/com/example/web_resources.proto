@@ -1,0 +1,56 @@
+// tag::file-service-api[]
+syntax = "proto3";
+package com.example;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";   // <1>
+import "kalix/annotations.proto";
+
+message File {
+  string file = 1;
+}
+
+message FileInDir {
+  string file = 1;
+  string directory = 2;
+}
+
+service FileService {
+  option (kalix.codegen) = {action: {}};
+  option (kalix.service).acl.allow = { principal: ALL };
+  rpc IndexHtml(google.protobuf.Empty) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get: "/" // <2>
+    };
+  };
+
+  rpc GetFile(File) returns (google.api.HttpBody) {   // <3>
+    option (google.api.http) = {   // <4>
+      get: "/site/{file}" // <5>
+    };
+  };
+
+  rpc GetFileInDir(FileInDir) returns (google.api.HttpBody) {
+    option (google.api.http) = {
+      get: "/site/{directory}/{file}"   // <6>
+    };
+  };
+}
+
+// end::file-service-api[]
+
+message ShoppingCart {
+  string cart_id = 1 [(kalix.field).id = true];
+  repeated string items = 2;
+}
+
+service ShoppingCartService {
+  option (kalix.codegen) = {action: {}};
+  option (kalix.service).acl.allow = { principal: ALL };
+  rpc GetCart(google.protobuf.Empty) returns (ShoppingCart) {
+    option (google.api.http) = {
+      get: "/get-cart"
+    };
+  };
+}

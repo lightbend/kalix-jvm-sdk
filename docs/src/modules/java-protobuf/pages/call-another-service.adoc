@@ -1,0 +1,79 @@
+= Calling other services
+:page-supergroup-java-scala: Language
+
+== Kalix services
+
+In some cases it is useful to call a component in another service, for example interacting with multiple entities or actions, aggregating their return values or performing a multi-step workflow. xref:actions-as-controller.adoc[Forwards] and xref:side-effects.adoc[Side Effects] allow us to trigger other services but does not make it possible to compose and transform the results of calling them.
+
+Calling other Kalix services in the same project from an Action is done by invoking them over gRPC much like how an external client would. The service is however identified only by the name it has been deployed as, Kalix takes care of routing requests to the service and keeping the data safe by encrypting the connection for us.
+
+In this sample we will make an action that does two sequential calls to the xref:value-entity.adoc[Value Entity Counter] service, deployed with the service name "counter."
+
+We start by adding the public API of the counter to the `src/main/proto` directory of our project.
+
+Since the proto file of a Kalix service contains annotations that cause the Java/Protobuf SDK code generation to generate services, and we only want to consume the service, we need to start by removing the annotations.
+
+Copy the API definition proto file from the other service into the `proto` directory but remove all `kalix.service` option blocks as well as all other Kalix annotations and the `import "kalix/annotations.proto"` from it.
+
+This is how the counter descriptor looks with all annotations removed:
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/com/example/counter_api.proto
+----
+include::java-protobuf:example$java-protobuf-doc-snippets/src/main/proto/com/example/counter_api.proto[tag=other-service-api]
+----
+
+Scala::
++
+[source,protobuf,indent=0]
+.src/main/proto/com/example/counter_api.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/counter_api.proto[tag=other-service-api]
+----
+
+
+The Akka gRPC `protocPlugin` will now generate Akka gRPC service interface and client classes when we compile the project. In this case the service interface `com.example.CounterService` client class `com.example.CounterServiceClient` is generated.
+
+Creating an instance of the service is done for us, by calling the `getGrpcClient` method on the context of the action.
+
+In our delegating service implementation:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/DelegatingServiceAction.java
+----
+include::java-protobuf:example$java-protobuf-doc-snippets/src/main/java/com/example/DelegatingServiceAction.java[tag=delegating-action]
+----
++
+<1> We call `actionContext().getGrpcClient` with the service interface of the API and the name that the service was deployed with.
+<2> Calling a unary gRPC method returns the reply as a `java.util.concurrent.CompletionStage`. When execution continues through our method, the result will likely not yet have arrived, so we cannot look at it like a regular variable.
+<3> Instead we register a callback to execute once the increase call completes successfully, here we ignore the empty increase response and call `getCurrentCounter`, this makes the two calls _sequential_. (Note however that some other client calling the counter API could have changed the counter in between the calls).
+<4> Once we get a response for the `getCurrentCounter` we transform that into a `Response` - the response type of this action method.
+<5> We can reply with a `CompletionStage<Result>` using `effects().asyncReply`. Once the `CompletionStage` completes, the client will get the response back.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/DelegatingServiceAction.scala
+----
+include::example$scala-protobuf-doc-snippets/src/main/scala/com/example/DelegatingServiceAction.scala[tag=delegating-action]
+----
++
+<1> We call `actionContext.getGrpcClient` with the service interface of the API and the name that the service was deployed with.
+<2> Calling a unary gRPC method returns the reply as a `scala.concurrent.Future`. When execution continues through our method, the result will likely not yet have arrived, so we cannot look at it like a regular variable.
+<3> Instead we register a callback to execute once the increase call completes successfully, here we ignore the empty increase response and call `getCurrentCounter`, this makes the two calls _sequential_. (Note however that some other client calling the counter API could have changed the counter in between the calls).
+<4> Once we get a response for the `getCurrentCounter` we transform that into a `Response` - the response type of this action method.
+<5> We can reply with a `Future[Result]` using `effects.asyncReply`. Once the `Future` completes, the client will get the response back.
+
+For additional documentation about Akka gRPC see the https://doc.akka.io/docs/akka-grpc/current/index.html[Akka gRPC documentation].
+
+== External gRPC services
+
+Calling a Kalix service in another project, or an arbitrary external gRPC service is done the same way as described above, with the difference that the service name string passed to `getGrpcClient` is present in the `application.conf` file of the project with details on how to connect to the external service. For a service named `external-example-service` config is expected to be found under `akka.grpc.client.external-example-service`.
+
+See the https://doc.akka.io/docs/akka-grpc/current/client/configuration.html#by-configuration[Akka gRPC docs on consuming a service] for details on configuring the client for a service name.

@@ -1,0 +1,132 @@
+= Java/Scala Protobuf SDK
+:page-supergroup-java-scala: Language
+
+include::ROOT:partial$include.adoc[]
+include::partial$attributes.adoc[]
+
+Select your preferred language (Java/Scala) above.
+
+The Kalix [.group-java]#Java# [.group-scala]#Scala# SDK guides you through implementing components matching the protobuf APIs you design. This page describes prerequisites for [.group-java]#Java# [.group-scala]#Scala# development and basic requirements for a development project.
+
+NOTE: Lightbend provides Tier 1 support for the [.group-java]#Java# [.group-scala]#Scala# Protobuf SDK. See https://docs.kalix.io/sdks/index.html#_sdk_support[an explanation of support tiers] for more information.
+
+Your development project needs to include the Kalix [.group-java]#Java# [.group-scala]#Scala# Protobuf SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
+
+To save the work of starting from scratch, the Java xref:java-protobuf:project-template.adoc[code generation tool] creates a project from a template, complete with descriptors and implementations. Or, you can start from one of our fully implemented https://docs.kalix.io/samples/index.html[sample applications].
+
+== Prerequisites
+
+The following are required to develop services in Java:
+
+Java:: Kalix requires Java {java-pb-version} or later.
+
+[.group-java]
+Apache Maven:: For Java-based services, Kalix relies on https://maven.apache.org/[Apache Maven {tab-icon}, window="new"] as build tool. The Kalix Maven plugin creates initial Java code for your components and the required surrounding code.
+
+[.group-scala]
+sbt:: For Scala-based services, Kalix relies on https://www.scala-sbt.org/[sbt {tab-icon}, window="new"] as build tool. The Kalix sbt plugin creates initial Scala code for your components and the required surrounding code.
+
+Docker:: Kalix requires https://docs.docker.com/get-docker/[Docker {tab-icon}, window="new"] {minimum_docker_version} for building your service images. Most popular build tools have plugins that assist in building Docker images.
+
+
+== Reference the Kalix Protobuf SDKs
+
+The following examples show how to install the SDK to build your services with Maven. The code generation tools include a Kalix xref:project-template.adoc[project template] that generates the recommended project structure, including a [.group-java]#`.pom` file# [.group-scala]#build.sbt# with the necessary references.
+
+In your [.group-java]#`.pom` file# [.group-scala]#build.sbt#, add the following:
+
+[.tabset]
+Java::
++
+[source,xml,subs="attributes+"]
+----
+<dependencies>
+    <dependency>
+        <groupId>io.kalix</groupId>
+        <artifactId>kalix-java-sdk-protobuf</artifactId>
+        <version>{kalix-jvm-sdk-version}</version>
+    </dependency>
+    <dependency>
+        <groupId>io.kalix</groupId>
+        <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
+        <version>{kalix-jvm-sdk-version}</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+----
+
+Scala::
++
+[.group-scala]
+[source,scala,subs="attributes+"]
+----
+scalaVersion := "2.13.14"
+
+enablePlugins(KalixPlugin)
+----
+
+[.group-scala]
+And in `project/plugins.sbt`:
+
+[.group-scala]
+[source,scala,subs="attributes+"]
+----
+addSbtPlugin("io.kalix" % "sbt-kalix" % "{kalix-jvm-sdk-version}")
+----
+
+== Configure JSON formatted logging
+Kalix supports JSON formatted logging to provide multi-line messages formatted in JSON syntax. Always use JSON formatted logging for your Kalix projects to efficiently analyze and easily leverage logging information.
+
+[TIP]
+xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Build and deploy the sample] to see JSON formatted logging in action.
+
+JSON formatted logging is enabled by default in the projects created by the xref:project-template.adoc[Kalix project template]. It includes a transitive dependency on `logback-json-classic` and a `logback.xml` file as shown here:
+
+.src/main/resources/logback.xml
+[source,xml]
+----
+include::example$java-protobuf-first-service/src/main/resources/logback.xml[]
+----
+
+In the `logback.xml` you may want to adjust the log level for different loggers (typically a package or class name).
+
+For local development you can switch to the `STDOUT` appender to make the logs more readable, or use `<prettyPrint>true</prettyPrint>` in the `jsonFormatter`. Don't use `prettyPrint` in production since the logging infrastructure will not handle multi-line log messages.
+
+NOTE: There is a separate `src/test/resources/logback-test.xml` that is used when running tests.
+
+== Create a main class
+
+The Kalix plugin will create a main class for you and make sure all components get registered with the Kalix server. The following code snippet shows an example that registers an Event Sourced Entity and starts the server:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=RegisterEventSourcedEntity]
+----
+
+Scala::
++
+[source,scala,indent=0]
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/scala/customer/Main.scala[tag=RegisterComponents]
+----
+
+== What's next
+
+This section provides details on how to accomplish common tasks:
+
+* xref:project-template.adoc[]
+* xref:writing-grpc-descriptors-protobuf.adoc[]
+* xref:value-entity.adoc[Implementing Value Entities]
+* xref:event-sourced-entities.adoc[Implementing Event Sourced Entities]
+* xref:replicated-entity.adoc[Implementing Replicated Entities]
+* xref:actions.adoc[Actions (stateless functions)]
+* xref:actions-as-controller.adoc[Actions as Controllers]
+* xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
+* xref:views.adoc[Implementing Views]
+* xref:side-effects.adoc[Running Side Effects]
+* xref:serialization.adoc[Serialization]
+* xref:access-control.adoc[Access Control (ACL)]
+* xref:api.adoc[API docs]

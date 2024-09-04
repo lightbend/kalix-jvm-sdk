@@ -1,0 +1,323 @@
+= Shopping Cart in Java/Protobuf
+
+include::ROOT:partial$include.adoc[]
+include::java-protobuf:partial$attributes.adoc[]
+
+Learn how to create a shopping cart in Java, package it into a container, and run it on Kalix.
+
+== Before you begin
+
+* If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
+* You'll need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
+* You'll also need
+** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
+** Java {java-pb-version} or higher
+** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
+** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
+
+[NOTE]
+====
+If you want to bypass writing code and jump straight to the deployment:
+
+. Download the source code using the Kalix CLI:
+`kalix quickstart download shopping-cart-java-protobuf`
+
+. Skip to <<Package and deploy your service>>.
+====
+
+
+== Writing the Shopping Cart
+
+. From the command line, create a directory for your project.
++
+[source,command line]
+----
+mkdir shoppingcart
+----
+
+. Change into the project directory.
++
+[source,command line]
+----
+cd shoppingcart
+----
+
+. Download the `pom.xml` file
++
+[source,command line]
+----
+curl -OL https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/samples/java-protobuf-shopping-cart-quickstart/pom.xml
+----
+
+. Update the `dockerImage` property (line 13 of the `pom.xml` file) with your container registry name.
+
+== Define the external API
+
+The Shopping Cart service will store shopping carts for your customers, including the items in those carts. The `shoppingcart_api.proto` will contain the external API your clients will invoke.
+
+. In your project, create a `src/main/proto/shopping/cart/api` and a `src/main/proto/shopping/cart/domain` directory.
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+mkdir -p ./src/main/proto/shopping/cart/api
+mkdir -p ./src/main/proto/shopping/cart/domain
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+mkdir src/main/proto/shopping/cart/api
+mkdir src/main/proto/shopping/cart/domain
+----
+--
+
+. Create a `shopping_cart_api.proto` file and save it in the `src/main/proto/shopping/cart/api` directory.
+
+. Add declarations for:
++
+* The protobuf syntax version, `proto3`.
+* The package name, `shopping.cart.api`.
+* The required Java outer classname, `ShoppingCartAPI`. Messages defined in this file will be generated as inner classes.
+* Import `google/protobuf/empty.proto` and Kalix `kalix/annotations.proto`.
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/shopping_cart_api.proto
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=declarations]
+----
+
+. Add the service endpoint. The service endpoint is annotated with `kalix.codegen` indicating we want to generate an Event Sourced Entity for this service.
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/api/shopping_cart_api.proto
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=service]
+----
+
+. Add messages to define the fields that comprise a `Cart` object (and its compound `LineItem`)
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/api/shopping_cart_api.proto
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=messages]
+----
+
+. Add the messages to carry the arguments for the service calls:
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/api/shopping_cart_api.proto
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/cart/api/shopping_cart_api.proto[tag=method-messages]
+----
+
+== Define the domain model
+
+The `shopping_cart_domain.proto` contains all the internal data objects (https://docs.kalix.io/reference/glossary.html#entity[Entities, window="new"]). The https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entity, window="new"] in this sample keeps all events sent for a specific shopping cart in a journal.
+
+
+. Create a `shopping_cart_domain.proto` file and save it in the `src/main/proto/shopping/cart/domain` directory.
+
+. Add declarations for the proto syntax and domain package.
++
+* The package name, `shopping.cart.domain`.
+* The Java outer classname, `ShoppingCartDomain`.
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/domain/shopping_cart_domain.proto
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/cart/domain/shopping_cart_domain.proto[tag=declarations]
+----
+
+. Add the `CartState` message with fields for entity data and the `LineItem` message that defines the compound line item:
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/domain/shopping_cart_domain.proto
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/cart/domain/shopping_cart_domain.proto[tag=state]
+----
+
+. Event Sourced entities work based on events. Add the events that can occur in this sample:
++
+[source,proto,indent=0]
+.src/main/proto/shopping/cart/domain/shopping_cart_domain.proto
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/proto/shopping/cart/domain/shopping_cart_domain.proto[tag=events]
+----
+
+. Run `mvn compile` from the project root directory to generate source classes in which you add business logic.
++
+----
+mvn compile
+----
+
+== Create command handlers
+
+Command handlers, as the name suggests, handle incoming API requests. State is not updated directly by command handlers.
+Instead, if state should be updated, an event is persisted that describes the intended transaction.
+
+. Open `src/main/java/shopping/cart/domain/ShoppingCartEntity.java` for editing.
+
+. Add some imports that are needed later:
++
+[source, java]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=imports]
+----
++
+
+
+. Modify the `emptyState` method to return the initial state for the entity. The method should look
+  like this:
++
+[source, java]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=emptyState]
+----
++
+
+. Modify the `addItem` method by adding the logic to handle the command. The complete method should include the following:
++
+[source, java]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=addItem]
+----
++
+* This method will handle an incoming API request. It gets passed the current state and the request
+  argument.
+* It checks the input parameters and fails using an `error` effect if the precondition fails.
+* Otherwise, it creates an `ItemAdded` event that is persisted by using the `emitEvent` effect.
+
+. Modify the `getCart` method as follows to handle the `GetShoppingCart` command:
++
+[source, java, indent=0]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=getCart]
+----
++
+* The method takes the current internal state and converts it to the API model.
+* Each `LineItem` in the state is converted to its corresponding API form using the `convert` method.
++
+
+. Modify the `removeItem` method by adding the logic to handle removing an item. The complete method should include the following:
++
+[source, java]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=removeItem]
+----
++
+* This method will handle removing an item from the shopping cart. It will first check the precondition whether the requested item
+  can be currently found in the shopping cart. If not, the API call returns an error effect.
+* If the item is found, the handler creates an `ItemRemoved` event that is persisted by using the `emitEvent` effect.
+
+== Create event handlers
+
+Event handlers maintain the state of an entity by sequentially applying the effects of events to the local state.
+
+. Modify the `itemAdded` event handling method by adding the logic to apply the event to the state:
++
+[source, java, indent=0]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=itemAdded]
+----
++
+* First, the method looks for an existing line item for the newly added product.
+* If an existing item is found, its quantity is adjusted.
+* Otherwise, the new item can be directly added to the cart (after conversion from API to domain types)
+* Finally, the new cart state is returned.
+* Several helper methods convert between API and domain types and help with management of state.
+
+. Modify the `itemRemoved` event handling method by adding the logic to apply the event to the state:
++
+[source, java, indent=0]
+.src/main/java/shopping/cart/domain/ShoppingCartEntity.java
+----
+include::example$java-protobuf-shopping-cart-quickstart/src/main/java/shopping/cart/domain/ShoppingCartEntity.java[tag=itemRemoved]
+----
++
+* The method removes the given product from the cart and returns the new state.
+
+
+[NOTE]
+====
+The `src/main/java/shopping/cart/Main.java` file already contains the required code to start your service and register it with Kalix.
+====
+
+== Package and deploy your service
+
+To build and publish the container image and then deploy the service, follow these steps:
+
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
++
+----
+kalix auth login
+----
+
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and use the target `kalix:deploy` to automatically deploy the service to Kalix:
++
+[source,command line]
+----
+mvn deploy kalix:deploy
+----
+include::partial$important-mvn-kalixdeploy.adoc[]
+
+. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
++
+----
+kalix service list
+----
+
+== Invoke your service
+
+Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+
+----
+kalix service proxy <service name> --grpcui
+----
+
+The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+
+Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
+
+Items can be added to a shopping cart using the `AddItem` method on the `ShoppingCart` service, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{
+    "cart_id": "abc123",
+    "product_id": "AAPL",
+    "name": "Apples",
+    "quantity": 42
+  }' \
+  --plaintext localhost:8080 \
+  shopping.cart.api.ShoppingCart/AddItem
+----
+
+The `GetCart` method can be used to retrieve this cart, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{"cart_id": "abc123"}' \
+  --plaintext localhost:8080 \
+  shopping.cart.api.ShoppingCart/GetCart
+----
+
+You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
+
+----
+kalix service expose <service name>
+----
+
+== Next steps
+
+* You can learn more about xref:java-protobuf:event-sourced-entities.adoc[Event Sourced Entities].

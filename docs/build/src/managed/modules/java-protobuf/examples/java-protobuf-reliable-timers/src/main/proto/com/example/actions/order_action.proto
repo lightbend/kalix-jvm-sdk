@@ -1,0 +1,32 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+package com.example.actions; 
+
+import "kalix/annotations.proto"; 
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "com/example/order_service_api.proto";
+
+option java_outer_classname = "OrderApi";
+
+message OrderNumber {
+  string number = 1;
+}
+
+message OrderRequest {
+  string item = 1;
+  int32 quantity = 2;
+}
+
+service Order {
+  option (kalix.codegen) = { 
+    action: { }
+  };
+
+  rpc PlaceOrder (OrderRequest) returns (OrderNumber);
+  rpc Confirm (OrderNumber) returns (google.protobuf.Empty);
+  rpc Cancel (OrderNumber) returns (google.protobuf.Empty);
+  rpc Expire (OrderNumber) returns (google.protobuf.Empty);
+  rpc GetOrderStatus (OrderNumber) returns (com.example.OrderStatus);
+}

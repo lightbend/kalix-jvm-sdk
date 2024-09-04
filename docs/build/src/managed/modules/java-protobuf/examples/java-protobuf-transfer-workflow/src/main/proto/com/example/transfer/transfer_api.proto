@@ -1,0 +1,35 @@
+// This is the public API offered by your entity.
+// tag::transfer-workflow[]
+syntax = "proto3";
+
+package com.example.transfer.api; // <1>
+
+import "google/protobuf/empty.proto"; // <2>
+import "kalix/annotations.proto";
+import "com/example/transfer/transfer_domain.proto";
+
+option java_outer_classname = "TransferApi"; // <3>
+
+message Transfer { // <4>
+    string transfer_id = 1 [(kalix.field).id = true]; // <5>
+    string from = 2;
+    string to = 3;
+    int32 amount = 4;
+}
+
+message GetRequest{
+    string transfer_id = 1 [(kalix.field).id = true];
+}
+
+service TransferWorkflowService { // <6>
+    option (kalix.codegen) = { // <7>
+        workflow: { // <8>
+            name: "com.example.transfer.api.TransferWorkflow" // <9>
+            type_id: "transfer" // <10>
+            state: "com.example.transfer.domain.TransferState" // <11>
+        }
+    };
+    rpc Start(Transfer) returns (google.protobuf.Empty) {}
+    rpc GetTransferState(GetRequest) returns (com.example.transfer.domain.TransferState) {}
+}
+// end::transfer-workflow[]

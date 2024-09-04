@@ -1,0 +1,36 @@
+= Using JWTs
+
+This section describes the practical aspects of configuring JSON Web Tokens (JWTs) with the Java/Scala Protobuf SDKs, if you are not sure what JWTs are, how they work or how to generate them, see https://docs.kalix.io/security/jwts.html[JSON Web Tokens] first.
+
+include::ROOT:partial$grpc/using-jwts.adoc[]
+
+== JWTs when running integration tests
+
+When running integration tests, JWTs will still be enforced but its signature will not be validated, similarly to what is described above for when running locally. Thus, when making calls in the context of integration testing, make sure to inject a proper token with the required claims, as shown below:
+
+[.tabset]
+Java::
++
+.src/it/java/com/example/JwtIntegrationTest.java
+[source, java, indent=0]
+----
+include::example$java-protobuf-doc-snippets/src/it/java/com/example/JwtIntegrationTest.java[tag=bearer-token-claims-test]
+----
+<1> Cast from `JwtServiceAction` to `JwtServiceActionClient`. This is required to be able to inject headers in the request, but it's a safe cast.
+<2> Use a helper method to create a token with 2 claims: issuer and subject.
+<3> Inject the bearer token as metadata with key `Authorization`.
+<4> Use static `Base64` encoding of `{ "alg": "none" }`.
+<5> Note that we do not need to provide a signature, thus the token has only 2 parts.
+
+Scala::
++
+.src/test/scala/com/example/JwtIntegrationSpec.scala
+[source, java, indent=0]
+----
+include::example$scala-protobuf-doc-snippets/src/test/scala/com/example/JwtIntegrationSpec.scala[tags=jwt-in-header;jwt-util]
+----
+<1> Cast from `JwtServiceAction` to `JwtServiceActionClient`. This is required to be able to inject headers in the request, but it's a safe cast.
+<2> Use a helper method to create a token with 2 claims: issuer and subject.
+<3> Inject the bearer token as metadata with key `Authorization`.
+<4> Use static `Base64` encoding of `{ "alg": "none" }`.
+<5> Note that we do not need to provide a signature, thus the token has only 2 parts.

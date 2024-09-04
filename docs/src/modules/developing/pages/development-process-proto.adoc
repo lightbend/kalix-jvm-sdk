@@ -1,0 +1,89 @@
+= Process overview
+include::ROOT:partial$include.adoc[]
+
+The main steps in developing a service include:
+
+. <<_specify_service_interface_and_domain_model>>
+. <<_effects_api>>
+. <<_implement_components>>
+. <<_create_unit_tests>>
+. <<_package_service>>
+. <<_run_locally>>
+. <<_deploy_to_kalix>>
+
+
+[#_specify_service_interface_and_domain_model]
+== Specify service interface and domain model
+
+The main components of a Kalix service are:
+
+* Stateful https://docs.kalix.io/reference/glossary.html#entity[Entities]
+* Stateless https://docs.kalix.io/reference/glossary.html#action[Actions]
+* https://docs.kalix.io/reference/glossary.html#view[Views], which return the state of multiple instances of a stateful entity.
+
+We recommend that you separate the service API and Entity domain data model in individual `.proto` files, as https://grpc.io[gRPC] descriptors. Separating the service interface and data model in different files allows you to evolve them independently.
+
+The gRPC definitions in `.proto` files describe the external interface, messages, and events. From the `.proto` files, the gRPC CLI (`protoc`), generates the code framework for remote procedure calls, data access, and serialization. Take a look at xref:java-protobuf:proto.adoc[Writing gRPC descriptors] for more information about defining messages and events.
+
+TIP: Kickstart a project using the xref:java-protobuf:project-template.adoc[project template].
+
+include::java-protobuf:partial$effects-api.adoc[]
+
+[#_implement_components]
+== Implement components
+
+Stateful services can implement https://docs.kalix.io/reference/glossary.html#value_entity[Value Entity] or https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entity] and https://docs.kalix.io/reference/glossary.html#view[View] components. Stateless services implement https://docs.kalix.io/reference/glossary.html#action[Actions]. Typically, a stateful service should only have one Entity type, but can also include Actions and Views.
+
+
+=== Actions
+
+Actions are stateless functions that can be triggered by gRPC or HTTP calls. They can also subscribe to published events, and they can send commands to other services based on the events they receive. For more information about writing actions see xref:java-protobuf:actions.adoc[Implementing Actions].
+
+=== Entities
+Stateful services encapsulate business logic in Value Entities or Event Sourced Entities. At runtime, command messages invoke operations on Entities. A command may only act on one Entity at a time. 
+
+
+TIP: To learn more about Kalix entities see xref:java-protobuf:value-entity.adoc[Implementing Value Entities], xref:java-protobuf:event-sourced-entities.adoc[Implementing Event Sourced Entities], and xref:java-protobuf:replicated-entity.adoc[Implementing Replicated Entities].
+
+If you would like to update multiple Entities from a single command, you can use forwarding and side effects. 
+
+TIP: For more information see xref:java-protobuf:actions-as-controller.adoc[Actions as Controllers] and xref:java-protobuf:side-effects.adoc[Running Side Effects].
+
+Services can interact asynchronously with other services and with external systems. Event Sourced Entities emit events to a journal, to which other services can subscribe. By configuring your own publish/subscribe (pub/sub) mechanism, any service can publish their own events and subscribe to events published by other services or external systems.
+
+=== Views
+
+A View provides a way to retrieve state from multiple Entities based on a query. You can create views from Value Entity state, Event Sourced Entity events, and by subscribing to topics. For more information about writing views see xref:java-protobuf:views.adoc[Implementing Views].
+
+For more details and examples take a look at the following topics:
+
+* xref:java-protobuf:value-entity.adoc[Value Entities]
+* xref:java-protobuf:event-sourced-entities.adoc[Event Sourced Entities]
+* xref:java-protobuf:replicated-entity.adoc[Replicated Entities]
+* xref:java-protobuf:actions.adoc[Actions]
+* xref:java-protobuf:views.adoc[Views]
+
+[#_create_unit_tests]
+== Create unit tests
+
+It is good practice to write unit tests as you implement your services. The kickstart codegen project includes hooks for JUnit testing. For implementation details see the xref:java-protobuf:project-template.adoc#_3_create_unit_tests[Project template - Create unit tests] topic.
+
+[#_package_service]
+== Package service
+
+Use Docker to package your service and any of its dependencies.
+See https://docs.kalix.io/projects/container-registries.html[Configuring registries] for more information.
+
+
+[#_run_locally]
+== Run locally
+
+You can test and debug your services by xref:java-protobuf:running-locally.adoc[running them locally] before deploying to Kalix.
+
+[#_deploy_to_kalix]
+== Deploy to Kalix
+
+After testing locally, deploy your service to Kalix using the CLI or the Console. The following pages provide information about deployment:
+
+* https://docs.kalix.io/projects/index.html[Working with Kalix projects]
+* https://docs.kalix.io/services/deploy-service.html#_deploy[Deploying a packaged service]

@@ -1,0 +1,22 @@
+include::ROOT:partial$include.adoc[]
+
+Actions are stateless functions that can be used to implement different uses cases, such as:
+
+- a pure function.
+- request conversion - you can use Actions to convert incoming data into a different format before forwarding a call to a different component.
+- as a face or controller to fan out to multiple calls to different components.
+- publish messages to a Topic.
+- subscribe to events from an Event Sourced Entity.
+- subscribe to state changes from a Value Entity.
+- schedule and cancel Timers.
+
+Actions can be triggered in multiple ways. For example, by:
+
+- a gRPC service call.
+- an HTTP service call.
+- a forwarded call from another component.
+- a scheduled call from a Timer.
+- an incoming message from a Topic.
+- an incoming event from an Event Sourced Entity, from within the same service or from a different service. 
+- state changes notification from a Value Entity on the same service.
+- a service life-cycle event (e.g. on startup).

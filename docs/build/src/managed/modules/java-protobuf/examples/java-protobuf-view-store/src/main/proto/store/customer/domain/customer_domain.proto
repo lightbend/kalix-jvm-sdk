@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package store.customer.domain;
+
+message CustomerState {
+  string customer_id = 1;
+  string email = 2;
+  string name = 3;
+  Address address = 4;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+}
+
+message CustomerCreated {
+  CustomerState customer = 1;
+}
+
+message CustomerNameChanged {
+  string new_name = 1;
+}
+
+message CustomerAddressChanged {
+  Address new_address = 1;
+}

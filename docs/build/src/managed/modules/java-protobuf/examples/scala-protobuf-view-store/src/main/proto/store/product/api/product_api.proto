@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package store.product.api;
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+message Product {
+  string product_id = 1 [(kalix.field).id = true];
+  string product_name = 2;
+  Money price = 3;
+}
+
+message Money {
+  string currency = 1;
+  int64 units = 2;
+  int32 cents = 3;
+}
+
+message GetProduct {
+  string product_id = 1 [(kalix.field).id = true];
+}
+
+message ChangeProductName {
+  string product_id = 1 [(kalix.field).id = true];
+  string new_name = 2;
+}
+
+message ChangeProductPrice {
+  string product_id = 1 [(kalix.field).id = true];
+  Money new_price = 2;
+}
+
+service Products {
+  option (kalix.codegen) = {
+    event_sourced_entity: {
+      name: "store.product.domain.ProductEntity"
+      type_id: "products"
+      state: "store.product.domain.ProductState"
+      events: [
+        "store.product.domain.ProductCreated",
+        "store.product.domain.ProductNameChanged",
+        "store.product.domain.ProductPriceChanged"
+      ]
+    }
+  };
+
+  rpc Create(Product) returns (google.protobuf.Empty);
+  rpc Get(GetProduct) returns (Product);
+  rpc ChangeName(ChangeProductName) returns (google.protobuf.Empty);
+  rpc ChangePrice(ChangeProductPrice) returns (google.protobuf.Empty);
+}

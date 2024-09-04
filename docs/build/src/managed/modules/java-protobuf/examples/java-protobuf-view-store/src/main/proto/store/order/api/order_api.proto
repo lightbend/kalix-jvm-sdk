@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package store.order.api;
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+message Order {
+  string order_id = 1 [(kalix.field).id = true];
+  string product_id = 2;
+  string customer_id = 3;
+  int32 quantity = 4;
+}
+
+message GetOrder {
+  string order_id = 1 [(kalix.field).id = true];
+}
+
+service Orders {
+  option (kalix.codegen) = {
+    value_entity: {
+      name: "store.order.domain.OrderEntity"
+      type_id: "orders"
+      state: "store.order.domain.OrderState"
+    }
+  };
+
+  rpc Create(Order) returns (google.protobuf.Empty);
+  rpc Get(GetOrder) returns (Order);
+}

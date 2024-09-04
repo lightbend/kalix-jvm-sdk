@@ -1,0 +1,186 @@
+= Customer Registry with Kafka in Java/Protobuf
+
+include::ROOT:partial$include.adoc[]
+include::java-protobuf:partial$attributes.adoc[]
+
+
+Create a customer registry that includes publishing to Kafka. Package it into a container, and run it on Kalix.
+
+== In this sample you will learn:
+
+* How to add additional functionality, allowing to publish customer's events to Kafka.
+* How to package the customer registry into a container.
+* How to deploy and run the customer registry on Kalix.
+
+== Before you begin
+
+* If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
+* You'll need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
+* You'll also need
+** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
+** Java {java-pb-version} or higher
+** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
+** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
+** Configure your project message broker to use Kafka and create the topic `customer_changes` by following the https://docs.kalix.io/projects/message-brokers.html[Configure message brokers] how-to. When setting the broker the configuration file you pass should be like `kafka/my-dev.kafka.properties` that you can find in this project.
+
+[NOTE]
+====
+If you want to bypass writing code and jump straight to the deployment:
+
+. Download the source code using the Kalix CLI:
+`kalix quickstart download customer-registry-kafka-java-protobuf`
+
+. Skip to <<Package and deploy your service>>.
+====
+
+== Start from the Customer Registry Entity
+
+Start by downloading the  xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Customer Registry sample] source code using the Kalix CLI:
+
+[source,command line]
+----
+kalix quickstart download customer-registry-java
+----
+
+In this guide, we will describe how to subscribe to events from the entity and forward them to a Kafka Broker. How to do this with an  https://docs.kalix.io/reference/glossary.html#action[Action]. Publishing an event each time a customer is created or updated
+
+== Define an Action
+
+The `customer_action.proto` will contain the definition of this action.
+
+. In your project, create a directory for your protobuf file, `src/main/proto/customer/action`.
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+mkdir -p ./src/main/proto/customer/action
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+mkdir src/main/proto/customer/action
+----
+--
+
+. Create a `customer_action.proto` file and save it in the `src/main/proto/customer/action` directory.
+
+. Add declarations for:
++
+* The protobuf syntax version, `proto3`.
+* The package name, `customer.action`.
+* The required Java outer classname, `CustomerAction`. Messages defined in this file will be generated as inner classes.
+* Import `customer/api/customer_api.proto`,`customer/domain/customer_domain.proto`, and Kalix `kalix/annotations.proto`.
++
+[source,proto,indent=0]
+.src/main/proto/customer/action/customer_action.proto
+----
+include::example$java-protobuf-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=declarations]
+----
+
+. Add the service definition. The service definition is annotated with `kalix.codegen` indicating we want to generate an Action for this service.
+. Add declarations for:
++
+* Listening to `customer.domain.CustomerState` events from the value entity `customer` by using the option `eventing.in`.
+* Publishing to the Kafka topic `customer_changes` by using the option `eventing.out`.
++
+[source,proto,indent=0]
+.src/main/proto/customer/action/customer_action.proto
+----
+include::example$java-protobuf-customer-registry-kafka-quickstart/src/main/proto/customer/action/customer_action.proto[tag=service]
+----
+
+. Run `mvn compile` from the project root directory to generate source classes in which you add business logic.
++
+----
+mvn compile
+----
+
+== Create an Action
+
+Actions are stateless functions that can be triggered in multiple ways. In this case, the action is triggered by each value change `customer.domain.CustomerState` received by the Value Entity `customer.domain.Customer`.
+
+. If it's not open already, open `src/main/java/customer/action/CustomerStateSubscriptionAction.java` for editing.
+
+. Modify the `onStateChange` method by adding the logic to handle the action. The complete method should include the following:
++
+[source, java]
+.src/main/java/customer/action/CustomerStateSubscriptionAction.java
+----
+include::example$java-protobuf-customer-registry-kafka-quickstart/src/main/java/customer/action/CustomerStateSubscriptionAction.java[tag=upsert]
+----
++
+* The incoming message contains the updated state of the customer entity and this action converts it to a `CustomerApi.Customer` and passes it to the xref:java-protobuf:actions-publishing-subscribing.adoc[Pub/Sub] mechanism of choice. In this example Kafka.
+
+== Package and deploy your service
+
+To build and publish the container image and then deploy the service, follow these steps:
+
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
++
+----
+kalix auth login
+----
+
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and use the target `kalix:deploy` to automatically deploy the service to Kalix:
++
+[source,command line]
+----
+mvn deploy kalix:deploy
+----
+include::partial$important-mvn-kalixdeploy.adoc[]
+
+. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
++
+----
+kalix service list
+----
+
+== Invoke your service
+
+Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+
+----
+kalix service proxy <service name> --grpcui
+----
+
+The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+
+Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
+
+A customer can be created using the `Create` method on `CustomerService`, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{
+    "customer_id": "abc123",
+    "email": "someone@example.com",
+    "name": "Someone",
+    "address": {
+      "street": "123 Some Street",
+      "city": "Somewhere"
+    }
+  }' \
+  --plaintext localhost:8080 \
+  customer.api.CustomerService/Create
+----
+
+The `GetCustomer` method can be used to retrieve this customer, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{"customer_id": "abc123"}' \
+  --plaintext localhost:8080 \
+  customer.api.CustomerService/GetCustomer
+----
+
+Check the change made to the Customer appears in the topic `customer_changes` in the Kafka cluster on your Confluent Cloud.
+
+== Next steps
+
+* You can learn more about Value Entities in the xref:java-protobuf:value-entity.adoc[reference documentation].
+* Continue this example by xref:java-protobuf:quickstart/cr-value-entity-views-java.adoc[adding Views], which makes it possible to query the customer registry.

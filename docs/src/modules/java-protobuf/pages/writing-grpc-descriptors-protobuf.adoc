@@ -1,0 +1,149 @@
+= Writing gRPC descriptors
+:page-aliases: java-protobuf:proto.adoc
+
+include::ROOT:partial$include.adoc[]
+include::partial$attributes.adoc[]
+
+Kalix SDKs support `protobuf` descriptors in the https://developers.google.com/protocol-buffers/docs/proto3[Proto3 {tab-icon}, window="new-tab"] Protocol Buffers language. You define command messages, data associated with Entities, and events in `.proto` files. From these definitions, the gRPC compiler creates client and server side code that saves work for you and enables Kalix to serialize message data.
+
+We recommend that you define your service API and events and data associated with components separately. This allows business logic to evolve independently of the public interface. This page walks you through elements in an example `shoppingcart_api.proto` file and the associated `shoppingcart_domain.proto` file.
+
+== The service proto file
+
+The first line of the example `shoppingcart_api.proto` file defines the version of Protocol Buffer syntax:
+
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+[source,proto]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_syntax]
+----
+
+The following imports provide Kalix and gRPC functionality:
+
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+[source,proto]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_imports]
+----
+
+The `package` specifies a namespace for this `proto` file and its imports--names must be unique within each namespace:
+
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+[source,proto]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_package]
+----
+
+It is recommended that you align the `proto` directory structure with the package structure, just like with Java classes, so that files defining services and messages in `com.example.shoppingcart` can be found in `src/main/proto/com/example/shoppingcart`.
+
+=== Messages
+
+You define messages that can be sent to or returned from the service.
+
+==== Messages for stateful components
+
+Each input message for an Entity or Workflow that is input to a RPC command, *must* be associated with a component id, so that Kalix can identify which component the message is for. In the example, this includes `AddLineItem`, `RemoveLineItem`, and `GetShoppingCart` where the `user_id` is the `(kalix.field).id`. Kalix extracts the value of these fields in order to route messages to the right component. If more than one field is specified as an id, the fields are concatenated together. Kalix serializes component ids to strings.
+
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+[source,proto]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_messages]
+----
+
+
+To use a multi-field key, add the `id` notation to each field. For example, the following `SomeMessage` element defines both `first_field` and `second_field` as part of the id:
+
+[source,proto]
+----
+message SomeMessage {
+  string first_field = 1 [(kalix.field).id = true];
+  string second_field = 2 [(kalix.field).id = true];
+}
+----
+
+It is also possible to use a single nested `message` marked with `(kalix.field).id` where the nested message type
+in turn contains one or more fields with the actual id. This allows for sharing a common id structure among multiple
+messages:
+
+[source,proto]
+----
+message MyId {
+  string first_field = 1 [(kalix.field).id = true];
+  string second_field = 2 [(kalix.field).id = true];
+}
+
+message CommandOne {
+  MyId nested_id = 1 [(kalix.field).id = true];
+  ...
+}
+
+message CommandTwo {
+  MyId nested_id = 1 [(kalix.field).id = true];
+  ...
+}
+----
+
+==== Generated entity ids
+
+In some cases, you may wish to generate a component id, this is typically done when an RPC method creates an entity or workflow, and the id is a surrogate id. To indicate to Kalix that an id should be generated, the incoming message must not have any `(kalix.field).id` annotated field. Instead, the rpc method should be annotated with `(kalix.method).id_generator.algorithm`, for example:
+
+[source,proto]
+----
+rpc CreateCart(CreateCartRequest) returns (CreateCartResponse) {
+  option (kalix.method).id_generator.algorithm = VERSION_4_UUID;
+};
+----
+
+This will generate a version 4 (random) UUID for the component id. Only version 4 UUIDs are currently supported for generated ids.
+
+It will often be necessary to access the generated id from inside the component code. This can be done using the context, for instance for ValueEntity, use link:{attachmentsdir}/api/kalix/javasdk/EntityContext.html#entityId()[`EntityContext.entityId` {tab-icon}, window="new"] method.
+
+=== Service
+
+This section of the `.proto` file declares the API of the service itself, along with each function or method and their parameters and return types. When a command is received for a given component id, Kalix will establish a gRPC streamed call to the service implementation using that Component's type's protocol--if one isn't already established. Any commands received for the component id will be sent through that call.
+
+The `AddItem` and `RemoveItem` methods have no return value (the `Empty` type).
+
+Most importantly, in this file we instruct the Kalix code generation tooling (codegen) which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+[source,proto]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=proto_service]
+----
+
+<1> Indicates to the codegen that we want to generate a Value Entity.
+<2> The package and name of our Value Entity.
+<3> Unique identifier of the "state storage" for this entity. The entity name may be changed even after data has been created, the `entity_type` can't.
+<4> The Entity state using a fully-qualified name. Note, the package and name follow the definition in the domain.proto file (see below).
+
+
+== The domain proto file
+
+The `shoppingcart_domain.proto` file specifies the state and messages for a Value Entity.
+
+.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
+[source,proto]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
+----
+
+<1> Defines the gRPC version.
+<2> The proto package for the state.
+<3> The Entity's state defined as a proto message.
+
+[#_transcoding_http]
+== Transcoding HTTP
+
+Kalix supports transcoding gRPC to HTTP/JSON, using the Google transcoding annotations described https://cloud.google.com/endpoints/docs/grpc/transcoding[here]. You can use transcoding to consume your Entities' gRPC interfaces using HTTP/JSON.
+
+In the example below, the optional transcoding of the service to bind the various endpoints to HTTP is highlighted with annotations.
+
+[source,proto]
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[tag=http-transcoding]
+----
+<1> This extra annotation specifies that you can call this endpoint using the POST method with the URI `/cart/\{user_id}/items/add`, where `\{user_id}` is the actual user id we want the cart for.
+<2> A URL that accepts a POST method to remove a line item.
+<3> A more complex example where the first `get` URI retrieves the whole cart, and the second retrieves the items in the cart.

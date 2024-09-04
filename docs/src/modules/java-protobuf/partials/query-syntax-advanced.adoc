@@ -1,0 +1,321 @@
+// tag::grpc[]
+// tag::spring[]
+== Advanced view queries
+
+Advanced view queries include additional sort operations, grouping operations, joins across tables, and subquery support.
+
+IMPORTANT: Advanced view queries are not available by default. Please contact the Kalix team if you require access to these features.
+
+=== Joins and multiple tables
+
+Advanced views can subscribe to events and changes from multiple entities or event sources. Data for multiple tables can then be joined using relational join operations, similar to SQL. Supported join types are:
+
+* `(INNER) JOIN` - only returns entries with matching values in both tables
+* `LEFT (OUTER) JOIN` - returns all entries in the left table, joined with any matching entries from the right table
+* `RIGHT (OUTER) JOIN` - returns all entries in the right table, joined with any matching entries from the left table
+* `FULL (OUTER) JOIN` - returns all entries from both tables, with joined entries for matching values
+
+In these examples, the Customer Registry used for simple views is extended to be a simple Store, adding Products and Orders for Customers. Customers and Products are implemented using Event Sourced Entities, while Orders is a Value Entity.
+
+Each Product includes a name and a price:
+
+// end::spring[]
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/store/product/domain/product_domain.proto
+----
+include::example$java-protobuf-view-store/src/main/proto/store/product/domain/product_domain.proto[tag=domain]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/store/product/domain/product_domain.proto
+----
+include::example$scala-protobuf-view-store/src/main/proto/store/product/domain/product_domain.proto[tag=domain]
+----
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/main/java/store/product/domain/Product.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/product/domain/Product.java[tag=domain]
+----
+[source,java,indent=0]
+.src/main/java/store/product/domain/Money.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/product/domain/Money.java[tag=domain]
+----
+// tag::grpc[]
+
+Each Order has an id, refers to the Customer and Product ids for this order, has the quantity of the ordered product, and a timestamp for when the order was created:
+
+// end::spring[]
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/store/order/domain/order_domain.proto
+----
+include::example$java-protobuf-view-store/src/main/proto/store/order/domain/order_domain.proto[tag=domain]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/store/order/domain/order_domain.proto
+----
+include::example$scala-protobuf-view-store/src/main/proto/store/order/domain/order_domain.proto[tag=domain]
+----
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/main/java/store/order/domain/Order.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/order/domain/Order.java[tag=domain]
+----
+// end::spring[]
+// tag::grpc[]
+
+A view can then subscribe to the events or changes for each of the Customer, Order, and Product entities, with multiple update methods on the service, but for different tables.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/store/view/joined/orders_view.proto
+----
+include::example$java-protobuf-view-store/src/main/proto/store/view/joined/orders_view.proto[tag=updates]
+----
+<1> Each update method stores its state type in a different table for `customers`, `products`, and `orders`.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/store/view/joined/orders_view.proto
+----
+include::example$scala-protobuf-view-store/src/main/proto/store/view/joined/orders_view.proto[tag=updates]
+----
+<1> Each update method stores its state type in a different table for `customers`, `products`, and `orders`.
+
+The view query can then JOIN across these tables, to return all orders for a specified customer, and include the customer and product details with each order:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/store/view/joined/orders_view.proto
+----
+include::example$java-protobuf-view-store/src/main/proto/store/view/joined/orders_view.proto[tag=query]
+----
+<1> The service method returns a stream of customer orders.
+<2> Select all columns from the joined entries to project into the combined `CustomerOrder` result type.
+<3> Join customers with orders on a matching customer id.
+<4> Join products with orders on a matching product id.
+<5> Find orders for a particular customer.
+<6> Sort all the orders by their created timestamp.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/store/view/joined/orders_view.proto
+----
+include::example$scala-protobuf-view-store/src/main/proto/store/view/joined/orders_view.proto[tag=query]
+----
+<1> The service method returns a stream of customer orders.
+<2> Select all columns from the joined entries to project into the combined `CustomerOrder` result type.
+<3> Join customers with orders on a matching customer id.
+<4> Join products with orders on a matching product id.
+<5> Find orders for a particular customer.
+<6> Sort all the orders by their created timestamp.
+// end::grpc[]
+// tag::spring[]
+
+A view can subscribe to the events or changes for each of the Customer, Order, and Product entities.
+
+To do this, create a class with a `ViewId` annotation, and with a nested `View` component (a static member class) for each of the view tables. Each nested view table subscribes to one of the entities.
+
+The view query can then JOIN across these tables, to return all orders for a specified customer, and include the customer and product details with each order.
+
+[source,java,indent=0]
+.src/main/java/store/view/joined/CustomerOrder.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/joined/CustomerOrder.java[tag=joined]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/joined/JoinedCustomerOrdersView.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/joined/JoinedCustomerOrdersView.java[tag=join]
+----
+<1> Add a view id for this multi-table view.
+<2> The view query does the following:
+  * Select all columns from the joined entries to project into the combined `CustomerOrder` result type.
+  * Join customers with orders on a matching customer id.
+  * Join products with orders on a matching product id.
+  * Find orders for a particular customer.
+  * Sort all the orders by their created timestamp.
+<3> The query method returns a stream of customer orders.
+<4> Each nested `View` stores its state type in a different table for `customers`, `products`, and `orders`.
+// tag::grpc[]
+
+In the example above, each `CustomerOrder` returned will contain the same customer details. The results can instead include the customer details once, and then all of the ordered products in a collection, using a <<_relational_projection,relational projection>> in the SELECT clause:
+
+// end::spring[]
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/store/view/nested/orders_view.proto
+----
+include::example$java-protobuf-view-store/src/main/proto/store/view/nested/orders_view.proto[tag=query]
+----
+<1> A single `CustomerOrders` message is returned, which will have the customer details and all orders for this customer.
+<2> The customer columns are projected into the result message, and the order and product columns are combined into a nested message and projected into the `orders` field.
+<3> The `orders` (repeated) field will contain the nested `CustomerOrder` messages.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/store/view/nested/orders_view.proto
+----
+include::example$scala-protobuf-view-store/src/main/proto/store/view/nested/orders_view.proto[tag=query]
+----
+<1> A single `CustomerOrders` message is returned, which will have the customer details and all orders for this customer.
+<2> The customer columns are projected into the result message, and the order and product columns are combined into a nested message and projected into the `orders` field.
+<3> The `orders` (repeated) field will contain the nested `CustomerOrder` messages.
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/main/java/store/view/nested/CustomerOrders.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/nested/CustomerOrders.java[tag=nested]
+----
+<1> The `orders` field will contain the nested `CustomerOrder` objects.
+
+[source,java,indent=0]
+.src/main/java/store/view/nested/CustomerOrder.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/nested/CustomerOrder.java[tag=nested]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/nested/NestedCustomerOrdersView.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/nested/NestedCustomerOrdersView.java[tag=query]
+----
+<1> In the view query, the customer columns are projected into the result, and the order and product columns are combined into a nested object and projected into the `orders` field.
+<2> A single `CustomerOrders` object is returned, which will have the customer details and all orders for this customer.
+// tag::grpc[]
+
+A <<_relational_projection,relational projection>> for a JOIN query can also restructure the results. For example, the shipping details for a customer can be constructed in a particular form, and the product orders transformed into a different nested message structure:
+
+// end::spring[]
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/store/view/structured/orders_view.proto
+----
+include::example$java-protobuf-view-store/src/main/proto/store/view/structured/orders_view.proto[tag=query]
+----
+<1> The `customer_id` is renamed to just `id` in the result type.
+<2> Customer shipping details are transformed and combined into a nested message.
+<3> The product price is reconstructed into a `ProductValue` message, nested within the order message.
+<4> The order and associated product information is transformed and combined into a collection of `ProductOrder` messages.
+<5> The nested orders in the result will still be sorted by their created timestamps.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/store/view/structured/orders_view.proto
+----
+include::example$scala-protobuf-view-store/src/main/proto/store/view/structured/orders_view.proto[tag=query]
+----
+<1> The `customer_id` is renamed to just `id` in the result type.
+<2> Customer shipping details are transformed and combined into a nested message.
+<3> The product price is reconstructed into a `ProductValue` message, nested within the order message.
+<4> The order and associated product information is transformed and combined into a collection of `ProductOrder` messages.
+<5> The nested orders in the result will still be sorted by their created timestamps.
+
+NOTE: Rather than transforming results in a relational projection, it's also possible to transform the stored state in the update methods for the view, using the `transform_updates` option.
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/main/java/store/view/structured/CustomerOrders.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/CustomerOrders.java[tag=structured]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/structured/CustomerShipping.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/CustomerShipping.java[tag=structured]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/structured/ProductOrder.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/ProductOrder.java[tag=structured]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/structured/ProductValue.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/ProductValue.java[tag=structured]
+----
+
+[source,java,indent=0]
+.src/main/java/store/view/structured/StructuredCustomerOrdersView.java
+----
+include::java:example$java-spring-view-store/src/main/java/store/view/structured/StructuredCustomerOrdersView.java[tag=query]
+----
+<1> The view query does the following:
+  * The `customerId` is renamed to just `id` in the result.
+  * Customer shipping details are transformed and combined into a nested object.
+  * The product price is reconstructed into a `ProductValue` object, nested within the order object.
+  * The order and associated product information is transformed and combined into a collection of `ProductOrder` objects.
+  * The nested orders in the result will still be sorted by their created timestamps.
+
+NOTE: Rather than transforming results in a relational projection, it's also possible to transform the stored state in the update methods for the view table.
+// tag::grpc[]
+
+=== Enable advanced views
+
+Advanced view queries are not available by default. Please contact the Kalix team if you require access to these features.
+
+For local development, the advanced view features can be enabled in integration tests using the testkit settings:
+
+// end::spring[]
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/it/java/store/view/joined/JoinedCustomerOrdersViewIntegrationTest.java
+----
+include::example$java-protobuf-view-store/src/it/java/store/view/joined/JoinedCustomerOrdersViewIntegrationTest.java[tag=testkit-advanced-views]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/test/scala/store/view/joined/JoinedCustomerOrdersIntegrationSpec.scala
+----
+include::example$scala-protobuf-view-store/src/test/scala/store/view/joined/JoinedCustomerOrdersIntegrationSpec.scala[tag=testkit-advanced-views]
+----
+// end::grpc[]
+// tag::spring[]
+[source,java,indent=0]
+.src/it/java/store/view/TestKitConfig.java
+----
+include::java:example$java-spring-view-store/src/it/java/store/view/TestKitConfig.java[tag=testkit-advanced-views]
+----
+// tag::grpc[]
+
+For running a local Kalix Runtime in Docker, with advanced view features enabled, set the environment variable `VIEW_FEATURES_ALL: "true"`.
+
+
+// end::spring[]
+// end::grpc[]

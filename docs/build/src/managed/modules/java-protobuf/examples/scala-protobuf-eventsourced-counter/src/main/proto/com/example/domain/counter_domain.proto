@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package com.example.domain;
+
+message CounterState {
+    int32 value = 1;
+}
+
+message ValueIncreased {
+    int32 value = 1;
+}
+
+message ValueDecreased {
+    int32 value = 1;
+}
+
+message ValueReset {
+}

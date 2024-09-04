@@ -1,0 +1,75 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+package com.example.replicated.countermap;
+
+message IncreaseValue {
+  string counter_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+  int32 value = 3;
+}
+
+message DecreaseValue {
+  string counter_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+  int32 value = 3;
+}
+
+message RemoveValue {
+  string counter_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+}
+
+message GetValue {
+  string counter_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+}
+
+message CurrentValue {
+  int64 value = 1;
+}
+
+message GetAllValues {
+  string counter_map_id = 1 [(kalix.field).id = true];
+}
+
+message CurrentValues {
+  map<string, int64> values = 1;
+}
+
+
+// tag::replicated_entity[]
+service CounterMapService {
+  option (kalix.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.countermap.domain.SomeCounterMap" // <1>
+      type_id: "some-counter-map"
+      replicated_counter_map: { // <2>
+        key: "string" // <3>
+      }
+    }
+  };
+
+  rpc Increase(IncreaseValue) returns (google.protobuf.Empty);
+  rpc Decrease(DecreaseValue) returns (google.protobuf.Empty);
+  rpc Remove(RemoveValue) returns (google.protobuf.Empty);
+  rpc Get(GetValue) returns (CurrentValue);
+  rpc GetAll(GetAllValues) returns (CurrentValues);
+}
+// end::replicated_entity[]

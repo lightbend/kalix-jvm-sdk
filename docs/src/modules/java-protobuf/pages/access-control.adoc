@@ -1,0 +1,57 @@
+= Using ACLs
+:page-supergroup-java-scala: Language
+
+This section describes the practical aspects of configuring Access Control Lists (ACLs) with the Java/Scala Protobuf SDKs, if you are not sure what ACLs are or how they work, see https://docs.kalix.io/security/acls.html[Access Control Lists] first.
+
+include::ROOT:partial$grpc/using-acls.adoc[]
+
+== Default ACL in project templates
+
+If no ACLs is defined at all in a Kalix service Kalix will allow requests from both other services and the internet to all components of a Kalix service.
+
+The Kalix samples and [.group-java]#Maven archetypes# [.group-scala]#the sbt g8-template# all include a less permissive ACL for the entire service, to not accidentally make services available to the public internet, just like the one described in the next section.
+
+== Defining an ACL for the entire Kalix Service
+
+A default ACL for the entire Kalix Service can be defined by placing a `kalix_policy.proto` file among the protobuf descriptors of the service. It should only contain a `kalix.file(acl)` annotation:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/kalix_policy.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/kalix_policy.proto[tag=default]
+----
+<1> Import the needed Kalix annotations from `kalix/annotations.proto`.
+<2> Allow access from all other services, but not the public internet.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/kalix_policy.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/kalix_policy.proto[tag=default]
+----
+<1> Import the needed Kalix annotations from `kalix/annotations.proto`.
+<2> Allow access from all other services, but not the public internet.
+
+This is the default ACL included in the samples and project templates. It allows calls from any other Kalix service deployed in the same project, but denies access from the internet.
+
+== Inspecting the principal inside a service
+
+Checking the ACLs are in general done for you by Kalix, however in some cases programmatic access to the principal of a call can be useful.
+
+Accessing the principal of a call inside a service is possible through the request metadata `Metadata.principals()`. The `Metadata` for a call is available through the context (`actionContext`, `commandContext`) of the component.
+
+== ACLs when running unit tests
+
+In the generated unit test testkits, the ACLs are ignored.
+
+== ACLs when running integration tests
+
+When running integration tests, ACLs are disabled by default but can be explicitly enabled per test by running the test with `Settings.withAclEnabled`.
+
+For integration tests that call other services that have ACLs limiting access to specific service names `Settings.withServiceName` allows specifying what the service identifies itself as to other services.
+
+`KalixTestKit.getGrpcClientForPrincipal` makes it possible to get an integration test client that is authenticated with specific credentials for calling a service with ACLs.

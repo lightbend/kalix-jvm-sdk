@@ -1,0 +1,22 @@
+Timers allow for scheduling calls in the future. For example, to verify that some process have been completed or not.
+
+Timers are persisted in the https://docs.kalix.io/reference/glossary.html#runtime[Kalix Runtime] and are guaranteed to run at least once.
+
+When a timer is triggered, the scheduled call is executed. If successfully executed, the timer completes and is automatically removed.
+In case of a failure, the timer is rescheduled with a delay of 3 seconds. This process repeats until the call succeeds.
+
+You can schedule a timer for any service method in Kalix, but you can only create a timer from within an Action or Workflow by passing a `DeferredCall`.
+
+**Timer features**:
+
+* Timers are guaranteed to run at least once.
+* Timers can be scheduled to run at any time in the future.
+* Timers can be cancelled.
+* Timers are automatically removed once successfully completed.
+* Timers are re-scheduled in case of failures.
+* Timers failing can be limited to a maximum number of retries.
+
+**Timer limitations**:
+
+* Timers can only be scheduled from within an Action or Workflow.
+* Timers can only call other components (e.g., Actions, Entities, Workflows), therefore external service calls must be wrapped by an Action in the deployed service.

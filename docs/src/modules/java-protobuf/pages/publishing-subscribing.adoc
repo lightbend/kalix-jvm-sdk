@@ -1,0 +1,658 @@
+include::ROOT:partial$include.adoc[]
+
+= Publishing and Subscribing
+:page-supergroup-java-scala: Language
+:page-aliases: java-protobuf:service-to-service.adoc, java-protobuf:serialization.adoc, java-protobuf:actions-publishing-subscribing.adoc
+
+
+A very common use case when building Microservices is to publish and subscribe to a stream of events. The source of events can be the journal of an event sourced entity, the value entity state changes, a https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka topic for asynchronous messaging between services.
+
+In this section, we will explore how you can use an Action to:
+
+- Subscribe to events emitted by an event sourced entity within the same service.
+- Subscribe to state changes emitted by a value entity within the same service.
+- Subscribe to events from Event Sourced Entities published as service to service eventing.
+- Subscribe to external events from https://cloud.google.com/pubsub/docs/overview[Google Cloud Pub/Sub] or Apache Kafka.
+- Publish events to a Google Cloud Pub/Sub or Apache Kafka topic.
+
+WARNING: Messages are guaranteed to be delivered at least once. This means that receivers must be able to handle duplicate messages.
+
+== Publishing Entity events to a Topic
+
+To illustrate how to publish entity events, we will assume the existence of an xref:event-sourced-entities.adoc[Event Sourced] Counter entity that emits events of types: `ValueIncreased` and `ValueDecreased`. We will get the events delivered to an Action, apply some transformation and let them be published to a topic.
+
+include::partial$pubsub-note.adoc[]
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/com/example/actions/counter_topic.proto
+----
+include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
+----
+<1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
+<4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type id `counter` should be delivered to this method (when the type is `ValueIncreased`).
+<5> The `(kalix.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/domain/customer_domain.proto
+----
+include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
+----
+<1> Import the Counter Domain file containing the definitions of the events. This is typically a proto definition within the same service.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `Increase` method receives the event `ValueIncreased` and returns the transformed type `Increased`.
+<4> The `(kalix.method).eventing.in` annotation indicates that events from the entity type id `counter` should be delivered to this method (when the type is `ValueIncreased`).
+<5> The `(kalix.method).eventing.out` annotation indicates that the returned value from this method should be published to the topic called `counter-events`.
+
+The class `CounterJournalToTopicAction` gets generated for us based on the proto file defined above.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+----
+include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic]
+----
+<1> We convert the incoming domain event `CounterDomain.ValueIncreased` to the outgoing topic API `CounterTopicApi.Increased`.
+<2> We use the converted object to build a reply. The `CounterTopicApi.Increased` message will be published to the topic.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/actions/CounterJournalToTopicAction.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic]
+----
+<1> We convert the incoming domain event `ValueIncreased` to the outgoing topic API `Increased` and return that as a reply.
+
+In this example we have published Protobuf messages to the topic which is convenient if the consuming end is also a Kalix service. For an external consumer Protobuf may not be a supported format, for details on publishing other formats see xref:java-protobuf:serialization.adoc[Handling Serialization].
+
+== Subscribing to state changes from a Value Entity
+
+Similar to subscribing to events from an Event Sourced Entity, you can also subscribe to state changes from a Value Entity.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/actions/counter_states_sub.proto
+----
+include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
+----
+<1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities]).
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type id `counter` should be delivered to this method.
+<4> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling value entity deletes.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/actions/counter_states_sub.proto
+----
+include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/actions/counter_states_sub.proto[tag=state-subscription]
+----
+<1> Import the Counter Domain from the Value Entity example (see xref:java-protobuf:value-entity.adoc[Implementing Value Entities]).
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The `(kalix.method).eventing.in` annotation indicates that state changes from the value entity type id `counter` should be delivered to this method.
+<4> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling value entity deletes.
+
+== Subscribing and acting upon
+
+Another possible usage for Actions is to consume events and act upon.
+
+For example, you may consume events from one entity or from a topic, transform to commands and send to another entity or an external system. This is similar to the usage explained in xref:actions-as-controller.adoc[Actions as Controller], except that the Action is driven by the flow of incoming events instead of external user requests.
+
+For that purpose, it's enough to add the `(kalix.method).eventing.in` and omit the `(kalix.method).eventing.out`.
+
+== Service to Service Eventing
+
+Kalix provides brokerless at-least-once event delivery across Kalix services through the Service to Service eventing.
+
+The source of the events is an xref:event-sourced-entities.adoc[Event Sourced Entity]. Its events can be published as a stream and consumed by another Kalix service without the need to set up a message broker.
+
+Note:: For eventing from an entity inside the same Kalix service as the consuming component, use regular xref:actions-publishing-subscribing.adoc[Subscription to the entity] instead of Service to Service eventing.
+
+=== Event Producer
+
+The event producer controls which entity to publish events for. Each entity published is identified by a `stream id` so that one Kalix service can publish more than one of the entity types it contains.
+
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/api/direct_customer_events.proto
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
+----
+<1> `eventing.in` identifying which event sourced entity to publish events for.
+<2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default.
+<3> `eventing.out.direct.event_stream_id` marks the public identifier for consumers of this stream.
+<4> An ACL annotation, allowing access from other Kalix services, but not the public internet.
+<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume.
+
+Scala::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/api/direct_customer_events.proto
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/direct_customer_events.proto[tag=publisher]
+----
+<1> `eventing.in` identifying which event sourced entity to publish events for.
+<2> Ignore any event types not handled by a method and move on with the event stream, rather than fail which is the default.
+<3> `eventing.out.direct.event_stream_id` marks the public identifier for consumers of this stream.
+<4> An ACL annotation, allowing access from other Kalix services, but not the public internet.
+<5> All methods on the service are transformer methods for turning internal event message types into public API message types for other services to consume.
+
+The implementation of the producer creates the public API messages and uses the regular Action `effects` API to return the messages to publish:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/customer/api/CustomerEventsServiceAction.java
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/java/customer/api/CustomerEventsServiceAction.java[tag=transform]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/customer/api/CustomerEventsServiceAction.scala
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/customer/api/CustomerEventsServiceAction.scala[tag=transform]
+----
+
+=== Event Consumer
+
+The consumer can be an Action or a View, annotated with `(kalix.service).eventing.in.direct` with a `service` identifying the publishing service, and the `event_stream_id` to subscribe to.
+
+Since the consumer is in a separate View, we must include the message descriptors for the messages the producing side produces:
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/api/publisher_api.proto
+----
+include::example$java-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
+----
+
+Scala::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/api/publisher_api.proto
+----
+include::example$scala-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/api/publisher_api.proto[tag=messages]
+----
+
+We then define a component subscribing to the service to service publisher. In this example we do that with a View:
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$java-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
+----
+<1> Service level `eventing.in.direct` block.
+<2> The name of the Kalix service publishing the event stream.
+<3> The public `event_stream_id` of the specific stream from the publisher.
+<4> One update method per message type that the stream may contain.
+
+Scala::
++
+[source,protobuf,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$scala-protobuf-eventsourced-customer-registry-subscriber/src/main/proto/customer/view/customer_view.proto[tag=view]
+----
+<1> Service level `eventing.in.direct` block.
+<2> The name of the Kalix service publishing the event stream.
+<3> The public `event_stream_id` of the specific stream from the publisher.
+<4> One update method per message type that the stream may contain.
+
+TIP: If you're looking to test this locally, you will likely need to run the 2 services in different ports. For more details, consult xref:running-locally.adoc#_running_multiple_services_locally[Running multiple services].
+
+=== Deployment dependent source of events
+
+It is possible to use environment variables to control the name of the service that a consumer consumes from, this is useful for example for using the same image in staging and production deployments but having them consume from different source services.
+
+Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `service` string in the consumer `eventing.in.direct` block.
+
+WARNING: Changing the `service` name after it has once been deployed means the consumer will start over from the beginning of the event stream.
+
+See https://docs.kalix.io/reference/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
+
+== Handling Serialization
+
+You do not need to handle serialization for messages. Kalix functions serve gRPC interfaces, and the input and output messages are `protobuf` messages that get serialized to the `protobuf` format.
+
+The gRPC services are also exposed as HTTP endpoints with JSON messages. See xref:writing-grpc-descriptors-protobuf.adoc#_transcoding_http[Transcoding HTTP].
+
+== Subscribing to a Topic
+
+It's also possible to subscribe to a Pub/Sub or Kafka topic. To receive messages from a topic, annotate a service method in the Protobuf service definition with the `option (kalix.method).eventing.in` annotation and specify the topic name in the `topic` section of the annotation.
+
+include::partial$pubsub-note.adoc[]
+
+For illustration purpose, we can add a second Action that consumes from the Pub Sub topic `counter-events` from the previous example.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/proto/com/example/actions/counter_topic_sub.proto
+----
+include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
+----
+<1> Import the Counter Topic types from previous example.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> Define methods for each of the possible incoming messages and annotate them with `(kalix.method).eventing.in` indicating that the source of events is the topic `counter-events`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/proto/customer/domain/customer_domain.proto
+----
+include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic_sub.proto[tag=counter-topic-sub]
+----
+<1> Import the Counter Topic types from previous example.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> Define methods for each of the possible incoming messages and annotate them with `(kalix.method).eventing.in` indicating that the source of events is the topic `counter-events`.
+
+The class `CounterTopicSubscriptionAction` gets generated for us based on the proto file defined above.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
+----
+include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterTopicSubscriptionAction.java[tag=counter-topic-sub]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/java/com/example/actions/CounterTopicSubscriptionAction.java
+----
+include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterTopicSubscriptionAction.scala[tag=counter-topic-sub]
+----
+
+The events from the topic are delivered to the new Action. The implementation may vary, for this simplified example we are just logging it,
+but it could a forward to some other component or external service.
+
+=== Receiving CloudEvents
+Kalix uses the https://cloudevents.io/[CloudEvents] standard when receiving from and publishing to topics. The CloudEvents specification standardizes message metadata so that systems can integrate more easily.
+
+Describing the structure of the message payload is the CloudEvents feature most important to Kalix.
+
+An example of that is the capability to send serialized Protobuf messages and have Kalix deserialize them accordingly.
+
+To allow proper reading of Protobuf messages from topics, the messages need to specify the message attributes:
+
+- `Content-Type` = `application/protobuf`
+- `ce-specversion` = `1.0`
+- `ce-type` = fully qualified protobuf message name (e.g., `shopping.cart.api.TopicOperation`)
+
+(The `ce-` prefixed attributes are part of the CloudEvents specification.)
+
+The Protobuf rpc declaration uses the expected Protobuf message type and specifies the topic to subscribe to. You'll normally want to share the exact Protobuf message declaration with the sending system.
+
+[.tabset]
+Java::
++
+A `proto` definition of an Action that consumes CloudEvent messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/topics_action.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
+----
+<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata.
+
+Scala::
++
+A `proto` definition of an Action that consumes CloudEvent messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=cloudEvent]
+----
+<1> When consuming a CloudEvent containing a Protobuf message the handler request must have the message type specified in the metadata.
+
+=== Receiving messages from an external source
+
+When a message arrives from a topic, Kalix detects the message payload type based on the `Content-Type` or `ce-datacontenttype` header or attribute of the message. If there is no such metadata, the content is handled as raw bytes.
+
+If the content type starts with `application/protobuf`, `application/x-protobuf` or `application/vnd.google.protobuf` the payload is expected to also have a `ce-type` header or attribute identifying the concrete protobuf message type. Such messages will be decoded into the described message type before being handed to a topic subscriber method, which must accept that specific message type.
+
+If the publishing service is also a Kalix service, this is handled transparently for you as shown in the previous section.
+
+For messages that are consumed from or published to topics when interacting with external services, it can be a requirement to use a format other than `protobuf`. Other supported message formats include JSON, text, or raw bytes.
+
+include::partial$pubsub-note.adoc[]
+
+==== JSON
+
+If the incoming content type starts with `application/json` or `application/...+json` and possibly a `ce-type` field identifying a specific type object in the JSON. The topic subscriber method must accept a protobuf `Any` message.
+
+Kalix provides a utility to serialize and deserialize JSON messages based on Jackson.
+
+[.tabset]
+Java::
++
+Kalix provides the link:{attachmentsdir}/api/kalix/javasdk/JsonSupport.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
++
+A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
+----
+<1> When consuming JSON messages from a topic the input type must be `google.protobuf.Any`.
+<2> When producing a JSON message to a topic the return type must be `google.protobuf.Any`.
++
+NOTE: The `type_url` in the `google.protobuf.Any` must start with `json.kalix.io/`. The suffix of the `type_url` is a type hint of the concrete message type that is encoded.
+
+
+Scala::
++
+Kalix provides the link:{attachmentsdir}/scala-api/kalix/scalasdk/JsonSupport$.html[`JsonSupport` {tab-icon}, window="new"] utility to serialize and deserialize JSON messages.
+A `proto` definition of an Action that consumes JSON messages and produces JSON messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/json/json_api.proto[tag=service]
+----
+<1> When consuming JSON messages from a topic the input type must be `google.protobuf.any.Any`.
+<2> When producing a JSON message to a topic the return type must be `google.protobuf.any.Any`.
++
+NOTE: The `type_url` in the `google.protobuf.any.Any` must start with `json.kalix.io/`. The suffix of the `type_url` is a type hint of the concrete message type that is encoded.
+
+The corresponding implementation class:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/json/MyServiceAction.java
+----
+include::example$java-protobuf-doc-snippets/src/main/java/com/example/json/MyServiceAction.java[tag=action]
+----
+<1> Decode the JSON message to a Java class `JsonKeyValueMessage`.
+<2> Convert the Protobuf message `KeyValue` to a Java class `JsonKeyValueMessage`.
+<3> Encode the Java class `JsonKeyValueMessage` to JSON.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/json/MyServiceAction.scala
+----
+include::example$scala-protobuf-doc-snippets/src/main/scala/com/example/json/MyServiceAction.scala[tag=action]
+----
+<1> Decode the JSON message to a Scala class `JsonKeyValueMessage`.
+<2> Convert the Protobuf message `KeyValue` to a Scala class `JsonKeyValueMessage`.
+<3> Encode the Scala class `JsonKeyValueMessage` to JSON.
+
+Kalix uses https://github.com/FasterXML/jackson[Jackson] to serialize JSON.
+
+==== Text
+
+If the content type starts with `text/` it is treated as a string message. The topic subscriber method must accept the `google.protobuf.StringValue` message.
+
+[.tabset]
+Java::
++
+A `proto` definition of an Action that consumes String messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
+----
+<1> `google.protobuf.StringValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.StringValue`.
+
+Scala::
++
+A `proto` definition of an Action that consumes String messages can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/topics_action.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=text]
+----
+<1> `google.protobuf.StringValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.StringValue`.
+
+If an action has a return type of `StringValue` and publishes to a topic, the events published to the topic will have content-type `text/plain; charset=utf-8`.
+
+==== Bytes
+
+If the content type is `application/octet-stream`, no content type is present, or the type is unknown to Kalix the message is treated as a binary message. The topic subscriber method must accept the `google.protobuf.BytesValue` message.
+
+[.tabset]
+Java::
++
+A `proto` definition of an Action that consumes binary messages with raw bytes can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/topics_action.proto
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
+----
+<1> `google.protobuf.BytesValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming raw bytes messages from a topic the input type must be `google.protobuf.BytesValue`.
+
+Scala::
++
+A `proto` definition of an Action that consumes binary messages with raw bytes can look like this:
++
+[source,proto,indent=0]
+.src/main/proto/com/example/json/json_api.proto
+----
+include::example$scala-protobuf-doc-snippets/src/main/proto/com/example/topics_action.proto[tag=bytes]
+----
+<1> `google.protobuf.BytesValue` requires the import `google/protobuf/wrappers.proto`.
+<2> When consuming text messages from a topic the input type must be `google.protobuf.BytesValue`.
+
+If an action has a return type of `BytesValue` and publishes to a topic, the events published to the topic will have content-type `application/octet-stream`.
+
+=== Deployment dependent topic names
+
+It is possible to use environment variables to control the name of the topic that is used for consuming from or producing events to, this is useful for example for using the same image in staging and production deployments but having them interact with separate topics.
+
+Referencing environment variables is done with the syntax `$\{VAR_NAME}` in the `topic` string in `eventing.in.topic` or `eventing.out.topic` blocks. See https://docs.kalix.io/reference/kalix/kalix_services_deploy.html[kalix service deploy] for details on how to set environment variables when deploying a service.
+
+WARNING: Changing the `topic` name after it has once been deployed for an event consumer means the consumer will start over from the beginning of the topic.
+
+== Accessing the Entity ID
+
+[.tabset]
+Java::
++
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/api/io/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
++
+You can access the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext()`.
++
+[source,java,indent=0]
+.src/main/java/com/example/actions/CounterJournalToTopicAction.java
+----
+include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicAction.java[tag=counter-topic-event-subject]
+----
+
+Scala::
++
+For many use cases, a subscriber to an event log will trigger other services and needs to pass the entity ID to the receiver. The events of an Event Sourced entity, by design, do not include the entity ID, but it is made available to the subscriber via the metadata field `subject`, accessible through `eventSubject` in the  link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"].
++
+You can access the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"] through method `actionContext`.
++
+[source,scala,indent=0]
+.src/main/proto/customer/domain/customer_domain.proto
+----
+include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicAction.scala[tag=counter-topic-event-subject]
+----
+
+== Ignoring events
+
+When consuming events, each event must be matched by a Protobuf service method. In case your component is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the Action will fail. Actions are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
+
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/com/example/actions/counter_topic.proto
+----
+include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
+----
+<1> We must annotate it with a `(kalix.method).eventing.in`.
+<2> Set `ignore: true` option.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/domain/customer_domain.proto
+----
+include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-ignore]
+----
+<1> We must annotate it with a `(kalix.method).eventing.in`.
+<2> Set `ignore: true` option.
+
+The `Ignore` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
+
+When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.
+
+== Testing the Integration
+
+include::java:partial$eventing-testkit-intro.adoc[leveloffset=1]
+
+[.tabset]
+Java::
++
+[source,java]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/CounterTopicIntegrationTest.java[tag=test-topic]
+----
+<1> Start the TestKit. Set the configuration to mock incoming messages from the `counter-commands` topic and mock outgoing messages from the `counter-events` topic.
+<2> Get `IncomingMessages` for the topic named `counter-commands` from the TestKit.
+<3> Get `OutgoingMessages` for the topic named `counter-events` from the TestKit.
+<4> Build 2 commands and publish both to the topic. The `counterId` is passed as the subject id of the message.
+<5> Read 2 messages, one at a time. We pass in the expected class type for the next message.
+<6> Assert the received messages have the same value as the commands sent.
+
+Scala::
++
+[source,scala]
+.src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=test-topic]
+----
+<1> Start the TestKit. Set the configuration to mock incoming messages from the `counter-commands` topic and mock outgoing messages from the `counter-events` topic.
+<2> Get `IncomingMessages` for topic named `counter-commands` from the TestKit.
+<3> Get `OutgoingMessages` for topic named `counter-events` from the TestKit.
+<4> Build 2 commands and publish both to the topic. Note the `counterId` is passed as the subject id of the message.
+<5> Read 2 messages, one at a time and assert the received messages values. Note we pass in the expected class type for the next message.
+
+TIP: In the example above we take advantage of the TestKit to serialize / deserialize the messages and pass all the required metadata automatically for us. However, the API also offers the possibility to read and write raw bytes, construct your metadata or read multiple messages at once.
+
+==== Metadata
+
+Typically, messages are published with associated metadata. If you want to construct your own `Metadata` to be consumed by a service or make sure the messages published out of your service have specific metadata attached, you can do so using the TestKit, as shown below.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/CounterTopicIntegrationTest.java[tag=test-topic-metadata]
+----
+<1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
+<2> Add the subject to which the message is related, that is the `counterId`.
+<3> Set the mandatory header "Content-Type" accordingly.
+<4> Build and publish the message along with its metadata to topic `commandsTopic`.
+<5> Upon receiving the message, access the metadata.
+<6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
+
+Scala::
++
+[source,scala,indent=0]
+.src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=test-topic-metadata]
+----
+<1> Build a `CloudEvent` object with the 3 required attributes, respectively: `id`, `source` and `type`.
+<2> Add the subject to which the message is related, that is the `counterId`.
+<3> Set the mandatory header "Content-Type" accordingly.
+<4> Build and publish the message along with its metadata to topic `commandsTopic`.
+<5> Receive the message of correct type and extract `Metadata`.
+<6> Assert the headers `Content-Type` and `ce-subject` (every CloudEvent header is prefixed with "ce-") have the expected values.
+
+
+==== One Suite, Multiple Tests
+
+When running multiple test cases under the same test suite and thus using a common TestKit instance, you might face some issues if unconsumed messages from previous tests mess up with the current one. To avoid this, be sure to:
+
+- have the tests run in sequence, not in parallel;
+- clear the contents of the topics in use before the test.
+
+As an alternative, you can consider using different test suites which will use independent TestKit instances.
+
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/it/java/com/example/CounterTopicIntegrationTest.java
+----
+include::example$java-protobuf-eventsourced-counter/src/it/java/com/example/CounterTopicIntegrationTest.java[tag=clear-topics]
+----
+<1> Run this before each test.
+<2> Clear the topic ignoring any unread messages.
+
+Scala::
++
+[source,scala,indent=0]
+.src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=clear-topics]
+----
+<1> Override method from trait `BeforeAndAfterEach`.
+<2> Clear the topic ignoring any unread messages.
+
+NOTE: Despite the example, you are neither forced to clear all topics nor to do it before each test. You can do it selectively, or you might not even need it depending on your tests and the flows they test.
+
+=== External Broker
+
+To run an integration test against a real instance of Google PubSub (or its Emulator) or Kafka, use the TestKit settings to override the default eventing support, as shown below:
+
+[.tabset]
+Java::
++
+[source,java]
+private static final KalixTestKitExtension testKit = new KalixTestKitExtension(
+        Main.createKalix(),
+        Settings.DEFAULT.withEventingSupport(EventingSupport.GOOGLE_PUBSUB)
+    );
+Scala::
++
+[source,scala,indent=0]
+private val testKit = KalixTestKit(
+    Main.createKalix(),
+    DefaultSettings.withEventingSupport(GooglePubSub)
+  ).start()

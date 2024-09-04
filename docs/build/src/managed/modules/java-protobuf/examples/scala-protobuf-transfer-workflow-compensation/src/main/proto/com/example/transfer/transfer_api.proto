@@ -1,0 +1,41 @@
+// This is the public API offered by your workflow.
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+import "com/example/transfer/transfer_domain.proto";
+
+package com.example.transfer.api;
+
+message Transfer {
+    string transfer_id = 1 [(kalix.field).id = true];
+    string from = 2;
+    string to = 3;
+    int32 amount = 4;
+}
+
+message GetRequest{
+    string transfer_id = 1 [(kalix.field).id = true];
+}
+
+message AcceptRequest {
+    string transfer_id = 1 [(kalix.field).id = true];
+}
+
+message AcceptationTimeoutRequest {
+    string transfer_id = 1 [(kalix.field).id = true];
+}
+
+service TransferWorkflowService {
+    option (kalix.codegen) = {
+        workflow: {
+            name: "com.example.transfer.api.TransferWorkflow"
+            type_id: "transfer"
+            state: "com.example.transfer.domain.TransferState"
+        }
+    };
+    rpc Start(Transfer) returns (google.protobuf.Empty) {}
+    rpc Accept(AcceptRequest) returns (google.protobuf.Empty) {}
+    rpc AcceptationTimeout(AcceptationTimeoutRequest) returns (google.protobuf.Empty) {}
+    rpc GetTransferState(GetRequest) returns (com.example.transfer.domain.TransferState) {}
+}

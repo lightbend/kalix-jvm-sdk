@@ -1,0 +1,1 @@
+typeSearchIndex = [{"p":"kalix.javasdk.testkit","l":"ActionTestkit"},{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"kalix.javasdk.testkit","l":"EventSourcedTestKit"},{"p":"kalix.spring.testkit","l":"KalixIntegrationTestKitSupport"},{"p":"kalix.javasdk.testkit","l":"ValueEntityTestKit"}];updateSearchResults();

@@ -1,0 +1,49 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+package com.example;
+
+import "kalix/annotations.proto"; 
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option java_outer_classname = "OrderServiceApi";
+
+message OrderRequest {
+  string order_number = 1 [(kalix.field).id = true];
+  string item = 2;
+  int32 quantity = 3;
+}
+
+message ConfirmRequest {
+  string order_number = 1 [(kalix.field).id = true];
+}
+
+message CancelRequest {
+  string order_number = 1 [(kalix.field).id = true];
+}
+
+message OrderStatusRequest {
+  string order_number = 1 [(kalix.field).id = true];
+}
+
+message OrderStatus {
+  bool confirmed = 1;
+  string item = 2;
+  int32 quantity = 3;
+}
+
+service OrderService {
+  option (kalix.codegen) = { 
+    value_entity: { 
+      name: "com.example.domain.Order"
+      type_id: "order"
+      state: "com.example.domain.OrderState"
+    }
+  };
+
+  rpc PlaceOrder (OrderRequest) returns (google.protobuf.Empty);
+  rpc Confirm (ConfirmRequest) returns (google.protobuf.Empty);
+  rpc Cancel (CancelRequest) returns (google.protobuf.Empty);
+  rpc GetOrderStatus (OrderStatusRequest) returns (OrderStatus);
+}

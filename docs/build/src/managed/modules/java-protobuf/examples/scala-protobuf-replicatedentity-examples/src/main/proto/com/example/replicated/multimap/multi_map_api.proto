@@ -1,0 +1,84 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+package com.example.replicated.multimap;
+
+message PutValue {
+  string multi_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+  double value = 3;
+}
+
+message PutAllValues {
+  string multi_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+  repeated double values = 3;
+}
+
+message RemoveValue {
+  string multi_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+  double value = 3;
+}
+
+message RemoveAllValues {
+  string multi_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+}
+
+message GetValues {
+  string multi_map_id = 1 [(kalix.field).id = true];
+  string key = 2;
+}
+
+message CurrentValues {
+  string key = 1;
+  repeated double values = 2;
+}
+
+message GetAllValues {
+  string multi_map_id = 1 [(kalix.field).id = true];
+}
+
+message AllCurrentValues {
+  repeated CurrentValues values = 1;
+}
+
+
+// tag::replicated_entity[]
+service MultiMapService {
+  option (kalix.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.multimap.domain.SomeMultiMap" // <1>
+      type_id: "some-multi-map"
+      replicated_multi_map: { // <2>
+        key: "string" // <3>
+        value: "double" // <4>
+      }
+    }
+  };
+
+  rpc Put(PutValue) returns (google.protobuf.Empty);
+  rpc PutAll(PutAllValues) returns (google.protobuf.Empty);
+  rpc Remove(RemoveValue) returns (google.protobuf.Empty);
+  rpc RemoveAll(RemoveAllValues) returns (google.protobuf.Empty);
+  rpc Get(GetValues) returns (CurrentValues);
+  rpc GetAll(GetAllValues) returns (AllCurrentValues);
+}
+// end::replicated_entity[]

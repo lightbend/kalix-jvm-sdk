@@ -1,0 +1,37 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// tag::whole-double-action-proto[]
+// tag::double-action-proto[]
+syntax = "proto3";
+package com.example.actions;
+
+import "kalix/annotations.proto";
+import "com/example/counter_api.proto"; // <1>
+import "google/protobuf/empty.proto";
+
+service DoubleCounter {
+  option (kalix.codegen) = {
+    action: {}  // <2>
+  };
+
+  rpc Increase (com.example.IncreaseValue) returns (google.protobuf.Empty); // <3>
+// end::double-action-proto[]
+
+  rpc IncreaseWithSideEffect (com.example.IncreaseValue) returns (google.protobuf.Empty); // <4>
+
+// tag::double-action-proto[]
+}
+// end::double-action-proto[]
+// end::whole-double-action-proto[]

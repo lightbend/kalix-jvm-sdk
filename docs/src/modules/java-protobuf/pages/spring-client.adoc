@@ -1,0 +1,283 @@
+= Using Spring to consume Kalix Services
+
+include::partial$attributes.adoc[]
+
+This guide provides a simple example of how a Spring client can be built to interact with a Kalix Service.
+
+== What You Will Build
+
+You will build a Kalix Service along with a Spring client to interact with that Service.
+
+The Kalix Service will create, read, update and persist simple counters.
+
+The Spring client will expose the functionality of the Kalix Service as a REST API.
+
+== What You Need
+
+- About 15 minutes
+- A favorite text editor or IDE
+- https://adoptium.net/[JDK {java-pb-version}] or later
+- https://maven.apache.org/download.cgi[Apache Maven {minimum_maven_version}] or later
+- https://www.docker.com/[Docker {minimum_docker_version}] or higher
+
+== How to get started
+
+To get started, do the following:
+
+- https://github.com/lightbend/kalix-jvm-sdk/archive/refs/heads/main.zip[Download] and unzip the source repository for this guide, or clone it using Git:
+
+[source,command line]
+----
+git clone https://github.com/lightbend/kalix-jvm-sdk.git
+----
+
+- cd into `kalix-jvm-sdk/samples/java-protobuf-valueentity-counter`
+
+== Build and Run the Kalix Service Locally
+
+With the source repository downloaded, you can build and run the Kalix Service locally.
+
+Run the Kalix Service using Maven:
+
+[source,command line]
+----
+mvn kalix:runAll
+----
+
+You should see output similar to the following:
+
+[source,log]
+----
+[INFO] --- exec-maven-plugin:3.0.0:exec (default-cli) @ valueentity-counter ---
+{"timestamp":"2022-03-02T23:38:12.174Z","thread":"main","logger":"com.example.Main","message":"starting the Kalix service","context":"default","severity":"INFO"}
+{"timestamp":"2022-03-02T23:38:12.829Z","thread":"kalix-akka.actor.default-dispatcher-2","logger":"akka.event.slf4j.Slf4jLogger","message":"Slf4jLogger started","context":"default","severity":"INFO"}
+----
+
+== Building Spring REST Client
+
+The Spring REST Client would enable Spring application to integrate with REST endpoints exposed via Kalix Service.
+
+=== Create a Spring Boot Project
+
+Starting with Spring Initializr
+
+Navigate to https://start.spring.io. This service pulls in all the dependencies you need for an application and does most of the setup for you.
+
+Choose Maven and the Java language.
+
+Click Dependencies and select Spring Reactive Web.
+
+Click Generate.
+
+Download the resulting ZIP file, which is an archive of a web application that is configured with your choices.
+
+=== Create a Spring WebClient
+
+Creating a Spring REST WebClient would allow Spring application to communicate with the REST Endpoints exposed via Kalix Service.
+
+cd into `kalix-jvm-sdk/samples/java-protobuf-valueentity-counter-spring-client`.
+
+Now you can create a `WebClient`. You need to configure the WebClient to use the Kalix Service's host and port. The following listing shows how to do so:
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/config/WebClientConfig.java
+----
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/WebClientConfig.java[tag=webclientconfig]
+----
+
+=== Create a Spring Service
+
+The Service methods interact with endpoints defined in Kalix Service.
+
+The `CounterServiceImpl` shown in the following listing uses the Spring REST WebClient to interact with the Kalix Service and return the response received from called endpoint:
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java
+----
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/CounterServiceImpl.java[tag=getCurrentCounterCall]
+----
+
+=== Create a Spring Controller
+
+The Controller defines the Spring application REST endpoints which will be exposed to the user for interaction.
+
+The `CounterController` shown in the following listing uses the Spring service to get actual processing done:
+
+[source,java,indent=0]
+./src/main/java/com/example/client/spring/rest/controller/CounterController.java
+----
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/controller/CounterController.java[tag=getCounterEndpoint]
+----
+
+=== Create a Spring Main Application
+
+The Main Application class defines the starting point for spring boot application.
+
+The `CounterClientApplication` shown in the following listing starts spring application:
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/CounterClientApplication.java
+----
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/CounterClientApplication.java[tag=counterApplication]
+----
+
+===  Build and Run the Spring Application Locally
+
+In project root directory, run the following command
+`mvn spring-boot:run`
+
+
+== Building Spring gRPC Client
+
+The Spring gRPC Client would enable Spring application to integrate with gRPC services exposed via Kalix Service.
+
+=== Create a Spring Boot Project
+
+Starting with Spring Initializr
+
+Navigate to https://start.spring.io. This service pulls in all the dependencies you need for an application and does most of the setup for you.
+
+Choose Maven and the Java language.
+
+Click Dependencies and select Spring Reactive Web.
+
+Click Generate.
+
+Download the resulting ZIP file, which is an archive of a web application that is configured with your choices.
+
+
+Add following Maven Dependencies to `pom.xml`
+
+[source,xml,indent=4]
+----
+    <properties>
+        <akka-grpc.version>2.1.6</akka-grpc.version>
+        <protobuf.version>3.19.2</protobuf.version>
+        <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
+        <grpc.version>1.44.0</grpc.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>1.3.5</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-client-spring-boot-starter</artifactId>
+            <version>2.13.1.RELEASE</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.1</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf-plugin.version}</version>
+                <configuration>
+                    <protocArtifact>com.google.protobuf:protoc:3.21.7:exe:${os.detected.classifier}</protocArtifact>
+                    <pluginId>grpc-java</pluginId>
+                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+----
+
+=== Generate gRPC stubs
+
+- Get all the proto files from relevant Kalix service and copy under `src/main/proto` folder. Remove all the Kalix annotations from the proto files. For instance `[(kalix.field).id = true]` and `kalix.codegen` etc.
+ For instance,  copying proto files from to `java-protobuf-valueentity-counter/src/main/proto/com/example`.
+
+- Run `mvn compile` to generate stubs.
+
+=== Create a Spring gRPC Client
+
+Creating a Spring gRPC would allow Spring application to communicate with the gRPC Services exposed via Kalix Service.
+
+cd into `kalix-jvm-sdk/samples/java-protobuf-valueentity-counter-spring-client`.
+
+Now you can create a `GrpcClientConfig`. You need to configure the gRPC Client to use the Kalix Service's host and port. The following listing shows how to do so:
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java
+----
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/config/GrpcClientConfig.java[tag=grpcclientconfig]
+----
+
+=== Create a Spring Service
+
+The Service methods interact with gRPC services defined in Kalix Service.
+
+The `GrpcClientService` shown in the following listing uses the Spring REST WebClient to interact with the Kalix Service and return the response received from called endpoint:
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/service/GrpcClientService.java
+----
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/service/GrpcClientService.java[tag=decreaseCounterCall]
+----
+
+=== Create a Spring Controller
+
+The Controller defines the Spring application REST endpoints which will be exposed to the user for interaction.
+
+The `CounterController` shown in the following listing uses the Spring service to get actual processing done:
+
+[source,java,indent=0]
+./src/main/java/com/example/client/spring/rest/controller/CounterController.java
+----
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/controller/CounterController.java[tag=getCounterEndpoint]
+----
+
+=== Create a Spring Main Application
+
+The Main Application class defines the starting point for spring boot application.
+
+The `CounterClientApplication` shown in the following listing starts spring application:
+
+[source,java,indent=0]
+.src/main/java/com/example/client/spring/rest/CounterClientApplication.java
+----
+include::example$java-protobuf-valueentity-counter-spring-client/src/main/java/com/example/client/spring/rest/CounterClientApplication.java[tag=counterApplication]
+----
+
+=== Build and Run the Spring Application Locally
+
+In project root directory, run the following command
+`mvn spring-boot:run`

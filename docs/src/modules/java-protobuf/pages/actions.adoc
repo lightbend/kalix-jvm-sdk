@@ -1,0 +1,654 @@
+= Implementing Actions
+:page-supergroup-java-scala: Language
+:page-aliases: java-protobuf:actions-as-controller.adoc, java-protobuf:side-effects.adoc
+
+include::ROOT:partial$include.adoc[]
+include::partial$actions.adoc[]
+
+== Defining the `proto` file
+
+An Action may implement any service method defined in a Protobuf definition. In this first example, we will show how to
+implement an Action as a pure stateless function. We will define a `FibonacciAction` that takes a number and return the
+next number in the Fibonacci series.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/fibonacci/fibonacci.proto
+----
+include::example$java-protobuf-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
+----
+<1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
+<2> Import the Kalix protobuf annotations or options.
+<3> Let the messages declared in this protobuf file be inner classes to the Java class `FibonacciApi`.
+<4> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/fibonacci/fibonacci.proto
+----
+include::example$scala-protobuf-fibonacci-action/src/main/proto/com/example/fibonacci/fibonacci.proto[tag=actions]
+----
+<1> Any classes generated from this protobuf file will be in the `com.example.fibonacci` package.
+<2> Import the Kalix protobuf annotations or options.
+<3> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix sbt plugin. This annotation indicates to the code-generation that an Action must be generated.
+
+include::partial$effects-action.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
+
+== Implementing the Action
+
+An Action implementation is a class where you define how each message is handled. The class
+`FibonacciAction` gets generated for us based on the proto file defined above. Once the
+[.group-java]#`FibonacciAction.java`# [.group-scala]#`FibonacciAction.scala`# file exists, it is not overwritten, so you can freely add logic to it.
+`FibonacciAction` extends the generated class `AbstractFibonacciAction` which we're
+not supposed to change as it gets regenerated in case we update the protobuf descriptors.
+
+`AbstractFibonacciAction` contains all method signatures corresponding to the API of the service.
+If you change the API you will see compilation errors in the `FibonacciAction` class, and you have to
+implement the methods required by `AbstractFibonacciAction`.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/fibonacci/FibonacciAction.java
+----
+include::example$java-protobuf-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciActionGenerated.java[tag=generated-action]
+----
+<1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/api/kalix/javasdk/action/Action.html[`Action` {tab-icon}, window="new"].
+<2> A `nextNumber` method is generated. We will implement it next.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/fibonacci/FibonacciAction.scala
+----
+include::example$scala-protobuf-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciActionGenerated.scala[tag=generated-action]
+----
+<1> Extends the generated `AbstractFibonacciAction`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/action/Action.html[`Action` {tab-icon}, window="new"].
+<2> A `nextNumber` method is generated. We will implement it next.
+
+Next, we can implement `nextNumber` method to complete our Action.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/fibonacci/FibonacciAction.java
+----
+include::example$java-protobuf-fibonacci-action/src/main/java/com/example/fibonacci/FibonacciAction.java[tag=implemented-action]
+----
+<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and `nextFib` calculates the next number.
+<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the next number and builds a reply using `effects().reply()`.
+<3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/fibonacci/FibonacciAction.scala
+----
+include::example$scala-protobuf-fibonacci-action/src/main/scala/com/example/fibonacci/FibonacciAction.scala[tag=implemented-action]
+----
+<1> We add two private methods to support the computation. `isFibonacci` checks if a number is a Fibonacci number and `nextFib` calculates the next number.
+<2> The `nextNumber` implementation first checks if the input number belongs to the Fibonacci series. If so, it calculates the next number and builds a reply using `effects.reply()`.
+<3> Otherwise, if the input number doesn't belong to the Fibonacci series, it builds an `Effect` reply error.
+
+=== Multiple replies / reply streaming
+
+An Action may return data conditionally by marking the return type as `stream` in Protobuf. The Java method implementing
+that service must return an https://doc.akka.io/docs/akka/current/stream/stream-flows-and-basics.html[Akka Streams Source]
+to fulfill that contract.
+
+The Source may publish an arbitrary number of replies.
+
+ifdef::todo[TODO: add a streamed Fib series calculation]
+
+
+== Registering the Action
+
+To make Kalix aware of the Action, we need to register it with the service.
+
+From the code-generation, the registration gets automatically inserted in the generated `KalixFactory.withComponents` method from the `Main` class.
+
+[.tabset]
+Java::
++
+[source,java]
+./src/main/java/com/example/Main.java
+----
+include::java-protobuf:example$java-protobuf-fibonacci-action/src/main/java/com/example/Main.java[]
+----
+
+Scala::
++
+[source,scala]
+./src/main/scala/com/example/fibonacci/Main.scala
+----
+include::example$scala-protobuf-fibonacci-action/src/main/scala/com/example/fibonacci/Main.scala[]
+----
+
+By default, the generated constructor has an `ActionCreationContext` parameter, but you can change this to accept other parameters.
+If you change the constructor of the `FibonacciAction` class you will see a compilation error here, and you have to adjust the
+factory function that is passed to `KalixFactory.withComponents`.
+
+When more components are added the `KalixFactory` is regenerated, and you have to adjust the registration from the `Main` class.
+
+== Actions as Controllers
+
+Actions can be used to implement link:https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller[MVC Controllers] by
+acting as the external interface of a service, receiving requests, operating over the requests values and forwarding the call
+to other components in the same service.
+
+To illustrate how you can use an Action as a Controller, we will build on top of the xref:proto.adoc[Value Entity Shopping Cart] example, adding a new Action to the existing shopping cart service.
+
+=== Forwarding Commands
+
+The `forward` effect allows us to transform or further validate an incoming request before passing it on to another
+component and have the response message directly passed back to the client making the request. The response from the
+forwarded operation must have the same response type as the original request.
+
+In this example we accept the same command as the entity, `AddLineItem`, but add some additional verification of the
+request and only conditionally forward the request to the entity if the verification is successful:
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=forward]
+----
+<1> Check if the added item is carrots.
+<2> If it is "carrots" immediately return an error, disallowing adding the item.
+<3> For allowed requests, use `components().shoppingCart().addItem()` to get a `DeferredCall`.
+<4> The `DeferredCall` is used with `effects().forward()` to forward the request to the entity.
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=forward]
+----
+<1> Check if the added item is carrots.
+<2> If it is "carrots" immediately return an error, disallowing adding the item.
+<3> For allowed requests, use `components.shoppingCart.addItem()` to get a `DeferredCall`.
+<4> The `DeferredCall` is used with `effects.forward()` to forward the request to the entity.
+
+=== Forwarding Headers
+
+By default, Kalix does not forward gRPC/HTTP headers to Kalix components. This can be overridden with component options.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/Main.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[tag=forward-headers]
+----
+<1> Specify headers names that should be forwarded to this component, with `withForwardHeaders` options builder method.
+<2> Register component with custom options.
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/Main.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/Main.scala[tag=forward-headers]
+----
+<1> Specify headers names that should be forwarded to this component, with `withForwardHeaders` options builder method.
+<2> Register component with custom options.
+
+Accessing and forwarding headers to other component is done via context `Metadata`.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=forward-headers]
+----
+<1> Get the header value from context `Metadata`.
+<2> Forward different header to next call, by using `withMetadata` method of from `DeferredCall` class.
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=forward-headers]
+----
+<1> Get the header value from context `Metadata`.
+<2> Forward different header to next call, by using `withMetadata` method of from `DeferredCall` class.
+
+
+
+=== Transform Request and Response to Another Component
+
+The `asyncReply` and `asyncEffect` effects allow us to process and transform a request before calling another component and then also transform the response.
+
+As an example, let us look at the problem of creating a new entity with an id generated by another component.
+
+In this example we implement an `Initialize` command for the controller Action which returns the message `NewCartCreated`
+with the entity id that can subsequently be used to interact with the cart.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=initialize]
+----
+<1> We generate a new UUID.
+<2> We use `components().shoppingCart().create(...)` to create a `DeferredCall` for `create` on the shopping cart.
+<3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `CompletionStage` for the response.
+<4> Once the call succeeds or fails the `CompletionStage` is completed or failed, we can transform the result from `CompletionStage<Empty>` to `CompletionStage<Effect<NewCartCreated>>` using `handle`.
+<5> On a successful response, we create a reply effect with a `NewCartCreated`.
+<6> If the call leads to an error, we create an error effect asking the client to retry.
+<7> `effects().asyncEffect()` allows us to reply with a `CompletionStage<Effect<NewCartCreated>>`.
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=initialize]
+----
+<1> We generate a new UUID.
+<2> We use `components.shoppingCart.create(...)` to create a `DeferredCall` for `create` on the shopping cart.
+<3> `execute()` on the `DeferredCall` immediately triggers a call and returns a `Future` for the response.
+<4> On a successful response, we `map` the `Empty` reply to a reply effect with the reply `NewCartCreated`.
+<5> If the call leads to an error, we `recover` and return an error effect asking the client to retry.
+<6> `effects.asyncEffect()` allows us to reply with a `Future[Effect[NewCartCreated]]` rather than a reply we already have created.
+
+The action generates a link:https://en.wikipedia.org/wiki/Universally_unique_identifier[UUID] to use as entity id for the shopping cart. UUIDs are extremely unlikely to lead to the same id
+being generated, but to completely guarantee two calls can never be assigned the same shopping cart we
+make use of the "boundary of consistency" provided by the entity - the entity will only process a single command at a time
+and can safely make decisions based on its state - for example to only allow creation once by storing something in its state
+signifying that it has been created.
+
+In this case we mark that the entity has been created using a creation timestamp in the shopping cart state stored on first
+`create` call - when the timestamp has the default value of `0`). If the cart has already been stored with a timestamp we return an error effect:
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=create]
+----
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=create]
+----
+
+
+[#_composing_calls]
+=== Composing calls
+
+The async call shown in the previous section, can also be used to chain or compose multiple calls to a single action response.
+
+In this example we build on the previous cart creation by adding an initial item in the cart once it has been created,
+but before we return the new id to the client:
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=createPrePopulated]
+----
+<1> `CompletionStage#thenCompose` allow us to perform an additional async operation, returning a `CompletionStage` once the current one completes successfully.
+<2> Create a request to add an initial item to the cart.
+<3> Executing the `addItem` call returns a `CompletionStage<Empty>` once it succeeds.
+<4> `handle` allows us to transform the successful completion of `addItem` with `Empty` to the response type of this method - `NewCartCreated`.
+<5> `effects().asyncReply()` lets us reply once the `CompletionStage<NewCartCreated>` completes.
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=createPrePopulated]
+----
+<1> For comprehensions (or directly using `flatMap`) allow us to compose the individual async steps returning `Future`.
+<2> Once both steps have completed, create a `NewCartCreated` leading to a `Future[NewCartCreated]` coming out of the for-comprehension.
+<3> `effect.asyncReply` lets us reply once the `Future[NewCartCreated]` completes.
+
+In this sample it is safe to base a subsequent call to the entity on the reply of the previous one, no client will know
+of the cart id until `createPrePopulated` replies.
+
+For many other use cases it is important to understand that there is no transaction or consistency boundary outside of
+the entity, so for a sequence of calls from an action to an entity, the state of the entity could be updated by other
+calls it receives in-between.
+
+For example, imagine an action that for a cart id retrieves the state using `getState` to verify if too many items are
+already in the cart, and once that has been verified, it adds the item to the cart.
+
+[.tabset]
+Java::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.java[tag=unsafeValidation]
+----
+<1> Between this call returning.
+<2> And this next call to the same entity, the entity could accept other commands that change the total count of items in the cart.
+
+Scala::
++
+.src/main/java/com/example/shoppingcart/ShoppingCartActionImpl.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/main/scala/com/example/shoppingcart/ShoppingCartActionImpl.scala[tag=unsafeValidation]
+----
+<1> Between this call returning.
+<2> And this next call to the same entity, the entity could accept other commands that changes the total count of items in the cart.
+
+The problem with this is that an `addItem` call directly to the entity happening between the `getState`
+action returning and the `addItem` call from the action would lead to more items in the cart than the allowed limit.
+
+Such validation that depends on state can only be done safely while handling the command inside the entity.
+
+== Actions as Life-cycle Hooks
+
+An Action's gRPC method can be triggered automatically when some predefined service life-cycle event happens (currently, only on startup is available), serving as a custom hook. For such use, the method needs to be annotated with a specific flag and its input type must be `google.protobuf.Empty` as shown below.
+
+IMPORTANT: The on startup hook is called every time a service instance boots up. This can happen for very different reasons: restarting / redeploying the service, scaling up to more instances or even without any user-driven action (e.g. Kalix Runtime versions being rolled out, infrastructure-related incidents, etc.). Therefore, you should carefully consider how you use this hook and its implementation.
+
+[source,proto]
+----
+include::example$java-protobuf-doc-snippets/src/main/proto/com/example/on_startup.proto[tag=hook]
+----
+<1> Only methods belonging to an Action can be configured as a hook.
+<2> The method must receive `google.protobuf.Empty` as input type.
+<3> This hook will be triggered once the instance startup is concluded (i.e. will be called 3 times if 3 instances are running).
+<4> Optionally, set the max amount of retries to 3.
+
+NOTE: If the call to the hook returns a failure and the `max_retries` is set to a value greater than the default value (`0`), a number of retry calls will be executed with a fixed delay up until the configure amount is reached.
+
+
+== Running Side Effects
+
+include::ROOT:partial$include.adoc[]
+
+=== Emitting effects on another component
+
+An Entity or an Action may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
+
+There is no guarantee that a side effect will be executed successfully. If a failure occurs after the command is fully handled, effects might not be executed. Side effects are not retried in case of failures.
+
+Side effects may be declared as synchronous or asynchronous. Asynchronous commands run in a "fire and forget" fashion. The code flow of the caller (the command handler of the entity which emitted the asynchronous command) continues while the command is being asynchronously processed. Meanwhile, synchronous commands run sequentially, that is, the commands are processed in order, one at a time. The final result of the command handler, either a reply or a forward, is not sent until all synchronous commands are completed.
+
+==== Use case: mobile notification
+
+You might want to run side effects to notify interested parties of a change in state. For example, after a withdrawal is made from a bank account, an account entity could send a notification to the account owner's mobile phone.
+
+
+=== Emitting a side effect
+
+To illustrate how you can emit a side effect, we can build on top of the xref:actions-as-controller.adoc[Action as a Controller] example.
+In that previous example, we build a controller around the xref:value-entity.adoc[Value Entity Counter] and forwarded the incoming request
+after modifying it.
+
+This time, instead of using a `forward`, we will call the entity using a side effect.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/actions/double-counter.proto
+----
+include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
+----
+<1> Import the Counter API definition.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The Action mimics the Counter API with a forward.
+<4> The Action mimics the Counter API with a side effect.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/actions/double-counter.proto
+----
+include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/actions/double-counter.proto[tag=whole-double-action-proto]
+----
+<1> Import the Counter API definition.
+<2> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that an Action must be generated.
+<3> The Action mimics the Counter API with a forward.
+<4> The Action mimics the Counter API with a side effect.
+
+
+=== Implementing the Action
+
+The class `DoubleCounterAction` gets generated for us based on the same proto file defined in xref:actions-as-controller.adoc[Action as a Controller].
+
+[source,java,indent=0]
+.src/main/java/com/example/actions/DoubleCounterAction.java
+----
+include::example$java-protobuf-valueentity-counter/src/main/java/com/example/actions/DoubleCounterAction.java[tag=controller-side-effect]
+----
+<1> On incoming requests, we double the value of `IncreaseValue`.
+<2> We build a reply using `Empty.getDefaultInstance()`.
+<3> And we attach a side effect to it. The side effect is the call to the `Counter` entity.
+
+Please note that, the result of a side effect is ignored by the current command meaning that even if the call to
+the `Counter` entity fails, the `Action` reply will succeed.
+
+== Adding tracing spans
+
+To create link:https://opentelemetry.io/docs/specs/otel/trace/api/#span[`spans`{tab-icon}, window="new"] in your actions you need the link:https://opentelemetry.io/docs/specs/otel/trace/api/#tracer[`tracer`{tab-icon}, window="new"] available through the `actionContext()` method.
+
+[.tabset]
+Java::
++
+`actionContext()` gives you the link:{attachmentsdir}/api/kalix/javasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]. That is, some methods that apply to the context of the action's request.
++
+[source,java,indent=0]
+.src/main/java/com/example/ControllerAction.java
+----
+include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=get-tracer]
+----
+
+Scala::
++
+`actionContext()` gives you the link:{attachmentsdir}/scala-api/kalix/scalasdk/action/ActionContext.html[`ActionContext`{tab-icon}, window="new"]. That is, some methods that apply to the context of the action's request.
++
+[source,java,indent=0]
+.src/main/scala/com/example/ControllerAction.java
+----
+include::example$scala-protobuf-tracing/src/main/scala/com/example/ControllerAction.scala[tag=get-tracer]
+----
+
+IMPORTANT: If tracing is enabled, you will get a tracer that actually creates span and exports data as expected.
+But if tracing is not enabled, you will get a no operational tracer instead, which will not create traces.
+
+Trace generation is disabled by default. To enable it in a service deployed to Kalix, see link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[`here`].
+To enable it in a service running on your local machine you need to add the following `JAVA_TOOL_OPTIONS` to your `docker-compose.yml` in the base of your project.
+It's also necessary to have where to collect the traces. For example, an extra container, like the `jaeger` below.
+[source,yaml]
+.docker-compose.yml
+---
+services:
+  kalix-runtime:
+    image: ...
+    ...
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -Dkalix.proxy.telemetry.tracing.enabled=true
+        -Dkalix.proxy.telemetry.tracing.collector-endpoint=http://jaeger:4317
+    ...
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    ports:
+      - 4317:4317
+      - 16686:16686
+---
+
+Here the traces are pushed to a `jaeger` docker image, to the port `4317`. And you can check them out at `http://localhost:16686`.
+
+
+To link:https://opentelemetry.io/docs/languages/java/instrumentation/#create-spans[create a span] and end it over an asynchronous call, you can do the following:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/ControllerAction.java
+----
+include::example$java-protobuf-tracing/src/main/java/com/example/ControllerAction.java[tag=create-close-span]
+----
+<1> Sets the action's TraceContext the parent of this span. Linking the action's trace to this span.
+<2> Creates and starts the span.
+<3> Adds some attribute.
+<4> Sets the status of the span as error.
+<5> Closes the span.
+
+Scala::
++
+[source,java,indent=0]
+.src/main/scala/com/example/ControllerAction.java
+----
+include::example$scala-protobuf-tracing/src/main/scala/com/example/ControllerAction.scala[tag=create-close-span]
+----
+<1> Sets the action's TraceContext the parent of this span. Linking the action's trace to this span.
+<2> Creates and starts the span.
+<3> Adds some attribute.
+<4> Sets the status of the span as error.
+<5> Closes the span.
+NOTE: You can find how tracing is enabled and more info  link:https://docs.kalix.io/operations/observability-exports.html#_activating_tracing_beta[here].
+
+== Unit testing the side effects
+
+The side effects of an Action can be tested in isolation. To test the side effects of `DoubleCounterAction`, shown on the previous snippet, we can leverage link:{attachmentsdir}/testkit/kalix/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has the method `getSideEffects()` that returns the list of side effects added to the `Action`.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/test/java/com/example/actions/DoubleCounterActionTest.java
+----
+include::example$java-protobuf-valueentity-counter/src/test/java/com/example/actions/DoubleCounterActionTest.java[tag=side-effect-test]
+----
+<1> Executing the `DoubleCounterAction.increase` RPC call through the test kit.
+<2> Retrieving the first side effect. There is only one in `DoubleConterAction.increase`. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
+<3> Retrieving and asserting the name of the service.
+<4> Retrieving and asserting the RPC's name of the service.
+<5> Retrieving and asserting the RPC's input.
+Scala::
++
+[source,scala,indent=0]
+.src/test/scala/com/example/actions/DoubleCounterActionSpec.java
+----
+include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/actions/DoubleCounterActionSpec.scala[tag=side-effect-test]
+----
+<1> Executing the `DoubleCounterAction.increaseWithSideEffect` RPC call through the test kit.
+<2> Retrieving the first side effect. There is only one in `DoubleConterAction.increaseWithSideEffect` implementation. It's worth noting the side effects are `DeferredCall` objects that represent Kalix RPC services. `DeferredCallDetails` is the representation of a `DeferredCall` on the Kalix test kit framework.
+<3> Retrieving and asserting the name of the service.
+<4> Retrieving and asserting the RPC's name of the service.
+<5> Retrieving and asserting the RPC's input.
+
+
+== Testing the Action
+
+=== Unit tests
+
+The following snippet shows how the `FibonacciActionTestKit` is used to test the `FibonacciAction` implementation.
+
+Kalix generates the `FibonacciActionTestKit` that allows us to call the methods of `FibonacciAction`. For each `Action` Kalix generates a specific test kit for it, with the name `[ActionName]TestKit`. Each call we execute over to the test kit returns an `ActionResult` that holds the effect produced by the underlying action method.
+
+Apart from the test kit Kalix generates test classes based on the Action defined in the `.proto` files. This is shown in the snippet below.
+
+NOTE: Actions are unique units of computation where no local state is shared with previous or subsequent calls. The framework doesn't reuse an Action instance but creates a new one for each command handled and therefore it is also how the test kit behaves.
+
+[.tabset]
+Java::
++
+.src/test/java/com/example/actions/FibonacciActionTest.java
+[source,java]
+----
+include::example$java-protobuf-fibonacci-action/src/test/java/com/example/fibonacci/FibonacciActionTest.java[tag=class]
+----
+<1> The test kit is created to allow us to test the Action's method.
+<2> We call `nextNumber` method with some value.
+<3> The reply message from the result is retrieved using `getReply()`.
++
+*ActionResult*
++
+Calling an action method through the test kit gives us back an link:{attachmentsdir}/testkit/kalix/javasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
++
+* `getReply()` returns the reply message passed to `effects().reply()` or throws an exception failing the test, if the effect returned was not a reply.
+* `getError()` returns the error description when `effects().error()` was returned to signal an error.
+* `getForward()` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).
+
+Scala::
++
+[source,scala]
+.src/test/java/com/example/actions/FibonacciActionSpec.scala
+[source,java]
+----
+include::example$scala-protobuf-fibonacci-action/src/test/scala/com/example/fibonacci/FibonacciActionSpec.scala[tag=class]
+----
+<1> The test kit is created to allow us to test the Action's method.
+<2> We call `nextNumber` method with some value.
+<3> The reply message from the result is retrieved using `reply`.
++
+*ActionResult*
++
+Calling an action method through the test kit gives us back an link:{attachmentsdir}/scala-testkit-api/kalix/scalasdk/testkit/ActionResult.html[`ActionResult` {tab-icon}, window="new"]. This class has methods that we can use to assert our expectations, such as:
++
+* `reply` returns the reply message passed to `effects.reply()` or throws an exception failing the test, if the effect returned was not a reply.
+* `errorDescription` returns the error description when `effects().error()` was returned to signal an error.
+* `forwardedTo` returns details about what message was forwarded and where the call was forwarded (since it is a unit test the forward is not actually executed).
++
+[.group-scala]#By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`#
+
+
+[#_unit_tests_cross_component]
+=== Unit tests (with cross-component calls)
+
+Testing an Action serving as a controller, or more generally, one that depends on calling other components, requires
+that a mock registry containing the mocks to be used be provided to TestKit. Later, at runtime, the TestKit will try to find the appropriate mock object it needs by matching those with the dependency component's class type.
+
+So, let's say we want to test the xref:actions-as-controller.adoc#_composing_calls[previous example] where we rely on 2 `external` calls to create and populate the shopping cart before replying. A unit test for such action method would look like:
+
+[.tabset]
+Java::
++
+.src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java
+[source,java]
+----
+include::example$java-protobuf-valueentity-shopping-cart/src/test/java/com/example/shoppingcart/ShoppingCartActionImplTest.java[tag=createPrePopulated]
+----
+<1> First step is to declare our mock object. In this example, `shoppingCartService` is a `@Mock` object by https://site.mockito.org/[Mockito framework].
+<2> We start by configuring our mock service how to reply to the two calls: `create` and `addItem`.
+<3> Then we use the TestKit-provided `MockRegistry` to initialize and add `shoppingCartService` to serve as a mock for class type `ShoppingCartService`.
+<4> Finally, we just need to pass the `mockRegistry` while initializing the `ShoppingCartActionImplTestKit` and the TestKit will make sure to try to find our mock object when it needs.
+
+
+Scala::
++
+.src/main/test/com/example/shoppingcart/ShoppingCartActionImplSpec.scala
+[source,scala]
+----
+include::example$scala-protobuf-valueentity-shopping-cart/src/test/scala/com/example/shoppingcart/ShoppingCartActionImplSpec.scala[tag=createPrePopulated]
+----
+<1> First step is to declare our mock object. In this case, `shoppingCartService` is a `stub` object provided by https://scalamock.org/[ScalaMock framework].
+<2> Then we configure our mock service how to reply to the two calls: `create` and `addItem`.
+<3> We use the TestKit-provided `MockRegistry` to initialize and add `shoppingCartService` to serve as a mock for class type `ShoppingCartService`.
+<4> Finally, we just need to pass the `mockRegistry` while initializing the `ShoppingCartActionImplTestKit` and the TestKit will make sure to try to find our mock object when it needs.
+

@@ -1,0 +1,32 @@
+syntax = "proto3";
+package com.example.json;
+
+// tag::service[]
+import "kalix/annotations.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+
+message KeyValue {
+  string key = 1;
+  int32 value = 2;
+}
+
+service MyService {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc Consume(google.protobuf.Any) returns (google.protobuf.Empty) { // <1>
+    option (kalix.method).eventing.in = {
+      topic:  "notifications"
+    };
+  }
+
+  rpc Produce(KeyValue) returns (google.protobuf.Any) { // <2>
+    option (kalix.method).eventing.out = {
+      topic:  "notifications"
+    };
+  }
+
+}
+// end::service[]

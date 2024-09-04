@@ -1,0 +1,232 @@
+= Customer Registry with Views in Java/Protobuf
+
+include::ROOT:partial$include.adoc[]
+include::java-protobuf:partial$attributes.adoc[]
+
+Create a customer registry that includes queries in Java, package it into a container, and run it on Kalix.
+
+== In this sample you will learn:
+
+* How to add additional functionality, allowing customers to be queried by name and email.
+* How to package the customer registry into a container.
+* How to deploy and run the customer registry on Kalix.
+
+== Before you begin
+
+* If you're new to Kalix, {console}[create an account, window="console"] so you can try out Kalix for free.
+* You'll need to install the https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI, window="new-doc"] to deploy from a terminal window.
+* You'll also need
+** https://docs.docker.com/engine/install[Docker {minimum_docker_version} or higher, window="new"]
+** Java {java-pb-version} or higher
+** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
+** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
+
+[NOTE]
+====
+If you want to bypass writing code and jump straight to the deployment:
+
+. Download the source code using the Kalix CLI:
+`kalix quickstart download customer-registry-views-java-protobuf`
+
+. Skip to <<Package and deploy your service>>.
+====
+
+== Start from the Customer Registry Entity
+
+Start by downloading the  xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Customer Registry sample] source code using the Kalix CLI:
+
+[source,command line]
+----
+kalix quickstart download customer-registry-java
+----
+
+You can access the `Customer` https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#component_id[id]. In this guide we will describe how to retrieve customers by email or name instead.
+
+== Define the CustomerByEmail View
+
+. In your project, create a directory for your views protobuf files, `src/main/proto/customer/view`.
+[.tabset]
+Linux or macOS::
++
+--
+[source,command line]
+----
+mkdir -p ./src/main/proto/customer/view
+----
+--
+Windows 10+::
++
+--
+[source,command line]
+----
+mkdir src/main/proto/customer/view
+----
+--
+
+. Create a `customer_view.proto` file and save it in the `src/main/proto/customer/view` directory.
+
++
+[source,proto,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=declarations]
+----
+<1> The protobuf syntax version, `proto3`.
+<2> The package name, `customer.view`.
+<3> The Java outer classname, `CustomerViewModel`. Messages defined in this file will be generated as inner classes, for example `CustomerViewModel.ByEmailRequest`.
+<4> Import the proto files for your domain model `customer/domain/customer_domain.proto` and Kalix annotations `kalix/annotations.proto`.
+
+. Add the service endpoint
++
+[source,proto,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByEmail]
+----
+<1> The Protobuf `service` for the View.
+<2> The option that the Maven plugin will use to generate the `CustomerByEmail` View.
+<3> The `UpdateCustomer` method defines how Kalix will update the view.
+<4> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `type_id: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
+<5> The `(kalix.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement.
+<6> The `GetCustomers` method defines the query to retrieve a customer by email.
+<7> The `(kalix.method).view.query` annotation defines that this method is used as a query of the View.
++
+NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the drawback that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update will be illustrated in the `CustomerByName` example.
+
+. Run `mvn compile` from the project root directory to generate source classes from the Protobuf definitions.
++
+----
+mvn compile
+----
++
+This will result in a compilation error in the `Main` class. That is expected because you added a new component. Fix the compilation error by adding `CustomerByEmailView::new` as the second parameter to `KalixFactory.withComponents` in `src/main/java/customer/Main.java`.
+
+[#deploy]
+== Package and deploy your service
+
+To build and publish the container image and then deploy the service, follow these steps:
+
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
++
+----
+kalix auth login
+----
+
+. Use the `deploy` target to build the container image, publish it to the container registry as configured in the `pom.xml` file, and use the target `kalix:deploy` to automatically deploy the service to Kalix:
++
+[source,command line]
+----
+mvn deploy kalix:deploy
+----
+include::partial$important-mvn-kalixdeploy.adoc[]
+
+. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
++
+----
+kalix service list
+----
+
+[#invoke]
+== Invoke your service
+
+Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+
+----
+kalix service proxy <service name> --grpcui
+----
+
+The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+
+Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
+
+A customer can be created using the `Create` method on `CustomerService`, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{
+    "customer_id": "abc123",
+    "email": "someone@example.com",
+    "name": "Someone",
+    "address": {
+      "street": "123 Some Street",
+      "city": "Somewhere"
+    }
+  }' \
+  --plaintext localhost:8080 \
+  customer.api.CustomerService/Create
+----
+
+The `GetCustomer` method can be used to retrieve this customer, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{"customer_id": "abc123"}' \
+  --plaintext localhost:8080 \
+  customer.api.CustomerService/GetCustomer
+----
+
+The customer can also be found using the `GetCustomer` method on the `CustomerByEmail` view service, in the gRPC web UI, or with `grpcurl`:
+
+----
+grpcurl \
+  -d '{"email": "someone@example.com"}' \
+  --plaintext localhost:8080 \
+  customer.view.CustomerByEmail/GetCustomer
+----
+
+You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
+
+----
+kalix service expose <service name>
+----
+
+== Define the CustomerByName View
+
+. In the same `src/main/proto/customer/view/customer_view.proto` file add another View for finding customers by name.
++
+Add the service endpoint
++
+[source,proto,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$java-protobuf-customer-registry-views-quickstart/src/main/proto/customer/view/customer_view.proto[tag=CustomerByName]
+----
+<1> The `UpdateCustomer` method defines how Kalix will update the view. In this case use a `CustomerViewState` that is different from the incoming `domain.CustomerState`.
+<2> The `GetCustomers` method defines the query to retrieve customers by name.
+
+. Run `mvn compile` from the project root directory to generate source classes from the Protobuf definitions.
++
+----
+mvn compile
+----
++
+Again, this will result in a compilation error in the `Main` class. That is expected because you added a new component. Fix the compilation error by adding `CustomerByNameView::new` as the third parameter to `KalixFactory.withComponents` in `src/main/java/customer/Main.java`.
+
+== Implement UpdateCustomer
+
+. Implement the `emptyState` and `updateCustomer` method in `CustomerByEmailView`:
++
+[source, java, indent=0]
+.src/main/java/customer/view/CustomerByEmailView.java
+----
+include::example$java-protobuf-customer-registry-views-quickstart/src/main/java/customer/view/CustomerByNameView.java[tag=view]
+----
+<1> Empty state that will be used if no previous state has been stored for the View.
+<2> From the incoming `CustomerDomain.CustomerState` that represents the change from the Value Entity create a `CustomerViewModel.CustomerViewState`.
+<3> Return `effects().updateState` with the new state for the View.
++
+NOTE: The state of the View is still per Entity. The `CustomerDomain.CustomerState customerState` parameter represents the changed state of a specific Value Entity. The `state` parameter is the existing state, if any, of the View for the Entity, i.e. the state that was previously returned via `effects().updateState`. If no previous state has been stored the `emptyState()` is used.
+
+== Deploy the updated service
+
+. Deploy the updated service by repeating the steps in <<deploy>>.
+
+== Invoke the CustomerByName
+
+. Similar to the steps in <<invoke>>.
+. Create several customers with same name.
+. Use the new `CustomerByName` instead of `CustomerByEmail` and then you should see multiple results from `CustomerByName/GetCustomers` for customers with the same name.
+
+== Next steps
+
+* You can read more about xref:java-protobuf:views.adoc[Views].

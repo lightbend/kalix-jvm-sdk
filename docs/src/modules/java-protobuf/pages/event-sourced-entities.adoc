@@ -1,0 +1,395 @@
+= Implementing Event Sourced Entities
+:page-aliases: java-protobuf:eventsourced.adoc
+:page-supergroup-java-scala: Language
+
+include::ROOT:partial$include.adoc[]
+include::java-protobuf:partial$eventsourced.adoc[]
+
+https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event Sourced Entities] persist changes as events and snapshots. Kalix needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
+
+While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other but allows the service public interface logic to evolve independently of the data storage format, which should be private.
+
+The steps necessary to implement an Event Sourced Entity include:
+
+. Defining the API and domain objects in `.proto` files.
+. Implementing behavior in command and event handlers.
+. Creating and initializing the Entity.
+
+
+The sections on this page walk through these steps using a shopping cart service as an example.
+
+== Defining the `proto` files
+
+NOTE: Our Event Sourced Entity example is a shopping cart service.
+
+The following `shoppingcart_domain.proto` file defines our "Shopping" Event Sourced Entity. The entity manages line items of a cart and stores events `ItemAdded` and `ItemRemoved` to represent changes to the cart. Real-world entities store much more data - often structured data - they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
+----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
+<2> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[tag=domain]
+----
+<1> Any classes generated from this protobuf file will be in the Scala package `com.example.shoppingcart.domain`.
+
+The `shoppingcart_api.proto` file defines the commands we can send to the shopping cart service to manipulate or access the cart's state. They make up the service API:
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
+<2> Import the Kalix protobuf annotations or options.
+<3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartApi`.
+<4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
+<6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
+<9> `event_sourced_entity` indicates that we want the codegen to generate an Event Sourced Entity for this service.
+<10> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<11> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
+<12> `state` points to the protobuf message representing the entity's state which is kept by Kalix. It is stored as snapshots.
+<13> `events` points to the protobuf message representing the entity's events, which are stored by Kalix.
+
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Scala package `com.example.shoppingcart`.
+<2> Import the Kalix protobuf annotations or options.
+<3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
+<5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix sbt plugin.
+<8> `event_sourced_entity` indicates that we want the codegen to generate an Event Sourced Entity for this service.
+<9> `name` denotes the base name for the Event Sourced Entity, the code-generation will create initial sources `ShoppingCart`, `ShoppingCartTest` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<10> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
+<11> `state` points to the protobuf message representing the entity's state which is kept by Kalix. It is stored as snapshots.
+<12> `events` points to the protobuf message representing the entity's events, which are stored by Kalix.
+
+include::java-protobuf:partial$effects-event-sourced-entity.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
+
+== Implementing behavior
+
+An Event Sourced Entity implementation is a class where you define how each command is handled. The class `ShoppingCart` gets generated for us based on the `shoppingcart_api.proto` and `shoppingcart_domain.proto` definitions. Once the file exists, it is not overwritten, so you can freely add logic to it. `ShoppingCart` extends the generated class `AbstractShoppingCart` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractShoppingCart` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `ShoppingCart` class and you have to implement the methods required by `AbstractShoppingCart`.
+
+[.tabset]
+Java::
++
+[source,java]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=class]
+----
+<1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/api/kalix/javasdk/eventsourcedentity/EventSourcedEntity.html[`EventSourcedEntity` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
+
+Scala::
++
+[source,scala]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=class]
+----
+<1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/eventsourcedentity/EventSourcedEntity.html[`EventSourcedEntity` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
+
+We need to implement all methods our Event Sourced Entity offers as https://docs.kalix.io/reference/glossary.html#command_handler[_command handlers_].
+
+The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
+
+Command handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes the next processing actions, such as emitting events and sending a reply.
+
+When adding or changing the `rpc` definitions, including name, parameter, and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractShoppingCart`). This means that the Java compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
+
+=== Updating state
+
+In the example below, the `AddItem` service call uses the request message `AddLineItem`. It returns an `Effect` to emit an event and then sends a reply once the event is stored successfully. The state is updated by the event handler.
+
+IMPORTANT: The **only** way for a command handler to modify the Entity's state is by emitting an event. Any modifications made directly to the state (or instance variables) from the command handler are not persisted. When the Entity is passivated and reloaded, those modifications will not be present.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=addItem]
+----
+<1> The validation ensures the quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects().error`.
+<2> From the current incoming `AddLineItem` we create a new `ItemAdded` event representing the change of the cart.
+<3> We store the event by returning an `Effect` with `effects().emitEvent`.
+<4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored, otherwise there will be an error reply.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=addItem]
+----
+<1> The validation ensures the quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects.error`.
+<2> From the current incoming `AddLineItem` we create a new `ItemAdded` event representing the change of the cart.
+<3> We store the event by returning an `Effect` with `effects.emitEvent`.
+<4> The acknowledgment that the command was successfully processed is only sent if the event was successfully stored, otherwise there will be an error reply.
+
+The new state is created from the event and the previous state in the event handler. Event handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. Event handlers are generated for each event declared in  `(kalix.codegen).event_sourced_entity.events`.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=itemAdded]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=itemAdded]
+----
+
+
+=== Retrieving state
+
+The following example shows the implementation of the `GetCart` command handler. This command handler is a read-only command handler--it doesn't update the state, it just returns it:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=getCart]
+----
+<1> The current state is passed to the method.
+<2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects().reply`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=getCart]
+----
+<1> The current state is passed to the method.
+<2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects.reply`.
+
+
+== Registering the Entity
+
+To make Kalix aware of the Event Sourced Entity, we need to register it with the service.
+
+From the code-generation, the registration gets automatically inserted in the generated `KalixFactory.withComponents` method from the `Main` class.
+
+[.tabset]
+Java::
++
+[source,java]
+.src/main/java/com/example/shoppingcart/Main.java
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
+----
+
+Scala::
++
+[source,scala]
+.src/main/scala/com/example/shoppingcart/Main.scala
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/Main.scala[]
+----
+
+
+By default, the generated constructor has an `EventSourcedEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `ShoppingCart` class you will see a compilation error here, and you have to adjust the factory function that is passed to `KalixFactory.withComponents`.
+
+When more components are added the `KalixFactory` is regenerated and you have to adjust the registration from the `Main` class.
+
+== Snapshots
+
+include::java-protobuf:partial$eventsourced-snapshots.adoc[]
+
+== Deleting an Entity
+
+Normally, Event Sourced Entities are not deleted because the history of the events typically provide business value.
+For certain use cases or for regulatory reasons the entity can be deleted.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=checkout]
+----
+<1> Emit a final event before deletion, which is handled as any other event.
+<2> Instruction to delete the entity.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=checkout]
+----
+<1> Emit a final event before deletion, which is handled as any other event.
+<2> Instruction to delete the entity.
+
+When you give the instruction to delete the entity it will still exist for some time, including its events and snapshots. The actual removal of events and snapshots will be deleted later to give downstream consumers time to process all prior events, including the final event that was emitted together with the `deleteEntity` effect. By default, the existence of the entity is completely cleaned up after a week.
+
+It is not allowed to emit more events after the entity has been "marked" as deleted. You can still handle read requests of the entity until it has been completely removed.
+
+It is best to not reuse the same entity id after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
+
+Note that xref:views.adoc#es_delete[deleting View state] must be handled explicitly.
+
+== Running Side Effects
+
+An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
+
+See this xref:actions.adoc#_running_side_effects[dedicated section regarding Actions], for more details.
+
+== Testing the Entity
+
+include::java-protobuf:partial$testing-entity.adoc[]
+
+=== Unit tests
+
+The following snippet shows how the `ShoppingCartTestKit` is used to test the `ShoppingCart` implementation. Kalix provides two main APIs for unit tests, the `ShoppingCartTestKit` and the `EventSourcedResult`. The former gives us the overall state of the entity. Its state and all the events produced by all the calls to the Entity. While the latter only holds the effects produced for each individual call to the Entity.
+
+[.tabset]
+Java::
++
+.src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java
+[source,java]
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/test/java/com/example/shoppingcart/domain/ShoppingCartTest.java[]
+----
+<1> Creating the TestKit passing the constructor of the Entity.
+<2> Calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
+<3> Calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
+<4> Checking the `EventSourcedResult` of the first call to `addItem`.
+<5> Checking the `EventSourcedResult` of all the calls to `addItem`.
+<6> Retrieving the first event generated from the first call to `addItem`.
+<7> Retrieving the second event generated from the first call to `addItem`. There is no such event as our implementation only generates one event when addItem it's called.
+<8> Retrieving the response from the call to `addItem`.
+<9> Retrieving the state of the entity after all the calls to `addItem`.
+
+Scala::
++
+.src/test/scala/com/example/shoppingcart/domain/ShoppingCartSpec.scala
+[source,java]
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/test/scala/com/example/shoppingcart/domain/ShoppingCartSpec.scala[]
+----
+<1> Creating the TestKit passing the constructor of the Entity.
+<2> Calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
+<3> Calling the method `addItem` from the Entity in the `ShoppingCartTestKit`.
+<4> Checking the `EventSourcedResult` of the first call to `addItem`.
+<5> Checking the `EventSourcedResult` of all the calls to `addItem`.
+<6> Retrieving the first event generated from the first call to `addItem`.
+<7> Retrieving the second event generated from the first call to `addItem`. There is no such event as our implementation only generates one event when addItem it's called.
+<8> Retrieving the response from the call to `addItem`.
+<9> Retrieving the state of the entity after all the calls to `addItem`.
++
+
+NOTE: The `ShoppingCartTestKit` is stateful, and it holds the state of a single entity instance in memory. If you want to test more than one entity in a test, you need to create multiple instance of `ShoppingCartTestKit`.
+
+[.group-scala]#By default the integration and unit test are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`#
+
+
+*EventSourcedResult*
+
+[.tabset]
+Java::
++
+Calling a command handler through the TestKit gives us back an link:{attachmentsdir}/testkit/kalix/javasdk/testkit/EventSourcedResult.html[`EventSourcedResult` {tab-icon}, window="new"]. This class has methods that we can use to assert of handling the command, such as:
++
+* `getReply()` - the response from the command handler if there was one, if not an, exception is thrown, failing the test.
+* `getAllEvents()` - all the events emitted by handling the command.
+* `getState()` - the state of the entity after applying any events the command handler emitted.
+* `getNextEventOfType(ExpectedEvent.class)` - check the next of the emitted events against an event type, return it for inspection if it matches, or fail the test if it does not. The event gets consumed once is inspected and the next call will look for a subsequent event.
+
+Scala::
++
+Calling a command handler through the TestKit gives us back an link:{attachmentsdir}/scala-testkit-api/kalix/scalasdk/testkit/EventSourcedResult.html[`EventSourcedResult` {tab-icon}, window="new"]. This class has methods that we can use to assert the result of handling the command, such as:
++
+* `reply` - the response from the command handler if there was one, if not an, exception is thrown, failing the test.
+* `events` - all the events emitted by handling the command.
+* `state` - the state of the entity after applying any events the command handler emitted.
+* `nextEvent[ExpectedEvent]` - check the next of the emitted events against an event type, return it for inspection if it matches, or fail the test if it does not. The event gets consumed once is inspected and the next call will look for a subsequent event.
+
+*ShoppingCartTestKit*
+
+[.tabset]
+Java::
++
+This class is generated by Kalix when the project is compiled and located in `target/generated-test-sources/kalix/java/com/example/shoppingcart/domain/`. It provides access to all the command handlers of the `ShoppingCart` entity for unit testing. In addition to that also has the following methods:
+
+ * `getState()` - the current state of the entity, it is updated on each method call emitting events.
+ * `getAllEvents()` - all events emitted since the creation of the testkit instance.
+
+Scala::
++
+This class is generated by Kalix when the project is compiled and located in `target/generated-test-sources/kalix/scala/com/example/shoppingcart/domain/`. It provides access to all the command handlers of the `ShoppingCart` entity for unit testing. In addition to that also has the following methods:
+
+* `currentState` - the current state of the entity, it is updated on each method call emitting events.
+* `allEvents` - all events emitted since the creation of the testkit instance.
+
+=== Integration tests
+
+An example integration test class to start from is also generated for you. It uses [.group-java]#an `KalixTestKitExtension`# [.group-scala]#`KalixTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
+
+[.tabset]
+Java::
++
+[source,java]
+.src/it/java/com/example/shoppingcart/ShoppingCartIntegrationTest.java
+----
+include::example$java-protobuf-eventsourced-shopping-cart/src/it/java/com/example/shoppingcart/ShoppingCartIntegrationTest.java[tag=sample-it-test]
+----
+<1> Using the TestKit to create the service container and Kalix Runtime.
+<2> Creating a client for interacting with the gRPC endpoints for `ShoppingCartService`.
+<3> Add items to cart using and assert on its current list of items.
++
+The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.
+
+Scala::
++
+[source,scala]
+./src/test/scala/com/example/shoppingcart/ShoppingCartServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-eventsourced-shopping-cart/src/test/scala/com/example/shoppingcart/ShoppingCartServiceIntegrationSpec.scala[tag=sample-it-test]
+----
+<1> Using the TestKit to create the service container and Kalix Runtime.
+<2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
+<3> Add items to cart using and assert on its current list of items.
+<4> Shutting down TestKit resources after test concludes.
++
+By default, the integration and unit test are both invoked by `sbt test`.

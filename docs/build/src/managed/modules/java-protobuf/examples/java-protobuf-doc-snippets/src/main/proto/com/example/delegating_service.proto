@@ -1,0 +1,24 @@
+syntax = "proto3";
+package com.example;
+
+// tag::service[]
+import "kalix/annotations.proto";
+
+option java_outer_classname = "DelegatingServiceApi";
+
+message Request {
+  string counter_id = 1;
+}
+
+message Result {
+  int32 value = 1;
+}
+
+service DelegatingService {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc AddAndReturn(Request) returns (Result);
+}
+// end::service[]

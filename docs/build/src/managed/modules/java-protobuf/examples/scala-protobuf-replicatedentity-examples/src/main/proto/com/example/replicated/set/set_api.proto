@@ -1,0 +1,57 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+package com.example.replicated.set;
+
+
+message AddElement {
+  string set_id = 1 [(kalix.field).id = true];
+  string element = 2;
+}
+
+message RemoveElement {
+  string set_id = 1 [(kalix.field).id = true];
+  string element = 2;
+}
+
+message GetElements {
+  string set_id = 1 [(kalix.field).id = true];
+}
+
+message CurrentElements {
+  repeated string elements = 1;
+}
+
+// tag::replicated_entity[]
+service SetService {
+  option (kalix.codegen) = {
+    replicated_entity: {
+      name: "com.example.replicated.set.domain.SomeSet" // <1>
+      type_id: "some-set"
+      replicated_set: { // <2>
+        element: "string" // <3>
+      }
+    }
+  };
+
+  rpc Add(AddElement) returns (google.protobuf.Empty);
+  rpc Remove(RemoveElement) returns (google.protobuf.Empty);
+  rpc Get(GetElements) returns (CurrentElements);
+}
+// end::replicated_entity[]

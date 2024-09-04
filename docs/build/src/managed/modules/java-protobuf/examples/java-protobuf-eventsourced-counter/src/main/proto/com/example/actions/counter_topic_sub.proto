@@ -1,0 +1,63 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// tag::counter-topic-sub[]
+syntax = "proto3";
+package com.example.actions;
+
+import "kalix/annotations.proto";
+import "com/example/actions/counter_topic.proto"; // <1>
+import "google/protobuf/empty.proto";
+
+option java_outer_classname = "CounterTopicSubApi";
+
+service CounterTopicSubscription {
+  option (kalix.codegen) = {
+    action: {}  // <2>
+  };
+
+  rpc OnIncreased (com.example.actions.Increased) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = { // <3>
+      topic: "counter-events"
+    };
+  }
+
+  rpc OnDecreased (com.example.actions.Decreased) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      topic: "counter-events"
+    };
+  }
+}
+// end::counter-topic-sub[]
+
+import "com/example/counter_api.proto";
+
+
+service CounterCommandFromTopic {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc Increase (IncreaseValue) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      topic: "counter-commands"
+    };
+  }
+
+  rpc Decrease (DecreaseValue) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      topic: "counter-commands"
+    };
+  }
+}

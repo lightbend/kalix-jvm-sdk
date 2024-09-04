@@ -1,0 +1,14 @@
+// This is the default Access Control List (ACL) for all components of this Kalix Service
+syntax = "proto3";
+
+package customer;
+
+import "kalix/annotations.proto";
+
+// NOTE: This default ACL settings is very permissive as it allows any traffic from the internet.
+// Our samples default to this permissive configuration to allow users to easily try it out.
+// However, this configuration is not intended to be reproduced in production environments.
+// Documentation at https://docs.kalix.io/java-protobuf/access-control.html
+option (kalix.file).acl = {
+  allow: { principal: INTERNET };
+};

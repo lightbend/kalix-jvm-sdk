@@ -1,0 +1,583 @@
+= Implementing Views
+:page-supergroup-java-scala: Language
+include::ROOT:partial$include.adoc[]
+
+You can access a single https://docs.kalix.io/reference/glossary.html#entity[Entity] with its https://docs.kalix.io/reference/glossary.html#component_id[id]. You might want to retrieve multiple Entities, or retrieve them using an attribute other than the key. Kalix https://docs.kalix.io/reference/glossary.html#view[Views] allow you achieve this. By creating multiple Views, you can optimize for query performance against each one.
+
+Views can be defined from any of the following:
+
+* xref:value-entity[Value Entities state changes]
+* xref:event-sourced-entity[Event Sourced Entity events]
+* xref:topic-view[Messages received from subscribing to topics on a broker]
+
+The remainder of this page describes:
+
+* <<transform-results>>
+* <<#changing>>
+* <<#query>>
+
+IMPORTANT: Be aware that Views are not updated immediately when Entity state changes. Kalix does update Views as quickly as possible. It is not instant but eventually all changes will become visible in the query results. View updates might also take more time during failure scenarios than during normal operation.
+
+include::java-protobuf:partial$effects-view.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
+
+[#value-entity]
+== Creating a View from a Value Entity
+
+Consider an example of a Customer Registry service with a `customer` Value Entity. When `customer` state changes, the entire state is emitted as a value change. Value changes update any associated Views. To create a View that lists customers by their name:
+
+* <<_define_the_view_service_descriptor>> for a service that selects customers by name and associates a table name with the View. The table is created and used by Kalix to store the View.
+
+* xref:register-view[Register the View].
+
+This example assumes the following `customer` state is defined in a `customer_domain.proto` file:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/domain/customer_domain.proto
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/domain/customer_domain.proto
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;domain]
+----
+
+
+As well as a Value Entity service that will produce the state changes consumed by the View:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/api/customer_api.proto
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/api/customer_api.proto[tags=value-entity]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/api/customer_api.proto
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/customer/api/customer_api.proto[tags=value-entity]
+----
+
+
+=== Define the View service descriptor
+
+To get a View of multiple customers by their name, define the View as a `service` in Protobuf:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service]
+----
+
+<1> The protobuf option (kalix.codegen) is specific to code-generation as provided by the Kalix Maven plugin. This annotation indicates to the code-generation that a View must be generated.
+<2> The `UpdateCustomer` method defines how Kalix will update the view.
+<3> The source of the View is the `"customers"` Value Entity. This identifier is defined in the `type_id: "customers"` property of the `(kalix.codegen).value_entity` option in the `customer_api.proto` file.
+<4> The `(kalix.method).view.update` annotation defines that this method is used for updating the View. You must define the `table` attribute for the table to be used in the query. Pick any name and use it in the query `SELECT` statement. When a view model is the same as the method input parameter, Kalix will optimize the processing and won't call this method. However, this behavior can be overridden with the `(kalix.method).view.update.transform_updates` flag set to `true`.
+<5> The second `(kalix.method).eventing.in` annotation with `handle_deletes: true` and (required) `google.protobuf.Empty` as a parameter defines that this method is used for handling Value Entity deletes. Similar to update methods, Kalix will optimise it and not call the method if not necessary, unless you mark it with `(kalix.method).view.update.transform_updates: true`. In this case, you indicate to Kalix that you want to provide a custom delete handler implementation.
+<6> The `GetCustomers` method defines the query to retrieve a stream of customers.
+<7> The `(kalix.method).view.query` annotation defines that this method is used as a query of the View.
+
+NOTE: In this sample we use the internal `domain.CustomerState` as the state of the view. This is convenient since it allows automatic updates of the view without any logic but has the drawback that it implicitly makes the `domain.CustomerState` type a part of the public service API. Transforming the state to another type than the incoming update to avoid this can be seen in <<#event-sourced-entity>>.
+
+
+If the query should only return one result, remove the `stream` from the return type:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=unary]
+----
+
+Scala::
++
+[source,proto,indent=0]
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=unary]
+----
+
+<1> Without `stream` when expecting single result.
+
+When no result is found, the request fails with gRPC status code `NOT_FOUND`. A streamed call completes with an empty stream when no result is found.
+
+[#ve_delete]
+=== Handling Value Entity deletes
+
+The View state corresponding to an Entity is not automatically deleted when the Entity is deleted.
+
+When the source of the `eventing.in` is a Value Entity the `handle_deletes: true` annotation of `(kalix.method).eventing.in` defines that this method is used for handling Value Entity deletes. The method must have `google.protobuf.Empty` as a parameter. Kalix will automatically delete the View state, but you can also write your own delete handler when `(kalix.method).view.update.transform_updates` flag is `true`.
+
+[#register-view]
+=== Registering a View
+
+Once you've defined a View, register it with `Kalix` by invoking the `KalixFactory.withComponents` method in the `Main` class.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/customer/Main.java
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/java/customer/Main.java[tag=register]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/customer/Main.scala
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/scala/customer/Main.scala[tag=register]
+----
+
+[#event-sourced-entity]
+== Creating a View from an Event Sourced Entity
+
+Create a View from an Event Sourced Entity by using events that the Entity emits to build a state representation. Using a Customer Registry service example, to create a View for querying customers by name:
+
+. <<_define_a_view_descriptor_to_consume_events>>
+. <<_create_a_transformation_class>>
+. <<#es_register>>
+
+
+The example assumes a `customer_domain.proto` file that defines the events that will update the View on name changes:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/domain/customer_domain.proto
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;state;events]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/domain/customer_domain.proto
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/domain/customer_domain.proto[tags=declarations;state;events]
+----
+
+As well as an Event Sourced Entity service that will produce the events consumed by the View:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/api/customer_api.proto
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/customer_api.proto[tags=eventsourced-entity]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/api/customer_api.proto
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/api/customer_api.proto[tags=eventsourced-entity]
+----
+
+
+=== Define a View descriptor to consume events
+
+The following lines in the `.proto` file define a View to consume the `CustomerCreated` and `CustomerNameChanged` events:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-event-sourced]
+----
+<1> The `kalix.codegen` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
+<2> Define an update method for each event.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the type_id: "customers"` property of the `(kalix.codegen).event_sourced_entity` option in the `customer_api.proto` file.
+<4> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tags=declarations;service-event-sourced]
+----
+<1> The `kalix.codegen` option configures code generation to provide base classes and an initial implementation for the class transforming events to updates of the state.
+<2> Define an update method for each event.
+<3> The source of the View is from the journal of the `"customers"` Event Sourced Entity. This identifier is defined in the type_id: "customers"` property of the `(kalix.codegen).event_sourced_entity` option in the `customer_api.proto` file.
+<4> The same `event_sourced_entity` for all update methods. Note the required `table` attribute. Use any name, which you will reference in the query `SELECT` statement.
+
+See <<#query>> for more examples of valid query syntax.
+
+=== Create a transformation class
+
+Next, you need to define how to transforms events to state that can be used in the View. An Event Sourced entity can emit many types of events. You need to define a method for each event type. If a View does not use all events, you need to ignore unneeded events as shown in the `IgnoreOtherEvents` update method
+
+The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
+
+View update handlers are implemented in the `CustomerByNameView` class as methods that override abstract methods from `AbstractCustomerByNameView`. The methods take the current view state as the first parameter and the event as the second parameter. They return an `UpdateEffect`, which describes next processing actions, such as updating the view state.
+
+When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractCustomerByNameView`). This means that the compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/customer/view/CustomerByNameView.java
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/java/customer/view/CustomerByNameView.java[tag=process-events]
+----
+<1> Extends the generated `AbstractCustomerByNameView`, which extends link:{attachmentsdir}/api/kalix/javasdk/view/View.html[`View` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
+<3> One method for each event.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/customer/view/CustomerByNameView.scala
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/customer/view/CustomerByNameView.scala[tag=process-events]
+----
+<1> Extends the generated `AbstractCustomerByNameView`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/view/View.html[`View` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
+<3> One method for each event.
+
+NOTE: This type of update transformation is a natural fit for Events emitted by an Event Sourced Entity, but it can also be used for Value Entities. For example, if the View representation is different from the Entity state you might want to transform it before presenting the View to the client.
+
+=== Ignoring events
+
+When consuming events, each event must be matched by a Protobuf service method. In case your View is only interested in certain events, you may declare a method to receive all events that are not received by the other methods. If an event type is not handled, the View will fail. Views are designed to restart, but since the handler is missing, it will fail again. Therefore, it's important to define methods for all events or define a catch-all method in case you want to discard some events.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=ignore-other-events]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=ignore-other-events]
+----
+
+The `IgnoreOtherEvents` method here is defined as a catch-all because it has input type `Any`. Instead of using a catch-all it can be better to define concrete methods for all known event types that should be ignored because then there is no risk of accidentally ignoring events that are added in later evolution of the service.
+
+When adding the `ignore: true` annotation the corresponding implementation is not needed in the component. It is more efficient to use `ignore: true` than implementing the method with an immediate reply.
+
+[#es_delete]
+=== Handling Event Sourced Entity deletes
+
+The View state corresponding to an Entity is not automatically deleted when the Entity is deleted.
+
+To delete from the View you can use the `deleteState()` effect from an event transformation method.
+
+[#es_register]
+=== Register the View
+
+Register the View class with `Kalix`:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/customer/Main.java
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/java/customer/Main.java[tag=register]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/customer/Main.scala
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/customer/Main.scala[tag=register]
+----
+
+[#topic-view]
+== Creating a View from a topic
+
+The source of a View can be an eventing topic. You define it in the same way as shown in <<event-sourced-entity>> or <<value-entity>> but the View definition must set `eventing.in.topic` to a given topic name. Note that, on your producer side you must manually pass the `ce-subject` metadata, required by the View component. See the example below for how to pass such metadata.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.com/example/actions/CounterJournalToTopicWithMetaAction.java
+----
+include::example$java-protobuf-eventsourced-counter/src/main/java/com/example/actions/CounterJournalToTopicWithMetaAction.java[tags=class]
+----
+<1> The `ce-subject` attribute is the entity id.
+<2> The effect replies updated metadata together with the message payload.
+
+Scala::
++
+[source,scala,indent=0]
+.com/example/actions/CounterJournalToTopicWithMetaAction.scala
+----
+include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/actions/CounterJournalToTopicWithMetaAction.scala[tags=class]
+----
+<1> The `ce-subject` attribute is the entity id.
+<2> The effect replies updated metadata together with the message payload.
+
+[#transform-results]
+== How to transform results
+
+When creating a View, you can transform the results as a relational projection instead of using a `SELECT *` statement.
+
+ifdef::review[REVIEWERS: it would be nice to have use cases describing why they might want to use these different transformation techniques. And does this information apply to all views, regardless of whether they were created from entities or topics?]
+
+=== Relational projection
+
+Instead of using `SELECT *` you can define what columns that will be used in the response message:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=summary]
+----
+
+Scala::
++
+[source,proto,indent=0]
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=summary]
+----
+
+In a similar way, you can include values from the request message in the response, for example `:request_id`:
+
+[source,proto,indent=0]
+----
+SELECT :request_id, customer_id as id, name FROM customers WHERE name = :customer_name
+----
+
+Along with renaming fields, results can be projected into a different message structure than the one used for storing the view state. Nested messages can be created by grouping together fields in parentheses. For example, the customer state is projected into a different result structure in this view:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=restructured]
+----
+<1> The `customer_id` column is projected into the `id` field in the result message.
+<2> The customer `name` column is projected directly into the result message.
+<3> A nested message is constructed with the address `street` (renamed to `address`), the address `city`, and the `email` columns, projected into `billing_details`.
+
+Scala::
++
+[source,proto,indent=0]
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=restructured]
+----
+<1> The `customer_id` column is projected into the `id` field in the result message.
+<2> The customer `name` column is projected directly into the result message.
+<3> A nested message is constructed with the address `street` (renamed to `address`), the address `city`, and the `email` columns, projected into `billing_details`.
+
+=== Response message including the result
+
+Instead of streamed results you can include the results in a repeated field in the response message:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=wrap-repeated]
+----
+
+Scala::
++
+[source,proto,indent=0]
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=wrap-repeated]
+----
+
+<1> The response message contains a `repeated` field.
+<2> The return type is not `streamed`.
+<3> The `repeated` field is referenced in the query with `* AS customers`.
+
+// anchor for error messages, do not remove.
+[#changing]
+== How to modify a View
+
+Kalix creates indexes for the View based on the defined queries. For example, the following query will result in a View with an index on the `name` column:
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE name = :customer_name
+----
+
+If the query is changed, Kalix might need to add other indexes. For example, changing the above query to filter on the `city` would mean that Kalix needs to build a View with the index on the `city` column.
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers WHERE address.city = :city
+----
+
+Such changes require you to define a new View. Kalix will then rebuild it from the source event log or value changes.
+
+WARNING: Views from topics cannot be rebuilt from the source messages, because it's not possible to consume all events from the topic again. The new View will be built from new messages published to the topic.
+
+Rebuilding a new View may take some time if there are many events that have to be processed. The recommended way when changing a View is multi-step, with two deployments:
+
+
+. Define the new View, and keep the old View intact. A new View is defined by a new `service` in Protobuf. The `viewId` is the same as the `service` name, i.e. it will be a different `viewId` than the old View. Keep the old `register` of the old `service` in `Main`.
+. Deploy the new View, and let it rebuild. Verify that the new query works as expected. The old View can still be used.
+. Remove the old View definition and rename the new `service` to the old name if the public API is compatible, but keep the new `viewId` by defining it as shown below.
+. Deploy the second change.
+
+This is how to define a custom `viewId`:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/customer/Main.java
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/java/customer/MainWithCustomViewId.java[tag=register]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/customer/Main.scala
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/customer/MainWithCustomViewId.scala[tag=register]
+----
+
+The View definitions are stored and validated when a new version is deployed. There will be an error message if the changes are not compatible.
+
+=== Drop obsolete view data
+
+The data for old Views, that are no longer actively used, can be dropped using the `kalix` CLI https://docs.kalix.io/reference/kalix/kalix_services_views.html[service view commands].
+
+A summary of all views for a running service can be listed using the https://docs.kalix.io/reference/kalix/kalix_services_views_list.html[views list command]:
+
+----
+> kalix service views list customer-registry
+NAME               ACTIVE   LAST UPDATED
+CustomerByName     false    1d
+CustomerByNameV2   true     5m
+----
+
+Any views that are inactive and no longer needed can be dropped using the https://docs.kalix.io/reference/kalix/kalix_services_views_drop.html[views drop command]:
+
+----
+> kalix service views drop customer-registry CustomerByName
+The data for view 'CustomerByName' of service 'customer-registry' has successfully been dropped.
+
+> kalix service views list customer-registry
+NAME               ACTIVE   LAST UPDATED
+CustomerByNameV2   true     10m
+----
+
+
+== Streaming view updates
+
+A query can provide a near real time stream of results for the query, emitting new entries matching the query as they are added or updated in
+the view.
+
+This is done by adding the option `stream_updates` to a query method with a `stream` reply:
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=stream-updates]
+----
+<1> Return type must be a `stream`.
+<2> A regular query, in this case showing all customers from a specific city.
+<3> The `stream_updates` option set to `true`.
+
+Scala::
++
+[source,proto,indent=0]
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=stream-updates]
+----
+<1> Return type must be a `stream`.
+<2> A regular query, in this case showing all customers from a specific city.
+<3> The `stream_updates` option set to `true`.
+
+This will first list the complete result for the query and then keep the response stream open, emitting new or updated
+entries matching the query as they are added to the view. The stream does not complete until the client closes it.
+
+Note: This is not intended as transport for service to service propagation of updates and does not guarantee delivery, for such use cases you
+should instead publish events to a topic, see xref:actions-publishing-subscribing.adoc[Publishing and Subscribing with Actions]
+
+[#query]
+include::partial$query-syntax-reference.adoc[tags=grpc]
+
+include::partial$query-syntax-paging.adoc[tags=grpc]
+
+include::partial$query-syntax-advanced.adoc[tags=grpc]
+
+== Testing the View
+
+Testing Views is very similar to testing other xref:actions-publishing-subscribing.adoc#_testkit_mocked_incoming_messages[subscription integrations].
+
+
+For a View definition that subscribes to changes from the `customer` Value Entity.
+
+[source,proto,indent=0]
+.src/main/proto/customer/view/customer_view.proto
+----
+include::example$java-protobuf-valueentity-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=view-test]
+----
+
+An integration test can be implemented as below.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+----
+include::example$java-protobuf-valueentity-customer-registry/src/it/java/customer/view/CustomersResponseByCityViewIntegrationTest.java[tag=view-test]
+----
+<1> Mocks incoming messages from the `customer` Value Entity.
+<2> Gets an `IncomingMessages` from the `customer` Value Entity.
+<3> Publishes test data.
+<4> Queries the view and asserts the results.
+
+Scala::
++
+[source,scala,indent=0]
+----
+include::example$scala-protobuf-valueentity-customer-registry/src/test/scala/customer/view/CustomersResponseByCityViewIntegrationSpec.scala[tag=view-test]
+----
+<1> Mocks incoming messages from the `customer` Value Entity.
+<2> Gets an `IncomingMessages` from the `customer` Value Entity.
+<3> Publishes test data.
+<4> Queries the view and asserts the results.

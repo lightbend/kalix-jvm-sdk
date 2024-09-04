@@ -1,0 +1,868 @@
+= Implementing Replicated Entities
+:page-supergroup-java-scala: Language
+:page-aliases: replicated-entity.adoc
+
+include::ROOT:partial$include.adoc[]
+
+ifdef::todo[TODO: add glossary link for Replicated Entity to the main docs]
+
+Replicated Entities distribute state using a https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type[conflict-free replicated data type (CRDT)]. Data is shared across multiple instances of a Replicated Entity and is eventually consistent to provide high availability with low latency. The underlying CRDT semantics allow Replicated Entity instances to update their state independently and concurrently and without coordination. The state changes will always converge without conflicts, but note that with the state being eventually consistent, reading the current data may return an out-of-date value.
+
+Kalix needs to serialize the data to replicate, and this is done with Protocol Buffers using `protobuf` types. While Protocol Buffers are the recommended format for state, we recommend that you do not use your service's public `protobuf` messages in the replicated data. This may introduce some overhead to convert from one type to the other, but allows the service public interface logic to evolve independently of the data format, which should be private.
+
+The steps necessary to implement a Replicated Entity include:
+
+. Defining the API and domain objects in `.proto` files.
+. Implementing behavior in command handlers.
+. Creating and initializing the Replicated Entity.
+
+The sections on this page walk through these steps using a shopping cart service as an example.
+
+
+== Defining the `proto` files
+
+NOTE: Our Replicated Entity example is a shopping cart service.
+
+The following `shoppingcart_domain.proto` file defines our "Shopping Cart" Replicated Entity. The entity manages line items of a cart and stores these as a <<_replicated_counter_map>>, mapping from each item's product details to its quantity. The counter for each item can be incremented independently in separate Replicated Entity instances and will converge to a total quantity.
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
+----
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart.domain`.
+<2> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartDomain`.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto
+----
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/domain/shoppingcart_domain.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the package `com.example.shoppingcart.domain`.
+
+
+NOTE: Each Replicated Entity is associated with one underlying Replicated Data type. Replicated Data types that are generic, accepting type parameters for key, value, or element types, are used with `protobuf` messages and can represent structured data. In this shopping cart example, the keys of the counter map are products that have an id and name.
+
+The `shoppingcart_api.proto` file defines the commands we can send to the shopping cart service to manipulate or access the cart's state. They make up the service API:
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+----
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.shoppingcart`.
+<2> Import the Kalix protobuf annotations, or options.
+<3> Let the messages declared in this protobuf file be inner classes to the Java class `ShoppingCartApi`.
+<4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
+<6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
+<9> `replicated_entity` indicates that we want the codegen to generate a Replicated Entity for this service.
+<10> `name` denotes the base name for the Replicated Entity. The code-generation will create initial sources `ShoppingCart` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<11> `entity_type` is a unique identifier for data replication. The entity name may be changed even after data has been created, the `entity_type` can't be changed.
+<12> `replicated_counter_map` describes the Replicated Data type for this entity.
+<13> `key` points to the protobuf message representing the counter map's key type.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/shoppingcart/shoppingcart_api.proto
+----
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/proto/com/example/shoppingcart/shoppingcart_api.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the package `com.example.shoppingcart`.
+<2> Import the Kalix protobuf annotations, or options.
+<3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
+<5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
+<8> `replicated_entity` indicates that we want the codegen to generate a Replicated Entity for this service.
+<9> `name` denotes the base name for the Replicated Entity. The code-generation will create initial sources `ShoppingCart` and `ShoppingCartIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<10> `entity_type` is a unique identifier for data replication. The entity name may be changed even after data has been created, the `entity_type` can't be changed.
+<11> `replicated_counter_map` describes the Replicated Data type for this entity.
+<12> `key` points to the protobuf message representing the counter map's key type.
+
+
+include::partial$effects-replicated-entity.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
+
+== Implementing behavior
+
+A Replicated Entity implementation is a Java class where you define how each command is handled. The class `ShoppingCart` gets generated for us based on the `shoppingcart_api.proto` and `shoppingcart_domain.proto` definitions. Once the file [.group-java]#`ShoppingCart.java`# [.group-scala]#`ShoppingCart.scala`# exist, it is not overwritten, so you can freely add logic to it. `ShoppingCart` extends the generated class `AbstractShoppingCart` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractShoppingCart` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `ShoppingCart` class and you have to implement the methods required by `AbstractShoppingCart`.
+
+[.tabset]
+Java::
++
+[source,java]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=class]
+----
+<1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedCounterMapEntity.html[`ReplicatedCounterMapEntity` {tab-icon}, window="new"].
+
+Scala::
++
+[source,scala]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=class]
+----
+<1> Extends the generated `AbstractShoppingCart`, which extends link:{attachmentsdir}/scala-api/kalix/scalasdk/replicatedentity/ReplicatedCounterMapEntity.html[`ReplicatedCounterMapEntity` {tab-icon}, window="new"].
+
+We need to implement all methods our Replicated Entity offers as https://docs.kalix.io/reference/glossary.html#command_handler[_command handlers_].
+
+The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
+
+Command handlers are implemented in the `ShoppingCart` class as methods that override abstract methods from `AbstractShoppingCart`. The methods take the current data value as the first parameter and the request message as the second parameter. They return an `Effect`, which describes next processing actions, such as updating state and sending a reply.
+
+When adding or changing the `rpc` definitions, including name, parameter and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractShoppingCart`). This means that the Java compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
+
+=== Updating state
+
+In the example below, the `AddItem` service call uses the request message `AddLineItem`. It returns an `Effect` to update the underlying data and then send a reply.
+
+IMPORTANT: The **only** way for a command handler to modify the underlying data for a Replicated Entity is by returning an update effect with an updated Replicated Data object. Note that Replicated Data objects are immutable, with each modifying method returning a new instance of the Replicated Data type.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=addItem]
+----
+<1> The validation ensures quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects().error`.
+<2> From the current incoming `AddLineItem` we create a new `Product` object to represent the item's key in the counter map.
+<3> We increment the counter for this item in the cart. A new counter will be created if the cart doesn't contain this item already.
+<4> We update the underlying data for the Replicated Entity by returning an `Effect` with `effects().update` and the updated data object.
+<5> An acknowledgment that the command was successfully processed is sent with a reply message.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=addItem]
+----
+<1> The validation ensures quantity of items added is greater than zero and it fails calls with illegal values by returning an `Effect` with `effects.error`.
+<2> From the current incoming `AddLineItem` we create a new `Product` object to represent the item's key in the counter map.
+<3> We increment the counter for this item in the cart. A new counter will be created if the cart doesn't contain this item already.
+<4> We update the underlying data for the Replicated Entity by returning an `Effect` with `effects.update` and the updated data object.
+<5> An acknowledgment that the command was successfully processed is sent with a reply message.
+
+=== Retrieving state
+
+The following example shows the implementation of the `GetCart` command handler. This command handler is a read-only command handler--it doesn't update the state, it just returns it.
+
+IMPORTANT: The state of Replicated Entities is eventually consistent. An individual Replicated Entity instance may have an out-of-date value, if there are concurrent modifications made by another instance.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=getCart]
+----
+<1> The current data is passed to the method. Note that this may not be the most up-to-date value, with concurrent modifications made by other instances of this Replicated Entity being replicated eventually.
+<2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects().reply`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=getCart]
+----
+<1> The current data is passed to the method. Note that this may not be the most up-to-date value, with concurrent modifications made by other instances of this Replicated Entity being replicated eventually.
+<2> We convert the domain representation to the API representation that is sent as a reply by returning an `Effect` with `effects.reply`.
+
+=== Deleting state
+
+The following example shows the implementation of the `RemoveCart` command handler. Replicated Entity instances for a particular entity identifier can be deleted, using a delete `Effect`. Once deleted, an entity instance cannot be recreated, and all subsequent commands for that entity identifier will be rejected with an error.
+
+IMPORTANT: Caution should be taken with creating and deleting Replicated Entities, as Kalix maintains the replicated state in memory and also retains tombstones for each deleted entity. Over time, if many Replicated Entities are created and deleted, this will result in hitting memory limits.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/shoppingcart/domain/ShoppingCart.java
+----
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/domain/ShoppingCart.java[tag=removeCart]
+----
+<1> The Replicated Entity instances for the associated entity id are deleted by using `effects().delete`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala
+----
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/domain/ShoppingCart.scala[tag=removeCart]
+----
+<1> The Replicated Entity instances for the associated entity id are deleted by using `effects.delete`.
+
+== Registering the Entity
+
+To make Kalix aware of the Replicated Entity, we need to register it with the service.
+
+From the code-generation, the registration gets automatically inserted in the generated `KalixFactory.withComponents` method from the `Main` class.
+
+[.tabset]
+Java::
++
+[source,java]
+.src/main/java/com/example/shoppingcart/Main.java
+----
+include::example$java-protobuf-replicatedentity-shopping-cart/src/main/java/com/example/shoppingcart/Main.java[]
+----
+
+Scala::
++
+[source,scala]
+.src/main/scala/com/example/shoppingcart/Main.scala
+----
+include::example$scala-protobuf-replicatedentity-shopping-cart/src/main/scala/com/example/shoppingcart/Main.scala[]
+----
+
+By default, the generated constructor has a `ReplicatedEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `ShoppingCart` class you will see a compilation error here, and you have to adjust the factory function that is passed to `KalixFactory.withComponents`.
+
+When more components are added, the `KalixFactory` is regenerated and you have to adjust the registration from the `Main` class.
+
+
+== Replicated Data types
+
+Each Replicated Entity is associated with one underlying Replicated Data type. Counter, Register, Set, and Map data structures are available. This section describes how to configure and implement a Replicated Entity with each of the Replicated Data types.
+
+IMPORTANT: The **only** way for a command handler to modify the underlying data for a Replicated Entity is by returning an update effect with an updated Replicated Data object. Note that Replicated Data objects are immutable, with each modifying method returning a new instance of the Replicated Data type.
+
+
+=== Replicated Counter
+
+A link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedCounter.html[`ReplicatedCounter` {tab-icon}, window="new"] can be incremented and decremented.
+
+To configure a Replicated Entity with a Replicated Counter, use the `replicated_counter` option when <<_defining_the_proto_files,defining the `proto` file>>:
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/replicated/counter/counter_api.proto
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/counter/counter_api.proto[tag=replicated_entity]
+----
++
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Counter.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/replicated/counter/counter_api.proto
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/counter/counter_api.proto[tag=replicated_entity]
+----
++
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Counter.
+
+When implementing a Replicated Counter entity, the state can be updated by calling the `increment` or `decrement` methods on the current data object, and then triggering an update with the modified data object:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/counter/domain/SomeCounter.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=update]
+----
+<1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala[tag=update]
+----
+<1> Modify the Replicated Counter with `increment` or `decrement` and trigger a replicated update by returning an `Effect` with `effects.update`.
+
+[.tabset]
+Java::
++
+The current value of a Replicated Counter can be retrieved using `getValue`:
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/counter/domain/SomeCounter.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/counter/domain/SomeCounter.java[tag=get]
+----
+<1> Get the current value of a Replicated Counter using `getValue`.
+
+Scala::
++
+The current value of a Replicated Counter can be retrieved using `value`:
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/counter/domain/SomeCounter.scala[tag=get]
+----
+<1> Get the current value of a Replicated Counter using `value`.
+
+NOTE: The current value may not be the most up-to-date value when there are concurrent modifications.
+
+
+=== Replicated Register
+
+A [.group-java]#link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedRegister.html[`ReplicatedRegister` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/kalix/scalasdk/replicatedentity/ReplicatedRegister.html[`ReplicatedRegister` {tab-icon}, window="new"]# can contain any (serializable) value. Updates to the value are replicated using last-write-wins semantics, where concurrent modifications are resolved by using the update with the highest timestamp.
+
+ifdef::todo[TODO: configuring clocks for register replication]
+
+To configure a Replicated Entity with a Replicated Register, use the `replicated_register` option when <<_defining_the_proto_files,defining the `proto` file>>:
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/replicated/register/register_api.proto
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/register/register_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Register.
+<3> Specify the `protobuf` type for the value of the Replicated Register.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/replicated/register/register_api.proto
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/register/register_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Register.
+<3> Specify the `protobuf` type for the value of the Replicated Register.
+
+NOTE: The type for the value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. A message type is being used for the value type in this example.
+
+When implementing a Replicated Register entity, an initial or empty value needs to be defined by overriding the `emptyValue` method:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/register/domain/SomeRegister.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=emptyValue]
+----
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/register/domain/SomeRegister.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=emptyValue]
+----
+
+
+The value can be updated by calling the `set` method on the current data object, and then triggering an update with the modified data object:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/register/domain/SomeRegister.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=update]
+----
+<1> Create a domain object for the new value.
+<2> Update the Replicated Register value with `set` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/register/domain/SomeRegister.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=update]
+----
+<1> Create a domain object for the new value.
+<2> Update the Replicated Register value with `set` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+The current value of a Replicated Register can be retrieved using `get`:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/register/domain/SomeRegister.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/register/domain/SomeRegister.java[tag=get]
+----
+<1> Get the current value of a Replicated Register using `get`.
+<2> Convert from the domain object to the API object.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/register/domain/SomeRegister.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/register/domain/SomeRegister.scala[tag=get]
+----
+<1> Get the current value of a Replicated Register using `apply`.
+<2> Convert from the domain object to the API object.
+
+NOTE: The current value may not be the most up-to-date value when there are concurrent modifications.
+
+
+=== Replicated Set
+
+A [.group-java]#link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedSet.html[`ReplicatedSet` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/kalix/scalasdk/replicatedentity/ReplicatedSet.html[`ReplicatedSet` {tab-icon}, window="new"]# is a set of (serializable) values, where elements can be added or removed.
+
+To configure a Replicated Entity with a Replicated Set, use the `replicated_set` option when <<_defining_the_proto_files,defining the `proto` file>>:
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/replicated/set/set_api.proto
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/set/set_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Set.
+<3> Specify the `protobuf` type for the elements of the Replicated Set. In this case, the scalar type `string`.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/replicated/set/set_api.proto
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/set/set_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Set.
+<3> Specify the `protobuf` type for the elements of the Replicated Set. In this case, the scalar type `string`.
+
+
+NOTE: The type for the elements can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the element type in this example, which corresponds to the Java `String` class.
+
+IMPORTANT: Care needs to be taken to ensure that the serialized values for elements in the set are stable.
+
+When implementing a Replicated Set entity, the state can be updated by calling the `add` or `remove` methods on the current data object, and then triggering an update with the modified data object:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/set/domain/SomeSet.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=update]
+----
+<1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/set/domain/SomeSet.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/set/domain/SomeSet.scala[tag=update]
+----
+<1> Modify the elements of the Replicated Set with `add` or `remove` and trigger a replicated update by returning an `Effect` with `effects.update`.
+
+
+[.tabset]
+Java::
++
+The `elements` method for Replicated Set returns a regular `java.util.Set` that can be used to iterate over the current elements:
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/set/domain/SomeSet.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/set/domain/SomeSet.java[tag=get]
+----
+<1> Iterate over the current elements of a Replicated Set.
+
+Scala::
++
+The `elements` method for Replicated Set returns a regular Scala `Set` that contains the current elements:
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/set/domain/SomeSet.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/set/domain/SomeSet.scala[tag=get]
+----
+<1> Turn the `Set` into a `Seq` for the response.
+
+
+NOTE: The current value may not be the most up-to-date view of the set when there are concurrent modifications.
+
+
+=== Replicated Counter Map
+
+A [.group-java]#link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedCounterMap.html[`ReplicatedCounterMap` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/kalix/scalasdk/replicatedentity/ReplicatedCounterMap.html[`ReplicatedCounterMap` {tab-icon}, window="new"]#
+ maps (serializable) keys to replicated counters, where each value can be incremented and decremented.
+
+To configure a Replicated Entity with a Replicated Counter Map, use the `replicated_counter_map` option when <<_defining_the_proto_files,defining the `proto` file>>.
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/replicated/countermap/counter_map_api.proto
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/counter_map_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Counter Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Counter Map. In this case, the scalar type `string`.
+
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/replicated/countermap/counter_map_api.proto
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/countermap/counter_map_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Counter Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Counter Map. In this case, the scalar type `string`.
+
+
+NOTE: The type for the key can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the key type in this example, which corresponds to the Java `String` class.
+
+When implementing a Replicated Counter Map entity, the value of an entry can be updated by calling the `increment` or `decrement` methods on the current data object, and then triggering an update with the modified data object. Entries can be removed from the map using the `remove` method.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=update]
+----
+<1> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala[tag=update]
+----
+<1> Modify the values of the Replicated Counter Map with `increment`, `decrement`, or `remove` and trigger a replicated update by returning an `Effect` with `effects.update`.
+
+
+Individual counters in a Replicated Counter Map can be accessed, or the set of keys can be used to iterate over all counters.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/countermap/domain/SomeCounterMap.java[tag=get]
+----
+<1> Get the current counter value for a key using `get`.
+<2> Iterate over the current entries of a Replicated Counter Map using `keySet`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/countermap/domain/SomeCounterMap.scala[tag=get]
+----
+<1> Get the current counter value for a key using `apply`.
+<2> Iterate over the current entries of a Replicated Counter Map using `keySet`.
+
+NOTE: The [.group-java]#`get`# [.group-scala]#`apply`# method returns a default value of `0L` if the map does not contain the key.
+
+NOTE: Entries may not contain the most up-to-date values for counters when there are concurrent modifications.
+
+
+=== Replicated Register Map
+
+A [.group-java]#link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedRegisterMap.html[`ReplicatedRegisterMap` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/kalix/scalasdk/replicatedentity/ReplicatedRegisterMap.html[`ReplicatedRegisterMap` {tab-icon}, window="new"]# maps (serializable) keys to replicated registers of (serializable) values. Updates to values are replicated using last-write-wins semantics, where concurrent modifications are resolved by using the update with the highest timestamp.
+
+ifdef::todo[TODO: configuring clocks for register replication]
+
+To configure a Replicated Entity with a Replicated Register Map, use the `replicated_register_map` option when <<_defining_the_proto_files,defining the `proto` file>>.
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/replicated/registermap/register_map_api.proto
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/register_map_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Register Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Register Map.
+<4> Specify the `protobuf` type for the values of the Replicated Register Map.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/replicated/registermap/domain/register_map_domain.proto
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/registermap/register_map_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Register Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Register Map.
+<4> Specify the `protobuf` type for the values of the Replicated Register Map.
+
+NOTE: The type for the key or value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. Message types are being used for both the key and value types in this example.
+
+When implementing a Replicated Register Map entity, the value of an entry can be updated by calling the `setValue` method on the current data object, and then triggering an update with the modified data object. Entries can be removed from the map using the `remove` method.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=update]
+----
+<1> Create a domain object for the key.
+<2> Create a domain object for the value.
+<3> Modify the values of the Replicated Register Map with `setValue`, or `remove` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala[tag=update]
+----
+<1> Create a domain object for the key.
+<2> Create a domain object for the value.
+<3> Modify the values of the Replicated Register Map with `setValue`, or `remove` and trigger a replicated update by returning an `Effect` with `effects.update`.
+
+
+Individual registers in a Replicated Register Map can be accessed, or the set of keys can be used to iterate over all registers.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/registermap/domain/SomeRegisterMap.java[tag=get]
+----
+<1> Create a domain object for the key.
+<2> Get the current register value for a key using `getValue`.
+<3> Iterate over the current entries of a Replicated Register Map using `keySet`.
++
+NOTE: The `getValue` method returns an `Optional` for when the map does not contain the given key.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/registermap/domain/SomeRegisterMap.scala[tag=get]
+----
+<1> Create a domain object for the key.
+<2> Get the current register value for a key using `get`.
+<3> Iterate over the current entries of a Replicated Register Map using `keySet`.
++
+NOTE: The `get` method returns an `Option` for when the map does not contain the given key.
+
+NOTE: Entries may not contain the most up-to-date values for registers when there are concurrent modifications.
+
+
+=== Replicated Multi-Map
+
+A [.group-java]#link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedMultiMap.html[`ReplicatedMultiMap` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/kalix/scalasdk/replicatedentity/ReplicatedMultiMap.html[`ReplicatedMultiMap` {tab-icon}, window="new"]# maps (serializable) keys to replicated sets of (serializable) values, providing a multi-map interface that can associate multiple values with each key.
+
+To configure a Replicated Entity with a Replicated Multi-Map, use the `replicated_multi_map` option when <<_defining_the_proto_files,defining the `proto` file>>.
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/replicated/multimap/multi_map_api.proto
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/multi_map_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Multi-Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Multi-Map. In this case, the scalar type `string`.
+<4> Specify the `protobuf` type for the values of the Replicated Multi-Map. In this case, the scalar type `double`.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/replicated/multimap/domain/multi_map_domain.proto
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/multimap/multi_map_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Multi-Map.
+<3> Specify the `protobuf` type for the keys of the Replicated Multi-Map. In this case, the scalar type `string`.
+<4> Specify the `protobuf` type for the values of the Replicated Multi-Map. In this case, the scalar type `double`.
+
+
+NOTE: The type for the key or value can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. The `string` scalar type is being used for the key type and the `double` scalar type for the value type in this example, which correspond to the Java types for `String` and `Double`.
+
+When implementing a Replicated Multi-Map entity, the values of an entry can be updated by calling the `put`, `putAll`, or `remove` methods on the current data object, and then triggering an update with the modified data object. Entries can be removed entirely from the map using the `removeAll` method.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=update]
+----
+<1> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala[tag=update]
+----
+<1> Modify the values of the Replicated Multi-Map with `put`, `putAll`, `remove`, or `removeAll` and trigger a replicated update by returning an `Effect` with `effects().update`.
+
+
+Individual entries in a Replicated Multi-Map can be accessed, or the set of keys can be used to iterate over all value sets.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/multimap/domain/SomeMultiMap.java[tag=get]
+----
+<1> Get the current set of values for a key using `get`.
+<2> Iterate over the current entries of a Replicated Multi-Map using `keySet`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/multimap/domain/SomeMultiMap.scala[tag=get]
+----
+<1> Get the current set of values for a key using `get`.
+<2> Iterate over the current entries of a Replicated Multi-Map using `keySet`.
+
+NOTE: Entries may not contain the most up-to-date values when there are concurrent modifications.
+
+
+=== Replicated Map
+
+A [.group-java]#link:{attachmentsdir}/api/kalix/javasdk/replicatedentity/ReplicatedMap.html[`ReplicatedMap` {tab-icon}, window="new"]# [.group-scala]#link:{attachmentsdir}/scala-api/kalix/scalasdk/replicatedentity/ReplicatedMap.html[`ReplicatedMap` {tab-icon}, window="new"]# maps (serializable) keys to any other Replicated Data types, allowing a heterogeneous map where values can be of any Replicated Data type.
+
+NOTE: Prefer to use the specialized replicated maps (<<_replicated_counter_map>>, <<_replicated_register_map>>, or <<_replicated_multi_map>>) whenever the values of the map are of the same type -- counters, registers, or sets.
+
+To configure a Replicated Entity with a (heterogeneous) Replicated Map, use the `replicated_map` option when <<_defining_the_proto_files,defining the `proto` file>>.
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/replicated/map/map_api.proto
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/map/map_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Map.
+<3> Specify the `protobuf` type for the keys of the map.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/replicated/map/map_api.proto
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/proto/com/example/replicated/map/map_api.proto[tag=replicated_entity]
+----
+<1> The fully-qualified class name for this replicated entity.
+<2> Specify the Replicated Data type as a Replicated Map.
+<3> Specify the `protobuf` type for the keys of the map.
+
+
+NOTE: The type for the key can be a `protobuf` https://developers.google.com/protocol-buffers/docs/proto3#simple[message type] or https://developers.google.com/protocol-buffers/docs/proto3#scalar[scalar value type]. The generated code will use the corresponding Java type. A message type is being used for the key type in this example.
+
+NOTE: The value type for a Replicated Map is not specified for code-generation, and will be set to `ReplicatedData` for a heterogeneous map (a Replicated Map that contains different types of Replicated Data values).
+
+When implementing a Replicated Map entity, the replicated data for an entry can be updated by retrieving the data value using the `get` or `getOrElse` methods, updating values using the `update` method, and then triggering an update effect with the modified Replicated Map. Entries can be removed from the map using the `remove` method.
+
+There are also accessors for each of the Replicated Data types to make a heterogeneous map easier to use, such as `getReplicatedCounter` or `getReplicatedRegister`. If a key is not present in the map, these will return an empty value for the associated Replicated Data type.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/map/domain/SomeMap.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=update]
+----
+<1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
+<2> Modify the Replicated Data value using its modifying methods and `update` on the Replicated Map.
+<3> Trigger a replicated update by returning an `Effect` with `effects().update`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/map/domain/SomeMap.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/map/domain/SomeMap.scala[tag=update]
+----
+<1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
+<2> Modify the Replicated Data value using its modifying methods and `update` on the Replicated Map.
+<3> Trigger a replicated update by returning an `Effect` with `effects.update`.
+
+
+Individual Replicated Data objects in the Replicated Map can also be accessed for reading the current values.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/replicated/map/domain/SomeMap.java
+----
+include::example$java-protobuf-replicatedentity-examples/src/main/java/com/example/replicated/map/domain/SomeMap.java[tag=get]
+----
+<1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/replicated/map/domain/SomeMap.scala
+----
+include::example$scala-protobuf-replicatedentity-examples/src/main/scala/com/example/replicated/map/domain/SomeMap.scala[tag=get]
+----
+<1> Get the Replicated Data value for a key using an accessor method for the Replicated Data type.
+
+NOTE: Entries may not contain the most up-to-date values when there are concurrent modifications.
+
+
+[IMPORTANT]
+====
+All objects used within Replicated Data types - as keys, values, or elements - must be immutable, and their serialized form must be stable.
+
+Kalix uses the serialized form of these values to track changes in Replicated Sets or Maps. If the same value serializes to different bytes on different occasions, they will be treated as different keys, values, or elements in a Replicated Set or Map.
+
+This is particularly relevant when using Protocol Buffers (`protobuf`) for serialization. The serialized ordering for the entries of a protobuf `map` type is undefined, so protobuf `map` types should not be used within protobuf messages that are keys, values, or elements in Replicated Data objects.
+
+For the rest of the protobuf specification, while no guarantees are made on the stability by the protobuf specification itself, the Java libraries do produce stable orderings for message fields and repeated fields. But care should be taken when changing the protobuf structure of any types used within Replicated Data objects--many changes that are backwards compatible from a protobuf standpoint do not necessarily translate into stable serializations.
+====

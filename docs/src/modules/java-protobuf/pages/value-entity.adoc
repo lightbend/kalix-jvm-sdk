@@ -1,0 +1,318 @@
+= Implementing Value Entities
+:page-supergroup-java-scala: Language
+include::ROOT:partial$include.adoc[]
+
+https://docs.kalix.io/reference/glossary.html#value_entity[Value Entities] persist state on every change and Kalix needs to serialize that data to send it to the underlying data store, this is done with Protocol Buffers using `protobuf` types.
+
+NOTE: Kalix _Value Entities_ have nothing in common with the domain-driven design concept of _Value Objects_. The _Value_ in the name refers to directly modifying a value for the entity's state - in contrast to https://docs.kalix.io/reference/glossary.html#event_sourced_entity[Event-sourced Entities] that persist events and the entity state is derived from them.
+
+While Protocol Buffers are the recommended format for persisting state, we recommend that you do not persist your service's public `protobuf` messages. This may introduce some overhead to convert from one type to the other but allows the service public interface logic to evolve independently of the data storage format, which should be private.
+
+The steps necessary to implement a Value Entity include:
+
+. Defining the API and domain objects in `.proto` files.
+. Implementing behavior in command handlers.
+. Creating and initializing the Entity.
+
+
+The sections on this page walk through these steps using a counter service as an example.
+
+== Defining the `proto` files
+
+NOTE: Our Value Entity example starts with the "Counter" service as included in the xref:project-template.adoc[project template].
+
+The following `counter_domain.proto` file defines state the Entity will hold. The entity stores an integer value as represented in the message `CounterState`. Real-world entities store much more data - often structured data - they represent an _Entity_ in the https://en.wikipedia.org/wiki/Domain-driven_design[domain-driven design] sense of the term.
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/domain/counter_domain.proto
+----
+include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example.domain`.
+<2> Let the messages declared in this protobuf file be inner classes to the Java class `CounterDomain`.
+<3> The `CounterState` protobuf message is what Kalix stores for this entity.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/domain/counter_domain.proto
+----
+include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/domain/counter_domain.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Scala package `com.example.domain`.
+<2> The `CounterState` protobuf message is what Kalix stores for this entity.
+
+The `counter_api.proto` file defines the commands we can send to the Counter service to manipulate or access the Counter's state.
+
+In this file we instruct the Kalix code generation tooling (codegen) which kind of component we want to create. The codegen will generate all stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend.
+
+They make up the service API:
+
+[.tabset]
+Java::
++
+[source,proto]
+.src/main/proto/com/example/counter_api.proto
+----
+include::example$java-protobuf-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Java package `com.example`.
+<2> Import the Kalix protobuf annotations, or options.
+<3> Let the messages declared in this protobuf file be inner classes to the class `CounterApi`.
+<4> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<5> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
+<6> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<7> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<8> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
+<9> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
+<10> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<11> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
+<12> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definition in the domain.proto file.
+
+Scala::
++
+[source,proto]
+.src/main/proto/com/example/counter_api.proto
+----
+include::example$scala-protobuf-valueentity-counter/src/main/proto/com/example/counter_api.proto[]
+----
+<1> Any classes generated from this protobuf file will be in the Scala package `com.example`.
+<2> Import the Kalix protobuf annotations or options.
+<3> We use protobuf messages to describe the Commands that our service handles. They may contain other messages to represent structured data.
+<4> Every Command must contain a `string` field that contains the entity ID and is marked with the `(kalix.field).id` option.
+<5> Messages describe the return value for our API. For methods that don't have return values, we use `google.protobuf.Empty`.
+<6> The service descriptor shows the API of the entity. It lists the methods a client can use to issue Commands to the entity.
+<7> The protobuf option `(kalix.codegen)`  is specific to code-generation as provided by the Kalix Maven plugin.
+<8> `value_entity` indicates that we want the codegen to generate a Value Entity for this service.
+<9> `name` denotes the base name for the Value Entity, the code-generation will create initial sources `Counter`, `CounterTest` and `CounterIntegrationTest`. Once these files exist, they are not overwritten, so you can freely add logic to them.
+<10> `entity_type` is a unique identifier of the "state storage." The entity name may be changed even after data has been created, the `entity_type` can't.
+<11> `state` points to the protobuf message representing the Value Entity's state which is kept by Kalix. Note, the package and name follow the definition in the domain.proto file.
+
+include::partial$effects-value-entity.adoc[]
+
+See also xref:developing:development-process-proto.adoc#_effects_api[Understanding what an Effect is]
+
+== Implementing behavior
+
+A Value Entity implementation is a class where you define how each command is handled. The class `Counter` gets generated for us based on the `counter_api.proto` and `counter_domain.proto` definitions. Once the generated file exists, it is not overwritten, so you can freely add logic to it. `Counter` extends the generated class `AbstractCounter` which we're not supposed to change as it gets regenerated in case we update the protobuf descriptors. `AbstractCounter` contains all method signatures corresponding to the API of the service. If you change the API you will see compilation errors in the `Counter` class and you have to implement the methods required by `AbstractCounter`.
+
+
+[.tabset]
+Java::
++
+[source,java]
+.src/main/java/com/example/domain/Counter.java
+----
+include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=class]
+----
+<1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/kalix/javasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
+
+Scala::
++
+[source,scala]
+.src/main/java/com/example/domain/Counter.scala
+----
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=class]
+----
+<1> Extends the generated `AbstractCounter`, which extends link:{attachmentsdir}/api/kalix/scalasdk/valueentity/ValueEntity.html[`ValueEntity` {tab-icon}, window="new"].
+<2> Defines the initial, empty, state that is used before any updates.
+
+We need to implement all methods our Value Entity offers as https://docs.kalix.io/reference/glossary.html#command_handler[_command handlers_].
+
+The code-generation will generate an implementation class with an initial empty implementation which we'll discuss below.
+
+Command handlers are implemented in the `Counter` class as methods that override abstract methods from `AbstractCounter`. The methods take the current state as the first parameter and the request message as the second parameter. They return an `Effect`, which describes the next processing actions, such as updating state and sending a reply.
+
+When adding or changing the `rpc` definitions, including name, parameter, and return messages, in the `.proto` files the corresponding methods are regenerated in the abstract class (`AbstractCounter`). This means that the compiler will assist you with such changes. The IDE can typically fill in missing method signatures and such.
+
+=== Updating state
+
+In the example below, the `increase` service call uses the value from the request message `IncreaseValue`. It returns an `Effect` to update the entity state and send a reply.
+
+NOTE: For Value Entities, modify the state and then trigger a save of that state in the returned `Effect`. The Java/Protobuf SDK has an `effects().updateState(newState)` method for this purpose. If you change the state but do not call `updateState` in the returned `Effect`, that state change is lost.
+
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+./src/main/java/com/example/domain/Counter.java
+----
+include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=increase]
+----
+<1> The validation ensures acceptance of positive values and it fails calls with illegal values by returning an `Effect` with `effects().error`.
+<2> From the current state we create a new state with the increased value.
+<3> We store the new state by returning an `Effect` with `effects().updateState`.
+<4> The acknowledgment that the command was successfully processed is only sent if the state update was successful, otherwise there will be an error reply.
+
+Scala::
++
+[source,scala,indent=0]
+./src/main/java/com/example/domain/Counter.scala
+----
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=increase]
+----
+<1> The validation ensures acceptance of positive values and it fails calls with illegal values by returning an `Effect` with `effects.error`.
+<2> From the current state we create a new state with the increased value.
+<3> We store the new state by returning an `Effect` with `effects.updateState`.
+<4> The acknowledgment that the command was successfully processed is only sent if the state update was successful, otherwise there will be an error reply.
+
+=== Retrieving state
+
+The following example shows the implementation of the `GetCurrentCounter` command handler. This command handler is a read-only command handler--it doesn't update the state, it just returns it:
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/domain/Counter.java
+----
+include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=getCurrentCounter]
+----
+<1> The current state is passed to the method.
+<2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects().reply`.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/domain/Counter.scala
+----
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=getCurrentCounter]
+----
+<1> The current state is passed to the method.
+<2> We use its value to create the `CurrentCounter` value that is sent as a reply by returning an `Effect` with `effects.reply`.
+
+
+== Registering the Entity
+
+To make Kalix aware of the Value Entity, we need to register it with the service.
+
+From the code-generation, the registration gets automatically inserted in the generated `KalixFactory.withComponents` method from the `Main` class.
+
+[.tabset]
+Java::
++
+[source,java]
+./src/main/java/com/example/Main.java
+----
+include::example$java-protobuf-valueentity-counter/src/main/java/com/example/Main.java[tag=registration-value-entity]
+----
+
+Scala::
++
+[source,scala]
+./src/main/scala/com/example/Main.scala
+----
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/Main.scala[tag=registration-value-entity]
+----
+
+By default, the generated constructor has a `ValueEntityContext` parameter, but you can change this to accept other parameters. If you change the constructor of the `Counter` class you will see a compilation error here, and you have to adjust the factory function that is passed to `KalixFactory.withComponents`.
+
+When more components are added the `KalixFactory` is regenerated, and you have to adjust the registration from the `Main` class.
+
+=== Deleting state
+
+The next example shows how to delete a Value Entity state by returning special `deleteEntity()` effect.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+./src/main/java/com/example/domain/Counter.java
+----
+include::java-protobuf:example$java-protobuf-valueentity-counter/src/main/java/com/example/domain/Counter.java[tag=delete]
+----
+<1> We delete the state by returning an `Effect` with `effects().deleteEntity()`.
+
+Scala::
++
+[source,scala,indent=0]
+./src/main/java/com/example/domain/Counter.scala
+----
+include::java-protobuf:example$scala-protobuf-valueentity-counter/src/main/scala/com/example/domain/Counter.scala[tag=delete]
+----
+<1> We delete the state by returning an `Effect` with `effects.deleteEntity()`.
+
+When you give the instruction to delete the entity it will still exist with an empty state for some time. The actual removal happens later to give downstream consumers time to process the change. By default, the existence of the entity is completely cleaned up after a week.
+
+It is not allowed to make further changes after the entity has been "marked" as deleted. You can still handle read requests of the entity until it has been completely removed, but be the current state will be empty.
+
+NOTE: If you want to make changes after deleting the state you should use the `updateState` effect with an empty state, as a logical delete, instead of using `deleteEntity`.
+
+It is best to not reuse the same entity id after deletion, but if that happens after the entity has been completely removed it will be instantiated as a completely new entity without any knowledge of previous state.
+
+Note that xref:views.adoc#ve_delete[deleting View state] must be handled explicitly.
+
+== Running Side Effects
+
+An Entity may also emit one or more side effects. A side effect is something whose result has no impact on the result of the current command--if it fails, the current command still succeeds. The result of the side effect is therefore ignored. When used from inside an Entity, side effects are only performed after the successful completion of any state actions requested by the command handler.
+
+See this xref:actions.adoc#_running_side_effects[dedicated section regarding Actions], for more details.
+
+== Testing the Entity
+
+include::java-protobuf:partial$testing-entity.adoc[]
+
+=== Unit tests
+
+To unit test the Entity a test kit class to use is generated as well as an example unit test class to start from. Test cases use the test kit to execute commands in the entity, get a `ValueEntityResult` back and assert the effects that the command led to, both the reply itself and the update to the state of the Entity.
+
+[.tabset]
+Java::
++
+[source,java]
+./src/test/java/com/example/domain/CounterTest.java
+----
+include::example$java-protobuf-valueentity-counter/src/test/java/com/example/domain/CounterTest.java[tag=sample-unit-test]
+----
++
+The unit tests can be run from maven using `mvn test` or if you prefer from inside your IDE the same way you usually run tests.
+
+Scala::
++
+[source,scala]
+./src/test/scala/com/example/domain/CounterSpec.scala
+----
+include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/domain/CounterSpec.scala[tag=sample-unit-test]
+----
++
+
+NOTE: The `CounterTestKit` is stateful, and it holds the state of a single entity instance in memory. If you want to test more than one entity in a test, you need to create multiple instance of `CounterTestKit`.
+
+By default, the integration and unit tests are both invoked by `sbt test`. To only run unit tests run `sbt -DonlyUnitTest test`, or `sbt -DonlyUnitTest=true test`, or set up that value to `true` in the sbt session by `set onlyUnitTest := true` and then run `test`
+
+=== Integration tests
+
+An example integration test class to start from is also generated for you. It uses [.group-java]#an `KalixTestKitExtension`# [.group-scala]#`KalixTestKit`# to start docker containers and interacts with the entity with an actual gRPC client.
+
+[.tabset]
+Java::
++
+[source,java]
+./src/it/java/com/example/CounterIntegrationTest.java
+----
+include::example$java-protobuf-valueentity-counter/src/it/java/com/example/CounterIntegrationTest.java[tag=sample-it-test]
+----
+<1> Using the TestKit to create the service container and Kalix Runtime.
+<2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
+<3> Increasing counter and asserting on its current status.
++
+The integration tests are in a special profile `it` of the project and can be run using `mvn verify -Pit`.
+
+Scala::
++
+[source,scala]
+./src/test/scala/com/example/CounterServiceIntegrationSpec.scala
+----
+include::example$scala-protobuf-valueentity-counter/src/test/scala/com/example/CounterServiceIntegrationSpec.scala[tag=sample-it-test]
+----
+<1> Using the TestKit to create the service container and Kalix Runtime.
+<2> Creating a client for interacting with the gRPC endpoints for `CounterService`.
+<3> Asserting on current value of counter after being increased.
+<4> Shutting down TestKit resources after test concludes.
++
+By default, the integration and unit test are both invoked by `sbt test`.

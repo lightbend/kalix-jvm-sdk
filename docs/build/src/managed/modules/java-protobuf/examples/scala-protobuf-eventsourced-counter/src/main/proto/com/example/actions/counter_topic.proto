@@ -1,0 +1,99 @@
+// Copyright 2021 Lightbend Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// tag::counter-topic[]
+syntax = "proto3";
+package com.example.actions;
+
+import "kalix/annotations.proto";
+import "com/example/domain/counter_domain.proto"; // <1>
+import "google/protobuf/empty.proto";
+// tag::counter-topic[]
+import "google/protobuf/any.proto";
+// end::counter-topic[]
+
+message Increased {
+  int32 value = 1;
+}
+
+message Decreased {
+  int32 value = 1;
+}
+
+service CounterJournalToTopic {
+  option (kalix.codegen) = {
+    action: {}  // <2>
+  };
+
+  rpc OnIncreased (com.example.domain.ValueIncreased) returns (Increased) { // <3>
+    option (kalix.method).eventing.in = { // <4>
+      event_sourced_entity: "counter"
+    };
+    option (kalix.method).eventing.out = { // <5>
+      topic: "counter-events"
+    };
+  }
+  
+  rpc OnDecreased (com.example.domain.ValueDecreased) returns (Decreased) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+    };
+    option (kalix.method).eventing.out = {
+      topic: "counter-events"
+    };
+  }
+
+  // end::counter-topic[]
+  // tag::counter-ignore[]
+  rpc Ignore(google.protobuf.Any) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = { // <1>
+      event_sourced_entity: "counter"
+      ignore: true // <2>
+    };
+  }
+  // end::counter-ignore[]
+  // tag::counter-topic[]
+}
+// end::counter-topic[]
+
+service CounterJournalToTopicWithMeta {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc OnIncreased (com.example.domain.ValueIncreased) returns (Increased) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+    };
+    option (kalix.method).eventing.out = {
+      topic:  "counter-events-with-meta"
+    };
+  }
+
+  rpc OnDecreased (com.example.domain.ValueDecreased) returns (Decreased) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+    };
+    option (kalix.method).eventing.out = {
+      topic:  "counter-events-with-meta"
+    };
+  }
+
+  rpc Ignore(google.protobuf.Any) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+      ignore: true
+    };
+  }
+}

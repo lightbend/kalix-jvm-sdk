@@ -1,0 +1,10 @@
+// The messages and data that will be replicated for the shopping cart.
+
+syntax = "proto3";
+
+package com.example.shoppingcart.domain; // <1>
+
+message Product {
+  string id = 1;
+  string name = 2;
+}

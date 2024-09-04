@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package store.view.structured;
+
+import "google/protobuf/timestamp.proto";
+import "kalix/annotations.proto";
+import "store/customer/domain/customer_domain.proto";
+import "store/order/domain/order_domain.proto";
+import "store/product/domain/product_domain.proto";
+
+// tag::query[]
+service StructuredCustomerOrders {
+// end::query[]
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc ProcessCustomerCreated(customer.domain.CustomerCreated) returns (customer.domain.CustomerState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers",
+    };
+  }
+
+  rpc ProcessCustomerNameChanged(customer.domain.CustomerNameChanged) returns (customer.domain.CustomerState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers",
+    };
+  }
+
+  rpc ProcessCustomerAddressChanged(customer.domain.CustomerAddressChanged) returns (customer.domain.CustomerState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+    };
+    option (kalix.method).view.update = {
+      table: "customers",
+    };
+  }
+
+  rpc ProcessProductCreated(product.domain.ProductCreated) returns (product.domain.ProductState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "products"
+    };
+    option (kalix.method).view.update = {
+      table: "products",
+    };
+  }
+
+  rpc ProcessProductNameChanged(product.domain.ProductNameChanged) returns (product.domain.ProductState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "products"
+    };
+    option (kalix.method).view.update = {
+      table: "products",
+    };
+  }
+
+  rpc ProcessProductPriceChanged(product.domain.ProductPriceChanged) returns (product.domain.ProductState) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "products"
+    };
+    option (kalix.method).view.update = {
+      table: "products",
+    };
+  }
+
+  rpc UpdateOrder(order.domain.OrderState) returns (order.domain.OrderState) {
+    option (kalix.method).eventing.in = {
+      value_entity: "orders"
+    };
+    option (kalix.method).view.update = {
+      table: "orders"
+    };
+  }
+  // tag::query[]
+  // update methods...
+
+  rpc Get(CustomerOrdersRequest) returns (CustomerOrders) {
+    option (kalix.method).view.query = {
+      query: "SELECT"
+             " customers.customer_id AS id," // <1>
+             " (name,"
+             "  address.street AS address1,"
+             "  address.city AS address2,"
+             "  email AS contact_email) AS shipping," // <2>
+             " (products.product_id AS id,"
+             "  product_name AS name,"
+             "  quantity,"
+             "  (price.currency, price.units, price.cents) AS value," // <3>
+             "  order_id,"
+             "  created AS order_created) AS orders " // <4>
+             "FROM customers "
+             "JOIN orders ON orders.customer_id = customers.customer_id "
+             "JOIN products ON products.product_id = orders.product_id "
+             "WHERE customers.customer_id = :customer_id "
+             "ORDER BY orders.created" // <5>
+    };
+  }
+}
+
+message CustomerOrdersRequest {
+  string customer_id = 1;
+}
+
+message CustomerOrders {
+  string id = 1;
+  CustomerShipping shipping = 2;
+  repeated ProductOrder orders = 3;
+}
+
+message CustomerShipping {
+  string name = 1;
+  string address1 = 2;
+  string address2 = 3;
+  string contact_email = 4;
+}
+
+message ProductOrder {
+  string id = 1;
+  string name = 2;
+  int32 quantity = 3;
+  ProductValue value = 4;
+  string order_id = 5;
+  google.protobuf.Timestamp order_created = 6;
+}
+
+message ProductValue {
+  string currency = 1;
+  int64 units = 2;
+  int32 cents = 3;
+}
+// end::query[]

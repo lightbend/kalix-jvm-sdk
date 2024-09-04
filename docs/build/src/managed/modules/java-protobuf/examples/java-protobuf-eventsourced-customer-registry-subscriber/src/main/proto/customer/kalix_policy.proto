@@ -1,0 +1,13 @@
+// This is the default Access Control List (ACL) for all components of this Kalix Service
+syntax = "proto3";
+
+package customer;
+
+import "kalix/annotations.proto";
+
+// Allow any client to access the components of this Kalix service. This can be overridden explicitly
+// per component or method using annotations.
+// Documentation at https://docs.kalix.io/java-protobuf/access-control.html
+option (kalix.file).acl = {
+  allow: { principal: ALL }
+};

@@ -1,0 +1,36 @@
+// tag::domain[]
+// These are the messages that get persisted - the events, plus the current
+// state (Cart) for snapshots.
+
+syntax = "proto3";
+
+package com.example.shoppingcart.domain; // <1>
+
+option java_outer_classname = "ShoppingCartDomain"; // <2>
+
+message LineItem {
+  string productId = 1;
+  string name = 2;
+  int32 quantity = 3;
+}
+
+// The item added event.
+message ItemAdded {
+  LineItem item = 1;
+}
+
+// The item removed event.
+message ItemRemoved {
+  string productId = 1;
+}
+
+// The checked out event.
+message CheckedOut {
+}
+
+// The shopping cart state.
+message Cart {
+  repeated LineItem items = 1;
+  bool checked_out = 2;
+}
+// end::domain[]

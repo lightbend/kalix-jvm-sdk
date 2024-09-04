@@ -1,0 +1,98 @@
+// tag::grpc[]
+// tag::spring[]
+=== Paging
+
+Splitting a query result into one "page" at a time rather than returning the entire result at once is possible in two ways:
+
+* with a count based offset or
+* a token based offset.
+
+In both cases `OFFSET` and `LIMIT` are used.
+
+`OFFSET` specifies at which offset in the result to start
+
+`LIMIT` specifies a maximum number of results to return
+
+==== Count based offset ====
+
+The values can either be static, defined up front in the query:
+
+[source,proto,indent=0]
+----
+SELECT * FROM customers LIMIT 10
+----
+
+Or come from fields in the request message:
+[source,proto,indent=0]
+----
+SELECT * FROM customers OFFSET :start_from LIMIT :max_customers
+----
+
+Note: Using numeric offsets can lead to missing or duplicated entries in the result if entries are added to or removed from the view between requests for the pages.
+
+==== Token based offset ====
+
+The count based offset requires that you keep track of how far you got by adding the page size to the offset for each query.
+
+An alternative to this is to use a string token emitted by Kalix identifying how far into the result set the paging has reached using the functions `next_page_token()` and `page_token_offset()`.
+
+When reading the first page, an empty token is provided to `page_token_offset`. For each returned result page a new token that can be used to read the next page is returned by `next_page_token()`, once the last page has been read, an empty token is returned (see also xref:has-more[has_more] for determining if the last page was reached).
+
+The size of each page can optionally be specified using `LIMIT`, if it is not present a default page size of 100 is used.
+
+// end::spring[]
+With a request and response message for the view like this:
+
+[source,proto,indent=0]
+----
+message Request {
+    string page_token = 1;
+}
+
+message Response {
+    repeated Customer customers = 1;
+    string next_page_token = 2;
+}
+----
+// end::grpc[]
+// tag::spring[]
+With the query return type like this:
+
+[source,java,indent=0]
+----
+public record Response(List<Customer> customers, String next_page_token) { }
+----
+// tag::grpc[]
+
+A query such as the one below will allow for reading through the view in pages, each containing 10 customers:
+[source,proto,indent=0]
+----
+SELECT * AS customers, next_page_token() AS next_page_token
+FROM customers
+OFFSET page_token_offset(:page_token)
+LIMIT 10
+----
+
+The token value is not meant to be parseable into any meaningful information other than being a token for reading the next page.
+
+==== Total count of results
+
+To get the total number of results that will be returned over all pages, use `COUNT(*)` in a query that projects its results into a field. The total count will be returned in the aliased field (using `AS`) or otherwise into a field named `count`.
+
+----
+SELECT * AS customers, COUNT(*) AS total, has_more() AS more FROM customers LIMIT 10
+----
+
+[#has-more]
+==== Check if there are more pages ====
+
+To check if there are more pages left, you can use the function `has_more()` providing a boolean value for the result. This works both for the count and token based offset paging, and also when only using `LIMIT` without any `OFFSET`:
+
+[source,proto,indent=0]
+----
+SELECT * AS customers, has_more() AS more_customers FROM customers LIMIT 10
+----
+
+This query will return `more_customers = true` when the view contains more than 10 customers.
+// end::grpc[]
+// end::spring[]
