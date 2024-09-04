@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+set -e
+
 #
 # Deploy doc sources to another branch.
 #
