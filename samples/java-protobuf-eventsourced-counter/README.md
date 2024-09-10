@@ -7,7 +7,7 @@ While designing your service it is useful to read [designing services](https://d
 ## Developing
 
 This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it, it may be useful to read up on [developing services](https://docs.kalix.io/services/)
+extend it, it may be useful to read up on [Developing services](https://docs.kalix.io/developing-services/)
 and in particular the [Java Protobuf SDK section](https://docs.kalix.io/java-protobuf/)
 
 ## Building
@@ -52,7 +52,7 @@ To deploy your service, install the `kalix` CLI as documented in
 and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
-[Configuring registries](https://docs.kalix.io/projects/container-registries.html)
+[Configuring registries](https://docs.kalix.io/operations/container-registries.html)
 for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.kalix.io)

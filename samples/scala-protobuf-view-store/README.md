@@ -151,7 +151,7 @@ You will need to set your `docker.username` as a system property:
 sbt -Ddocker.username=mary docker:publish
 ```
 
-Refer to [Configuring registries](https://docs.kalix.io/projects/container-registries.html)
+Refer to [Configuring registries](https://docs.kalix.io/operations/container-registries.html)
 for more information on how to make your Docker image available to Kalix.
 
 You can now deploy your service through the [kalix](https://docs.kalix.io/kalix/using-cli.html) CLI:

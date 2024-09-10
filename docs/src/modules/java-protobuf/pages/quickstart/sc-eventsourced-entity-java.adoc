@@ -257,7 +257,7 @@ The `src/main/java/shopping/cart/Main.java` file already contains the required c
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/operations/create-project.html[create your first project], and set this project as the default.
 +
 ----
 kalix auth login
@@ -271,7 +271,7 @@ mvn deploy kalix:deploy
 ----
 include::partial$important-mvn-kalixdeploy.adoc[]
 
-. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
+. You can https://docs.kalix.io/operations/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
 ----
 kalix service list

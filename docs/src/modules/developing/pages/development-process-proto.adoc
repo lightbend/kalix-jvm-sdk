@@ -72,7 +72,7 @@ It is good practice to write unit tests as you implement your services. The kick
 == Package service
 
 Use Docker to package your service and any of its dependencies.
-See https://docs.kalix.io/projects/container-registries.html[Configuring registries] for more information.
+See https://docs.kalix.io/operations/container-registries.html[Configuring registries] for more information.
 
 
 [#_run_locally]
@@ -85,5 +85,5 @@ You can test and debug your services by xref:java-protobuf:running-locally.adoc[
 
 After testing locally, deploy your service to Kalix using the CLI or the Console. The following pages provide information about deployment:
 
-* https://docs.kalix.io/projects/index.html[Working with Kalix projects]
-* https://docs.kalix.io/services/deploy-service.html#_deploy[Deploying a packaged service]
+* https://docs.kalix.io/operations/index.html[Working with Kalix projects]
+* https://docs.kalix.io/operations/deploy-service.html#_deploy[Deploying a packaged service]

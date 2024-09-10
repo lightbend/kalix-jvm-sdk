@@ -144,10 +144,10 @@ To deploy your service, install the `kalix` CLI as documented in
 and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
-[Configuring registries](https://docs.kalix.io/projects/container-registries.html)
+[Configuring registries](https://docs.kalix.io/operations/container-registries.html)
 for more information on how to make your docker image available to Kalix.
 
-Finally, you use the `kalix` CLI to create a project as described in [Create a new Project](https://docs.kalix.io/projects/create-project.html). Once you have a project you can deploy your service into the project either 
+Finally, you use the `kalix` CLI to create a project as described in [Create a new Project](https://docs.kalix.io/operations/create-project.html). Once you have a project you can deploy your service into the project either 
 by using `mvn deploy kalix:deploy` which will package, publish your docker image, and deploy your service to Kalix, 
 or by first packaging and publishing the docker image through `mvn deploy` and 
-then [deploying the image through the `kalix` CLI](https://docs.kalix.io/services/deploy-service.html#_deploy).
+then [deploying the image through the `kalix` CLI](https://docs.kalix.io/operations/deploy-service.html#_deploy).
