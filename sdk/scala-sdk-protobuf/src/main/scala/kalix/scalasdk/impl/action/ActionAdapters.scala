@@ -145,9 +145,8 @@ private[scalasdk] final case class ScalaActionContextAdapter(javaSdkContext: jav
   def getComponentGrpcClient[T](serviceClass: Class[T]): T = javaSdkContext match {
     case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
   }
-  override def getGrpcClient[T](clientClass: Class[T], service: String): T = {
-    getComponentGrpcClient(clientClass)
-  }
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    javaSdkContext.getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 
