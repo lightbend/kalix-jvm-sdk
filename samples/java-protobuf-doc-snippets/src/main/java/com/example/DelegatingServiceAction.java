@@ -5,6 +5,7 @@
 
 package com.example;
 
+import akka.grpc.javadsl.SingleResponseRequestBuilder;
 import kalix.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
 
@@ -37,4 +38,29 @@ public class DelegatingServiceAction extends AbstractDelegatingServiceAction {
     return effects().asyncReply(result);  // <5>
   }
   // end::delegating-action[]
+
+  public Effect<DelegatingServiceApi.Result> addAndReturnLifted(DelegatingServiceApi.Request request) {
+    CounterService counterService = actionContext().getGrpcClient(CounterService.class, "counter");
+    // tag::delegating-action-lifted[]
+    SingleResponseRequestBuilder<CounterApi.IncreaseValue, Empty> counterServiceClientBuilder
+            = ((CounterServiceClient) counterService).increase().addHeader("key", "value"); // <1>
+
+
+    CounterApi.IncreaseValue increaseValue = CounterApi.IncreaseValue.newBuilder()
+            .setCounterId(request.getCounterId())
+            .setValue(1)
+            .build();
+    CompletionStage<Empty> increaseCompleted = counterServiceClientBuilder.invoke(increaseValue);  // <2>
+    // end::delegating-action-lifted[]
+    CompletionStage<CounterApi.CurrentCounter> currentCounterValueAfter = increaseCompleted.thenCompose((empty) ->
+            // once increase completed successfully, ask for the current state after
+            counterService.getCurrentCounter(CounterApi.GetCounter.newBuilder().setCounterId(request.getCounterId()).build())
+    );
+
+    // turn the reply from the other service into our reply type
+    CompletionStage<DelegatingServiceApi.Result> result = currentCounterValueAfter.thenApply(currentCounter ->
+            DelegatingServiceApi.Result.newBuilder().setValue(currentCounter.getValue()).build());
+
+    return effects().asyncReply(result);
+  }
 }

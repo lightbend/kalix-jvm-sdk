@@ -70,6 +70,34 @@ include::example$scala-protobuf-doc-snippets/src/main/scala/com/example/Delegati
 <4> Once we get a response for the `getCurrentCounter` we transform that into a `Response` - the response type of this action method.
 <5> We can reply with a `Future[Result]` using `effects.asyncReply`. Once the `Future` completes, the client will get the response back.
 
+To pass headers to this client you need to `lift` (by casting) the service interface to the specific client.
+In this example, casting the service interface `com.example.CounterService` to the client class `com.example.CounterServiceClient`.
+Once this is done you can call the desired method to create a request builder, add the headers, and then `invoke` the builder with the desired input.
+
+In our delegating implementation:
+
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/DelegatingServiceAction.java
+----
+include::java-protobuf:example$java-protobuf-doc-snippets/src/main/java/com/example/DelegatingServiceAction.java[tag=delegating-action-lifted]
+----
++
+<1> Casting, creating the request builder with `increase()`, and adding the headers to it.
+<2> Invoke the builder with the desired `increaseValue` parameter.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/DelegatingServiceAction.scala
+----
+include::example$scala-protobuf-doc-snippets/src/main/scala/com/example/DelegatingServiceAction.scala[tag=delegating-action-lifted]
+----
++
+<1> Casting, creating the request builder with `increase()`, and adding the headers to it.
+<2> Invoke the builder with the desired `increaseValue` parameter.
+
 For additional documentation about Akka gRPC see the https://doc.akka.io/docs/akka-grpc/current/index.html[Akka gRPC documentation].
 
 == External gRPC services
