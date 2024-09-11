@@ -27,9 +27,9 @@ Before running the code generation tools, make sure you have the following:
 To deploy the Kalix service, you need:
 
 * A https://console.kalix.io[Kalix account]
-* A https://docs.kalix.io/projects/create-project.html[Kalix project]
+* A https://docs.kalix.io/operations/create-project.html[Kalix project]
 * The https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI (kalix)]
-* A configured registry in which to publish the service container image. Refer to https://docs.kalix.io/projects/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Kalix.
+* A configured registry in which to publish the service container image. Refer to https://docs.kalix.io/operations/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Kalix.
 
 :sectnums:
 

@@ -8,7 +8,7 @@ The Java SDK provides a code-first approach to developing Kalix applications. Th
 
 When using the Kalix Java SDK, your services are exposed using traditional Spring REST annotations and serialization is backed by the ubiquitous Jackson library.
 
-NOTE: If you're new to Kalix and the different types of entities that exist in a Kalix app, consider reading https://docs.kalix.io/services/programming-model.html#_what_is_a_kalix_service[this section] before continuing.
+NOTE: If you're new to Kalix and the different types of entities that exist in a Kalix app, consider reading https://docs.kalix.io/concepts/programming-model.html#_what_is_a_kalix_service[this section] before continuing.
 
 == Prerequisites
 
@@ -55,7 +55,7 @@ It's important to understand that interacting directly with a Kalix component is
 
 On the other hand, it is possible to inject non-Kalix classes into Kalix components. Any Spring bean defined in your application can be injected into a Kalix component. However, you must keep in mind that Kalix components can only receive other dependencies through constructor injection.
 
-For more details on how Kalix manage state and distribution, consult the https://docs.kalix.io/services/programming-model.html[Programming model] page.
+For more details on how Kalix manage state and distribution, consult the https://docs.kalix.io/concepts/programming-model.html[Programming model] page.
 
 === @Transactional
 

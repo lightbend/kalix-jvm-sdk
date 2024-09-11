@@ -7,7 +7,7 @@ While designing your service it is useful to read [designing services](https://d
 ## Developing
 
 This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it, it may be useful to read up on [developing services](https://docs.kalix.io/services/)
+extend it, it may be useful to read up on [Developing services](https://docs.kalix.io/developing-services/)
 and in particular the [JVM section](https://docs.kalix.io/java/)
 
 ## Building
@@ -66,7 +66,7 @@ You will need to set your `docker.username` as a system property:
 sbt -Ddocker.username=mary Docker/publish
 ```
 
-Refer to [Configuring registries](https://docs.kalix.io/projects/container-registries.html)
+Refer to [Configuring registries](https://docs.kalix.io/operations/container-registries.html)
 for more information on how to make your docker image available to Kalix.
 
 Finally you can or use the [Kalix Console](https://console.kalix.io)

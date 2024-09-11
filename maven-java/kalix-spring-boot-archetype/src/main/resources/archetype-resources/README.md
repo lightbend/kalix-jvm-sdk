@@ -6,7 +6,7 @@ To understand the Kalix concepts that are the basis for this example, see [Desig
 
 ## Developing
 
-This project contains the framework to create a Kalix service. To understand more about these components, see [Developing services](https://docs.kalix.io/services/) and check Spring-SDK [official documentation](https://docs.kalix.io/spring/index.html). Examples can be found [here](https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples) in the folders with "spring" in their name.
+This project contains the framework to create a Kalix service. To understand more about these components, see [Developing services](https://docs.kalix.io/developing-services/) and check Spring-SDK [official documentation](https://docs.kalix.io/spring/index.html). Examples can be found [here](https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples) in the folders with "spring" in their name.
 
 ## Building
 
@@ -37,7 +37,7 @@ To deploy your service, install the `kalix` CLI as documented in
 and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
-[Configuring registries](https://docs.kalix.io/projects/container-registries.html)
+[Configuring registries](https://docs.kalix.io/operations/container-registries.html)
 for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.kalix.io)

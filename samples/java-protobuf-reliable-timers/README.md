@@ -76,7 +76,7 @@ To deploy your service, install the `kalix` CLI as documented in
 and configure a Docker Registry to upload your docker image to.
 
 You will need to update the `dockerImage` property in the `pom.xml` and refer to
-[Configuring registries](https://docs.kalix.io/projects/container-registries.html)
+[Configuring registries](https://docs.kalix.io/operations/container-registries.html)
 for more information on how to make your docker image available to Kalix.
 
 Finally, you can use the [Kalix Console](https://console.kalix.io)
