@@ -36,10 +36,10 @@ class DelegatingServiceAction(creationContext: ActionCreationContext) extends Ab
 
     val counterService = actionContext.getGrpcClient(classOf[CounterService], "counter")
     // tag::delegating-action-lifted[]
-    val counterServiceClientBuilder: SingleResponseRequestBuilder[IncreaseValue, Empty] =
-      counterService.asInstanceOf[CounterServiceClient].increase().addHeader("key","value") // <1>
     val increaseValue = IncreaseValue(counterId = request.counterId, value = 1)
-    val increaseCompleted = counterServiceClientBuilder.invoke(increaseValue) // <2>
+    val increaseCompleted = counterService.asInstanceOf[CounterServiceClient].increase() // <1>
+      .addHeader("key","value") // <2>
+      .invoke(increaseValue) // <3>
     // end::delegating-action-lifted[]
 
     val currentCounterValueAfter = increaseCompleted.flatMap(_ =>

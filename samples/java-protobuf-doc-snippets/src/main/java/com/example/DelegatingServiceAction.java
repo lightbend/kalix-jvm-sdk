@@ -42,15 +42,13 @@ public class DelegatingServiceAction extends AbstractDelegatingServiceAction {
   public Effect<DelegatingServiceApi.Result> addAndReturnLifted(DelegatingServiceApi.Request request) {
     CounterService counterService = actionContext().getGrpcClient(CounterService.class, "counter");
     // tag::delegating-action-lifted[]
-    SingleResponseRequestBuilder<CounterApi.IncreaseValue, Empty> counterServiceClientBuilder
-            = ((CounterServiceClient) counterService).increase().addHeader("key", "value"); // <1>
-
-
     CounterApi.IncreaseValue increaseValue = CounterApi.IncreaseValue.newBuilder()
             .setCounterId(request.getCounterId())
             .setValue(1)
             .build();
-    CompletionStage<Empty> increaseCompleted = counterServiceClientBuilder.invoke(increaseValue);  // <2>
+    CompletionStage<Empty> increaseCompleted = ((CounterServiceClient) counterService).increase() // <1>
+            .addHeader("key", "value") // <2>
+            .invoke(increaseValue);  // <3>
     // end::delegating-action-lifted[]
     CompletionStage<CounterApi.CurrentCounter> currentCounterValueAfter = increaseCompleted.thenCompose((empty) ->
             // once increase completed successfully, ask for the current state after
