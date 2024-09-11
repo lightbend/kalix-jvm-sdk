@@ -28,7 +28,7 @@ kalix service list
 [#invoke]
 == Invoke your service
 
-Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+Once the service has started successfully, you can https://docs.kalix.io/operations/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
 [source,command line]
 ----

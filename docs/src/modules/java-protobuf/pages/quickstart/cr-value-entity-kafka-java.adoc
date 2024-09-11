@@ -142,13 +142,13 @@ kalix service list
 
 == Invoke your service
 
-Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+Once the service has started successfully, you can https://docs.kalix.io/operations/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
 ----
 kalix service proxy <service name> --grpcui
 ----
 
-The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+The `--grpcui` option also starts and opens a https://docs.kalix.io/operations/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
 
 Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
 
