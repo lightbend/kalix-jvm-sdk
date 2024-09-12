@@ -76,6 +76,7 @@ Once this is done you can build the desired method, add the headers, and then `i
 
 In our delegating implementation:
 
+[.tabset]
 Java::
 +
 [source,java,indent=0]
