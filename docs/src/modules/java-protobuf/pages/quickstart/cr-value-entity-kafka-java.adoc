@@ -21,7 +21,7 @@ Create a customer registry that includes publishing to Kafka. Package it into a 
 ** Java {java-pb-version} or higher
 ** https://maven.apache.org/download.cgi[Maven {minimum_maven_version} or higher, window="new"]
 ** https://github.com/fullstorydev/grpcurl#installation[`grpcurl`, window="new"]
-** Configure your project message broker to use Kafka and create the topic `customer_changes` by following the https://docs.kalix.io/projects/message-brokers.html[Configure message brokers] how-to. When setting the broker the configuration file you pass should be like `kafka/my-dev.kafka.properties` that you can find in this project.
+** Configure your project message broker to use Kafka and create the topic `customer_changes` by following the https://docs.kalix.io/operations/message-brokers.html[Configure message brokers] how-to. When setting the broker the configuration file you pass should be like `kafka/my-dev.kafka.properties` that you can find in this project.
 
 [NOTE]
 ====
@@ -120,7 +120,7 @@ include::example$java-protobuf-customer-registry-kafka-quickstart/src/main/java/
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/operations/create-project.html[create your first project], and set this project as the default.
 +
 ----
 kalix auth login
@@ -134,7 +134,7 @@ mvn deploy kalix:deploy
 ----
 include::partial$important-mvn-kalixdeploy.adoc[]
 
-. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
+. You can https://docs.kalix.io/operations/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
 ----
 kalix service list
@@ -142,13 +142,13 @@ kalix service list
 
 == Invoke your service
 
-Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+Once the service has started successfully, you can https://docs.kalix.io/operations/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
 ----
 kalix service proxy <service name> --grpcui
 ----
 
-The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+The `--grpcui` option also starts and opens a https://docs.kalix.io/operations/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
 
 Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
 

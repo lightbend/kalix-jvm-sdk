@@ -10,7 +10,7 @@ resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/eclipse-temurin:21.0.2_13-jre-jammy"
-// For Docker setup see https://docs.kalix.io/projects/container-registries.html
+// For Docker setup see https://docs.kalix.io/operations/container-registries.html
 dockerRepository := sys.props.get("docker.registry").orElse(Some("kcr.us-east-1.kalix.io"))
 dockerUsername := sys.props.get("docker.username") // use your Kalix organization name
 dockerUpdateLatest := true

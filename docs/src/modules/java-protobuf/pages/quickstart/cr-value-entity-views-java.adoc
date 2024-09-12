@@ -106,7 +106,7 @@ This will result in a compilation error in the `Main` class. That is expected be
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/operations/create-project.html[create your first project], and set this project as the default.
 +
 ----
 kalix auth login
@@ -120,7 +120,7 @@ mvn deploy kalix:deploy
 ----
 include::partial$important-mvn-kalixdeploy.adoc[]
 
-. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
+. You can https://docs.kalix.io/operations/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
 ----
 kalix service list
@@ -129,13 +129,13 @@ kalix service list
 [#invoke]
 == Invoke your service
 
-Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+Once the service has started successfully, you can https://docs.kalix.io/operations/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
 ----
 kalix service proxy <service name> --grpcui
 ----
 
-The `--grpcui` option also starts and opens a https://docs.kalix.io/services/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
+The `--grpcui` option also starts and opens a https://docs.kalix.io/operations/invoke-service.html#_using_the_built_in_graphical_client[gRPC web UI] for exploring and invoking the service (available at http://127.0.0.1:8080/ui/).
 
 Or you can use command line gRPC or HTTP clients, such as `grpcurl` or `curl`, to invoke the service through the proxy at `localhost:8080`, using plaintext connections.
 
@@ -174,7 +174,7 @@ grpcurl \
   customer.view.CustomerByEmail/GetCustomer
 ----
 
-You can https://docs.kalix.io/services/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
+You can https://docs.kalix.io/operations/invoke-service.html#_exposing_services_to_the_internet[expose the service to the internet]. A generated hostname will be returned from the expose command:
 
 ----
 kalix service expose <service name>

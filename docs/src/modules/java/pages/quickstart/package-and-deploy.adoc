@@ -3,7 +3,7 @@
 
 To build and publish the container image and then deploy the service, follow these steps:
 
-. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/projects/create-project.html[create your first project], and set this project as the default.
+. If you haven't done so yet, sign in to your Kalix account. If this is your first time using Kalix, this will let you register an account, https://docs.kalix.io/operations/create-project.html[create your first project], and set this project as the default.
 +
 [source,command line]
 ----
@@ -18,7 +18,7 @@ mvn deploy kalix:deploy
 ----
 include::partial$important-mvn-kalixdeploy.adoc[]
 
-. You can https://docs.kalix.io/services/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
+. You can https://docs.kalix.io/operations/deploy-service.html#_verify_service_status[verify the status of the deployed service] using:
 +
 [source,command line]
 ----
@@ -28,7 +28,7 @@ kalix service list
 [#invoke]
 == Invoke your service
 
-Once the service has started successfully, you can https://docs.kalix.io/services/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
+Once the service has started successfully, you can https://docs.kalix.io/operations/invoke-service.html#_testing_and_development[start a proxy locally] to access the service:
 
 [source,command line]
 ----
