@@ -5,7 +5,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.1.41
+    image: gcr.io/kalix-public/kalix-runtime:1.1.45
     container_name: ]]#${artifactId}#[[
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"
