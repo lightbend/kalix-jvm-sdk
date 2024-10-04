@@ -339,6 +339,11 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
 
         case Empty =>
           throw ProtocolException(init, "Workflow received empty/unknown message")
+
+        case _ =>
+          // ignore, UpdateState from the runtime and update this case when introducing replication to Kalix
+          // currently added to satisfy the compiler
+          Future.successful(WorkflowStreamOut(WorkflowStreamOut.Message.Empty))
       }
 
     (flow, workflowConfig)
