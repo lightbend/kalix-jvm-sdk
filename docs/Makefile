@@ -25,6 +25,13 @@ antora_docker_image_tag := 0.0.5
 root_dir := $(shell git rev-parse --show-toplevel)
 base_path := $(shell git rev-parse --show-prefix)
 
+# Centralized entrypoint detection
+ifeq ($(shell uname -s | grep -E 'MINGW|CYGWIN|MSYS'),)
+  ENTRYPOINT = /bin/sh
+else
+  ENTRYPOINT = //bin/sh
+endif
+
 .SILENT:
 
 build: dev
@@ -107,7 +114,7 @@ dev-html:
 	docker run \
 		-v ${root_dir}:/antora \
 		--rm \
-		--entrypoint /bin/sh \
+		--entrypoint $(ENTRYPOINT) \
 		-t ${antora_docker_image}:${antora_docker_image_tag} \
 		-c "cd /antora/${base_path} && antora --cache-dir=.cache/antora --stacktrace --log-failure-level=warn dev/antora.yml"
 	@echo "Generated docs at dev/build/site/java/index.html"
@@ -116,7 +123,7 @@ validate-xrefs:
 	docker run \
 		-v ${root_dir}:/antora \
 		--rm \
-		--entrypoint /bin/sh \
+		--entrypoint $(ENTRYPOINT) \
 		-t ${antora_docker_image}:${antora_docker_image_tag} \
 		-c 'cd /antora/${base_path} && NODE_PATH="$$(npm -g root)" antora --generator @antora/xref-validator dev/antora.yml'
 
@@ -124,7 +131,7 @@ validate-links:
 	docker run \
 		-v ${root_dir}:/antora \
 		--rm \
-		--entrypoint /bin/sh \
+		--entrypoint $(ENTRYPOINT) \
 		-t ${antora_docker_image}:${antora_docker_image_tag} \
 		-c "cd /antora/${base_path} && find src -name '*.adoc' -print0 | xargs -0 -n1 asciidoc-link-check --progress --config config/validate-links.json"
 

@@ -44,6 +44,30 @@ function _set_sdk_version {
   fi
 }
 
+function calculate_relative_path() {
+  local target="$1"
+  local base="$2"
+  local relative_prefix=""
+  
+  # Normalize the paths
+  normalize_path() {
+    local path="$1"
+    echo "$(cd "$(dirname "$path")" && pwd)/$(basename "$path")"
+  }
+
+  local target_abs=$(normalize_path "$target")
+  local base_abs=$(normalize_path "$base")
+
+  # Calculate the relative path
+  while [ "${target_abs#$base_abs}" = "${target_abs}" ]; do
+    base_abs=$(dirname "$base_abs")
+    relative_prefix="../${relative_prefix}"
+  done
+
+  # Return the relative path
+  echo "${relative_prefix}${target_abs#$base_abs/}"
+}
+
 function _bundle {
   local zip
   local sample
@@ -61,10 +85,16 @@ function _bundle {
   mkdir -p "$(dirname $zip)"
 
   local -r sample_name="$(basename "$sample")"
-  local -r sample_bundle_dir="$bundle_dir/$sample_name"
+  # Detect Windows
+  if [[ "$(uname -s)" =~ ^(MINGW|CYGWIN|MSYS) ]]; then
+    local -r sample_bundle_dir_abs="$bundle_dir/$sample_name"
+    local -r sample_bundle_dir=$(calculate_relative_path "$sample_bundle_dir_abs" "$(pwd)")
+  else
+    local -r sample_bundle_dir="$bundle_dir/$sample_name"
+  fi
   local -r zip_dir="$(cd -P "$(dirname "$zip")" && pwd)"
   local -r zip_file="$zip_dir/$(basename "$zip")"
-
+  
   rsync -a --exclude-from "$sample/.bundleignore" --exclude ".bundleignore" "$sample"/ "$sample_bundle_dir"/
 
   _remove_doc_tags "$sample_bundle_dir"
