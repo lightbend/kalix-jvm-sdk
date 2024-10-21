@@ -96,6 +96,7 @@ object Dependencies {
     akkaDependency("akka-stream"),
     akkaDependency("akka-slf4j"),
     akkaDependency("akka-discovery"),
+    akkaDependency("akka-pki"),
     akkaHttpDependency("akka-http"),
     akkaHttpDependency("akka-http-core"),
     akkaHttpDependency("akka-http-spray-json"),
