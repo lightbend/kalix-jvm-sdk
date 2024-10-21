@@ -115,7 +115,12 @@ final class KalixRunner private[javasdk] (
    * Creates a KalixRunner from the given services. Use the default config to create the internal ActorSystem.
    */
   def this(services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]], sdkName: String) = {
-    this(ActorSystem("kalix", KalixRunner.loadPreparedConfig()), services.asScala.toMap, aclDescriptor = None, sdkName)
+    this(
+      (new KalixRunnerLicenseKeySupplier).aroundActorSystemCreation(() =>
+        ActorSystem("kalix", KalixRunner.loadPreparedConfig())),
+      services.asScala.toMap,
+      aclDescriptor = None,
+      sdkName)
   }
 
   def this(
@@ -123,7 +128,8 @@ final class KalixRunner private[javasdk] (
       aclDescriptor: Option[FileDescriptorProto],
       sdkName: String) =
     this(
-      ActorSystem("kalix", KalixRunner.loadPreparedConfig()),
+      (new KalixRunnerLicenseKeySupplier).aroundActorSystemCreation(() =>
+        ActorSystem("kalix", KalixRunner.loadPreparedConfig())),
       services.asScala.toMap,
       aclDescriptor = aclDescriptor,
       sdkName)
@@ -137,7 +143,12 @@ final class KalixRunner private[javasdk] (
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
       config: Config,
       sdkName: String) =
-    this(ActorSystem("kalix", KalixRunner.prepareConfig(config)), services.asScala.toMap, aclDescriptor = None, sdkName)
+    this(
+      (new KalixRunnerLicenseKeySupplier).aroundActorSystemCreation(() =>
+        ActorSystem("kalix", KalixRunner.prepareConfig(config))),
+      services.asScala.toMap,
+      aclDescriptor = None,
+      sdkName)
 
   def this(
       services: java.util.Map[String, java.util.function.Function[ActorSystem, Service]],
@@ -145,7 +156,8 @@ final class KalixRunner private[javasdk] (
       aclDescriptor: Option[FileDescriptorProto],
       sdkName: String) =
     this(
-      ActorSystem("kalix", KalixRunner.prepareConfig(config)),
+      (new KalixRunnerLicenseKeySupplier).aroundActorSystemCreation(() =>
+        ActorSystem("kalix", KalixRunner.prepareConfig(config))),
       services.asScala.toMap,
       aclDescriptor = aclDescriptor,
       sdkName)
