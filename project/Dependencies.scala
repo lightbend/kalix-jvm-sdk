@@ -19,10 +19,9 @@ object Dependencies {
   val Scala3Version = "3.3.3"
   val CrossScalaVersions = Seq(ScalaVersion, Scala3Version)
 
-  val ProtobufVersion = // akka.grpc.gen.BuildInfo.googleProtobufVersion
-    "3.21.12" // explicitly overriding the 3.21.1 version from Akka gRPC 2.1.6 (even though its build says 3.20.1)
+  val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.9.3"
+  val AkkaVersion = "2.9.7"
   val AkkaHttpVersion = "10.6.3" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
   // https://github.com/akka/akka/blob/main/project/Dependencies.scala#L31
@@ -97,6 +96,7 @@ object Dependencies {
     akkaDependency("akka-stream"),
     akkaDependency("akka-slf4j"),
     akkaDependency("akka-discovery"),
+    akkaDependency("akka-pki"),
     akkaHttpDependency("akka-http"),
     akkaHttpDependency("akka-http-core"),
     akkaHttpDependency("akka-http-spray-json"),
