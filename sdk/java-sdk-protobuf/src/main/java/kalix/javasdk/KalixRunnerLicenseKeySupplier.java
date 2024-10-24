@@ -20,8 +20,7 @@ class KalixRunnerLicenseKeySupplier implements LicenseKeySupplier {
 
   @Override
   public String get(Config config) {
-    // FIXME
-    return "";
+    return "3CecWl2eB9O9eHXVjfZjhSA55GSJTudOl8i8gTiPFDLe8MmzU0iPH8V8Ma8kQNmhpu8hzdTesrFa0931MAKNJevZAJimVbQrzDo9CWJ2wgRHAQA55EZrp0OFH8hurn17aPStA57p49suFWd48w8jIeWhzJ47FZPc9wheI9HBORPDdFch8XvogD3tTEJEeaPupCcmizJ27qz0AGSMtD73BuqmRF8sIHWvNAhoMGN4vTabIGi4r";
   }
 
   <A> A aroundActorSystemCreation(Supplier<A> creator) {
