@@ -20,7 +20,6 @@ import com.google.protobuf.UnsafeByteOperations
 import com.google.protobuf.WireFormat
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
-import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.AnySupport.Prefer.Java
 import kalix.javasdk.impl.AnySupport.Prefer.Scala
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
@@ -33,12 +32,21 @@ import scala.collection.compat.immutable.ArraySeq
 
 object AnySupport {
 
+  val KalixJsonTypeUrlPrefix = "json.kalix.io/"
+  val AkkaJsonTypeUrlPrefix = "json.akka.io/"
+
   private final val KalixPrimitiveFieldNumber = 1
   final val KalixPrimitive = "type.kalix.io/"
   final val DefaultTypeUrlPrefix = "type.googleapis.com"
   final val ProtobufEmptyTypeUrl = "type.googleapis.com/google.protobuf.Empty"
 
   private val log = LoggerFactory.getLogger(classOf[AnySupport])
+
+  def isJsonTypeUrl(typeUrl: String): Boolean =
+    typeUrl.startsWith(KalixJsonTypeUrlPrefix) || typeUrl.startsWith(AkkaJsonTypeUrlPrefix)
+
+  def stripJsonTypeUrlPrefix(typeUrl: String): String =
+    typeUrl.stripPrefix(AkkaJsonTypeUrlPrefix).stripPrefix(KalixJsonTypeUrlPrefix)
 
   sealed abstract class Primitive[T: ClassTag] {
     val name: String = fieldType.name().toLowerCase(Locale.ROOT)
@@ -420,7 +428,7 @@ class AnySupport(
       else
         com.google.protobuf.wrappers.StringValue.of(string)
 
-    } else if (typeUrl.startsWith(JsonSupport.KALIX_JSON)) {
+    } else if (isJsonTypeUrl(typeUrl)) {
       // we do not actually parse JSON here but returns it as is and let the user
       // decide which json type to try decode it into etc. based on the type_url which
       // may have additional detail about what it can be JSON-deserialized into
