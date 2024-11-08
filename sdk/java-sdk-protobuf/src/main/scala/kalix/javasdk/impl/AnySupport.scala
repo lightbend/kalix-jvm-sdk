@@ -48,6 +48,10 @@ object AnySupport {
   def stripJsonTypeUrlPrefix(typeUrl: String): String =
     typeUrl.stripPrefix(AkkaJsonTypeUrlPrefix).stripPrefix(KalixJsonTypeUrlPrefix)
 
+  def replaceAkkaJsonPrefix(typeUrl: String): String =
+    if (typeUrl.startsWith(AkkaJsonTypeUrlPrefix)) KalixJsonTypeUrlPrefix + typeUrl.stripPrefix(AkkaJsonTypeUrlPrefix)
+    else typeUrl
+
   sealed abstract class Primitive[T: ClassTag] {
     val name: String = fieldType.name().toLowerCase(Locale.ROOT)
     val fullName: String = KalixPrimitive + name
