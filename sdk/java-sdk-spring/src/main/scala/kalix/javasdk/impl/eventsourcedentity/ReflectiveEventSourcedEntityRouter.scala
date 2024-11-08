@@ -4,8 +4,8 @@
 
 package kalix.javasdk.impl.eventsourcedentity
 
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import com.google.protobuf.{Any => JavaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.eventsourcedentity.CommandContext
 import kalix.javasdk.eventsourcedentity.EventSourcedEntity

@@ -56,22 +56,22 @@ jobs:
 
       - name: Run javafmt checks
         run: |
-          sbt --client javafmtCheckAll || \
+          sbt javafmtCheckAll || \
             { echo "[error] Code not formatted prior to commit. Run 'sbt javafmtAll' then commit the reformatted code."; false; }
 
       - name: Run header checks
         run: |
-          sbt --client headerCheckAll || \
+          sbt headerCheckAll || \
             { echo "[error] Code missing headers prior to commit. Run 'sbt headerCreateAll' then commit the updated code."; false; }
 
       - name: Run scalafmt checks
         run: |
-          sbt --client "scalafmtCheckAll; scalafmtSbtCheck" || \
+          sbt "scalafmtCheckAll; scalafmtSbtCheck" || \
             { echo "[error] Code not formatted prior to commit. Run 'sbt scalafmtAll scalafmtSbt' then commit the reformatted code."; false; }
 
       - name: sbt shutdown
         run: |
-          sbt --client shutdown
+          sbt shutdown
 
   publish-local:
     name: Build and publish artifacts and plugins locally
@@ -766,9 +766,9 @@ jobs:
           cd samples/${DIR}
           echo "Running sbt on ${DIR} with SDK version: '$SDK_VERSION'"
           echo "==== Testing with Scala 2.13 ===="
-          sbt --client -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! Test/compile'
+          sbt -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! Test/compile'
           echo "==== Testing with Scala 3 ===="
-          sbt --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! Test/compile'
+          sbt -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! Test/compile'
 
       - name: sbt test
         if: matrix.test
@@ -780,9 +780,9 @@ jobs:
           cd samples/${DIR}
           ${PRE_CMD}
           echo "==== Testing with Scala 2.13 ===="
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! test'
+          sbt  -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! test'
           echo "==== Testing with Scala 3 ===="
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! test'
+          sbt  -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! test'
 
       - name: rm & sbt Test/compile
         env:
@@ -792,6 +792,6 @@ jobs:
           cd samples/${DIR}
           echo "==== Verifying that generated unmanaged sources compile with Scala 2.13 ===="
           rm -rf src/main/scala src/test/scala src/it/scala
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! Test/compile'
+          sbt  -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! Test/compile'
           echo "==== Verifying that generated unmanaged sources compile with Scala 3 ===="
-          sbt  --client -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! Test/compile'
+          sbt  -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! Test/compile'

@@ -6,12 +6,12 @@ package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import com.google.protobuf.any.{Any => ScalaPbAny}
-import kalix.javasdk.action.{Action, MessageEnvelope}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import kalix.javasdk.action.{ Action, MessageEnvelope }
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.reflection.Reflect
-import kalix.javasdk.impl.{CommandHandler, InvocationContext}
+import kalix.javasdk.impl.{ CommandHandler, InvocationContext }
 
 // TODO: abstract away reactor dependency
 import reactor.core.publisher.Flux
