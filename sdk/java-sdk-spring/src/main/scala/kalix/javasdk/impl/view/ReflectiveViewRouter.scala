@@ -6,11 +6,10 @@ package kalix.javasdk.impl.view
 
 import java.lang.reflect.ParameterizedType
 import java.util.{ Map => JMap }
-
 import scala.jdk.CollectionConverters._
-
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.ComponentDescriptorFactory
@@ -51,7 +50,7 @@ class ReflectiveViewRouter[S, V <: View[S]](
     val commandHandler = commandHandlerLookup(commandName)
 
     val anyEvent = event.asInstanceOf[ScalaPbAny]
-    val inputTypeUrl = anyEvent.typeUrl
+    val inputTypeUrl = AnySupport.replaceAkkaJsonPrefix(anyEvent.typeUrl)
     val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
     methodInvoker match {

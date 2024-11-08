@@ -7,7 +7,6 @@ package kalix.javasdk.impl
 import com.google.protobuf.Descriptors
 import com.google.protobuf.DynamicMessage
 import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.javasdk.JsonSupport
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.AnySupport.BytesPrimitive
 import kalix.javasdk.impl.reflection.DynamicMessageContext
@@ -24,7 +23,7 @@ object InvocationContext {
       metadata: Metadata = Metadata.EMPTY): InvocationContext = {
 
     val dynamicMessage =
-      if (anyMessage.typeUrl.startsWith(JsonSupport.KALIX_JSON) ||
+      if (AnySupport.isJsonTypeUrl(anyMessage.typeUrl) ||
         anyMessage.typeUrl == BytesPrimitive.fullName) {
         DynamicMessage
           .newBuilder(methodDescriptor)

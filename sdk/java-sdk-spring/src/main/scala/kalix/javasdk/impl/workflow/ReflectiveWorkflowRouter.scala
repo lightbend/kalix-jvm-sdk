@@ -4,7 +4,8 @@
 
 package kalix.javasdk.impl.workflow
 
-import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.any.{Any => ScalaPbAny}
+import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.workflow.AbstractWorkflow
@@ -36,7 +37,7 @@ class ReflectiveWorkflowRouter[S, W <: Workflow[S]](
         commandHandler.requestMessageDescriptor,
         commandContext.metadata())
 
-    val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
+    val inputTypeUrl = AnySupport.replaceAkkaJsonPrefix(command.asInstanceOf[ScalaPbAny].typeUrl)
 
     commandHandler
       .getInvoker(inputTypeUrl)

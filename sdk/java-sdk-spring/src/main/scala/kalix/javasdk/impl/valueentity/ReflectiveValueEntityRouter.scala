@@ -5,9 +5,9 @@
 package kalix.javasdk.impl.valueentity
 
 import java.lang.reflect.ParameterizedType
-
-import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.any.{Any => ScalaPbAny}
 import kalix.javasdk.JsonSupport
+import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
 import kalix.javasdk.valueentity.CommandContext
@@ -36,7 +36,7 @@ class ReflectiveValueEntityRouter[S, E <: ValueEntity[S]](
         commandHandler.requestMessageDescriptor,
         commandContext.metadata())
 
-    val inputTypeUrl = command.asInstanceOf[ScalaPbAny].typeUrl
+    val inputTypeUrl = AnySupport.replaceAkkaJsonPrefix(command.asInstanceOf[ScalaPbAny].typeUrl)
 
     commandHandler
       .getInvoker(inputTypeUrl)

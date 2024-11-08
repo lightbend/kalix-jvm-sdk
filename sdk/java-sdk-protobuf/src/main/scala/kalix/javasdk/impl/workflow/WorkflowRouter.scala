@@ -8,20 +8,18 @@ import java.nio.ByteBuffer
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunc }
-
 import scala.compat.java8.FutureConverters.CompletionStageOps
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters.RichOptional
-
 import com.google.api.HttpBody
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.HttpResponse
 import kalix.javasdk.HttpResponse.STATUS_CODE_EXTENSION_TYPE_URL
-import kalix.javasdk.JsonSupport
 import kalix.javasdk.StatusCode
+import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.GrpcDeferredCall
 import kalix.javasdk.impl.MessageCodec
 import kalix.javasdk.impl.MetadataImpl
@@ -124,7 +122,7 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
   // in same cases, the Proxy may send a message with typeUrl set to object.
   // if that's the case, we need to patch the message using the typeUrl from the expected input class
   private def decodeInput(messageCodec: MessageCodec, result: ScalaPbAny, expectedInputClass: Class[_]) = {
-    if (result.typeUrl == JsonSupport.KALIX_JSON + "object") {
+    if (AnySupport.isJsonTypeUrl(result.typeUrl) && result.typeUrl.endsWith("object")) {
       val typeUrl = messageCodec.typeUrlFor(expectedInputClass)
       messageCodec.decodeMessage(result.copy(typeUrl = typeUrl))
     } else if (result.typeUrl == "type.googleapis.com/google.api.HttpBody") {

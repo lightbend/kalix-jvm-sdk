@@ -26,6 +26,7 @@ import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.UnsafeByteOperations;
 import kalix.javasdk.annotations.Migration;
+import kalix.javasdk.impl.AnySupport;
 import kalix.javasdk.impl.ByteStringEncoding;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ import java.util.Optional;
 
 public final class JsonSupport {
 
-  public static final String KALIX_JSON = "json.kalix.io/";
+  public static final String KALIX_JSON = AnySupport.KalixJsonTypeUrlPrefix();
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -132,13 +133,13 @@ public final class JsonSupport {
    * @throws IllegalArgumentException if the given value cannot be decoded to a T
    */
   public static <T> T decodeJson(Class<T> valueClass, Any any) {
-    if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
+    if (!(AnySupport.isJsonTypeUrl(any.getTypeUrl()))) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
               + any.getTypeUrl()
               + "] cannot be decoded as JSON, must start with ["
               + KALIX_JSON
-              + "]");
+              + "] or [" + AnySupport.AkkaJsonTypeUrlPrefix() + "]");
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
@@ -213,12 +214,14 @@ public final class JsonSupport {
   }
 
   public static <T, C extends Collection<T>> C decodeJsonCollection(Class<T> valueClass, Class<C> collectionType, Any any) {
-    if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
+    if (!(AnySupport.isJsonTypeUrl(any.getTypeUrl()))) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
               + any.getTypeUrl()
               + "] cannot be decoded as JSON, must start with ["
               + KALIX_JSON
+              + "] or ["
+              + AnySupport.AkkaJsonTypeUrlPrefix()
               + "]");
     } else {
       try {

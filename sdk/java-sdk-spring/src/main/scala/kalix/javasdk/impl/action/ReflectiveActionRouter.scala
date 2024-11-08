@@ -6,11 +6,12 @@ package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.stream.javadsl.Source
-import com.google.protobuf.any.{ Any => ScalaPbAny }
-import kalix.javasdk.action.{ Action, MessageEnvelope }
+import com.google.protobuf.any.{Any => ScalaPbAny}
+import kalix.javasdk.action.{Action, MessageEnvelope}
+import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.AnySupport.ProtobufEmptyTypeUrl
 import kalix.javasdk.impl.reflection.Reflect
-import kalix.javasdk.impl.{ CommandHandler, InvocationContext }
+import kalix.javasdk.impl.{CommandHandler, InvocationContext}
 
 // TODO: abstract away reactor dependency
 import reactor.core.publisher.Flux
@@ -34,7 +35,7 @@ class ReflectiveActionRouter[A <: Action](
         commandHandler.requestMessageDescriptor,
         message.metadata())
 
-    val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
+    val inputTypeUrl = AnySupport.replaceAkkaJsonPrefix(message.payload().asInstanceOf[ScalaPbAny].typeUrl)
     val methodInvoker = commandHandler.lookupInvoker(inputTypeUrl)
 
     // lookup ComponentClient
@@ -79,7 +80,7 @@ class ReflectiveActionRouter[A <: Action](
           componentMethod.requestMessageDescriptor,
           message.metadata())
 
-      val inputTypeUrl = message.payload().asInstanceOf[ScalaPbAny].typeUrl
+      val inputTypeUrl = AnySupport.replaceAkkaJsonPrefix(message.payload().asInstanceOf[ScalaPbAny].typeUrl)
       componentMethod.lookupInvoker(inputTypeUrl) match {
         case Some(methodInvoker) =>
           val response = methodInvoker.invoke(action, context).asInstanceOf[Flux[Action.Effect[_]]]
