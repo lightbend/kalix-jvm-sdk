@@ -5,7 +5,7 @@
 package kalix.javasdk.impl.valueentity
 
 import java.lang.reflect.ParameterizedType
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.JsonSupport
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.CommandHandler

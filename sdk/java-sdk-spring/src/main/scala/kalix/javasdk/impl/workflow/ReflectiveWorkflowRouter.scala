@@ -4,7 +4,7 @@
 
 package kalix.javasdk.impl.workflow
 
-import com.google.protobuf.any.{Any => ScalaPbAny}
+import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.impl.AnySupport
 import kalix.javasdk.impl.CommandHandler
 import kalix.javasdk.impl.InvocationContext
