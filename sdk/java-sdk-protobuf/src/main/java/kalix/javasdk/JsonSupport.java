@@ -36,6 +36,7 @@ import java.util.Optional;
 public final class JsonSupport {
 
   public static final String KALIX_JSON = "json.kalix.io/";
+  public static final String AKKA_JSON = "json.akka.io/";
 
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -121,6 +122,10 @@ public final class JsonSupport {
         objectMapper.writerFor(value.getClass()).writeValueAsBytes(value));
   }
 
+  private static boolean isKalixOrAkkaJson(String typeUrl) {
+    return typeUrl.startsWith(KALIX_JSON) || typeUrl.startsWith(AKKA_JSON);
+  }
+
   /**
    * Decode the given protobuf Any object to an instance of T using Jackson. The object must have
    * the JSON string as bytes as value and a type URL starting with "json.kalix.io/".
@@ -132,12 +137,14 @@ public final class JsonSupport {
    * @throws IllegalArgumentException if the given value cannot be decoded to a T
    */
   public static <T> T decodeJson(Class<T> valueClass, Any any) {
-    if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
+    if (!(isKalixOrAkkaJson(any.getTypeUrl()))) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
               + any.getTypeUrl()
               + "] cannot be decoded as JSON, must start with ["
               + KALIX_JSON
+              + "] or ["
+              + AKKA_JSON
               + "]");
     } else {
       try {
@@ -213,12 +220,14 @@ public final class JsonSupport {
   }
 
   public static <T, C extends Collection<T>> C decodeJsonCollection(Class<T> valueClass, Class<C> collectionType, Any any) {
-    if (!any.getTypeUrl().startsWith(KALIX_JSON)) {
+    if (!(isKalixOrAkkaJson(any.getTypeUrl()))) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
               + any.getTypeUrl()
               + "] cannot be decoded as JSON, must start with ["
               + KALIX_JSON
+              + "] or ["
+              + AKKA_JSON
               + "]");
     } else {
       try {
