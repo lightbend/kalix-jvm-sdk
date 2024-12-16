@@ -59,10 +59,6 @@ class JavaWorkflowAdapterSpec extends AnyWordSpec with Matchers {
 class DummyWorkflow extends ProtoWorkflow[Empty] {
   override def emptyState: Empty = Empty()
 
-  /**
-   * @return
-   *   A workflow definition in a form of steps and transitions between them.
-   */
   override def definition: AbstractWorkflow.WorkflowDef[Empty] = {
     val step1 = step("step1")
       .call { _: Empty =>

@@ -171,7 +171,7 @@ public class TransferWorkflow extends AbstractTransferWorkflow {
       .addStep(waitForAcceptation)
       .addStep(compensateWithdraw) // <4>
       .addStep(failoverHandler);
-      // end::recover-strategy[]
+    // end::recover-strategy[]
   }
 
   @Override
