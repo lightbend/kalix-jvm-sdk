@@ -33,6 +33,7 @@ facto
 enum
 env
 failover
+Failover
 [Gg]itHub
 googleCloud
 grpcui
