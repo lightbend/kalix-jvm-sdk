@@ -32,7 +32,7 @@ dev
 facto
 enum
 env
-failover
+[Ff]ailover
 [Gg]itHub
 googleCloud
 grpcui

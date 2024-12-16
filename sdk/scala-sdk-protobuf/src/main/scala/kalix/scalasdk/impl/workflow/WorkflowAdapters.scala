@@ -81,7 +81,16 @@ private[scalasdk] final class JavaWorkflowAdapter[S >: Null](scalaSdkWorkflow: A
               case kalix.scalasdk.impl.workflow.WorkflowEffectImpl.TransitionalEffectImpl(javaEffect) => javaEffect
             }
           })
-        javaWorkflowDef.addStep(javaCallStep)
+        scalaDefinition.stepConfigs
+          .find(_.stepName == callStep.name)
+          .flatMap { stepConfig =>
+            stepConfig.timeout.map(_.toJava).foreach(javaCallStep.timeout)
+            stepConfig.recoverStrategy
+          } match {
+          case Some(recoverStrategy) => javaWorkflowDef.addStep(javaCallStep, convertToJava(recoverStrategy))
+          case None                  => javaWorkflowDef.addStep(javaCallStep)
+        }
+
       case asyncCallStep: AsyncCallStep[Any @unchecked, Any @unchecked, Any @unchecked] =>
         val javaAsyncCallStep = new javasdk.workflow.AbstractWorkflow.AsyncCallStep(
           asyncCallStep.name,
@@ -95,7 +104,16 @@ private[scalasdk] final class JavaWorkflowAdapter[S >: Null](scalaSdkWorkflow: A
               case kalix.scalasdk.impl.workflow.WorkflowEffectImpl.TransitionalEffectImpl(javaEffect) => javaEffect
             }
           })
-        javaWorkflowDef.addStep(javaAsyncCallStep)
+
+        scalaDefinition.stepConfigs
+          .find(_.stepName == asyncCallStep.name)
+          .flatMap { stepConfig =>
+            stepConfig.timeout.map(_.toJava).foreach(javaAsyncCallStep.timeout)
+            stepConfig.recoverStrategy
+          } match {
+          case Some(recoverStrategy) => javaWorkflowDef.addStep(javaAsyncCallStep, convertToJava(recoverStrategy))
+          case None                  => javaWorkflowDef.addStep(javaAsyncCallStep)
+        }
     }
     scalaDefinition.workflowTimeout.map(_.toJava).foreach(javaWorkflowDef.timeout)
     scalaDefinition.stepTimeout.map(_.toJava).foreach(javaWorkflowDef.defaultStepTimeout)

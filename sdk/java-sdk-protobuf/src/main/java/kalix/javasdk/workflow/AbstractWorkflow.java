@@ -339,6 +339,7 @@ public abstract class AbstractWorkflow<S> {
      */
     public WorkflowDef<S> addStep(Step step) {
       addStepWithValidation(step);
+      step.timeout().ifPresent(timeout -> stepConfigs.add(new StepConfig(step.name(), Optional.of(timeout), Optional.empty())));
       return this;
     }
 
