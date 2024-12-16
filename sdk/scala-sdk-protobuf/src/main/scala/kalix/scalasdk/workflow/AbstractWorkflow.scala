@@ -228,6 +228,8 @@ object AbstractWorkflow {
      */
     def addStep(step: AbstractWorkflow.Step): AbstractWorkflow.WorkflowDef[S] = {
       addStepWithValidation(step)
+      step.timeout.foreach(timeout =>
+        _stepConfigs.addOne(AbstractWorkflow.StepConfig(step.name, Option(timeout), None)))
       this
     }
 
