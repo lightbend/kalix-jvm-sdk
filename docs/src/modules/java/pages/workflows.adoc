@@ -201,6 +201,7 @@ include::example$java-spring-transfer-workflow-compensation/src/main/java/com/ex
 <1> Sets a failover transition in case of a workflow timeout.
 <2> Sets a default failover transition for all steps with maximum number of retries.
 <3> Overrides the step recovery strategy for the `deposit` step.
+<4> Failover steps should be added like any other steps.
 
 
 NOTE: In case of a workflow timeout one last failover step can be performed. Transitions from that failover step will be ignored.

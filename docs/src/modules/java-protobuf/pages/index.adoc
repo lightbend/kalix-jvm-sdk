@@ -12,7 +12,7 @@ NOTE: Lightbend provides Tier 1 support for the [.group-java]#Java# [.group-scal
 
 Your development project needs to include the Kalix [.group-java]#Java# [.group-scala]#Scala# Protobuf SDK and logic to start the gRPC server. You define your components in gRPC descriptors and use `protoc` to compile them. Finally, you implement business logic for service components.
 
-To save the work of starting from scratch, the Java xref:java-protobuf:project-template.adoc[code generation tool] creates a project from a template, complete with descriptors and implementations. Or, you can start from one of our fully implemented https://docs.kalix.io/samples/index.html[sample applications].
+To save the work of starting from scratch, the Java xref:java-protobuf:project-template.adoc[code generation tool] creates a project from a template, complete with descriptors and implementations.
 
 == Prerequisites
 

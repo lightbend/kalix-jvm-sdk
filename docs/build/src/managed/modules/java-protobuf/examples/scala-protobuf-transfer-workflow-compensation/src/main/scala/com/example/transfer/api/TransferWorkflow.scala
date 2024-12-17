@@ -157,10 +157,10 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
       .defaultStepRecoverStrategy(maxRetries(1).failoverTo("failover-handler")) // <2>
       .addStep(withdraw)
       .addStep(deposit, maxRetries(2).failoverTo("compensate-withdraw")) // <3>
-      // end::recover-strategy[]
-      .addStep(compensateWithdraw)
       .addStep(waitForAcceptation)
+      .addStep(compensateWithdraw) // <4>
       .addStep(failoverHandler);
+      // end::recover-strategy[]
   }
 
   override def start(currentState: TransferState, transfer: Transfer): Effect[Empty] = {
