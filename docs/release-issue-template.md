@@ -19,6 +19,14 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 ### Check availability
 
 - [ ] Check that [`docs/kalix-current`](https://github.com/lightbend/kalix-jvm-sdk/commits/docs/kalix-current) has been updated
+  - The workflow has been failing (possibly for expired secrets).
+  - Alternatively, to update that branch, run this locally
+    ```shell
+    git fetch --tags
+    cd docs
+    make deploy
+    ```
+
 - [ ] Check the release on [Maven Central](https://repo1.maven.org/maven2/io/kalix/kalix-java-sdk-protobuf-parent/)
     - [ ] Check the pom is served via `https://repo.akka.io/maven/io/kalix/kalix-java-sdk-protobuf-parent/<version>/kalix-java-sdk-protobuf-parent-<version>.pom`
     - [ ] Check the version is listed on our [repo.akka.io](https://repo.akka.io/maven/io/kalix/kalix-java-sdk-protobuf-parent/).
