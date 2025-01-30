@@ -18,6 +18,7 @@ import kalix.View
 import kalix.WorkflowDef
 
 import scala.annotation.nowarn
+import scala.annotation.nowarn
 
 /**
  * Builds a model of entities and their properties from a protobuf descriptor
@@ -709,6 +710,7 @@ object ModelBuilder {
       State(resolveMessageType(workflowDef.getState, protoPackageName, additionalDescriptors)))
   }
 
+  @nowarn("msg=deprecated")
   private def extractValueEntity(
       serviceProtoDescriptor: ServiceDescriptor,
       entityDef: ValueEntityDef,
@@ -716,7 +718,7 @@ object ModelBuilder {
       log: Log,
       messageExtractor: ProtoMessageTypeExtractor): ValueEntity = {
 
-    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
     val protoPackageName = serviceProtoDescriptor.getFile.getPackage
     ValueEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
@@ -724,6 +726,7 @@ object ModelBuilder {
       State(resolveMessageType(entityDef.getState, protoPackageName, additionalDescriptors)))
   }
 
+  @nowarn("msg=deprecated")
   private def extractReplicatedEntity(
       serviceProtoDescriptor: ServiceDescriptor,
       entityDef: ReplicatedEntityDef,
@@ -779,7 +782,7 @@ object ModelBuilder {
           throw new IllegalArgumentException("Replicated data type not set")
       }
 
-    val typeId = getTypeId(entityDef.getTypeId, entityDef.getTypeId)
+    val typeId = getTypeId(entityDef.getEntityType, entityDef.getTypeId)
     ReplicatedEntity(
       defineStatefulComponentMessageType(entityDef.getName, messageExtractor(serviceProtoDescriptor)),
       typeId,
