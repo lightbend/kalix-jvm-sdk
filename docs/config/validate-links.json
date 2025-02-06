@@ -1,5 +1,6 @@
 {
   "ignorePatterns": [
+    { "pattern": "^https://mvnrepository\\.com" },
     { "pattern": "^http://127.0.0.1:8080" },
     { "pattern": "^http://jaeger:4317"},
     { "pattern": "^http://localhost:16686"},
