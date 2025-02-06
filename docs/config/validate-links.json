@@ -1,9 +1,7 @@
 {
   "ignorePatterns": [
-    { "pattern": "^https://mvnrepository\\.com" },
     { "pattern": "^http://127.0.0.1:8080" },
     { "pattern": "^http://jaeger:4317"},
     { "pattern": "^http://localhost:16686"},
-    { "pattern": "^https://supertokens.com/blog/are-you-using-jwts-for-user-sessions-in-the-correct-way"}
   ]
 }
