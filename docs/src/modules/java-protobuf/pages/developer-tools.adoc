@@ -6,7 +6,7 @@ include::partial$attributes.adoc[]
 Select your preferred language (Java/Scala) above.
 
 [.group-java]
-The Java tooling is published to https://mvnrepository.com/artifact/kalix[Maven Central]. 
+The Java tooling is published to https://mvnrepository.com/artifact/io.kalix[Maven Central].
 
 [.group-java]
 == Maven archetype
