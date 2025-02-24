@@ -112,8 +112,8 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
     commandsTopic.publish(increaseCmd, counterId); // <4>
     commandsTopic.publish(multipleCmd, counterId);
 
-    var eventIncreased = eventsTopic.expectOneTyped(CounterEvent.ValueIncreased.class); // <5>
-    var eventMultiplied = eventsTopic.expectOneTyped(CounterEvent.ValueMultiplied.class);
+    var eventIncreased = eventsTopic.expectOneTyped(CounterEvent.ValueIncreased.class, timeout); // <5>
+    var eventMultiplied = eventsTopic.expectOneTyped(CounterEvent.ValueMultiplied.class, timeout);
 
     assertEquals(increaseCmd.value(), eventIncreased.getPayload().value()); // <6>
     assertEquals(multipleCmd.value(), eventMultiplied.getPayload().value());
@@ -136,7 +136,7 @@ public class CounterIntegrationTest extends KalixIntegrationTestKitSupport { // 
 
     commandsTopic.publish(kalixTestKit.getMessageBuilder().of(increaseCmd, metadata)); // <4>
 
-    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterCommandFromTopicAction.IncreaseCounter.class);
+    var increasedEvent = eventsTopicWithMeta.expectOneTyped(CounterCommandFromTopicAction.IncreaseCounter.class, timeout);
     var actualMd = increasedEvent.getMetadata(); // <5>
     assertEquals(counterId, actualMd.asCloudEvent().subject().get()); // <6>
     assertEquals("application/json", actualMd.get("Content-Type").get());
