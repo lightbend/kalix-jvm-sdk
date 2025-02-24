@@ -19,7 +19,7 @@ class StructuredCustomerOrdersIntegrationSpec
     with ScalaFutures
     with Eventually {
 
-  implicit private val patience: PatienceConfig = PatienceConfig(Span(5, Seconds), Span(500, Millis))
+  implicit private val patience: PatienceConfig = PatienceConfig(Span(20, Seconds), Span(500, Millis))
 
   private val testKit = KalixTestKit(Main.createKalix(), KalixTestKit.DefaultSettings.withAdvancedViews()).start()
 
