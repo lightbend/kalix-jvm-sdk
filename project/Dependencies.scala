@@ -10,7 +10,7 @@ object Dependencies {
     val RuntimeVersion = System.getProperty(
       "kalix-runtime.version",
       // temporarily accept the old system property name
-      System.getProperty("kalix-proxy.version", "1.2.10-6-d59fe6bd"))
+      System.getProperty("kalix-proxy.version", "1.2.10"))
   }
 
   // changing the Scala version of the Java SDK affects end users
