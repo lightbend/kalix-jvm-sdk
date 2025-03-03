@@ -4,11 +4,11 @@
 
 package kalix.scalasdk.impl
 
-import scala.compat.java8.DurationConverters.DurationOps
-import scala.compat.java8.DurationConverters.FiniteDurationops
-
 import kalix.scalasdk
 import kalix.javasdk
+
+import scala.jdk.DurationConverters.JavaDurationOps
+import scala.jdk.DurationConverters.ScalaDurationOps
 
 private[scalasdk] object PassivationStrategyConverters {
 

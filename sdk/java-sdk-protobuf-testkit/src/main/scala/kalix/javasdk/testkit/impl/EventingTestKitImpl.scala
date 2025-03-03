@@ -8,8 +8,6 @@ import java.time
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{ List => JList }
-import scala.compat.java8.DurationConverters.DurationOps
-import scala.compat.java8.OptionConverters.RichOptionalGeneric
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
@@ -68,6 +66,9 @@ import kalix.testkit.protocol.eventing_test_backend.RunSourceCreate
 import kalix.testkit.protocol.eventing_test_backend.SourceElem
 import org.slf4j.LoggerFactory
 import scalapb.GeneratedMessage
+
+import scala.jdk.DurationConverters.JavaDurationOps
+import scala.jdk.OptionConverters.RichOptional
 
 object EventingTestKitImpl {
 
@@ -378,8 +379,8 @@ private[testkit] class OutgoingMessagesImpl(
   }
 
   private def typeUrlFor(metadata: MetadataImpl): String = {
-    val ceType = metadata.get("ce-type").asScala
-    val contentType = metadata.get("Content-Type").asScala
+    val ceType = metadata.get("ce-type").toScala
+    val contentType = metadata.get("Content-Type").toScala
 
     (ceType, contentType) match {
       case (_, Some("text/plain; charset=utf-8")) => "type.kalix.io/string"

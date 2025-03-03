@@ -5,13 +5,9 @@
 package kalix.scalasdk.impl.workflow
 
 import java.util.Optional
-
-import scala.compat.java8.DurationConverters.FiniteDurationops
-import scala.jdk.CollectionConverters.SetHasAsJava
-import scala.jdk.CollectionConverters.SetHasAsScala
+import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.FutureOps
 import scala.jdk.OptionConverters._
-
 import akka.stream.Materializer
 import com.google.protobuf.Descriptors
 import kalix.javasdk
@@ -30,6 +26,8 @@ import kalix.scalasdk.workflow.CommandContext
 import kalix.scalasdk.workflow.WorkflowContext
 import kalix.scalasdk.workflow.WorkflowOptions
 import kalix.scalasdk.workflow.WorkflowProvider
+
+import scala.jdk.DurationConverters.ScalaDurationOps
 
 private[scalasdk] final class JavaWorkflowAdapter[S >: Null](scalaSdkWorkflow: AbstractWorkflow[S])
     extends javasdk.workflow.Workflow[S] {

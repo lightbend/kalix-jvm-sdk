@@ -8,11 +8,11 @@ import java.nio.ByteBuffer
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunc }
-import scala.compat.java8.FutureConverters.CompletionStageOps
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters.RichOptional
+import scala.jdk.FutureConverters._
 import com.google.api.HttpBody
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import kalix.javasdk.DeferredCall
@@ -151,7 +151,7 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
       commandContext: CommandContext,
       executionContext: ExecutionContext): Future[StepResponse] = {
 
-    implicit val ec = executionContext
+    implicit val ec: ExecutionContext = executionContext
 
     workflow._internalSetCurrentState(stateOrEmpty())
     workflow._internalSetTimerScheduler(Optional.of(timerScheduler))
@@ -200,7 +200,7 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
         val future = call.callFunc
           .asInstanceOf[JFunc[Any, CompletionStage[Any]]]
           .apply(decodedInput)
-          .toScala
+          .asScala
 
         future
           .map { res =>

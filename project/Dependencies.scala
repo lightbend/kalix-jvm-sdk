@@ -21,22 +21,22 @@ object Dependencies {
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.9.7"
-  val AkkaHttpVersion = "10.6.3" // Note: should at least the Akka HTTP version required by Akka gRPC
+  val AkkaVersion = "2.10.2"
+  val AkkaHttpVersion = "10.7.0" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
   // https://github.com/akka/akka/blob/main/project/Dependencies.scala#L31
   val JacksonVersion = "2.15.4"
   val JacksonDatabindVersion = JacksonVersion
-  val LogbackVersion = "1.4.14"
+  val LogbackVersion = "1.5.17"
   val LogbackContribVersion = "0.1.5"
-  val TestContainersVersion = "1.17.6"
+  val TestContainersVersion = "1.20.5"
   val JUnitVersion = "4.13.2"
   val JUnitInterfaceVersion = "0.11"
   val JUnitJupiterVersion = "5.10.1"
   val OpenTelemetryVersion = "1.39.0"
   val OpenTelemetrySemConv = "1.25.0-alpha"
 
-  val CommonsIoVersion = "2.11.0"
+  val CommonsIoVersion = "2.18.0"
   val MunitVersion = "0.7.29"
 
   val kalixProxyProtocol = "io.kalix" % "kalix-proxy-protocol" % Kalix.RuntimeVersion
@@ -48,11 +48,6 @@ object Dependencies {
   val logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
   val logbackJson = "ch.qos.logback.contrib" % "logback-json-classic" % LogbackContribVersion
   val logbackJackson = "ch.qos.logback.contrib" % "logback-jackson" % LogbackContribVersion
-
-  // akka-slf4j pulls in slf4j-api v1.7.36 and but we want v2.0.9
-  // because of Logback v1.4.5+ and because of Spring 3. Therefore we have to explicitly bump slf4j-api.
-  // Version 2.0.9 is also problematic for Akka, but only when using the BehaviorTestKit which is not used in the SDK
-  val slf4jApi = "org.slf4j" % "slf4j-api" % "2.0.9"
 
   val protobufJava = "com.google.protobuf" % "protobuf-java" % ProtobufVersion
   val protobufJavaUtil = "com.google.protobuf" % "protobuf-java-util" % ProtobufVersion
@@ -112,7 +107,6 @@ object Dependencies {
     akkaDependency("akka-stream-testkit") % Test,
     akkaHttpDependency("akka-http-testkit") % Test,
     scalaTest % Test,
-    slf4jApi,
     logback,
     logbackJson,
     logbackJackson,
@@ -138,7 +132,6 @@ object Dependencies {
     akkaDependency("akka-testkit"),
     akkaDependency("akka-actor-testkit-typed") % Test)
 
-  // FIXME
   val scalaSdk = deps ++= sdkDeps ++ Seq(jacksonScala)
 
   val scalaSdkTestKit = deps ++= Seq(testContainers, logback % "test;provided", scalaTest % Test)
