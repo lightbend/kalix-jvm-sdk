@@ -25,7 +25,7 @@ class TracingPortExtractorSpec extends AnyWordSpec with Matchers {
         |version: "3"
         |services:
         |  kalix-runtime:
-        |    image: registry.akka.io/akka-public/kalix-runtime:1.12.11
+        |    image: registry.akka.io/kalix-runtime:1.12.11
         |    container_name: tracing
         |    ports:
         |      - "9000:9000"

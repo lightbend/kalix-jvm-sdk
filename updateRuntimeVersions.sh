@@ -17,7 +17,7 @@ PROJS=$(find . -type f -name "docker-compose*.yml")
 for i in ${PROJS[@]}
 do
   echo "Updating Dockerfile for: $i"
-  sed -i.bak "s/registry.akka.io\/akka-public\/kalix-runtime:\(.*\)/registry.akka.io\/akka-public\/kalix-runtime:$RUNTIME_VERSION/" $i
+  sed -i.bak "s/registry.akka.io\/kalix-runtime:\(.*\)/registry.akka.io\/kalix-runtime:$RUNTIME_VERSION/" $i
   rm $i.bak
 done
 

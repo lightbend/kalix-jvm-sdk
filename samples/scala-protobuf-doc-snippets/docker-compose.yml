@@ -2,7 +2,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/akka-public/kalix-runtime:1.12.11
+    image: registry.akka.io/kalix-runtime:1.12.11
     # uncomment volumes when persistence is enabled
     volumes: # <1>
       - ./target/kalix:/var/kalix

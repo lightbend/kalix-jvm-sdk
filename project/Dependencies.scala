@@ -5,7 +5,7 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 1
-    val RuntimeImage = "registry.akka.io/akka-public/kalix-runtime"
+    val RuntimeImage = "registry.akka.io/kalix-runtime"
     val RuntimeVersion = System.getProperty(
       "kalix-runtime.version",
       // temporarily accept the old system property name
