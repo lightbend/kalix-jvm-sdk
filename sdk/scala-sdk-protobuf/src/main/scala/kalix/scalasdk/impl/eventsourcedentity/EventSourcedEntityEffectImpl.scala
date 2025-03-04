@@ -5,13 +5,14 @@
 package kalix.scalasdk.impl.eventsourcedentity
 
 import scala.jdk.CollectionConverters._
-import scala.compat.java8.FunctionConverters._
 import kalix.javasdk
 import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.ScalaSideEffectAdapter
 import io.grpc.Status
+
+import scala.jdk.FunctionConverters.enrichAsJavaFunction
 
 private[scalasdk] object EventSourcedEntityEffectImpl {
   def apply[R, S](): EventSourcedEntityEffectImpl[R, S] = EventSourcedEntityEffectImpl(

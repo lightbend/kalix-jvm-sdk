@@ -8,7 +8,7 @@ import java.lang.management.ManagementFactory
 import java.time.Duration
 import java.util.concurrent.CompletionStage
 
-import scala.compat.java8.FutureConverters
+import scala.jdk.FutureConverters._
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
@@ -254,7 +254,7 @@ final class KalixRunner private[javasdk] (
     }
 
     // Complete the returned CompletionStage with bind failure or Done when system is terminated
-    FutureConverters.toJava(bound).thenCompose(_ => system.getWhenTerminated).thenApply(_ => Done)
+    bound.asJava.thenCompose(_ => system.getWhenTerminated).thenApply(_ => Done)
   }
 
   /**
@@ -264,7 +264,7 @@ final class KalixRunner private[javasdk] (
    *   a CompletionStage which will be completed when the server has shut down.
    */
   def terminate(): CompletionStage[Done] =
-    FutureConverters.toJava(system.terminate()).thenApply(_ => Done)
+    system.terminate().asJava.thenApply(_ => Done)
 
   private def logJvmInfo(): Unit = {
     val osMBean = ManagementFactory.getOperatingSystemMXBean

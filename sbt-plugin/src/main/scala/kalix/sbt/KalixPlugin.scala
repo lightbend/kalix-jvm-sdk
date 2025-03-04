@@ -106,13 +106,15 @@ object KalixPlugin extends AutoPlugin {
         val forked = (Compile / runAll / fork).value
         val opts = (Compile / runAll / forkOptions).value
         val logger = streams.value.log
+
+        val tmp = taskTemporaryDirectory.value
+        val si = scalaInstance.value
+        val trap = trapExit.value
+
         if (forked) {
           logger.debug(s"javaOptions: ${opts.runJVMOptions}")
           new ForkRun(opts)
         } else {
-          val tmp = taskTemporaryDirectory.value
-          val si = scalaInstance.value
-          val trap = trapExit.value
           logger.warn(s"${opts.runJVMOptions.mkString(",")} will be ignored, (Compile / runAll / fork) is set to false")
           new Run(si, trap, tmp)
         }

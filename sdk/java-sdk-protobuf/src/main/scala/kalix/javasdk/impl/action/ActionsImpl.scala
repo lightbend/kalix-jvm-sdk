@@ -25,9 +25,9 @@ import kalix.protocol.component.{ Failure, MetadataEntry }
 import org.slf4j.{ Logger, LoggerFactory, MDC }
 
 import java.util.Optional
-import scala.compat.java8.OptionConverters.RichOptionForJava8
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.OptionConverters._
 import scala.util.control.NonFatal
 
 final class ActionService(
@@ -398,7 +398,7 @@ class ActionContextImpl(
   }
 
   override def getOpenTelemetryTracer: Optional[Tracer] =
-    Option(instrumentation.getTracer).asJava
+    Option(instrumentation.getTracer).toJava
 
   override def getTracer: Tracer =
     instrumentation.getTracer

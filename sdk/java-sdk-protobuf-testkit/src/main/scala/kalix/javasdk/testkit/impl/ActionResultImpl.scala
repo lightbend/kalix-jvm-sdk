@@ -15,9 +15,9 @@ import java.util.{ List => JList }
 
 import io.grpc.Status
 
-import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
 
 /**
  * INTERNAL API
@@ -68,7 +68,7 @@ final class ActionResultImpl[T](effect: ActionEffectImpl.PrimaryEffect[T]) exten
 
   override def getAsyncResult(): CompletionStage[ActionResult[T]] = {
     val async = getEffectOfType(classOf[ActionEffectImpl.AsyncEffect[T]])
-    async.effect.map(new ActionResultImpl(_).asInstanceOf[ActionResult[T]]).toJava
+    async.effect.map(new ActionResultImpl(_).asInstanceOf[ActionResult[T]]).asJava
   }
 
   /** @return true if the call was an error, false if not */

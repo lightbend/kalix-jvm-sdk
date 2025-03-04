@@ -5,9 +5,9 @@
 package kalix.scalasdk
 
 import scala.concurrent.Future
-import scala.compat.java8.FutureConverters
-import scala.compat.java8.FunctionConverters._
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
+import scala.jdk.FunctionConverters._
 import akka.Done
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
@@ -39,9 +39,9 @@ private[scalasdk] object KalixRunner {
 
 class KalixRunner private (impl: javasdk.KalixRunner) {
   def run(): Future[Done] = {
-    FutureConverters.toScala(impl.run())
+    impl.run().asScala
   }
   def terminate(): Future[Done] = {
-    FutureConverters.toScala(impl.terminate().thenApply(_ => Done))
+    impl.terminate().thenApply(_ => Done).asScala
   }
 }

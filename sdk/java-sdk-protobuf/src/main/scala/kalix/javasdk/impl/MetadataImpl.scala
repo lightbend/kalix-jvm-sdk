@@ -29,15 +29,15 @@ import java.time.format.DateTimeFormatter
 import java.util
 import java.util.Objects
 import java.util.Optional
-import scala.compat.java8.OptionConverters._
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 
 private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) extends Metadata with CloudEvent {
 
   override def has(key: String): Boolean = entries.exists(_.key.equalsIgnoreCase(key))
 
   override def get(key: String): Optional[String] =
-    getScala(key).asJava
+    getScala(key).toJava
 
   private[kalix] def getScala(key: String): Option[String] =
     entries.collectFirst {
@@ -55,7 +55,7 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
     }
 
   override def getBinary(key: String): Optional[ByteBuffer] =
-    getBinaryScala(key).asJava
+    getBinaryScala(key).toJava
 
   private[kalix] def getBinaryScala(key: String): Option[ByteBuffer] =
     entries.collectFirst {
@@ -158,7 +158,7 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
 
   override def withType(`type`: String): MetadataImpl = set(MetadataImpl.CeType, `type`)
 
-  override def datacontenttype(): Optional[String] = getScala(MetadataImpl.CeDatacontenttype).asJava
+  override def datacontenttype(): Optional[String] = getScala(MetadataImpl.CeDatacontenttype).toJava
   private[kalix] def datacontenttypeScala(): Option[String] = getScala(MetadataImpl.CeDatacontenttype)
 
   override def withDatacontenttype(datacontenttype: String): MetadataImpl =
@@ -166,21 +166,21 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
 
   override def clearDatacontenttype(): MetadataImpl = remove(MetadataImpl.CeDatacontenttype)
 
-  override def dataschema(): Optional[URI] = dataschemaScala().asJava
+  override def dataschema(): Optional[URI] = dataschemaScala().toJava
   private[kalix] def dataschemaScala(): Option[URI] = getScala(MetadataImpl.CeDataschema).map(URI.create(_))
 
   override def withDataschema(dataschema: URI): MetadataImpl = set(MetadataImpl.CeDataschema, dataschema.toString)
 
   override def clearDataschema(): MetadataImpl = remove(MetadataImpl.CeDataschema)
 
-  override def subject(): Optional[String] = subjectScala.asJava
+  override def subject(): Optional[String] = subjectScala.toJava
   private[kalix] def subjectScala: Option[String] = getScala(MetadataImpl.CeSubject)
 
   override def withSubject(subject: String): MetadataImpl = set(MetadataImpl.CeSubject, subject)
 
   override def clearSubject(): MetadataImpl = remove(MetadataImpl.CeSubject)
 
-  override def time(): Optional[ZonedDateTime] = timeScala.asJava
+  override def time(): Optional[ZonedDateTime] = timeScala.toJava
   private[kalix] def timeScala: Option[ZonedDateTime] =
     getScala(MetadataImpl.CeTime).map(ZonedDateTime.parse(_))
 
@@ -201,7 +201,7 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
   override lazy val jwtClaims: JwtClaims = new JwtClaims {
     override def allClaimNames(): lang.Iterable[String] = allJwtClaimNames.asJava
     override def asMap(): util.Map[String, String] = jwtClaimsAsMap.asJava
-    override def getString(name: String): Optional[String] = getJwtClaim(name).asJava
+    override def getString(name: String): Optional[String] = getJwtClaim(name).toJava
   }
 
   override lazy val principals: Principals = new Principals {
@@ -212,7 +212,7 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
     override def isBackoffice: Boolean = src.contains("backoffice")
     override def isLocalService(name: String): Boolean = svc.contains(name)
     override def isAnyLocalService: Boolean = svc.nonEmpty
-    override def getLocalService: Optional[String] = svc.asJava
+    override def getLocalService: Optional[String] = svc.toJava
     override def get(): util.Collection[Principal] = {
       (src.collect {
         case "internet"   => Principal.INTERNET
@@ -231,13 +231,13 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
       Span.fromContext(asOpenTelemetryContext()).getSpanContext.getTraceId match {
         case "00000000000000000000000000000000" =>
           Optional.empty() // when no traceId returns io.opentelemetry.api.trace.TraceId.INVALID
-        case traceId => Some(traceId).asJava
+        case traceId => Some(traceId).toJava
       }
     }
 
-    override def traceParent(): Optional[String] = getScala(TraceInstrumentation.TRACE_PARENT_KEY).asJava
+    override def traceParent(): Optional[String] = getScala(TraceInstrumentation.TRACE_PARENT_KEY).toJava
 
-    override def traceState(): Optional[String] = getScala(TraceInstrumentation.TRACE_STATE_KEY).asJava
+    override def traceState(): Optional[String] = getScala(TraceInstrumentation.TRACE_STATE_KEY).toJava
   }
 
   private[kalix] def allJwtClaimNames: Iterable[String] =
