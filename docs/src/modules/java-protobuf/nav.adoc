@@ -16,4 +16,3 @@
 *** xref:failures-and-errors.adoc[Failures and Errors]
 *** xref:access-control.adoc[Access Control Lists (ACLs)]
 *** xref:api.adoc[Java API docs]
-*** xref:spring-client.adoc[Implementing Spring Client]
