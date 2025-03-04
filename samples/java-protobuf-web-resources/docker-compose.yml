@@ -1,7 +1,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/kalix-runtime:1.12.11
+    image: registry.akka.io/kalix-runtime:1.2.11
     container_name: java-protobuf-web-resources
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"
