@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: gcr.io/kalix-public/kalix-runtime:1.2.9
+    image: registry.akka.io/akka-public/kalix-runtime:1.12.11
     container_name: scala-protobuf-fibonacci-action
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"
@@ -22,7 +22,7 @@ services:
       USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       #PUBSUB_EMULATOR_HOST: gcloud-pubsub-emulator
   #gcloud-pubsub-emulator:
-  #  image: gcr.io/google.com/cloudsdktool/cloud-sdk:341.0.0
+  #  image: google/cloud-sdk:432.0.0-emulators
   #  command: gcloud beta emulators pubsub start --project=test --host-port=0.0.0.0:8085
   #  ports:
   #    - 8085:8085

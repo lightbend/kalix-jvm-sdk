@@ -1,4 +1,3 @@
-import net.aichler.jupiter.sbt.Import.JupiterKeys
 import sbt._
 import sbt.Keys._
 
@@ -6,11 +5,11 @@ object Dependencies {
   object Kalix {
     val ProtocolVersionMajor = 1
     val ProtocolVersionMinor = 1
-    val RuntimeImage = "gcr.io/kalix-public/kalix-runtime"
+    val RuntimeImage = "registry.akka.io/akka-public/kalix-runtime"
     val RuntimeVersion = System.getProperty(
       "kalix-runtime.version",
       // temporarily accept the old system property name
-      System.getProperty("kalix-proxy.version", "1.2.9"))
+      System.getProperty("kalix-proxy.version", "1.2.11"))
   }
 
   // changing the Scala version of the Java SDK affects end users

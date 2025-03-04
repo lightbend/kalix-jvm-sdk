@@ -23,7 +23,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       |version: "3"
       |services:
       |  kalix-runtime:
-      |    image: gcr.io/kalix-public/kalix-runtime:1.1.31
+      |    image: registry.akka.io/akka-public/kalix-runtime:1.12.11
       |    ports:
       |      - "9000:9000"
       |    extra_hosts:
@@ -59,7 +59,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
           |version: "3"
           |services:
           |  kalix-runtime:
-          |    image: gcr.io/kalix-public/kalix-runtime:1.1.31
+          |    image: registry.akka.io/akka-public/kalix-runtime:1.12.11
           |    ports:
           |      - "9000:9000"
           |    extra_hosts:
@@ -77,7 +77,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
           |version: "3"
           |services:
           |  kalix-runtime:
-          |    image: gcr.io/kalix-public/kalix-runtime:1.1.31
+          |    image: registry.akka.io/akka-public/kalix-runtime:1.12.11
           |    ports:
           |      - "9000:9000"
           |    extra_hosts:
@@ -109,7 +109,7 @@ class DockerComposeUtilsSpec extends AnyWordSpec with Matchers with OptionValues
       val extraProxy =
         """
           |  kalix-runtime-2:
-          |    image: gcr.io/kalix-public/kalix-runtime:1.1.31
+          |    image: registry.akka.io/akka-public/kalix-runtime:1.12.11
           |    ports:
           |      - "9000:9000"
           |    extra_hosts:

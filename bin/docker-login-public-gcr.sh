@@ -5,4 +5,5 @@
 
 set -euo pipefail
 
+# FIXME need to be about publishing to or own repo
 echo "$KALIX_PUBLIC_GCR_SERVICE_KEY" | docker login -u _json_key --password-stdin https://gcr.io
