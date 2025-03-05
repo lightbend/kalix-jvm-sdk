@@ -23,6 +23,8 @@ object LocalDockerImage extends AutoPlugin {
 object PublicDockerImage extends AutoPlugin {
   override def requires = DockerImage
 
-  override def projectSettings =
+  override def projectSettings = {
+    // FIXME needs to be against our own repo
     Seq(dockerRepository := Some("gcr.io"), dockerUsername := Some("kalix-public"))
+  }
 }

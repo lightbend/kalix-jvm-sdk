@@ -15,7 +15,7 @@ java_managed_attachments := ${src_managed}/modules/java/attachments
 java_managed_examples := ${src_managed}/modules/java/examples
 java_managed_partials := ${src_managed}/modules/java/partials
 
-
+# FIXME need image on new repo
 antora_docker_image := gcr.io/kalix-public/kalix-docbuilder
 antora_docker_image_tag := 0.0.5
 root_dir := $(shell git rev-parse --show-toplevel)

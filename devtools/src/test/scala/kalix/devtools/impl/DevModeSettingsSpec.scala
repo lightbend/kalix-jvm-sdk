@@ -16,7 +16,7 @@ object DevModeSettingsSpec {
       |version: "3"
       |services:
       |  kalix-runtime:
-      |    image: gcr.io/kalix-public/kalix-runtime:1.1.27
+      |    image: registry.akka.io/kalix-runtime:1.2.11
       |    ports:
       |      - "9000:9000"
       |    extra_hosts:
