@@ -322,7 +322,7 @@ def devToolsCommon(project: Project): Project =
 lazy val javaTck = project
   .in(file("tck/java-tck"))
   .dependsOn(javaSdkProtobuf, javaSdkProtobufTestKit)
-  .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
+  .enablePlugins(AkkaGrpcPlugin, ReflectiveCodeGen)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -332,15 +332,13 @@ lazy val javaTck = project
     crossScalaVersions := Dependencies.CrossScalaVersions,
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     ReflectiveCodeGen.copyUnmanagedSources := true,
-    Compile / mainClass := Some("kalix.javasdk.tck.JavaSdkTck"),
-    dockerEnvVars += "HOST" -> "0.0.0.0",
-    dockerExposedPorts += 8080)
+    Compile / mainClass := Some("kalix.javasdk.tck.JavaSdkTck"))
   .settings(Dependencies.tck)
 
 lazy val scalaTck = project
   .in(file("tck/scala-tck"))
   .dependsOn(scalaSdkProtobuf, scalaSdkProtobufTestKit)
-  .enablePlugins(AkkaGrpcPlugin, PublicDockerImage, ReflectiveCodeGen)
+  .enablePlugins(AkkaGrpcPlugin, ReflectiveCodeGen)
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
   .settings(
@@ -351,9 +349,7 @@ lazy val scalaTck = project
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
     libraryDependencies ++= Seq(Dependencies.kalixSdkProtocol % "protobuf-src"),
     ReflectiveCodeGen.copyUnmanagedSources := true,
-    Compile / mainClass := Some("kalix.scalasdk.tck.ScalaSdkTck"),
-    dockerEnvVars += "HOST" -> "0.0.0.0",
-    dockerExposedPorts += 8080)
+    Compile / mainClass := Some("kalix.scalasdk.tck.ScalaSdkTck"))
   .settings(Dependencies.tck)
 
 lazy val codegenCore =
