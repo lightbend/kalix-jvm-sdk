@@ -14,8 +14,9 @@ import org.testcontainers.containers.startupcheck.IndefiniteWaitOneShotStartupCh
 import org.testcontainers.utility.DockerImageName;
 
 public final class RunTck {
+  // pinned to last released version as we don't plan to release new versions of the TCK
   public static final String TCK_IMAGE = "registry.akka.io/kalix-tck";
-  public static final String TCK_VERSION = BuildInfo.runtimeVersion();
+  public static final String TCK_VERSION = "1.2.11";
 
   public static void main(String[] args) throws Exception {
     KalixRunner runner = JavaSdkTck.SERVICE.createRunner();
