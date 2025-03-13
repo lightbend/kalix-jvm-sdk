@@ -18,6 +18,7 @@ import org.scalatest.time.Seconds
 import org.scalatest.time.Span
 import org.scalatest.wordspec.AnyWordSpec
 
+import scala.concurrent.duration._
 import scala.language.postfixOps
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
@@ -78,7 +79,7 @@ class CounterServiceIntegrationSpec
       counter.value shouldBe (10 + 10 * 2)
 
       // verify messages published to topic
-      val allMsgs = eventsTopic.expectN(2)
+      val allMsgs = eventsTopic.expectN(2, 10.seconds)
 
       val Seq(Message(payload1, md1), Message(payload2, md2)) = allMsgs
       payload1 shouldBe Increased(10)
