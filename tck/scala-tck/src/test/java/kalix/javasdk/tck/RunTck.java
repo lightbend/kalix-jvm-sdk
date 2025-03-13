@@ -19,7 +19,7 @@ import scala.concurrent.duration.Duration;
 
 public final class RunTck {
   public static final String TCK_IMAGE = "registry.akka.io/kalix-tck";
-  public static final String TCK_VERSION = BuildInfo.runtimeVersion();
+  public static final String TCK_VERSION = "1.2.11";
 
   public static void main(String[] args) throws Exception {
     Kalix service = TckService.createService();
