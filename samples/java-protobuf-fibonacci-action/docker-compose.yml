@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/kalix-runtime:1.2.12
+    image: registry.akka.io/kalix-runtime:1.2.13
     container_name: java-protobuf-fibonacci-action
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"
