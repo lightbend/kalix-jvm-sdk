@@ -5,7 +5,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/kalix-runtime:1.2.13
+    image: registry.akka.io/kalix-runtime:fake999.999.111
     container_name: ]]#${artifactId}#[[
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"
