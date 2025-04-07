@@ -12,3 +12,6 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
 addSbtPlugin("net.aichler" % "sbt-jupiter-interface" % "0.11.0")
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.3")
 addSbtPlugin("com.thoughtworks.sbt-api-mappings" % "sbt-api-mappings" % "3.0.2")
+
+// force bumped because of CI not finding 1.0.0 which was the transitive version
+addSbtPlugin("org.portable-scala" % "sbt-platform-deps" % "1.0.2")
