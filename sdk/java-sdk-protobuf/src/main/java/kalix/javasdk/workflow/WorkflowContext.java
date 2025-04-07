@@ -26,5 +26,4 @@ public interface WorkflowContext extends Context {
    *     `akka.grpc.client.[service-name]` in `application.conf`.
    */
   <T> T getGrpcClient(Class<T> clientClass, String service);
-
 }
