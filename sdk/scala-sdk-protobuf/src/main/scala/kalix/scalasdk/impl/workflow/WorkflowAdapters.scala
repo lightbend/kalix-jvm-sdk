@@ -203,6 +203,9 @@ private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: jav
     case ctx: javasdk.impl.AbstractContext => ctx.getComponentGrpcClient(serviceClass)
   }
 
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    javaSdkContext.getGrpcClient(clientClass, service)
+
   override def materializer(): Materializer = javaSdkContext.materializer()
 
   override def workflowId: String = javaSdkContext.workflowId()
@@ -210,6 +213,9 @@ private[scalasdk] final class ScalaCommandContextAdapter(val javaSdkContext: jav
 
 private[scalasdk] final class ScalaWorkflowContextAdapter(javaSdkContext: javasdk.workflow.WorkflowContext)
     extends WorkflowContext {
+
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    javaSdkContext.getGrpcClient(clientClass, service)
 
   override def materializer(): Materializer = javaSdkContext.materializer()
 
