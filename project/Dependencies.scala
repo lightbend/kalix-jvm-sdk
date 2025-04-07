@@ -76,7 +76,8 @@ object Dependencies {
 
   val scalapbCompilerPlugin = "com.thesamet.scalapb" %% "compilerplugin" % scalapb.compiler.Version.scalapbVersion
   val scalaPbValidateCore = "com.thesamet.scalapb" %% "scalapb-validate-core" % "0.3.4"
-  val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.0"
+  // keep aligned with the sbt-protoc plugin version in plugins.sbt
+  val sbtProtoc = "com.thesamet" % "sbt-protoc" % "1.0.3"
 
   val akkaGrpc = "com.lightbend.akka.grpc" % "sbt-akka-grpc" % akka.grpc.gen.BuildInfo.version
   val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % "2.10.0"
