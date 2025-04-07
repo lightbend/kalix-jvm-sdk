@@ -20,7 +20,7 @@ object Dependencies {
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.10.2"
+  val AkkaVersion = "2.10.2+22-3a21ccd5-SNAPSHOT"
   val AkkaHttpVersion = "10.7.0" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
   // https://github.com/akka/akka/blob/main/project/Dependencies.scala#L31
@@ -163,14 +163,10 @@ object Dependencies {
     addSbtPlugin(sbtProtoc),
     addSbtPlugin(akkaGrpc))
 
-  lazy val excludeTheseDependencies: Seq[ExclusionRule] = Seq(
-    // exclusion rules can be added here
-  )
-
   def akkaDependency(name: String, excludeThese: ExclusionRule*) =
-    ("com.typesafe.akka" %% name % AkkaVersion).excludeAll((excludeTheseDependencies ++ excludeThese): _*)
+    ("com.typesafe.akka" %% name % AkkaVersion).excludeAll(excludeThese: _*)
 
   def akkaHttpDependency(name: String, excludeThese: ExclusionRule*) =
-    ("com.typesafe.akka" %% name % AkkaHttpVersion).excludeAll((excludeTheseDependencies ++ excludeThese): _*)
+    ("com.typesafe.akka" %% name % AkkaHttpVersion).excludeAll(excludeThese: _*)
 
 }

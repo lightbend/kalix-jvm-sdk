@@ -135,6 +135,7 @@ final class EventSourcedEntitiesImpl(
           EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }
+      .withAttributes(SdkExecutionContext.streamDispatcher) // factory instance invoked on this stream
   }
 
   private def runEntity(init: EventSourcedInit): Flow[EventSourcedStreamIn, EventSourcedStreamOut, NotUsed] = {
@@ -260,7 +261,7 @@ final class EventSourcedEntitiesImpl(
           EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
         }
       }
-      .async
+      .addAttributes(SdkExecutionContext.streamDispatcher)
   }
 
   private class CommandContextImpl(

@@ -107,7 +107,7 @@ final class ValueEntitiesImpl(
           ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
-      .async
+      .addAttributes(SdkExecutionContext.streamDispatcher)
 
   private def runEntity(init: ValueEntityInit): Flow[ValueEntityStreamIn, ValueEntityStreamOut, NotUsed] = {
     val service =
