@@ -42,8 +42,6 @@ service CustomerEventsService {
         // skip/filter events that there is no transform method for (AddressChanged)
         ignore_unknown: true // <2>
     };
-    option (kalix.service).eventing.out.direct.event_stream_id = "customer_events"; // <3>
-    // limit access to only other services in same project
     option (kalix.service).acl.allow = { service: "*" }; // <4>
 
     // transform methods for turning internal event types to public API

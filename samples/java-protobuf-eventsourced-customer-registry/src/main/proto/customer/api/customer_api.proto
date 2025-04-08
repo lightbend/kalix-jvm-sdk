@@ -25,13 +25,8 @@ message Customer {
   string customer_id = 1 [(kalix.field).id = true];
   string email = 2;
   string name = 3;
-  Address address = 4;
 }
 
-message Address {
-  string street = 1;
-  string city = 2;
-}
 
 message GetCustomerRequest {
   string customer_id = 1 [(kalix.field).id = true];
@@ -42,10 +37,6 @@ message ChangeNameRequest {
   string new_name = 2;
 }
 
-message ChangeAddressRequest {
-  string customer_id = 1 [(kalix.field).id = true];
-  Address new_address = 2;
-}
 
 
 // tag::eventsourced-entity[]
@@ -57,13 +48,11 @@ service CustomerService {
       state: "customer.domain.CustomerState"
       events: [
         "customer.domain.CustomerCreated",
-        "customer.domain.CustomerNameChanged",
-        "customer.domain.CustomerAddressChanged"]
+        "customer.domain.CustomerNameChanged"]
     }
   };
   rpc Create(Customer) returns (google.protobuf.Empty) {}
   rpc ChangeName(ChangeNameRequest) returns (google.protobuf.Empty) {}
-  rpc ChangeAddress(ChangeAddressRequest) returns (google.protobuf.Empty) {}
   rpc GetCustomer(GetCustomerRequest) returns (Customer) {}
 }
 // end::eventsourced-entity[]

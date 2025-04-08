@@ -16,7 +16,6 @@
 
 package customer.view;
 
-// tag::process-events[]
 import kalix.javasdk.view.ViewContext;
 import com.google.protobuf.Any;
 import customer.domain.CustomerDomain;
@@ -50,32 +49,13 @@ public class CustomerByNameView extends AbstractCustomerByNameView { // <1>
         state.toBuilder().setName(customerNameChanged.getNewName()).build());
   }
 
-  @Override // <3>
-  public UpdateEffect<CustomerApi.Customer> processCustomerAddressChanged(
-    CustomerApi.Customer state,
-    CustomerDomain.CustomerAddressChanged customerAddressChanged) {
-    return effects().updateState(
-        state.toBuilder().setAddress(convertToApi(customerAddressChanged.getNewAddress())).build());
-  }
-
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState s) {
-    CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
-    if (s.hasAddress()) {
-      address = convertToApi(s.getAddress());
-    }
+
     return CustomerApi.Customer.newBuilder()
         .setCustomerId(s.getCustomerId())
         .setEmail(s.getEmail())
         .setName(s.getName())
-        .setAddress(address)
         .build();
   }
 
-  private CustomerApi.Address convertToApi(CustomerDomain.Address a) {
-    return CustomerApi.Address.newBuilder()
-        .setStreet(a.getStreet())
-        .setCity(a.getCity())
-        .build();
-  }
 }
-// end::process-events[]

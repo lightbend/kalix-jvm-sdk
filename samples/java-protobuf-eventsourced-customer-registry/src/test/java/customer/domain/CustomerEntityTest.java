@@ -36,10 +36,16 @@ public class CustomerEntityTest {
     CustomerEntityTestKit testKit = CustomerEntityTestKit.of(CustomerEntity::new);
     // use the testkit to execute a command
     // of events emitted, or a final updated state:
-    // EventSourcedResult<SomeResponse> result = testKit.someOperation(SomeRequest);
+    CustomerApi.Customer customer  = CustomerApi.Customer
+            .newBuilder()
+            .setName("a")
+            .setEmail("a@gmail.com")
+            .build();
+     EventSourcedResult<Empty> result = testKit.create(customer);
     // verify the emitted events
-    // ExpectedEvent actualEvent = result.getNextEventOfType(ExpectedEvent.class);
-    // assertEquals(expectedEvent, actualEvent)
+    CustomerDomain.CustomerCreated actualEvent = result.getNextEventOfType(CustomerDomain.CustomerCreated.class);
+     assertEquals(customer.getName(), actualEvent.getCustomer().getName());
+     assertEquals(customer.getEmail(), actualEvent.getCustomer().getEmail());
     // verify the final state after applying the events
     // assertEquals(expectedState, testKit.getState());
     // verify the response

@@ -60,15 +60,6 @@ public class CustomerEntity extends AbstractCustomerEntity {
         }
     }
 
-    @Override
-    public Effect<Empty> changeAddress(
-        CustomerDomain.CustomerState currentState, CustomerApi.ChangeAddressRequest request) {
-        CustomerDomain.CustomerAddressChanged event =
-            CustomerDomain.CustomerAddressChanged.newBuilder()
-                .setNewAddress(convertAddressToDomain(request.getNewAddress()))
-                .build();
-        return effects().emitEvent(event).thenReply(__ -> Empty.getDefaultInstance());
-    }
 
     @Override
     public CustomerDomain.CustomerState customerCreated(
@@ -82,46 +73,22 @@ public class CustomerEntity extends AbstractCustomerEntity {
         return currentState.toBuilder().setName(event.getNewName()).build();
     }
 
-    @Override
-    public CustomerDomain.CustomerState customerAddressChanged(
-        CustomerDomain.CustomerState currentState, CustomerDomain.CustomerAddressChanged event) {
-        return currentState.toBuilder().setAddress(event.getNewAddress()).build();
-    }
 
     private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState s) {
-        CustomerApi.Address address = CustomerApi.Address.getDefaultInstance();
-        if (s.hasAddress()) {
-            address =
-                CustomerApi.Address.newBuilder()
-                    .setStreet(s.getAddress().getStreet())
-                    .setCity(s.getAddress().getCity())
-                    .build();
-        }
+
         return CustomerApi.Customer.newBuilder()
             .setCustomerId(s.getCustomerId())
             .setEmail(s.getEmail())
             .setName(s.getName())
-            .setAddress(address)
             .build();
     }
 
     private CustomerDomain.CustomerState convertToDomain(CustomerApi.Customer customer) {
-        CustomerDomain.Address address = CustomerDomain.Address.getDefaultInstance();
-        if (customer.hasAddress()) {
-            address = convertAddressToDomain(customer.getAddress());
-        }
+
         return CustomerDomain.CustomerState.newBuilder()
             .setCustomerId(customer.getCustomerId())
             .setEmail(customer.getEmail())
             .setName(customer.getName())
-            .setAddress(address)
-            .build();
-    }
-
-    private CustomerDomain.Address convertAddressToDomain(CustomerApi.Address address) {
-        return CustomerDomain.Address.newBuilder()
-            .setStreet(address.getStreet())
-            .setCity(address.getCity())
             .build();
     }
 }

@@ -1,13 +1,21 @@
 package customer.api;
 
-import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
 import com.google.protobuf.Empty;
 import customer.Main;
 import customer.domain.CustomerDomain;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import customer.view.CustomerByNameView;
+import kalix.javasdk.testkit.EventSourcedResult;
+import kalix.javasdk.testkit.junit.jupiter.KalixTestKitExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.concurrent.TimeUnit.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.
 //
@@ -35,30 +43,42 @@ public class CustomerEntityIntegrationTest {
   }
 
   @Test
-  public void createOnNonExistingEntity() throws Exception {
+  public void runAll() throws Exception {
+    CustomerBatchProcessor processor = new CustomerBatchProcessor(client);
+
+      List<CustomerBatchProcessor.CustomerData> customerDataList = new ArrayList<>();
+      // Add many customers programmatically
+      for (int i = 1; i <= 10; i++) {
+        CustomerBatchProcessor.CustomerData data = new CustomerBatchProcessor.CustomerData();
+        data.setCustomerId("cust-" + i);
+        data.setInitialName("Customer " + i % 10);
+        data.setEmail("customer" + i + "@example.com");
+        data.setUpdatedName("Customer " + (i % 10));
+        customerDataList.add(data);
+      }
+
+      processor.processBatch(customerDataList);
+      Thread.sleep(100000);
+//      testKit.getGrpcClient(CustomerByNameView.class)
+
+  }
+  @Test
+  public void testCreate() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
-    // client.create(CustomerApi.Customer.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+    CustomerApi.Customer customer1  = CustomerApi.Customer
+            .newBuilder()
+            .setCustomerId("aid")
+            .setName("a-name")
+            .setEmail("a@gmail.com")
+            .build();
+     client.create(customer1)
+             .toCompletableFuture().get(3, SECONDS);
+    CustomerApi.ChangeNameRequest  changeNameRequest = CustomerApi.ChangeNameRequest
+            .newBuilder()
+            .setCustomerId("aid")
+            .setNewName("aa-name")
+            .build();
+     client.changeName(changeNameRequest).toCompletableFuture().get(3, SECONDS);
   }
 
-  @Test
-  public void changeNameOnNonExistingEntity() throws Exception {
-    // TODO: set fields in command, and provide assertions to match replies
-    // client.changeName(CustomerApi.ChangeNameRequest.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
-  }
-
-  @Test
-  public void changeAddressOnNonExistingEntity() throws Exception {
-    // TODO: set fields in command, and provide assertions to match replies
-    // client.changeAddress(CustomerApi.ChangeAddressRequest.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
-  }
-
-  @Test
-  public void getCustomerOnNonExistingEntity() throws Exception {
-    // TODO: set fields in command, and provide assertions to match replies
-    // client.getCustomer(CustomerApi.GetCustomerRequest.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
-  }
 }

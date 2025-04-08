@@ -1,0 +1,695 @@
+2025-04-08 16:23:09
+Full thread dump OpenJDK 64-Bit Server VM (21.0.1+12-LTS mixed mode):
+
+Threads class SMR info:
+_java_thread_list=0x0000600000497a00, length=49, elements={
+0x0000000129808200, 0x0000000116828200, 0x000000011682ac00, 0x0000000116833400,
+0x0000000129009400, 0x0000000129827a00, 0x0000000129009c00, 0x0000000129015400,
+0x0000000128827e00, 0x0000000120130e00, 0x0000000120010a00, 0x0000000116125000,
+0x000000012923fe00, 0x0000000129240600, 0x0000000116250800, 0x0000000116251000,
+0x0000000116dcfa00, 0x00000001162f2a00, 0x00000001162e6a00, 0x00000001162eb600,
+0x0000000116dd8200, 0x0000000116dd8a00, 0x0000000105aa2600, 0x00000001162ebe00,
+0x0000000129b52000, 0x0000000129b4dc00, 0x0000000105aa4800, 0x0000000120538800,
+0x0000000116de1000, 0x0000000116df7000, 0x00000001205aa800, 0x00000001205ba400,
+0x0000000105aa6000, 0x000000011630de00, 0x0000000129b64400, 0x0000000129b85c00,
+0x0000000116df7e00, 0x0000000116893c00, 0x000000011630e600, 0x00000001162f5400,
+0x0000000129b5ba00, 0x0000000105aaa600, 0x0000000129b6ba00, 0x00000001299f3e00,
+0x0000000116307c00, 0x0000000129552a00, 0x0000000117018000, 0x000000011701ae00,
+0x0000000127008200
+}
+
+"main" #1 [4355] prio=5 os_prio=31 cpu=1389.45ms elapsed=10.72s tid=0x0000000129808200 nid=4355 waiting on condition  [0x000000016b29b000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep0(java.base@21.0.1/Native Method)
+	at java.lang.Thread.sleep(java.base@21.0.1/Thread.java:509)
+	at customer.api.CustomerEntityIntegrationTest.runAll(CustomerEntityIntegrationTest.java:61)
+	at java.lang.invoke.LambdaForm$DMH/0x000000080040a400.invokeVirtual(java.base@21.0.1/LambdaForm$DMH)
+	at java.lang.invoke.LambdaForm$MH/0x0000000800814400.invoke(java.base@21.0.1/LambdaForm$MH)
+	at java.lang.invoke.Invokers$Holder.invokeExact_MT(java.base@21.0.1/Invokers$Holder)
+	at jdk.internal.reflect.DirectMethodHandleAccessor.invokeImpl(java.base@21.0.1/DirectMethodHandleAccessor.java:153)
+	at jdk.internal.reflect.DirectMethodHandleAccessor.invoke(java.base@21.0.1/DirectMethodHandleAccessor.java:103)
+	at java.lang.reflect.Method.invoke(java.base@21.0.1/Method.java:580)
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728)
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147)
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor$$Lambda/0x00000008002deab8.apply(Unknown Source)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall$$Lambda/0x00000008002deec8.apply(Unknown Source)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$$Lambda/0x0000000800799918.apply(Unknown Source)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45)
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92)
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor$$Lambda/0x0000000800810cc8.execute(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139)
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800307108.execute(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800306ee8.invoke(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800306ad0.execute(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService$$Lambda/0x0000000800307bf8.accept(Unknown Source)
+	at java.util.ArrayList.forEach(java.base@21.0.1/ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800307108.execute(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800306ee8.invoke(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800306ad0.execute(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService$$Lambda/0x0000000800307bf8.accept(Unknown Source)
+	at java.util.ArrayList.forEach(java.base@21.0.1/ArrayList.java:1596)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800307108.execute(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800306ee8.invoke(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask$$Lambda/0x0000000800306ad0.execute(Unknown Source)
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138)
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator$$Lambda/0x00000008002f17f8.accept(Unknown Source)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+	at org.junit.platform.launcher.core.SessionPerRequestLauncher.execute(SessionPerRequestLauncher.java:63)
+	at com.intellij.junit5.JUnit5IdeaTestRunner.startRunnerWithArgs(JUnit5IdeaTestRunner.java:57)
+	at com.intellij.rt.junit.IdeaTestRunner$Repeater$1.execute(IdeaTestRunner.java:38)
+	at com.intellij.rt.execution.junit.TestsRepeater.repeat(TestsRepeater.java:11)
+	at com.intellij.rt.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:35)
+	at com.intellij.rt.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:232)
+	at com.intellij.rt.junit.JUnitStarter.main(JUnitStarter.java:55)
+
+"Reference Handler" #9 [32003] daemon prio=10 os_prio=31 cpu=1.06ms elapsed=10.71s tid=0x0000000116828200 nid=32003 waiting on condition  [0x000000016c416000]
+   java.lang.Thread.State: RUNNABLE
+	at java.lang.ref.Reference.waitForReferencePendingList(java.base@21.0.1/Native Method)
+	at java.lang.ref.Reference.processPendingReferences(java.base@21.0.1/Reference.java:246)
+	at java.lang.ref.Reference$ReferenceHandler.run(java.base@21.0.1/Reference.java:208)
+
+"Finalizer" #10 [31747] daemon prio=8 os_prio=31 cpu=0.10ms elapsed=10.71s tid=0x000000011682ac00 nid=31747 in Object.wait()  [0x000000016c622000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.1/Native Method)
+	- waiting on <0x000000040080d4c8> (a java.lang.ref.NativeReferenceQueue$Lock)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:366)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:339)
+	at java.lang.ref.NativeReferenceQueue.await(java.base@21.0.1/NativeReferenceQueue.java:48)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@21.0.1/ReferenceQueue.java:158)
+	at java.lang.ref.NativeReferenceQueue.remove(java.base@21.0.1/NativeReferenceQueue.java:89)
+	- locked <0x000000040080d4c8> (a java.lang.ref.NativeReferenceQueue$Lock)
+	at java.lang.ref.Finalizer$FinalizerThread.run(java.base@21.0.1/Finalizer.java:173)
+
+"Signal Dispatcher" #11 [31491] daemon prio=9 os_prio=31 cpu=0.32ms elapsed=10.71s tid=0x0000000116833400 nid=31491 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Service Thread" #12 [30979] daemon prio=9 os_prio=31 cpu=0.82ms elapsed=10.71s tid=0x0000000129009400 nid=30979 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Monitor Deflation Thread" #13 [30723] daemon prio=9 os_prio=31 cpu=0.43ms elapsed=10.71s tid=0x0000000129827a00 nid=30723 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #14 [23555] daemon prio=9 os_prio=31 cpu=927.81ms elapsed=10.71s tid=0x0000000129009c00 nid=23555 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"C1 CompilerThread0" #17 [23811] daemon prio=9 os_prio=31 cpu=733.42ms elapsed=10.71s tid=0x0000000129015400 nid=23811 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+"Common-Cleaner" #18 [24067] daemon prio=8 os_prio=31 cpu=1.49ms elapsed=10.68s tid=0x0000000128827e00 nid=24067 waiting on condition  [0x000000016d26a000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x000000040081aa70> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.1/LockSupport.java:269)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(java.base@21.0.1/AbstractQueuedSynchronizer.java:1847)
+	at java.lang.ref.ReferenceQueue.await(java.base@21.0.1/ReferenceQueue.java:71)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@21.0.1/ReferenceQueue.java:143)
+	at java.lang.ref.ReferenceQueue.remove(java.base@21.0.1/ReferenceQueue.java:218)
+	at jdk.internal.ref.CleanerImpl.run(java.base@21.0.1/CleanerImpl.java:140)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+	at jdk.internal.misc.InnocuousThread.run(java.base@21.0.1/InnocuousThread.java:186)
+
+"Monitor Ctrl-Break" #19 [24323] daemon prio=5 os_prio=31 cpu=19.80ms elapsed=10.66s tid=0x0000000120130e00 nid=24323 runnable  [0x000000016d476000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.SocketDispatcher.read0(java.base@21.0.1/Native Method)
+	at sun.nio.ch.SocketDispatcher.read(java.base@21.0.1/SocketDispatcher.java:47)
+	at sun.nio.ch.NioSocketImpl.tryRead(java.base@21.0.1/NioSocketImpl.java:256)
+	at sun.nio.ch.NioSocketImpl.implRead(java.base@21.0.1/NioSocketImpl.java:307)
+	at sun.nio.ch.NioSocketImpl.read(java.base@21.0.1/NioSocketImpl.java:346)
+	at sun.nio.ch.NioSocketImpl$1.read(java.base@21.0.1/NioSocketImpl.java:796)
+	at java.net.Socket$SocketInputStream.read(java.base@21.0.1/Socket.java:1099)
+	at sun.nio.cs.StreamDecoder.readBytes(java.base@21.0.1/StreamDecoder.java:329)
+	at sun.nio.cs.StreamDecoder.implRead(java.base@21.0.1/StreamDecoder.java:372)
+	at sun.nio.cs.StreamDecoder.lockedRead(java.base@21.0.1/StreamDecoder.java:215)
+	at sun.nio.cs.StreamDecoder.read(java.base@21.0.1/StreamDecoder.java:169)
+	at java.io.InputStreamReader.read(java.base@21.0.1/InputStreamReader.java:188)
+	at java.io.BufferedReader.fill(java.base@21.0.1/BufferedReader.java:160)
+	at java.io.BufferedReader.implReadLine(java.base@21.0.1/BufferedReader.java:370)
+	at java.io.BufferedReader.readLine(java.base@21.0.1/BufferedReader.java:347)
+	at java.io.BufferedReader.readLine(java.base@21.0.1/BufferedReader.java:436)
+	at com.intellij.rt.execution.application.AppMainV2$1.run(AppMainV2.java:54)
+
+"Notification Thread" #20 [29443] daemon prio=9 os_prio=31 cpu=0.06ms elapsed=10.66s tid=0x0000000120010a00 nid=29443 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"kalix-scheduler-1" #33 [42499] prio=5 os_prio=31 cpu=16.64ms elapsed=10.06s tid=0x0000000116125000 nid=42499 waiting on condition  [0x000000016f32a000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep0(java.base@21.0.1/Native Method)
+	at java.lang.Thread.sleep(java.base@21.0.1/Thread.java:509)
+	at akka.actor.LightArrayRevolverScheduler.waitNanos(LightArrayRevolverScheduler.scala:87)
+	at akka.actor.LightArrayRevolverScheduler$$anon$3.nextTick(LightArrayRevolverScheduler.scala:298)
+	at akka.actor.LightArrayRevolverScheduler$$anon$3.run(LightArrayRevolverScheduler.scala:268)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"kalix-akka.actor.default-dispatcher-2" #34 [34307] prio=5 os_prio=31 cpu=164.45ms elapsed=10.01s tid=0x000000012923fe00 nid=34307 waiting on condition  [0x000000016f535000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x0000000403599e78> (a java.util.concurrent.CompletableFuture$Signaller)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:221)
+	at java.util.concurrent.CompletableFuture$Signaller.block(java.base@21.0.1/CompletableFuture.java:1864)
+	at java.util.concurrent.ForkJoinPool.compensatedBlock(java.base@21.0.1/ForkJoinPool.java:3740)
+	at java.util.concurrent.ForkJoinPool.managedBlock(java.base@21.0.1/ForkJoinPool.java:3723)
+	at java.util.concurrent.CompletableFuture.waitingGet(java.base@21.0.1/CompletableFuture.java:1898)
+	at java.util.concurrent.CompletableFuture.get(java.base@21.0.1/CompletableFuture.java:2072)
+	at customer.api.CustomerEventsServiceAction.transformCustomerNameChanged(CustomerEventsServiceAction.java:45)
+	at customer.api.CustomerEventsServiceActionRouter.handleUnary(CustomerEventsServiceActionRouter.java:29)
+	at kalix.javasdk.impl.action.ActionRouter.$anonfun$handleUnary$1(ActionRouter.scala:35)
+	at kalix.javasdk.impl.action.ActionRouter$$Lambda/0x00000008008e04e8.apply(Unknown Source)
+	at kalix.javasdk.impl.action.ActionRouter.callWithContext(ActionRouter.scala:153)
+	at kalix.javasdk.impl.action.ActionRouter.handleUnary(ActionRouter.scala:34)
+	at kalix.javasdk.impl.action.ActionsImpl.handleUnary(ActionsImpl.scala:187)
+	at kalix.protocol.action.ActionsHandler$.$anonfun$partial$2(ActionsHandler.scala:119)
+	at kalix.protocol.action.ActionsHandler$$$Lambda/0x00000008008dcb18.apply(Unknown Source)
+	at scala.concurrent.impl.Promise$Transformation.run(Promise.scala:470)
+	at akka.dispatch.BatchingExecutor$AbstractBatch.processBatch(BatchingExecutor.scala:64)
+	at akka.dispatch.BatchingExecutor$BlockableBatch.$anonfun$run$1(BatchingExecutor.scala:101)
+	at akka.dispatch.BatchingExecutor$BlockableBatch$$Lambda/0x0000000800583b68.apply$mcV$sp(Unknown Source)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.scala:18)
+	at scala.concurrent.BlockContext$.withBlockContext(BlockContext.scala:94)
+	at akka.dispatch.BatchingExecutor$BlockableBatch.run(BatchingExecutor.scala:101)
+	at akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:49)
+	at akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinTask.exec(ForkJoinExecutorConfigurator.scala:48)
+	at java.util.concurrent.ForkJoinTask.doExec(java.base@21.0.1/ForkJoinTask.java:387)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(java.base@21.0.1/ForkJoinPool.java:1312)
+	at java.util.concurrent.ForkJoinPool.scan(java.base@21.0.1/ForkJoinPool.java:1843)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1808)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"kalix-akka.actor.default-dispatcher-3" #35 [41987] prio=5 os_prio=31 cpu=52.79ms elapsed=10.01s tid=0x0000000129240600 nid=41987 waiting on condition  [0x000000016f742000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018268d0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"kalix-akka.actor.default-dispatcher-4" #36 [41475] prio=5 os_prio=31 cpu=116.83ms elapsed=10.01s tid=0x0000000116250800 nid=41475 waiting on condition  [0x000000016f94e000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018268d0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"kalix-akka.actor.default-dispatcher-5" #37 [40963] prio=5 os_prio=31 cpu=48.45ms elapsed=10.01s tid=0x0000000116251000 nid=40963 waiting on condition  [0x000000016fb5a000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018268d0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"kalix-akka.io.pinned-dispatcher-6" #39 [40451] prio=5 os_prio=31 cpu=11.17ms elapsed=9.72s tid=0x0000000116dcfa00 nid=40451 runnable  [0x000000016fd66000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@21.0.1/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@21.0.1/KQueueSelectorImpl.java:125)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.1/SelectorImpl.java:130)
+	- locked <0x0000000401827158> (a sun.nio.ch.Util$2)
+	- locked <0x0000000401827100> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.1/SelectorImpl.java:142)
+	at akka.io.SelectionHandler$ChannelRegistryImpl$$anon$2.tryRun(SelectionHandler.scala:151)
+	at akka.io.SelectionHandler$ChannelRegistryImpl$Task.run(SelectionHandler.scala:291)
+	at akka.io.SelectionHandler$ChannelRegistryImpl$$anon$2.run(SelectionHandler.scala:184)
+	at akka.util.SerializedSuspendableExecutionContext.run$1(SerializedSuspendableExecutionContext.scala:74)
+	at akka.util.SerializedSuspendableExecutionContext.run(SerializedSuspendableExecutionContext.scala:79)
+	at akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@21.0.1/ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@21.0.1/ThreadPoolExecutor.java:642)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"KalixTestkit-scheduler-1" #40 [39939] prio=5 os_prio=31 cpu=18.48ms elapsed=9.71s tid=0x00000001162f2a00 nid=39939 waiting on condition  [0x000000016ff72000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep0(java.base@21.0.1/Native Method)
+	at java.lang.Thread.sleep(java.base@21.0.1/Thread.java:509)
+	at akka.actor.LightArrayRevolverScheduler.waitNanos(LightArrayRevolverScheduler.scala:87)
+	at akka.actor.LightArrayRevolverScheduler$$anon$3.nextTick(LightArrayRevolverScheduler.scala:298)
+	at akka.actor.LightArrayRevolverScheduler$$anon$3.run(LightArrayRevolverScheduler.scala:268)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"KalixTestkit-akka.actor.internal-dispatcher-2" #41 [35075] prio=5 os_prio=31 cpu=0.22ms elapsed=9.71s tid=0x00000001162e6a00 nid=35075 waiting on condition  [0x0000000338206000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018276a0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"KalixTestkit-akka.actor.internal-dispatcher-3" #42 [39427] prio=5 os_prio=31 cpu=1.14ms elapsed=9.71s tid=0x00000001162eb600 nid=39427 waiting on condition  [0x0000000338412000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018276a0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.parkUntil(java.base@21.0.1/LockSupport.java:449)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1891)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"KalixTestkit-akka.actor.internal-dispatcher-4" #43 [38915] prio=5 os_prio=31 cpu=0.05ms elapsed=9.71s tid=0x0000000116dd8200 nid=38915 waiting on condition  [0x000000033861e000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018276a0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"KalixTestkit-akka.actor.internal-dispatcher-5" #44 [35331] prio=5 os_prio=31 cpu=1.07ms elapsed=9.71s tid=0x0000000116dd8a00 nid=35331 waiting on condition  [0x000000033882a000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018276a0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"KalixTestkit-akka.actor.default-dispatcher-6" #45 [38147] prio=5 os_prio=31 cpu=61.99ms elapsed=9.71s tid=0x0000000105aa2600 nid=38147 waiting on condition  [0x0000000338a36000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x0000000401839ca0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.parkUntil(java.base@21.0.1/LockSupport.java:449)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1891)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"KalixTestkit-akka.actor.default-dispatcher-7" #46 [35843] prio=5 os_prio=31 cpu=0.27ms elapsed=9.71s tid=0x00000001162ebe00 nid=35843 waiting on condition  [0x0000000338c42000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x0000000401839ca0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"ForkJoinPool.commonPool-worker-1" #47 [37635] daemon prio=5 os_prio=31 cpu=0.10ms elapsed=9.71s tid=0x0000000129b52000 nid=37635 waiting on condition  [0x0000000338e4e000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x000000040183a050> (a java.util.concurrent.ForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.parkUntil(java.base@21.0.1/LockSupport.java:449)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1891)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"KalixTestkit-akka.io.pinned-dispatcher-8" #48 [36099] prio=5 os_prio=31 cpu=0.11ms elapsed=9.70s tid=0x0000000129b4dc00 nid=36099 runnable  [0x000000033905a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@21.0.1/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@21.0.1/KQueueSelectorImpl.java:125)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.1/SelectorImpl.java:130)
+	- locked <0x000000040184d220> (a sun.nio.ch.Util$2)
+	- locked <0x000000040184d1c8> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.1/SelectorImpl.java:142)
+	at akka.io.SelectionHandler$ChannelRegistryImpl$$anon$2.tryRun(SelectionHandler.scala:151)
+	at akka.io.SelectionHandler$ChannelRegistryImpl$Task.run(SelectionHandler.scala:291)
+	at akka.io.SelectionHandler$ChannelRegistryImpl$$anon$2.run(SelectionHandler.scala:184)
+	at akka.util.SerializedSuspendableExecutionContext.run$1(SerializedSuspendableExecutionContext.scala:74)
+	at akka.util.SerializedSuspendableExecutionContext.run(SerializedSuspendableExecutionContext.scala:79)
+	at akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:49)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@21.0.1/ThreadPoolExecutor.java:1144)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@21.0.1/ThreadPoolExecutor.java:642)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"process reaper" #50 [36359] daemon prio=10 os_prio=31 cpu=0.52ms elapsed=9.45s tid=0x0000000105aa4800 nid=36359 waiting on condition  [0x000000016ffb2000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x000000040183a3f8> (a java.util.concurrent.SynchronousQueue$TransferStack)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.1/LockSupport.java:269)
+	at java.util.concurrent.SynchronousQueue$TransferStack.transfer(java.base@21.0.1/SynchronousQueue.java:401)
+	at java.util.concurrent.SynchronousQueue.poll(java.base@21.0.1/SynchronousQueue.java:903)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(java.base@21.0.1/ThreadPoolExecutor.java:1069)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@21.0.1/ThreadPoolExecutor.java:1130)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@21.0.1/ThreadPoolExecutor.java:642)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+	at jdk.internal.misc.InnocuousThread.run(java.base@21.0.1/InnocuousThread.java:186)
+
+"testcontainers-ryuk" #56 [28683] daemon prio=5 os_prio=31 cpu=2.73ms elapsed=9.19s tid=0x0000000120538800 nid=28683 in Object.wait()  [0x000000016da9a000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.1/Native Method)
+	- waiting on <0x000000040184d378> (a java.util.ArrayList)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:366)
+	at org.testcontainers.utility.RyukResourceReaper.lambda$maybeStart$0(RyukResourceReaper.java:102)
+	- locked <0x000000040184d378> (a java.util.ArrayList)
+	at org.testcontainers.utility.RyukResourceReaper$$Lambda/0x00000008006a5150.run(Unknown Source)
+	at org.rnorth.ducttape.ratelimits.RateLimiter.doWhenReady(RateLimiter.java:27)
+	at org.testcontainers.utility.RyukResourceReaper.lambda$maybeStart$1(RyukResourceReaper.java:88)
+	at org.testcontainers.utility.RyukResourceReaper$$Lambda/0x00000008006a4f30.run(Unknown Source)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"testcontainers-wait-0" #57 [24839] daemon prio=5 os_prio=31 cpu=7.54ms elapsed=9.02s tid=0x0000000116de1000 nid=24839 waiting on condition  [0x000000016d88e000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x000000040184d680> (a java.util.concurrent.SynchronousQueue$TransferStack)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.1/LockSupport.java:269)
+	at java.util.concurrent.SynchronousQueue$TransferStack.transfer(java.base@21.0.1/SynchronousQueue.java:401)
+	at java.util.concurrent.SynchronousQueue.poll(java.base@21.0.1/SynchronousQueue.java:903)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(java.base@21.0.1/ThreadPoolExecutor.java:1069)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@21.0.1/ThreadPoolExecutor.java:1130)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@21.0.1/ThreadPoolExecutor.java:642)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"testcontainers-wait-1" #58 [65035] daemon prio=5 os_prio=31 cpu=2.22ms elapsed=9.02s tid=0x0000000116df7000 nid=65035 waiting on condition  [0x0000000339266000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x000000040184d680> (a java.util.concurrent.SynchronousQueue$TransferStack)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.1/LockSupport.java:269)
+	at java.util.concurrent.SynchronousQueue$TransferStack.transfer(java.base@21.0.1/SynchronousQueue.java:401)
+	at java.util.concurrent.SynchronousQueue.poll(java.base@21.0.1/SynchronousQueue.java:903)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(java.base@21.0.1/ThreadPoolExecutor.java:1069)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@21.0.1/ThreadPoolExecutor.java:1130)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@21.0.1/ThreadPoolExecutor.java:642)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"Thread-5" #61 [65287] daemon prio=5 os_prio=31 cpu=26.70ms elapsed=8.96s tid=0x00000001205aa800 nid=65287 runnable  [0x000000033967e000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.Net.poll(java.base@21.0.1/Native Method)
+	at sun.nio.ch.NioSocketImpl.park(java.base@21.0.1/NioSocketImpl.java:191)
+	at sun.nio.ch.NioSocketImpl.park(java.base@21.0.1/NioSocketImpl.java:201)
+	at sun.nio.ch.NioSocketImpl.implRead(java.base@21.0.1/NioSocketImpl.java:309)
+	at sun.nio.ch.NioSocketImpl.read(java.base@21.0.1/NioSocketImpl.java:346)
+	at sun.nio.ch.NioSocketImpl$1.read(java.base@21.0.1/NioSocketImpl.java:796)
+	at java.net.Socket$SocketInputStream.read(java.base@21.0.1/Socket.java:1099)
+	at org.testcontainers.shaded.com.trilead.ssh2.crypto.cipher.CipherInputStream.fill_buffer(CipherInputStream.java:41)
+	at org.testcontainers.shaded.com.trilead.ssh2.crypto.cipher.CipherInputStream.internal_read(CipherInputStream.java:52)
+	at org.testcontainers.shaded.com.trilead.ssh2.crypto.cipher.CipherInputStream.getBlock(CipherInputStream.java:79)
+	at org.testcontainers.shaded.com.trilead.ssh2.crypto.cipher.CipherInputStream.read(CipherInputStream.java:108)
+	at org.testcontainers.shaded.com.trilead.ssh2.transport.TransportConnection.receiveMessage(TransportConnection.java:232)
+	at org.testcontainers.shaded.com.trilead.ssh2.transport.TransportManager.receiveLoop(TransportManager.java:672)
+	at org.testcontainers.shaded.com.trilead.ssh2.transport.TransportManager$1.run(TransportManager.java:470)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"Thread-12" #70 [64527] daemon prio=5 os_prio=31 cpu=1.46ms elapsed=6.92s tid=0x00000001205ba400 nid=64527 runnable  [0x000000033988a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.SocketDispatcher.read0(java.base@21.0.1/Native Method)
+	at sun.nio.ch.SocketDispatcher.read(java.base@21.0.1/SocketDispatcher.java:47)
+	at sun.nio.ch.NioSocketImpl.tryRead(java.base@21.0.1/NioSocketImpl.java:256)
+	at sun.nio.ch.NioSocketImpl.implRead(java.base@21.0.1/NioSocketImpl.java:307)
+	at sun.nio.ch.NioSocketImpl.read(java.base@21.0.1/NioSocketImpl.java:346)
+	at sun.nio.ch.NioSocketImpl$1.read(java.base@21.0.1/NioSocketImpl.java:796)
+	at java.net.Socket$SocketInputStream.read(java.base@21.0.1/Socket.java:1099)
+	at java.io.InputStream.read(java.base@21.0.1/InputStream.java:220)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.StreamForwarder.run(StreamForwarder.java:45)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.RemoteAcceptThread.run(RemoteAcceptThread.java:65)
+
+"Thread-13" #71 [44811] daemon prio=5 os_prio=31 cpu=0.63ms elapsed=6.92s tid=0x0000000105aa6000 nid=44811 in Object.wait()  [0x0000000339a96000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.1/Native Method)
+	- waiting on <0x0000000405930578> (a org.testcontainers.shaded.com.trilead.ssh2.channel.Channel)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:366)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:339)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelManager.getChannelData(ChannelManager.java:985)
+	- locked <0x0000000405930578> (a org.testcontainers.shaded.com.trilead.ssh2.channel.Channel)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelInputStream.read(ChannelInputStream.java:58)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelInputStream.read(ChannelInputStream.java:70)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.StreamForwarder.run(StreamForwarder.java:45)
+
+"kalix-akka.actor.default-dispatcher-8" #74 [43799] prio=5 os_prio=31 cpu=7.20ms elapsed=6.85s tid=0x000000011630de00 nid=43799 waiting on condition  [0x0000000339ca2000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018268d0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"kalix-akka.actor.default-dispatcher-7" #73 [45319] prio=5 os_prio=31 cpu=68.66ms elapsed=6.85s tid=0x0000000129b64400 nid=45319 waiting on condition  [0x0000000339eae000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018268d0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"grpc-nio-worker-ELG-1-1" #76 [44555] daemon prio=5 os_prio=31 cpu=0.18ms elapsed=5.57s tid=0x0000000129b85c00 nid=44555 runnable  [0x000000033a0ba000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@21.0.1/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@21.0.1/KQueueSelectorImpl.java:125)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.1/SelectorImpl.java:130)
+	- locked <0x000000040557b0d0> (a io.grpc.netty.shaded.io.netty.channel.nio.SelectedSelectionKeySet)
+	- locked <0x0000000405576b40> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.1/SelectorImpl.java:142)
+	at io.grpc.netty.shaded.io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+	at io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoop.select(NioEventLoop.java:883)
+	at io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:526)
+	at io.grpc.netty.shaded.io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:994)
+	at io.grpc.netty.shaded.io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.grpc.netty.shaded.io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"grpc-default-executor-0" #77 [64003] daemon prio=5 os_prio=31 cpu=12.07ms elapsed=5.57s tid=0x0000000116df7e00 nid=64003 waiting on condition  [0x000000033a2c6000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x0000000405636228> (a java.util.concurrent.SynchronousQueue$TransferStack)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.1/LockSupport.java:269)
+	at java.util.concurrent.SynchronousQueue$TransferStack.transfer(java.base@21.0.1/SynchronousQueue.java:401)
+	at java.util.concurrent.SynchronousQueue.poll(java.base@21.0.1/SynchronousQueue.java:903)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(java.base@21.0.1/ThreadPoolExecutor.java:1069)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@21.0.1/ThreadPoolExecutor.java:1130)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@21.0.1/ThreadPoolExecutor.java:642)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"grpc-default-executor-1" #78 [63491] daemon prio=5 os_prio=31 cpu=2.20ms elapsed=5.55s tid=0x0000000116893c00 nid=63491 waiting on condition  [0x000000033a4d2000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x0000000405636228> (a java.util.concurrent.SynchronousQueue$TransferStack)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@21.0.1/LockSupport.java:269)
+	at java.util.concurrent.SynchronousQueue$TransferStack.transfer(java.base@21.0.1/SynchronousQueue.java:401)
+	at java.util.concurrent.SynchronousQueue.poll(java.base@21.0.1/SynchronousQueue.java:903)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(java.base@21.0.1/ThreadPoolExecutor.java:1069)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@21.0.1/ThreadPoolExecutor.java:1130)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@21.0.1/ThreadPoolExecutor.java:642)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"grpc-nio-worker-ELG-1-2" #79 [45827] daemon prio=5 os_prio=31 cpu=61.79ms elapsed=5.51s tid=0x000000011630e600 nid=45827 runnable  [0x000000033a6de000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@21.0.1/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@21.0.1/KQueueSelectorImpl.java:125)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.1/SelectorImpl.java:130)
+	- locked <0x0000000405582e68> (a io.grpc.netty.shaded.io.netty.channel.nio.SelectedSelectionKeySet)
+	- locked <0x0000000405582c18> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.1/SelectorImpl.java:147)
+	at io.grpc.netty.shaded.io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:68)
+	at io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoop.select(NioEventLoop.java:879)
+	at io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:526)
+	at io.grpc.netty.shaded.io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:994)
+	at io.grpc.netty.shaded.io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.grpc.netty.shaded.io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"Thread-16" #80 [46083] daemon prio=5 os_prio=31 cpu=4.23ms elapsed=5.40s tid=0x00000001162f5400 nid=46083 runnable  [0x000000033a8ea000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.SocketDispatcher.read0(java.base@21.0.1/Native Method)
+	at sun.nio.ch.SocketDispatcher.read(java.base@21.0.1/SocketDispatcher.java:47)
+	at sun.nio.ch.NioSocketImpl.tryRead(java.base@21.0.1/NioSocketImpl.java:256)
+	at sun.nio.ch.NioSocketImpl.implRead(java.base@21.0.1/NioSocketImpl.java:307)
+	at sun.nio.ch.NioSocketImpl.read(java.base@21.0.1/NioSocketImpl.java:346)
+	at sun.nio.ch.NioSocketImpl$1.read(java.base@21.0.1/NioSocketImpl.java:796)
+	at java.net.Socket$SocketInputStream.read(java.base@21.0.1/Socket.java:1099)
+	at java.io.InputStream.read(java.base@21.0.1/InputStream.java:220)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.StreamForwarder.run(StreamForwarder.java:45)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.RemoteAcceptThread.run(RemoteAcceptThread.java:65)
+
+"Thread-17" #81 [46339] daemon prio=5 os_prio=31 cpu=1.95ms elapsed=5.40s tid=0x0000000129b5ba00 nid=46339 in Object.wait()  [0x000000033aaf6000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.1/Native Method)
+	- waiting on <0x0000000405937df0> (a org.testcontainers.shaded.com.trilead.ssh2.channel.Channel)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:366)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:339)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelManager.getChannelData(ChannelManager.java:985)
+	- locked <0x0000000405937df0> (a org.testcontainers.shaded.com.trilead.ssh2.channel.Channel)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelInputStream.read(ChannelInputStream.java:58)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelInputStream.read(ChannelInputStream.java:70)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.StreamForwarder.run(StreamForwarder.java:45)
+
+"Thread-19" #83 [62211] daemon prio=5 os_prio=31 cpu=0.71ms elapsed=5.08s tid=0x0000000105aaa600 nid=62211 runnable  [0x000000033ad02000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.SocketDispatcher.read0(java.base@21.0.1/Native Method)
+	at sun.nio.ch.SocketDispatcher.read(java.base@21.0.1/SocketDispatcher.java:47)
+	at sun.nio.ch.NioSocketImpl.tryRead(java.base@21.0.1/NioSocketImpl.java:256)
+	at sun.nio.ch.NioSocketImpl.implRead(java.base@21.0.1/NioSocketImpl.java:307)
+	at sun.nio.ch.NioSocketImpl.read(java.base@21.0.1/NioSocketImpl.java:346)
+	at sun.nio.ch.NioSocketImpl$1.read(java.base@21.0.1/NioSocketImpl.java:796)
+	at java.net.Socket$SocketInputStream.read(java.base@21.0.1/Socket.java:1099)
+	at java.io.InputStream.read(java.base@21.0.1/InputStream.java:220)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.StreamForwarder.run(StreamForwarder.java:45)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.RemoteAcceptThread.run(RemoteAcceptThread.java:65)
+
+"Thread-20" #84 [22027] daemon prio=5 os_prio=31 cpu=0.26ms elapsed=5.08s tid=0x0000000129b6ba00 nid=22027 in Object.wait()  [0x0000000339472000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.1/Native Method)
+	- waiting on <0x0000000405938128> (a org.testcontainers.shaded.com.trilead.ssh2.channel.Channel)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:366)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:339)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelManager.getChannelData(ChannelManager.java:985)
+	- locked <0x0000000405938128> (a org.testcontainers.shaded.com.trilead.ssh2.channel.Channel)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelInputStream.read(ChannelInputStream.java:58)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelInputStream.read(ChannelInputStream.java:70)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.StreamForwarder.run(StreamForwarder.java:45)
+
+"Thread-22" #86 [61699] daemon prio=5 os_prio=31 cpu=2.27ms elapsed=5.08s tid=0x00000001299f3e00 nid=61699 runnable  [0x000000033af0e000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.SocketDispatcher.read0(java.base@21.0.1/Native Method)
+	at sun.nio.ch.SocketDispatcher.read(java.base@21.0.1/SocketDispatcher.java:47)
+	at sun.nio.ch.NioSocketImpl.tryRead(java.base@21.0.1/NioSocketImpl.java:256)
+	at sun.nio.ch.NioSocketImpl.implRead(java.base@21.0.1/NioSocketImpl.java:307)
+	at sun.nio.ch.NioSocketImpl.read(java.base@21.0.1/NioSocketImpl.java:346)
+	at sun.nio.ch.NioSocketImpl$1.read(java.base@21.0.1/NioSocketImpl.java:796)
+	at java.net.Socket$SocketInputStream.read(java.base@21.0.1/Socket.java:1099)
+	at java.io.InputStream.read(java.base@21.0.1/InputStream.java:220)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.StreamForwarder.run(StreamForwarder.java:45)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.RemoteAcceptThread.run(RemoteAcceptThread.java:65)
+
+"Thread-23" #87 [46851] daemon prio=5 os_prio=31 cpu=1.42ms elapsed=5.08s tid=0x0000000116307c00 nid=46851 in Object.wait()  [0x000000033b11a000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@21.0.1/Native Method)
+	- waiting on <0x0000000405938460> (a org.testcontainers.shaded.com.trilead.ssh2.channel.Channel)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:366)
+	at java.lang.Object.wait(java.base@21.0.1/Object.java:339)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelManager.getChannelData(ChannelManager.java:985)
+	- locked <0x0000000405938460> (a org.testcontainers.shaded.com.trilead.ssh2.channel.Channel)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelInputStream.read(ChannelInputStream.java:58)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.ChannelInputStream.read(ChannelInputStream.java:70)
+	at org.testcontainers.shaded.com.trilead.ssh2.channel.StreamForwarder.run(StreamForwarder.java:45)
+
+"grpc-nio-worker-ELG-1-3" #89 [47363] daemon prio=5 os_prio=31 cpu=0.12ms elapsed=2.05s tid=0x0000000129552a00 nid=47363 runnable  [0x000000033b326000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@21.0.1/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@21.0.1/KQueueSelectorImpl.java:125)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@21.0.1/SelectorImpl.java:130)
+	- locked <0x00000004055867f8> (a io.grpc.netty.shaded.io.netty.channel.nio.SelectedSelectionKeySet)
+	- locked <0x00000004055865a8> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@21.0.1/SelectorImpl.java:142)
+	at io.grpc.netty.shaded.io.netty.channel.nio.SelectedSelectionKeySetSelector.select(SelectedSelectionKeySetSelector.java:62)
+	at io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoop.select(NioEventLoop.java:883)
+	at io.grpc.netty.shaded.io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:526)
+	at io.grpc.netty.shaded.io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:994)
+	at io.grpc.netty.shaded.io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.grpc.netty.shaded.io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.lang.Thread.runWith(java.base@21.0.1/Thread.java:1596)
+	at java.lang.Thread.run(java.base@21.0.1/Thread.java:1583)
+
+"kalix-akka.actor.default-dispatcher-9" #90 [61443] prio=5 os_prio=31 cpu=9.07ms elapsed=2.01s tid=0x0000000117018000 nid=61443 waiting on condition  [0x000000033b532000]
+   java.lang.Thread.State: WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018268d0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.park(java.base@21.0.1/LockSupport.java:371)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1893)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"kalix-akka.actor.default-dispatcher-10" #91 [48131] prio=5 os_prio=31 cpu=11.15ms elapsed=2.01s tid=0x000000011701ae00 nid=48131 waiting on condition  [0x000000033b73e000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@21.0.1/Native Method)
+	- parking to wait for  <0x00000004018268d0> (a akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinPool)
+	at java.util.concurrent.locks.LockSupport.parkUntil(java.base@21.0.1/LockSupport.java:449)
+	at java.util.concurrent.ForkJoinPool.awaitWork(java.base@21.0.1/ForkJoinPool.java:1891)
+	at java.util.concurrent.ForkJoinPool.runWorker(java.base@21.0.1/ForkJoinPool.java:1809)
+	at java.util.concurrent.ForkJoinWorkerThread.run(java.base@21.0.1/ForkJoinWorkerThread.java:188)
+
+"Attach Listener" #92 [48643] daemon prio=9 os_prio=31 cpu=1.42ms elapsed=0.11s tid=0x0000000127008200 nid=48643 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"VM Thread" os_prio=31 cpu=10.07ms elapsed=10.72s tid=0x0000000127e073b0 nid=19715 runnable  
+
+"GC Thread#0" os_prio=31 cpu=13.49ms elapsed=10.73s tid=0x0000000105305e60 nid=15363 runnable  
+
+"GC Thread#1" os_prio=31 cpu=12.89ms elapsed=10.34s tid=0x0000000105713340 nid=28419 runnable  
+
+"GC Thread#2" os_prio=31 cpu=9.35ms elapsed=10.34s tid=0x00000001057136e0 nid=28163 runnable  
+
+"GC Thread#3" os_prio=31 cpu=11.10ms elapsed=10.34s tid=0x0000000105713c50 nid=27907 runnable  
+
+"GC Thread#4" os_prio=31 cpu=12.55ms elapsed=10.34s tid=0x00000001057141c0 nid=27395 runnable  
+
+"GC Thread#5" os_prio=31 cpu=12.02ms elapsed=10.34s tid=0x0000000105212070 nid=25859 runnable  
+
+"GC Thread#6" os_prio=31 cpu=12.92ms elapsed=10.34s tid=0x0000000105212410 nid=26627 runnable  
+
+"GC Thread#7" os_prio=31 cpu=12.02ms elapsed=10.34s tid=0x0000000105714730 nid=26115 runnable  
+
+"GC Thread#8" os_prio=31 cpu=12.30ms elapsed=10.34s tid=0x0000000105714ca0 nid=43267 runnable  
+
+"GC Thread#9" os_prio=31 cpu=10.93ms elapsed=10.34s tid=0x0000000105212980 nid=43011 runnable  
+
+"G1 Main Marker" os_prio=31 cpu=0.29ms elapsed=10.73s tid=0x00000001052047b0 nid=13315 runnable  
+
+"G1 Conc#0" os_prio=31 cpu=5.52ms elapsed=10.73s tid=0x0000000105205120 nid=14083 runnable  
+
+"G1 Conc#1" os_prio=31 cpu=10.28ms elapsed=10.34s tid=0x0000000117f15ff0 nid=33539 runnable  
+
+"G1 Conc#2" os_prio=31 cpu=8.97ms elapsed=10.33s tid=0x0000000105715210 nid=34051 runnable  
+
+"G1 Refine#0" os_prio=31 cpu=0.07ms elapsed=10.73s tid=0x000000012000be00 nid=14595 runnable  
+
+"G1 Service" os_prio=31 cpu=0.79ms elapsed=10.72s tid=0x00000001053063d0 nid=16643 runnable  
+
+"VM Periodic Task Thread" os_prio=31 cpu=2.67ms elapsed=10.72s tid=0x0000000127e062f0 nid=21251 waiting on condition  
+
+JNI global refs: 18, weak refs: 0
+

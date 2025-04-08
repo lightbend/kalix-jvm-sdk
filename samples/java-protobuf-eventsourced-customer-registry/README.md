@@ -33,7 +33,7 @@ With both the Kalix Runtime and your service running, any defined endpoints shou
 * Create a customer with:
 
 ```shell
-grpcurl --plaintext -d '{"customer_id": "vip", "email": "vip@example.com", "name": "Very Important", "address": {"street": "Road 1", "city": "The Capital"}}' localhost:9000  customer.api.CustomerService/Create
+grpcurl --plaintext -d '{"customer_id": "vip4", "email": "vip4@example.com", "name": "Very Important"}' localhost:9000  customer.api.CustomerService/Create
 ```
 
 * Retrieve the customer:
@@ -50,11 +50,6 @@ grpcurl --plaintext -d '{"customer_name": "Very Important"}' localhost:9000 cust
 * Change name:
 
 ```shell
-grpcurl --plaintext -d '{"customer_id": "vip", "new_name": "Most Important"}' localhost:9000 customer.api.CustomerService/ChangeName
+grpcurl --plaintext -d '{"customer_id": "vip2", "new_name": "Most2 Important"}' localhost:9000 customer.api.CustomerService/ChangeName
 ```
   
-* Change address:
-
-```shell
-grpcurl --plaintext -d '{"customer_id": "vip", "new_address": {"street": "Street 1", "city": "The City"}}' localhost:9000 customer.api.CustomerService/ChangeAddress
-```

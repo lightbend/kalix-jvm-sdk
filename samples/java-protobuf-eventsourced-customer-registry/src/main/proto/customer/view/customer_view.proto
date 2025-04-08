@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// tag::declarations[]
 syntax = "proto3";
 
 package customer.view;
@@ -30,6 +29,10 @@ import "google/api/annotations.proto";
 // tag::service-event-sourced[]
 message ByNameRequest {
   string customer_name = 1;
+}
+
+message CustomerList {
+  repeated api.Customer customers = 1;
 }
 
 service CustomerByName {
@@ -55,89 +58,17 @@ service CustomerByName {
     };
   }
 
-  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-    };
-  }
-
-  // tag::ignore-other-events[]
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
       ignore: true
      };
   };
-  // end::ignore-other-events[]
 
-  rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
+  rpc GetCustomers(ByNameRequest) returns (CustomerList) {
     option (kalix.method).view.query = {
-      query: "SELECT * FROM customers WHERE name = :customer_name"
+      query: "SELECT * AS customers FROM customers WHERE name = :customer_name"
     };
   }
 }
-// end::service-event-sourced[]
 
-// tag::stream-updates[]
-message ByCityRequest {
-  string city = 1;
-}
-service CustomerByCityStreaming {
-  option (kalix.codegen) = {
-    view: {}
-  };
-
-  // update methods omitted
-  // end::stream-updates[]
-
-  rpc ProcessCustomerCreated(domain.CustomerCreated) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-    };
-  }
-
-  rpc ProcessCustomerNameChanged(domain.CustomerNameChanged) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-    };
-  }
-
-  rpc ProcessCustomerAddressChanged(domain.CustomerAddressChanged) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "customers"
-    };
-    option (kalix.method).view.update = {
-      table: "customers"
-    };
-  }
-
-  rpc IgnoreOtherEvents(google.protobuf.Any) returns (api.Customer) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "customers"
-      ignore: true
-    };
-  };
-
-  // tag::stream-updates[]
-  rpc GetCustomers(ByCityRequest) returns (stream api.Customer) { // <1>
-    option (kalix.method).view.query = {
-      query: "SELECT * FROM customers WHERE address.city = :city", // <2>
-      stream_updates: true // <3>
-    };
-    // end::stream-updates[]
-    option (google.api.http) = {
-      get: "/stream-city/{city}"
-    };
-    // tag::stream-updates[]
-  }
-}
-// end::stream-updates[]
