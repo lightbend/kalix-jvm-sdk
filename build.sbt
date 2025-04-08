@@ -1,9 +1,6 @@
 import Dependencies.Kalix
 import com.jsuereth.sbtpgp.PgpKeys.publishSignedConfiguration
 
-// FIXME drop once version with virtual threads is out
-ThisBuild / resolvers += "Akka library snapshot repository".at("https://repo.akka.io/snapshots")
-
 lazy val `kalix-jvm-sdk` = project
   .in(file("."))
   .aggregate(
