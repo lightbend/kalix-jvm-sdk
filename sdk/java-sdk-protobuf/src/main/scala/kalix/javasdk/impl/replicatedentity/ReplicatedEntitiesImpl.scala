@@ -87,7 +87,7 @@ final class ReplicatedEntitiesImpl(system: ActorSystem, services: Map[String, Re
           ReplicatedEntityStreamOut(Out.Failure(Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
-      .async
+      .addAttributes(SdkExecutionContext.streamDispatcher)
 
   private def runEntity(
       init: ReplicatedEntityInit): Flow[ReplicatedEntityStreamIn, ReplicatedEntityStreamOut, NotUsed] = {
@@ -138,6 +138,7 @@ object ReplicatedEntitiesImpl {
     val router: ReplicatedEntityRouter[_ <: Object, _ <: Object] = {
       val context = new ReplicatedEntityCreationContext(entityId, system)
       try {
+        // Note: not run on sdk execution context
         service.factory.create(context)
       } finally {
         context.deactivate()

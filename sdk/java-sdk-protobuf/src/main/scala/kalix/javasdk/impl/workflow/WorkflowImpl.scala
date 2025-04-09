@@ -125,7 +125,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           WorkflowStreamOut(OutFailure(component.Failure(description = s"Unexpected error [$correlationId]")))
         }
       }
-      .async
+      .withAttributes(SdkExecutionContext.streamDispatcher)
 
   private def toRecoverStrategy(messageCodec: MessageCodec)(
       recoverStrategy: AbstractWorkflow.RecoverStrategy[_]): RecoverStrategy = {
@@ -169,6 +169,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
     WorkflowConfig(workflowTimeout, failoverTo, failoverRecovery, Some(stepConfig), stepConfigs)
   }
 
+  // Note: called from stream, already on sdk dispatcher
   private def runWorkflow(
       init: WorkflowEntityInit): (Flow[WorkflowStreamIn, WorkflowStreamOut, NotUsed], WorkflowStreamOut) = {
     val service =
@@ -345,6 +346,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
           // currently added to satisfy the compiler
           Future.successful(WorkflowStreamOut(WorkflowStreamOut.Message.Empty))
       }
+      .addAttributes(SdkExecutionContext.streamDispatcher)
 
     (flow, workflowConfig)
   }

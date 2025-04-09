@@ -156,7 +156,7 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) 
             s"Kalix protocol failure: expected ReceiveEvent message, but got ${other.getClass.getName}"
           Source.failed(new RuntimeException(errMsg))
       }
-      .async
+      .addAttributes(SdkExecutionContext.streamDispatcher)
 
   private final class UpdateContextImpl(
       override val viewId: String,

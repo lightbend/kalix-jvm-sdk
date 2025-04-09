@@ -25,6 +25,7 @@ import kalix.protocol.component.{ Failure, MetadataEntry }
 import org.slf4j.{ Logger, LoggerFactory, MDC }
 
 import java.util.Optional
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.OptionConverters._
@@ -101,9 +102,10 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
 
   import ActionsImpl._
   import _system.dispatcher
-  implicit val system: ActorSystem = _system
+  private implicit val system: ActorSystem = _system
+  private val sdkEc: ExecutionContext = SdkExecutionContext(system)
   private val telemetry = Telemetry(system)
-  lazy val telemetries: Map[String, Instrumentation] = services.values.map { s =>
+  private lazy val telemetries: Map[String, Instrumentation] = services.values.map { s =>
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
 
@@ -176,24 +178,29 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
     services.get(in.serviceName) match {
       case Some(service) =>
         val span = telemetries(service.serviceName).buildSpan(service, in)
-        span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
+
         val fut =
-          try {
-            val context = createContext(in, service.messageCodec, span.map(_.getSpanContext), service.serviceName)
-            val decodedPayload = service.messageCodec.decodeMessage(
-              in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
-            val effect = service.factory
-              .create(context)
-              .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-            effectToResponse(service, in, effect, service.messageCodec)
-          } catch {
-            case NonFatal(ex) =>
-              // command handler threw an "unexpected" error
-              span.foreach(_.end())
-              Future.successful(handleUnexpectedException(service, in, ex))
-          } finally {
-            MDC.remove(Telemetry.TRACE_ID)
-          }
+          // Note: invocation in future to guarantee create and invocation is running on sdk dispatcher with virtual thread support
+          Future {
+            try {
+              span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
+              val context = createContext(in, service.messageCodec, span.map(_.getSpanContext), service.serviceName)
+              val decodedPayload = service.messageCodec.decodeMessage(
+                in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
+              val effect = service.factory
+                .create(context)
+                .handleUnary(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
+              effectToResponse(service, in, effect, service.messageCodec)
+            } catch {
+              case NonFatal(ex) =>
+                // command handler threw an "unexpected" error
+                span.foreach(_.end())
+                Future.successful(handleUnexpectedException(service, in, ex))
+            } finally {
+              MDC.remove(Telemetry.TRACE_ID)
+            }
+          }(sdkEc).flatten
+
         fut.andThen { case _ =>
           span.foreach(_.end())
         }
@@ -246,7 +253,7 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
               Future.successful(
                 ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + call.serviceName))))
           }
-      }
+      }(sdkEc)
 
   /**
    * Handle a streamed out command. The input command will contain the service name, command name, request metadata and
@@ -258,25 +265,32 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
   override def handleStreamedOut(in: ActionCommand): Source[ActionResponse, NotUsed] =
     services.get(in.serviceName) match {
       case Some(service) =>
-        try {
-          val context = createContext(in, service.messageCodec, None, service.serviceName)
-          val decodedPayload = service.messageCodec.decodeMessage(
-            in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
-          service.factory
-            .create(context)
-            .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
-            .asScala
-            .mapAsync(1)(effect => effectToResponse(service, in, effect, service.messageCodec))
-            .recover { case NonFatal(ex) =>
-              // user stream failed with an "unexpected" error
-              handleUnexpectedException(service, in, ex)
+        // Note: invocation in future to guarantee create and invocation is running on sdk dispatcher with virtual thread support
+        Source
+          .futureSource(Future {
+            try {
+              val context = createContext(in, service.messageCodec, None, service.serviceName)
+              val decodedPayload = service.messageCodec.decodeMessage(
+                in.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
+              service.factory
+                .create(context)
+                .handleStreamedOut(in.name, MessageEnvelope.of(decodedPayload, context.metadata()), context)
+                .asScala
+                .mapAsync(1)(effect => effectToResponse(service, in, effect, service.messageCodec))
+                .recover { case NonFatal(ex) =>
+                  // user stream failed with an "unexpected" error
+                  handleUnexpectedException(service, in, ex)
+                }
+                // run the stream itself on the virtual thread dispatcher in case the user blocks in stream
+                .addAttributes(SdkExecutionContext.streamDispatcher)
+            } catch {
+              case NonFatal(ex) =>
+                // command handler threw an "unexpected" error
+                Source.single(handleUnexpectedException(service, in, ex))
             }
-            .async
-        } catch {
-          case NonFatal(ex) =>
-            // command handler threw an "unexpected" error
-            Source.single(handleUnexpectedException(service, in, ex))
-        }
+          }(sdkEc))
+          .mapMaterializedValue(_ => NotUsed)
+
       case None =>
         Source.single(ActionResponse(ActionResponse.Response.Failure(Failure(0, "Unknown service: " + in.serviceName))))
     }
@@ -303,25 +317,32 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
         case (Seq(call), messages) =>
           services.get(call.serviceName) match {
             case Some(service) =>
+              // Note: invocation in future to guarantee create and invocation is running on sdk dispatcher with virtual thread support
               try {
-                val context = createContext(call, service.messageCodec, None, service.serviceName)
-                service.factory
-                  .create(context)
-                  .handleStreamed(
-                    call.name,
-                    messages.map { message =>
-                      val metadata = MetadataImpl.of(message.metadata.map(_.entries.toVector).getOrElse(Nil))
-                      val decodedPayload = service.messageCodec.decodeMessage(
-                        message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
-                      MessageEnvelope.of(decodedPayload, metadata)
-                    }.asJava,
-                    context)
-                  .asScala
-                  .mapAsync(1)(effect => effectToResponse(service, call, effect, service.messageCodec))
-                  .recover { case NonFatal(ex) =>
-                    // user stream failed with an "unexpected" error
-                    handleUnexpectedException(service, call, ex)
-                  }
+                Source
+                  .futureSource(Future {
+                    val context = createContext(call, service.messageCodec, None, service.serviceName)
+                    service.factory
+                      .create(context)
+                      .handleStreamed(
+                        call.name,
+                        messages.map { message =>
+                          val metadata = MetadataImpl.of(message.metadata.map(_.entries.toVector).getOrElse(Nil))
+                          val decodedPayload = service.messageCodec.decodeMessage(
+                            message.payload.getOrElse(throw new IllegalArgumentException("No command payload")))
+                          MessageEnvelope.of(decodedPayload, metadata)
+                        }.asJava,
+                        context)
+                      .asScala
+                      .mapAsync(1)(effect => effectToResponse(service, call, effect, service.messageCodec))
+                      .recover { case NonFatal(ex) =>
+                        // user stream failed with an "unexpected" error
+                        handleUnexpectedException(service, call, ex)
+                      }
+                      // run the stream itself on the virtual thread dispatcher in case the user blocks in stream
+                      .addAttributes(SdkExecutionContext.streamDispatcher)
+                  }(sdkEc))
+                  .mapMaterializedValue(_ => NotUsed)
               } catch {
                 case NonFatal(ex) =>
                   // command handler threw an "unexpected" error
