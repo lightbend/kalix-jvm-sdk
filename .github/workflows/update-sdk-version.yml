@@ -3,7 +3,7 @@ name: SDK version update
 on:
   workflow_dispatch: # to trigger manually
   workflow_run:
-    workflows: ["Publish"]
+    workflows: ["FakePublish"]
     types:
       - completed
 
