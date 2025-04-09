@@ -361,8 +361,16 @@ private[kalix] final class CommandContextImpl(
     system: ActorSystem)
     extends AbstractContext(system)
     with CommandContext
-    with ActivatableContext
+    with ActivatableContext {
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    GrpcClients(system).getGrpcClient(clientClass, service)
+
+}
 
 private[kalix] final class WorkflowContextImpl(override val workflowId: String, system: ActorSystem)
     extends AbstractContext(system)
-    with WorkflowContext
+    with WorkflowContext {
+  override def getGrpcClient[T](clientClass: Class[T], service: String): T =
+    GrpcClients(system).getGrpcClient(clientClass, service)
+
+}
