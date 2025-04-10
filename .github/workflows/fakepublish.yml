@@ -1,0 +1,13 @@
+name: FakePublish
+
+on:
+  push:
+    tags: ["fake*"]
+
+jobs:
+  publish:
+    name: Publish (sbt & Maven)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        run: echo "hello"
