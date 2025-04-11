@@ -29,8 +29,8 @@ public interface WorkflowContext extends Context {
 
   /**
    * Get an Akka gRPC client for the given component that is in the same service.
-   * <p>
-   * Lower level alternative to using the generated components. Prefer that when possible.
+   *
+   * <p>Lower level alternative to using the generated components. Prefer that when possible.
    */
   <T> T getComponentGrpcClient(Class<T> componentServiceClass);
 }
