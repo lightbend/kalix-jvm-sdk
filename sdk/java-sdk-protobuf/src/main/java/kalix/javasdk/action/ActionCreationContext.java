@@ -29,6 +29,13 @@ public interface ActionCreationContext extends Context {
   <T> T getGrpcClient(Class<T> clientClass, String service);
 
   /**
+   * Get an Akka gRPC client for the given component that is in the same service.
+   *
+   * <p>Lower level alternative to using the generated components. Prefer that when possible.
+   */
+  <T> T getComponentGrpcClient(Class<T> componentServiceClass);
+
+  /**
    * Get an OpenTelemetry tracer for the current action. This will allow for building and automatic
    * exporting of spans.
    *
