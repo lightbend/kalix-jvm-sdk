@@ -1,11 +1,8 @@
 name: SDK version update
 
 on:
-  workflow_dispatch: # to trigger manually
-  workflow_run:
-    workflows: ["FakePublish"]
-    types:
-      - completed
+  push:
+    tags: ["fake*"]
 
 jobs:
   debug:
