@@ -14,22 +14,20 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 - [ ] Use the "Generate release notes" button to create [a new release](https://github.com/lightbend/kalix-jvm-sdk/releases/new) with the appropriate tag.
     - Review the generated notes and "Publish release"
     - CI will automatically publish to the repository based on the tag
-    - CI will update the docs/kalix-current branch
 
 ### Check availability
 
-- [ ] Check that [`docs/kalix-current`](https://github.com/lightbend/kalix-jvm-sdk/commits/docs/kalix-current) has been updated
-  - The workflow has been failing (possibly for expired secrets).
-  - Alternatively, to update that branch, run this locally
+- [ ] Manually update [`docs/kalix-current`](https://github.com/lightbend/kalix-jvm-sdk/commits/docs/kalix-current) (There is a workflow but that has been failing, possibly for expired secrets)
+  - To update that branch, run this locally
     ```shell
     git fetch --tags
     cd docs
     make deploy
     ```
 
-- [ ] Check the release on [Maven Central](https://repo1.maven.org/maven2/io/kalix/kalix-java-sdk-protobuf-parent/)
-    - [ ] Check the pom is served via `https://repo.akka.io/maven/io/kalix/kalix-java-sdk-protobuf-parent/<version>/kalix-java-sdk-protobuf-parent-<version>.pom`
-    - [ ] Check the version is listed on our [repo.akka.io](https://repo.akka.io/maven/io/kalix/kalix-java-sdk-protobuf-parent/).
+- [ ] Check the released artifacts
+    - [ ] Check the parent pom version is available at maven central https://repo1.maven.org/maven2/io/kalix/kalix-java-sdk-protobuf-parent/
+    - [ ] Check the version is listed in our own https://repo.akka.io/maven/io/kalix/kalix-jvm-core-sdk/.
 
 ### Fix and publish docs
 
@@ -39,6 +37,9 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 
 ### Update to the latest version
  
+FIXME auto update no longer working as of 2025-04-09 but can be manually triggered through https://github.com/lightbend/kalix-jvm-sdk/actions/workflows/update-sdk-version.yml
+you may have to manually close and re-open the PR to trigger CI though
+
 - [ ] Review and merge PR created by bot (should appear [here](https://github.com/lightbend/kalix-jvm-sdk/pulls?q=is%3Apr+is%3Aopen+auto+pr+)). While reviewing confirm the release version is updated for:
     - `kalix-sdk.version` in the `samples/*/pom.xml` files
     - `kalix-sdk.version` default value in the `samples/scala-*/project/plugins.sbt` files 
@@ -46,7 +47,7 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
  
 ### Check docs update
 
-- [ ] Check for [updated docs](https://docs.kalix.io/index.html) (see the timestamp on the bottom of the page)
+- [ ] Check for [updated docs](https://docs.kalix.io/index.html) (see the timestamp on the bottom of the page) - no longer there
 - [ ] Check for the latest version on the [dependency configuration example](https://docs.kalix.io/java-protobuf/index.html#_reference_the_kalix_protobuf_sdks) 
 
 ### Announcements
