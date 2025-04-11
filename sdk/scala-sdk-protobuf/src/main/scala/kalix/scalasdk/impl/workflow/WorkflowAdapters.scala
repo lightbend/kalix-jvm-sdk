@@ -217,6 +217,9 @@ private[scalasdk] final class ScalaWorkflowContextAdapter(javaSdkContext: javasd
   override def getGrpcClient[T](clientClass: Class[T], service: String): T =
     javaSdkContext.getGrpcClient(clientClass, service)
 
+  override def getComponentGrpcClient[T](componentServiceClass: Class[T]): T =
+    javaSdkContext.getComponentGrpcClient(componentServiceClass)
+
   override def materializer(): Materializer = javaSdkContext.materializer()
 
   override def workflowId: String = javaSdkContext.workflowId()
