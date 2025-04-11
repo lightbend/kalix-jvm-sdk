@@ -73,7 +73,7 @@ jobs:
       release: ${{ steps.verification.outputs.release }}
     steps:
 
-      - name: Verify the tag is a release, not snapshot or milestone TODO change back `fake` for `v`
+      - name: Verify the tag is a release, not snapshot or milestone
         id: verification
         run: |
           TAG_NAME=${{ github.ref_name }}
