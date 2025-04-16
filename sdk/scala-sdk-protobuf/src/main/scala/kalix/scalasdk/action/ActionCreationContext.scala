@@ -24,6 +24,12 @@ trait ActionCreationContext extends Context {
   def getGrpcClient[T](clientClass: Class[T], service: String): T
 
   /**
+   * Get an Akka gRPC client for the given component that is in the same service. <p> Lower level alternative to using
+   * the generated components. Prefer that when possible.
+   */
+  def getComponentGrpcClient[T](componentServiceClass: Class[T]): T
+
+  /**
    * Get an OpenTelemetry tracer for the current action. This will allow for building and automatic exporting of spans.
    *
    * @return
