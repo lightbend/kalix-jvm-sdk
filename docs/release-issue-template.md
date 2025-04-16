@@ -36,9 +36,6 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 - [ ] Release the Kalix documentation to get the SDK docs updates published
 
 ### Update to the latest version
- 
-FIXME auto update no longer working as of 2025-04-09 but can be manually triggered through https://github.com/lightbend/kalix-jvm-sdk/actions/workflows/update-sdk-version.yml
-you may have to manually close and re-open the PR to trigger CI though
 
 - [ ] Review and merge PR created by bot (should appear [here](https://github.com/lightbend/kalix-jvm-sdk/pulls?q=is%3Apr+is%3Aopen+auto+pr+)). While reviewing confirm the release version is updated for:
     - `kalix-sdk.version` in the `samples/*/pom.xml` files
