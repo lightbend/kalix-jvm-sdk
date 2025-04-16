@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>kalix-java-sdk-protobuf-parent</artifactId>
+    <groupId>io.kalix</groupId>
+    <version>1.5.3</version>
+    <relativePath>../pom.xml/pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>eventsourced-counter</artifactId>
+  <name>eventsourced-counter</name>
+  <version>1.0-SNAPSHOT</version>
+  <dependencies>
+    <dependency>
+      <groupId>io.kalix</groupId>
+      <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
+      <version>1.5.3</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>testcontainers</artifactId>
+          <groupId>org.testcontainers</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit</artifactId>
+          <groupId>junit</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-jupiter</artifactId>
+          <groupId>org.junit.jupiter</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>junit-vintage-engine</artifactId>
+          <groupId>org.junit.vintage</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>compilerplugin_2.13</artifactId>
+          <groupId>com.thesamet.scalapb</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>akka-testkit_2.13</artifactId>
+          <groupId>com.typesafe.akka</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+  <properties>
+    <kalixOrganization>johanandren</kalixOrganization>
+    <mainClass>com.example.Main</mainClass>
+    <kalixContainerRegistry>docker.io</kalixContainerRegistry>
+  </properties>
+</project>
+
