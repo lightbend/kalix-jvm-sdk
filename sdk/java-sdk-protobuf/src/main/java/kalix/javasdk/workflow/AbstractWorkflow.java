@@ -31,6 +31,7 @@ public abstract class AbstractWorkflow<S> {
   private Optional<S> currentState = Optional.empty();
 
   private boolean stateHasBeenSet = false;
+  private boolean deleted = false;
 
   /**
    * Returns the initial empty state object. This object will be passed into the
@@ -81,9 +82,10 @@ public abstract class AbstractWorkflow<S> {
   /**
    * INTERNAL API
    */
-  public void _internalSetCurrentState(S state) {
+  public void _internalSetCurrentState(S state, boolean deleted) {
     stateHasBeenSet = true;
     currentState = Optional.ofNullable(state);
+    this.deleted = deleted;
   }
 
   /**
@@ -103,6 +105,14 @@ public abstract class AbstractWorkflow<S> {
     // to have emptyState set to null.
     if (stateHasBeenSet) return currentState.orElse(null);
     else throw new IllegalStateException("Current state is only available when handling a command.");
+  }
+
+  /**
+   * Returns true if the entity has been deleted.
+   */
+  @ApiMayChange
+  protected boolean isDeleted() {
+    return deleted;
   }
 
   /**
@@ -130,6 +140,7 @@ public abstract class AbstractWorkflow<S> {
    *   <li>define the next step to be executed (transition)
    *   <li>pause the workflow
    *   <li>end the workflow
+   *   <li>delete the workflow
    *   <li>fail the step or reject a command by returning an error
    *   <li>reply to incoming commands
    * </ul>
@@ -189,6 +200,14 @@ public abstract class AbstractWorkflow<S> {
        */
       @ApiMayChange
       TransitionalEffect<Void> end();
+
+      /**
+       * Finish and delete the workflow execution.
+       * After transition to {@code delete}, no more transitions are allowed.
+       * The actual workflow state deletion is done with a configurable delay to allow downstream consumers to observe that fact.
+       */
+      @ApiMayChange
+      TransitionalEffect<Void> delete();
 
       /**
        * Create a message reply.
@@ -307,6 +326,14 @@ public abstract class AbstractWorkflow<S> {
        */
       @ApiMayChange
       TransitionalEffect<Void> end();
+
+      @ApiMayChange
+      /**
+       * Finish and delete the workflow execution.
+       * After transition to {@code delete}, no more transitions are allowed.
+       * The actual workflow state deletion is done with a configurable delay to allow downstream consumers to observe that fact.
+       */
+      TransitionalEffect<Void> delete();
     }
 
 

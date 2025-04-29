@@ -260,4 +260,18 @@ public class TransferWorkflow extends AbstractTransferWorkflow {
       return effects().reply(currentState);
     }
   }
+
+  // tag::delete-workflow[]
+  @Override
+  public Effect<Empty> delete(TransferState currentState, TransferApi.DeleteRequest deleteRequest) {
+    return effects()
+      .delete() // <1>
+      .thenReply(Empty.getDefaultInstance());
+  }
+  // end::delete-workflow[]
+
+  @Override
+  public Effect<TransferApi.HasBeenDeletedResponse> hasBeenDeleted(TransferState currentState, TransferApi.HasBeenDeletedRequest hasBeenDeletedRequest) {
+    return effects().reply(TransferApi.HasBeenDeletedResponse.newBuilder().setDeleted(isDeleted()).build());
+  }
 }

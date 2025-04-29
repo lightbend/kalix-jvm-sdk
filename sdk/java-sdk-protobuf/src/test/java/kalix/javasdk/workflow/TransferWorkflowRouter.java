@@ -5,6 +5,7 @@
 package kalix.javasdk.workflow;
 
 import com.example.workflow.transfer.MoneyTransferApi;
+import com.google.protobuf.Empty;
 import kalix.javasdk.impl.workflow.WorkflowRouter;
 
 public class TransferWorkflowRouter extends WorkflowRouter<MoneyTransferApi.State, TransferWorkflow> {
@@ -20,6 +21,8 @@ public class TransferWorkflowRouter extends WorkflowRouter<MoneyTransferApi.Stat
         return workflow().start((MoneyTransferApi.Transfer) command);
       case "SignOff":
         return workflow().singOff((MoneyTransferApi.Owner) command);
+      case "Delete":
+        return workflow().delete((Empty) command);
       case "IllegalCall":
         return workflow().illegalCall((MoneyTransferApi.Transfer) command);
       default:
