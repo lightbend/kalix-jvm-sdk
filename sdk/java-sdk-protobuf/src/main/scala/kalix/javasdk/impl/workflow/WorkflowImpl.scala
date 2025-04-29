@@ -18,7 +18,6 @@ import io.grpc.Status
 import kalix.javasdk.impl.WorkflowExceptions.{ failureMessageForLog, ProtocolException, WorkflowException }
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
 import kalix.javasdk.impl.timer.TimerSchedulerImpl
-import kalix.javasdk.impl.workflow.WorkflowEffectImpl.DeleteState
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.End
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.ErrorEffectImpl
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.NoPersistence
@@ -51,6 +50,7 @@ import kalix.protocol.workflow_entity.WorkflowStreamIn.Message.{ Command => InCo
 import kalix.protocol.workflow_entity.WorkflowStreamOut
 import kalix.protocol.workflow_entity.WorkflowStreamOut.Message.{ Failure => OutFailure }
 import kalix.protocol.workflow_entity.{ EndTransition => ProtoEndTransition }
+import kalix.protocol.workflow_entity.{ Delete => ProtoDeleteTransition }
 import kalix.protocol.workflow_entity.{ StepTransition => ProtoStepTransition }
 import kalix.protocol.workflow_entity.{ Pause => ProtoPause }
 import kalix.protocol.workflow_entity.{ NoTransition => ProtoNoTransition }
@@ -59,6 +59,8 @@ import java.util.Optional
 
 import scala.jdk.OptionConverters._
 
+import kalix.javasdk.KalixRunner.Configuration
+import kalix.javasdk.impl.workflow.WorkflowEffectImpl.Delete
 import kalix.javasdk.workflow.AbstractWorkflow
 import kalix.javasdk.workflow.AbstractWorkflow.WorkflowDef
 import kalix.javasdk.workflow.WorkflowContext
@@ -98,11 +100,14 @@ final class WorkflowService(
   override def componentOptions: Option[ComponentOptions] = workflowOptions
 }
 
-final class WorkflowImpl(system: ActorSystem, val services: Map[String, WorkflowService])
+final class WorkflowImpl(system: ActorSystem, val services: Map[String, WorkflowService], configuration: Configuration)
     extends kalix.protocol.workflow_entity.WorkflowEntities {
 
   private implicit val ec: ExecutionContext = system.dispatcher
   private final val log = LoggerFactory.getLogger(this.getClass)
+
+  private val pbCleanupDeletedWorkflowAfter =
+    Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedWorkflowAfter))
 
   override def handle(in: Source[WorkflowStreamIn, NotUsed]): Source[WorkflowStreamOut, NotUsed] =
     in.prefixAndTail(1)
@@ -189,6 +194,8 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
       case None => // no initial state
     }
 
+    router._internalSetDeleted(init.deleted)
+
     def toProtoEffect(effect: AbstractWorkflow.Effect[_], commandId: Long) = {
 
       def effectMessage[R](persistence: Persistence[_], transition: WorkflowEffectImpl.Transition, reply: Reply[R]) = {
@@ -196,12 +203,18 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
         val protoEffect =
           persistence match {
             case UpdateState(newState) =>
-              router._internalSetInitState(newState, transition.isInstanceOf[End.type])
+              val ended = transition.isInstanceOf[WorkflowEffectImpl.End.type]
+              val deleted = transition.isInstanceOf[WorkflowEffectImpl.Delete.type]
+              router._internalSetInitState(newState, ended)
+              router._internalSetDeleted(deleted)
+              //for deleted workflow we are sending the state update, but runtime will ignore it anyway
               WorkflowEffect.defaultInstance.withUserState(service.messageCodec.encodeScala(newState))
             // TODO: persistence should be optional, but we must ensure that we don't save it back to null
             // and preferably we should not even send it over the wire.
-            case NoPersistence => WorkflowEffect.defaultInstance
-            case DeleteState   => throw new RuntimeException("Workflow state deleted not yet supported")
+            case NoPersistence =>
+              val deleted = transition.isInstanceOf[WorkflowEffectImpl.Delete.type]
+              router._internalSetDeleted(deleted)
+              WorkflowEffect.defaultInstance
           }
 
         val toProtoTransition =
@@ -212,6 +225,7 @@ final class WorkflowImpl(system: ActorSystem, val services: Map[String, Workflow
             case Pause        => WorkflowEffect.Transition.Pause(ProtoPause.defaultInstance)
             case NoTransition => WorkflowEffect.Transition.NoTransition(ProtoNoTransition.defaultInstance)
             case End          => WorkflowEffect.Transition.EndTransition(ProtoEndTransition.defaultInstance)
+            case Delete       => WorkflowEffect.Transition.Delete(ProtoDeleteTransition(pbCleanupDeletedWorkflowAfter))
           }
 
         val clientAction = {

@@ -43,4 +43,5 @@ message Owner {
 service TransferWorkflowService {
   rpc Start(Transfer) returns (google.protobuf.Empty) {}
   rpc SignOff(Owner) returns (google.protobuf.Empty) {}
+  rpc Delete(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }

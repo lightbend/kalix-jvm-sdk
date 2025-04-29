@@ -51,12 +51,13 @@ public class TransferWorkflowIntegrationTest {
   public void showTransferFunds() throws Exception {
     String walletAId = randomId();
     String walletBId = randomId();
+    String transferId = "1";
     InitialBalance initWalletA = InitialBalance.newBuilder().setWalletId(walletAId).setBalance(100).build();
     InitialBalance initWalletB = InitialBalance.newBuilder().setWalletId(walletBId).setBalance(100).build();
     walletClient.create(initWalletA).toCompletableFuture().get(5, SECONDS);
     walletClient.create(initWalletB).toCompletableFuture().get(5, SECONDS);
 
-    Transfer transfer = Transfer.newBuilder().setTransferId("1").setFrom(walletAId).setTo(walletBId).setAmount(10).build();
+    Transfer transfer = Transfer.newBuilder().setTransferId(transferId).setFrom(walletAId).setTo(walletBId).setAmount(10).build();
     workflowClient.start(transfer).toCompletableFuture().get(5, SECONDS);
 
     await().atMost(10, SECONDS).untilAsserted(() -> {
@@ -68,6 +69,14 @@ public class TransferWorkflowIntegrationTest {
       assertEquals(90, walletA.getBalance());
       assertEquals(110, walletB.getBalance());
     });
+    
+    var response = workflowClient.hasBeenDeleted(TransferApi.HasBeenDeletedRequest.newBuilder().setTransferId(transferId).build()).toCompletableFuture().get(5, SECONDS);
+    assertEquals(false, response.getDeleted());
+    
+    workflowClient.delete(TransferApi.DeleteRequest.newBuilder().setTransferId(transferId).build()).toCompletableFuture().get(5, SECONDS);
+
+    var response2 = workflowClient.hasBeenDeleted(TransferApi.HasBeenDeletedRequest.newBuilder().setTransferId(transferId).build()).toCompletableFuture().get(5, SECONDS);
+    assertEquals(true, response2.getDeleted());
   }
 
   @Test

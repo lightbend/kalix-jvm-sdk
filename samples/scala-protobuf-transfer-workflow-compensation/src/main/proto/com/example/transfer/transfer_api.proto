@@ -26,6 +26,18 @@ message AcceptationTimeoutRequest {
     string transfer_id = 1 [(kalix.field).id = true];
 }
 
+message DeleteRequest{
+    string transfer_id = 1 [(kalix.field).id = true];
+}
+
+message HasBeenDeletedRequest{
+    string transfer_id = 1 [(kalix.field).id = true];
+}
+
+message HasBeenDeletedResponse{
+    bool deleted = 1;
+}
+
 service TransferWorkflowService {
     option (kalix.codegen) = {
         workflow: {
@@ -38,4 +50,6 @@ service TransferWorkflowService {
     rpc Accept(AcceptRequest) returns (google.protobuf.Empty) {}
     rpc AcceptationTimeout(AcceptationTimeoutRequest) returns (google.protobuf.Empty) {}
     rpc GetTransferState(GetRequest) returns (com.example.transfer.domain.TransferState) {}
+    rpc Delete(DeleteRequest) returns (google.protobuf.Empty) {}
+    rpc HasBeenDeleted(HasBeenDeletedRequest) returns (HasBeenDeletedResponse) {}
 }

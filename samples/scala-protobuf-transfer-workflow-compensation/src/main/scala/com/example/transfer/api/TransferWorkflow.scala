@@ -160,7 +160,7 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
       .addStep(waitForAcceptation)
       .addStep(compensateWithdraw) // <4>
       .addStep(failoverHandler);
-      // end::recover-strategy[]
+    // end::recover-strategy[]
   }
 
   override def start(currentState: TransferState, transfer: Transfer): Effect[Empty] = {
@@ -229,5 +229,17 @@ class TransferWorkflow(context: WorkflowContext) extends AbstractTransferWorkflo
       effects.reply(Empty())
     }
   }
+
+  // tag::delete-workflow[]
+  override def delete(currentState: TransferState, deleteRequest: DeleteRequest): Effect[Empty] = {
+    effects.delete // <1>
+      .thenReply(Empty())
+  }
+  // end::delete-workflow[]
+
+  override def hasBeenDeleted(
+      currentState: TransferState,
+      hasBeenDeletedRequest: HasBeenDeletedRequest): Effect[HasBeenDeletedResponse] =
+    effects.reply(HasBeenDeletedResponse(isDeleted))
 
 }
