@@ -215,6 +215,11 @@ public class KalixTestKit {
     public final boolean advancedViews;
 
     /**
+     * Maximum number of joins allowed in view queries.
+     */
+    public final Optional<Integer> maxViewJoins;
+
+    /**
      * To override workflow tick interval for integration tests
      */
     public final Optional<Duration> workflowTickInterval;
@@ -236,7 +241,7 @@ public class KalixTestKit {
      */
     @Deprecated
     public Settings(final Duration stopTimeout) {
-      this(stopTimeout, "self", false, false, Optional.empty(), Collections.emptyMap(), TEST_BROKER, MockedEventing.EMPTY);
+      this(stopTimeout, "self", false, false, Optional.empty(), Optional.empty(), Collections.emptyMap(), TEST_BROKER, MockedEventing.EMPTY);
     }
 
     public enum EventingSupport {
@@ -266,6 +271,7 @@ public class KalixTestKit {
         final String serviceName,
         final boolean aclEnabled,
         final boolean advancedViews,
+        final Optional<Integer> maxViewJoins,
         final Optional<Duration> workflowTickInterval,
         final Map<String, String> servicePortMappings,
         final EventingSupport eventingSupport,
@@ -274,6 +280,7 @@ public class KalixTestKit {
       this.serviceName = serviceName;
       this.aclEnabled = aclEnabled;
       this.advancedViews = advancedViews;
+      this.maxViewJoins = maxViewJoins;
       this.workflowTickInterval = workflowTickInterval;
       this.servicePortMappings = servicePortMappings;
       this.eventingSupport = eventingSupport;
@@ -287,7 +294,7 @@ public class KalixTestKit {
      * @return updated Settings
      */
     public Settings withStopTimeout(final Duration stopTimeout) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -299,7 +306,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withServiceName(final String serviceName) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -308,7 +315,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclDisabled() {
-      return new Settings(stopTimeout, serviceName, false, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
+      return new Settings(stopTimeout, serviceName, false, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -317,7 +324,7 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAclEnabled() {
-      return new Settings(stopTimeout, serviceName, true, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
+      return new Settings(stopTimeout, serviceName, true, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -326,7 +333,17 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withAdvancedViews() {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
+      return new Settings(stopTimeout, serviceName, aclEnabled, true, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
+    }
+
+    /**
+     * Sets the maximum number of joins allowed in view queries.
+     *
+     * @param maxJoins the maximum number of joins
+     * @return The updated settings.
+     */
+    public Settings withMaxViewJoins(int maxJoins) {
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, Optional.of(maxJoins), workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
@@ -335,14 +352,14 @@ public class KalixTestKit {
      * @return The updated settings.
      */
     public Settings withWorkflowTickInterval(Duration tickInterval) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, Optional.of(tickInterval), servicePortMappings, eventingSupport, mockedEventing);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, Optional.of(tickInterval), servicePortMappings, eventingSupport, mockedEventing);
     }
 
     /**
      * Mock the incoming messages flow from a ValueEntity.
      */
     public Settings withValueEntityIncomingMessages(String typeId) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withValueEntityIncomingMessages(typeId));
     }
 
@@ -350,7 +367,7 @@ public class KalixTestKit {
      * Mock the incoming events flow from an EventSourcedEntity.
      */
     public Settings withEventSourcedEntityIncomingMessages(String typeId) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withEventSourcedIncomingMessages(typeId));
     }
 
@@ -358,7 +375,7 @@ public class KalixTestKit {
      * Mock the incoming messages flow from a Stream (eventing.in.direct in case of protobuf SDKs).
      */
     public Settings withStreamIncomingMessages(String service, String streamId) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withStreamIncomingMessages(service, streamId));
     }
 
@@ -366,7 +383,7 @@ public class KalixTestKit {
      * Mock the incoming events flow from a Topic.
      */
     public Settings withTopicIncomingMessages(String topic) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withTopicIncomingMessages(topic));
     }
 
@@ -374,7 +391,7 @@ public class KalixTestKit {
      * Mock the outgoing events flow for a Topic.
      */
     public Settings withTopicOutgoingMessages(String topic) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, true, workflowTickInterval, servicePortMappings, eventingSupport,
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport,
           mockedEventing.withTopicOutgoingMessages(topic));
     }
 
@@ -386,11 +403,11 @@ public class KalixTestKit {
     public Settings withServicePortMapping(String serviceName, String host, int port) {
       var updatedMappings = new HashMap<>(servicePortMappings);
       updatedMappings.put(serviceName, host + ":" + port);
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, Map.copyOf(updatedMappings), eventingSupport, mockedEventing);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, Map.copyOf(updatedMappings), eventingSupport, mockedEventing);
     }
 
     public Settings withEventingSupport(EventingSupport eventingSupport) {
-      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
+      return new Settings(stopTimeout, serviceName, aclEnabled, advancedViews, maxViewJoins, workflowTickInterval, servicePortMappings, eventingSupport, mockedEventing);
     }
 
     @Override
@@ -404,6 +421,7 @@ public class KalixTestKit {
           ", serviceName='" + serviceName + '\'' +
           ", aclEnabled=" + aclEnabled +
           ", advancedViews=" + advancedViews +
+          ", maxViewJoins=" + maxViewJoins +
           ", workflowTickInterval=" + workflowTickInterval +
           ", servicePortMappings=[" + String.join(", ", portMappingsRendered) + "]" +
           ", eventingSupport=" + eventingSupport +
@@ -534,6 +552,7 @@ public class KalixTestKit {
 
       List<String> javaOptions = new ArrayList<>();
       javaOptions.add("-Dlogback.configurationFile=logback-dev-mode.xml");
+      settings.maxViewJoins.ifPresent(maxJoins -> javaOptions.add("-Dkalix.proxy.view.features.max-joins=" + maxJoins));
 
       //always passing grpc params, in the case of e.g. testing pubsub with mocked incoming messages
       if (settings.mockedEventing.hasConfig()) {
@@ -826,3 +845,4 @@ public class KalixTestKit {
     return messageBuilder;
   }
 }
+
