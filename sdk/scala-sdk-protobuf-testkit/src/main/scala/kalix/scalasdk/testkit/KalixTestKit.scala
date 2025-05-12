@@ -48,6 +48,7 @@ object KalixTestKit {
     def withAclDisabled(): Settings = new Settings(jSettings.withAclDisabled())
     def withAclEnabled(): Settings = new Settings(jSettings.withAclEnabled())
     def withAdvancedViews(): Settings = new Settings(jSettings.withAdvancedViews())
+    def withMaxViewJoins(maxJoins: Int): Settings = new Settings(jSettings.withMaxViewJoins(maxJoins))
     def withServicePortMapping(serviceName: String, host: String, port: Int): Settings =
       new Settings(jSettings.withServicePortMapping(serviceName, host, port))
     def withEventingSupport(eventingSupport: EventingSupport): Settings = {
