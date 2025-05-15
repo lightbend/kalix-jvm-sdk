@@ -182,7 +182,7 @@ A full transfer workflow source code is available https://github.com/lightbend/k
 
 == Deleting state
 
-If you want to delete the workflow state, you can use the `delete` method from the effect API. This will remove the workflow from the system.
+If you want to delete the workflow, you can use the `delete` method from the effect API.
 
 [.tabset]
 Java::
