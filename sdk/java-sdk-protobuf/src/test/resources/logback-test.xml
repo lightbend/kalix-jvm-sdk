@@ -28,6 +28,7 @@
 
     <root level="DEBUG">
         <appender-ref ref="CapturingAppender"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 
 </configuration>

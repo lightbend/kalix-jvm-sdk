@@ -37,8 +37,8 @@ private[scalasdk] final class JavaWorkflowAdapter[S >: Null](scalaSdkWorkflow: A
   override def _internalSetCommandContext(context: Optional[javasdk.workflow.CommandContext]): Unit =
     scalaSdkWorkflow._internalSetCommandContext(context.map(new ScalaCommandContextAdapter(_)).toScala)
 
-  override def _internalSetCurrentState(state: S): Unit = {
-    scalaSdkWorkflow._internalSetCurrentState(state)
+  override def _internalSetCurrentState(state: S, deleted: Boolean): Unit = {
+    scalaSdkWorkflow._internalSetCurrentState(state, deleted)
   }
 
   override def _internalSetTimerScheduler(timerScheduler: Optional[TimerScheduler]): Unit = {

@@ -232,6 +232,13 @@ class WorkflowImplSpec extends AnyWordSpec with Matchers with BeforeAndAfterAll 
       }
       depositEffect.transition.isEndTransition shouldBe true
       //-----------------------------------------------------------------
+
+      // simulate delete
+      workflow.send(command(9, workflowId, "Delete", Empty.getDefaultInstance))
+      val deleteEffect = workflow.expectNext().effect.value
+      deleteEffect.transition.isDelete shouldBe true
+      deleteEffect.userState shouldBe empty
+      //-----------------------------------------------------------------
     }
   }
 

@@ -8,6 +8,7 @@ import io.grpc.Status
 import kalix.javasdk.Metadata
 import kalix.javasdk.StatusCode
 import kalix.javasdk.impl.StatusCodeConverter
+import kalix.javasdk.impl.workflow.WorkflowEffectImpl.Delete
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.End
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.ErrorEffectImpl
 import kalix.javasdk.impl.workflow.WorkflowEffectImpl.NoPersistence
@@ -32,10 +33,10 @@ object WorkflowEffectImpl {
   object Pause extends Transition
   object NoTransition extends Transition
   object End extends Transition
+  object Delete extends Transition
 
   sealed trait Persistence[+S]
   final case class UpdateState[S](newState: S) extends Persistence[S]
-  case object DeleteState extends Persistence[Nothing]
   case object NoPersistence extends Persistence[Nothing]
 
   sealed trait Reply[+R]
@@ -57,6 +58,9 @@ object WorkflowEffectImpl {
 
     override def end(): TransitionalEffect[Void] =
       TransitionalEffectImpl(persistence, End)
+
+    override def delete(): TransitionalEffect[Void] =
+      TransitionalEffectImpl(persistence, Delete)
   }
 
   final case class TransitionalEffectImpl[S, T](persistence: Persistence[S], transition: Transition)
@@ -89,6 +93,9 @@ case class WorkflowEffectImpl[S, T](persistence: Persistence[S], transition: Tra
 
   override def end(): TransitionalEffect[Void] =
     TransitionalEffectImpl(NoPersistence, End)
+
+  override def delete(): TransitionalEffect[Void] =
+    TransitionalEffectImpl(NoPersistence, Delete)
 
   override def reply[R](reply: R): Effect[R] =
     TransitionalEffectImpl(NoPersistence, NoTransition).thenReply(reply)

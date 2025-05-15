@@ -59,6 +59,7 @@ object KalixRunner {
       userFunctionPort: Int,
       snapshotEvery: Int,
       cleanupDeletedEventSourcedEntityAfter: Duration,
+      cleanupDeletedWorkflowAfter: Duration,
       cleanupDeletedValueEntityAfter: Duration) {
     validate()
     def this(config: Config) = {
@@ -67,6 +68,7 @@ object KalixRunner {
         userFunctionPort = config.getInt("user-function-port"),
         snapshotEvery = config.getInt("event-sourced-entity.snapshot-every"),
         cleanupDeletedEventSourcedEntityAfter = config.getDuration("event-sourced-entity.cleanup-deleted-after"),
+        cleanupDeletedWorkflowAfter = config.getDuration("workflow.cleanup-deleted-after"),
         cleanupDeletedValueEntityAfter = config.getDuration("value-entity.cleanup-deleted-after"))
     }
 
@@ -184,7 +186,7 @@ final class KalixRunner private[javasdk] (
 
         case (route, (serviceClass, workflowServices: Map[String, WorkflowService] @unchecked))
             if serviceClass == classOf[WorkflowService] =>
-          val workflowImpl = new WorkflowImpl(system, workflowServices)
+          val workflowImpl = new WorkflowImpl(system, workflowServices, configuration)
           route.orElse(WorkflowEntitiesHandler.partial(workflowImpl))
 
         case (route, (serviceClass, actionServices: Map[String, ActionService] @unchecked))

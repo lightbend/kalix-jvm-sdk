@@ -75,6 +75,14 @@ object AbstractWorkflow {
       def end: TransitionalEffect[Void]
 
       /**
+       * Finish and delete the workflow execution. After transition to `delete`, no more transitions are allowed. The
+       * actual workflow state deletion is done with a configurable delay to allow downstream consumers to observe that
+       * fact.
+       */
+      @ApiMayChange
+      def delete: TransitionalEffect[Void]
+
+      /**
        * Create a message reply.
        *
        * @param replyMessage
@@ -201,6 +209,14 @@ object AbstractWorkflow {
        */
       @ApiMayChange
       def end: TransitionalEffect[Void]
+
+      /**
+       * Finish and delete the workflow execution. After transition to `delete`, no more transitions are allowed. The
+       * actual workflow state deletion is done with a configurable delay to allow downstream consumers to observe that
+       * fact.
+       */
+      @ApiMayChange
+      def delete: TransitionalEffect[Void]
     }
 
   }
@@ -458,6 +474,7 @@ abstract class AbstractWorkflow[S >: Null] {
   private var _currentState: Option[S] = None
 
   private var _stateHasBeenSet = false
+  private var _deleted = false
 
   /**
    * Implement by returning the initial empty state object. This object will be passed into the command handlers, until
@@ -488,6 +505,12 @@ abstract class AbstractWorkflow[S >: Null] {
     if (_stateHasBeenSet) _currentState.orNull
     else throw new IllegalStateException("Current state is only available when handling a command.")
   }
+
+  /**
+   * Returns true if the entity has been deleted.
+   */
+  @ApiMayChange
+  protected def isDeleted: Boolean = _deleted
 
   /**
    * Additional context and metadata for a command handler.
@@ -533,9 +556,10 @@ abstract class AbstractWorkflow[S >: Null] {
   /**
    * INTERNAL API
    */
-  def _internalSetCurrentState(state: S): Unit = {
+  def _internalSetCurrentState(state: S, deleted: Boolean): Unit = {
     _stateHasBeenSet = true
     _currentState = Option(state)
+    _deleted = deleted
   }
 
   /**
