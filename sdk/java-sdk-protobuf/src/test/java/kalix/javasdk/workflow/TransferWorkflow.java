@@ -125,6 +125,11 @@ public class TransferWorkflow extends ProtoWorkflow<MoneyTransferApi.State> {
         .thenReply(Empty.getDefaultInstance());}
   }
 
+  public Effect<Empty> delete(Empty empty) {
+    return effects()
+      .delete()
+      .thenReply(Empty.getDefaultInstance());
+  }
 
   /* to test what happens when a command throws an exception */
   public Effect<String> illegalCall(MoneyTransferApi.Transfer transfer) {

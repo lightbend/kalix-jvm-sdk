@@ -61,6 +61,7 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
 
   private var state: Option[S] = None
   private var workflowFinished: Boolean = false
+  private var deleted: Boolean = false
   private final val log = LoggerFactory.getLogger(this.getClass)
 
   private def stateOrEmpty(): S = state match {
@@ -88,6 +89,16 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
 
   /** INTERNAL API */
   // "public" api against the impl/testkit
+  def _internalSetDeleted(deleted: Boolean): Unit = {
+    if (deleted) {
+      this.state = None
+      this.workflowFinished = true
+      this.deleted = true
+    }
+  }
+
+  /** INTERNAL API */
+  // "public" api against the impl/testkit
   final def _internalHandleCommand(
       commandName: String,
       command: Any,
@@ -97,7 +108,7 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
       try {
         workflow._internalSetTimerScheduler(Optional.of(timerScheduler))
         workflow._internalSetCommandContext(Optional.of(context))
-        workflow._internalSetCurrentState(stateOrEmpty())
+        workflow._internalSetCurrentState(stateOrEmpty(), deleted)
         handleCommand(commandName, stateOrEmpty(), command, context).asInstanceOf[Effect[Any]]
       } catch {
         case CommandHandlerNotFound(name) =>
@@ -153,7 +164,7 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
 
     implicit val ec: ExecutionContext = executionContext
 
-    workflow._internalSetCurrentState(stateOrEmpty())
+    workflow._internalSetCurrentState(stateOrEmpty(), deleted)
     workflow._internalSetTimerScheduler(Optional.of(timerScheduler))
     workflow._internalSetCommandContext(Optional.of(commandContext))
     val workflowDef = workflow.definition()
@@ -221,7 +232,7 @@ abstract class WorkflowRouter[S, W <: AbstractWorkflow[S]](protected val workflo
 
   def _internalGetNextStep(stepName: String, result: ScalaPbAny, messageCodec: MessageCodec): CommandResult = {
 
-    workflow._internalSetCurrentState(stateOrEmpty())
+    workflow._internalSetCurrentState(stateOrEmpty(), deleted)
     val workflowDef = workflow.definition()
 
     workflowDef.findByName(stepName).toScala match {

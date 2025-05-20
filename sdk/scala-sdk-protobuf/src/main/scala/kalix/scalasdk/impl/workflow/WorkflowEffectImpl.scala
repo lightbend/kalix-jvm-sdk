@@ -52,6 +52,9 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
   override def end: TransitionalEffect[Void] =
     TransitionalEffectImpl(javasdkEffect.end())
 
+  override def delete: TransitionalEffect[Void] =
+    TransitionalEffectImpl(javasdkEffect.delete())
+
   override def reply[R](replyMessage: R): AbstractWorkflow.Effect[R] =
     WorkflowEffectImpl(javasdkEffect.reply(replyMessage).asInstanceOf[javasdk.impl.workflow.WorkflowEffectImpl[R, T]])
 
@@ -78,6 +81,9 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
 
     override def end: TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.end())
+
+    override def delete: TransitionalEffect[Void] =
+      TransitionalEffectImpl(javasdkEffect.delete())
   }
 
   case class ErrorEffectImpl[R](javasdkEffect: workflow.AbstractWorkflow.Effect.ErrorEffect[T]) extends ErrorEffect[R]
