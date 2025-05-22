@@ -179,6 +179,36 @@ IMPORTANT: For simplicity purposes, we are returning the internal state directly
 
 A full transfer workflow source code is available https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/java-protobuf-transfer-workflow[here (Java Protobuf), {tab-icon}, window="new"] or https://github.com/lightbend/kalix-jvm-sdk/tree/main/samples/scala-protobuf-transfer-workflow[here (Scala Protobuf), {tab-icon}, window="new"]. Follow the `README` file to run and test it.
 
+
+== Deleting state
+
+If you want to delete the workflow, you can use the `delete` method from the effect API.
+
+[.tabset]
+Java::
++
+[source,java,indent=0]
+.src/main/java/com/example/transfer/api/TransferWorkflow.java
+----
+include::example$java-protobuf-transfer-workflow-compensation/src/main/java/com/example/transfer/api/TransferWorkflow.java[tag=delete-workflow]
+----
+<1> Deletes the workflow state.
+
+Scala::
++
+[source,scala,indent=0]
+.src/main/scala/com/example/transfer/api/TransferWorkflow.scala
+----
+include::example$scala-protobuf-transfer-workflow-compensation/src/main/scala/com/example/transfer/api/TransferWorkflow.scala[tag=delete-workflow]
+----
+<1> Deletes the workflow state.
+
+When you give the instruction to delete a running workflow it's equivalent to ending and deleting a workflow. For already finished workflows, it is possible to delete them in the command handler, but any state changes will be ignored. By default, the existence of the workflow is completely cleaned up after a week.
+
+You can still handle read requests to the workflow until it has been completely removed, but the current state will be empty (or null). To check whether the workflow has been deleted, you can use the inherited method `isDeleted`.
+
+It is best to not reuse the same workflow id after deletion, but if that happens after the workflow has been completely removed it will be instantiated as a completely new workflow without any knowledge of previous state.
+
 == Pausing workflow
 
 A long-running workflow can be paused while waiting for some additional information to continue processing. A special `pause` transition can be used to inform Kalix that the execution of the Workflow should be postponed. By launching a request to a Workflow endpoint, the user can then resume the processing. Additionally, a Kalix Timer can be scheduled to automatically inform the Workflow that the expected time for the additional data has passed.

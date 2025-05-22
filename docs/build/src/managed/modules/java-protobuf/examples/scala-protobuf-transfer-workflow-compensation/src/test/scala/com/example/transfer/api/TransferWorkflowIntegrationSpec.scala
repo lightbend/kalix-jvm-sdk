@@ -47,7 +47,8 @@ class TransferWorkflowIntegrationSpec
       walletClient.create(initWalletA).futureValue
       walletClient.create(initWalletB).futureValue
 
-      transferClient.start(Transfer("1", "a", "b", 10)).futureValue
+      val transferId = "1"
+      transferClient.start(Transfer(transferId, "a", "b", 10)).futureValue
 
       eventually {
         val walletA = walletClient.getWalletState(api.GetRequest("a")).futureValue
@@ -55,6 +56,14 @@ class TransferWorkflowIntegrationSpec
         walletA.balance shouldBe 90
         walletB.balance shouldBe 110
       }
+
+      val response = transferClient.hasBeenDeleted(HasBeenDeletedRequest(transferId)).futureValue
+      response.deleted shouldBe false
+
+      transferClient.delete(DeleteRequest(transferId)).futureValue
+
+      val response2 = transferClient.hasBeenDeleted(HasBeenDeletedRequest(transferId)).futureValue
+      response2.deleted shouldBe true
     }
 
     "transfer funds with acceptation" in {
