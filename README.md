@@ -36,3 +36,6 @@ If you’re just looking to get started, we advise you to start with the Java SD
 
 The Kalix JVM SDKs are Open Source and available under the [Apache 2 License](LICENSE).
 
+Please note that your use of this project and any data collected through it is governed by our
+[Privacy Policy](https://akka.io/legal/privacy).
+
