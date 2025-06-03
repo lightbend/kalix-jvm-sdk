@@ -143,6 +143,23 @@ class KalixTestKit private (delegate: JTestKit) {
     delegate.getGrpcClientForPrincipal(clientClass, Principal.toJava(principal))
 
   /**
+   * Get the host name/IP address where the Kalix service is available. This is relevant in certain Continuous
+   * Integration environments.
+   *
+   * @return
+   *   Kalix host
+   */
+  def getHost: String = delegate.getHost
+
+  /**
+   * Get the local port where the Kalix service is available.
+   *
+   * @return
+   *   local Kalix port
+   */
+  def getPort: Int = delegate.getPort
+
+  /**
    * Get incoming messages for ValueEntity.
    *
    * @param typeId
