@@ -5,7 +5,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/kalix-runtime:1.2.19
+    image: registry.akka.io/kalix-runtime:1.2.20
     container_name: tracing
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"
