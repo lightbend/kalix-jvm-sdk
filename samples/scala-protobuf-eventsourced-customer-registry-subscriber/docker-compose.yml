@@ -11,6 +11,7 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       JAVA_TOOL_OPTIONS: >
+        -Dkalix.dev-mode.service-port-mappings.customer-registry=host.docker.internal:9000
       # those variables are defined in the .env file
       # when running multiple services on your local machine, make sure that 
       # the ports are unique by editing the corresponding .env files
