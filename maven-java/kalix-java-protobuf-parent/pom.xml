@@ -31,7 +31,7 @@
         <dockerImage>${kalixContainerRegistry}/${kalixOrganization}/${project.artifactId}</dockerImage>
         <dockerTag>${project.version}-${build.timestamp}</dockerTag>
 
-        <docker.base.image>docker.io/library/eclipse-temurin:21.0.6_7-jre-noble</docker.base.image>
+        <docker.base.image>docker.io/library/eclipse-temurin:21.0.7_6-jre-noble</docker.base.image>
         <docker.platform>linux/amd64</docker.platform>
 
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
