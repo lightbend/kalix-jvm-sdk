@@ -37,19 +37,18 @@ cat <<EOF >~/.m2/settings.xml
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
   <servers>
       <server>
-        <id>ossrh</id>
+        <id>maven-central-publishing</id>
         <username>${SONATYPE_USERNAME}</username>
         <password>${SONATYPE_PASSWORD}</password>
     </server>
   </servers>
   <profiles>
     <profile>
-      <id>ossrh</id>
+      <id>maven-central-publishing</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <altSnapshotDeploymentRepository>snapshots::default::https://s01.oss.sonatype.org/content/repositories/snapshots</altSnapshotDeploymentRepository>
         <gpg.passphrase>${PGP_PASSPHRASE}</gpg.passphrase>
       </properties>
     </profile>
