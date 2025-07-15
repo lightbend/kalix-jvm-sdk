@@ -37,7 +37,7 @@ cat <<EOF >~/.m2/settings.xml
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
   <servers>
       <server>
-        <id>maven-central-publishing</id>
+        <id>central</id>
         <username>${SONATYPE_USERNAME}</username>
         <password>${SONATYPE_PASSWORD}</password>
     </server>
