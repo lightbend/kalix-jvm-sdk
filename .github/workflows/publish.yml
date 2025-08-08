@@ -132,6 +132,6 @@ jobs:
           git remote add origin-rw https://${GH_TOKEN}@github.com/lightbend/kalix-jvm-sdk
           git push --set-upstream origin-rw ${BRANCH}
           
-          gh pr create -B main -t "Auto PR - Bump SDK versions to ${SDK_VERSION}" \
+          gh pr create -H ${BRANCH} -B main -t "Auto PR - Bump SDK versions to ${SDK_VERSION}" \
             -b "This PR should update all existing samples (pom.xml and plugins.sbt) and the maven-java poms. Please review, and merge if okay." \
             -r ${{ github.actor }} || echo "No changes"; exit 0
