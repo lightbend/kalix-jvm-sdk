@@ -754,7 +754,7 @@ jobs:
           echo "==== Testing with Scala 2.13 ===="
           sbt  -Dkalix-sdk.version=$SDK_VERSION '++2.13.14! test'
           echo "==== Removing docker containers ===="
-          docker stop $(docker ps -aq) && docker rm $(docker ps -aq)
+          docker stop $(docker ps -aq)
           echo "==== Testing with Scala 3 ===="
           sbt  -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.3! test'
 
