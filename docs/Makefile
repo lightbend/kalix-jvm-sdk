@@ -63,6 +63,9 @@ attributes:
 	mkdir -p "${java_managed_partials}"
 	cp "${java_pb_managed_partials}/attributes.adoc" "${java_managed_partials}/attributes.adoc"
 
+	echo "# Attributes:"
+	cat "${java_managed_partials}/attributes.adoc"
+
 apidocs:
 	mkdir -p "${java_pb_managed_attachments}"
 	mkdir -p "${java_managed_attachments}"
