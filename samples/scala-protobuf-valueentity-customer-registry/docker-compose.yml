@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/kalix-runtime:1.2.23
+    image: registry.akka.io/kalix-runtime:1.2.25
     container_name: scala-protobuf-valueentity-customer-registry
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"
