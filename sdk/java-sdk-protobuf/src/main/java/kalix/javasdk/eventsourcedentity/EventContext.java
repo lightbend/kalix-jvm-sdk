@@ -4,8 +4,10 @@
 
 package kalix.javasdk.eventsourcedentity;
 
+import kalix.javasdk.MetadataContext;
+
 /** Context for an event. */
-public interface EventContext extends EventSourcedEntityContext {
+public interface EventContext extends EventSourcedEntityContext, MetadataContext {
   /**
    * The sequence number of the current event being processed.
    *

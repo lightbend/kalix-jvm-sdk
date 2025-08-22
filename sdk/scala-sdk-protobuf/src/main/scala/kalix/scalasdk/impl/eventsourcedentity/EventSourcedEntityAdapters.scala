@@ -137,4 +137,7 @@ private[scalasdk] final class JavaEventContextAdapter(val javasdkContext: JavaSd
   override def entityId: String = javasdkContext.entityId()
 
   override def materializer(): Materializer = javasdkContext.materializer()
+
+  override def metadata: kalix.scalasdk.Metadata =
+    MetadataConverters.toScala(javasdkContext.metadata())
 }

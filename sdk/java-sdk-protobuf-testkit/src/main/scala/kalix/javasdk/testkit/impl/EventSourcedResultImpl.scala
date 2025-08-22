@@ -22,8 +22,9 @@ import java.util.Collections
 import java.util.{ List => JList }
 
 import io.grpc.Status
-
 import scala.jdk.CollectionConverters._
+
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEventsWithMetadata
 
 /**
  * INTERNAL API
@@ -33,8 +34,9 @@ private[kalix] object EventSourcedResultImpl {
     effect match {
       case ei: EventSourcedEntityEffectImpl[_, E @unchecked] =>
         ei.primaryEffect match {
-          case ee: EmitEvents[E @unchecked] => ee.event.toList.asJava
-          case _: NoPrimaryEffect.type      => Collections.emptyList()
+          case ee: EmitEvents[E @unchecked]             => ee.event.toList.asJava
+          case ee: EmitEventsWithMetadata[E @unchecked] => ee.event.iterator.map(_.getEvent).toList.asJava
+          case _: NoPrimaryEffect.type                  => Collections.emptyList()
         }
     }
   }

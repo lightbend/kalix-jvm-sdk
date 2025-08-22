@@ -4,6 +4,8 @@
 
 package kalix.scalasdk.eventsourcedentity
 
-trait EventContext extends EventSourcedEntityContext {
+import kalix.scalasdk.MetadataContext
+
+trait EventContext extends EventSourcedEntityContext with MetadataContext {
   def sequenceNumber: Long
 }

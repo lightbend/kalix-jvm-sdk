@@ -5,14 +5,16 @@
 package kalix.scalasdk.testkit.impl
 
 import scala.collection.immutable.Seq
+
 import kalix.javasdk.impl.effect._
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.{ EmitEvents, NoPrimaryEffect }
 import kalix.scalasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl
 import kalix.scalasdk.testkit.{ DeferredCallDetails, EventSourcedResult }
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import io.grpc.Status
-
 import scala.reflect.ClassTag
+
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEventsWithMetadata
 
 /**
  * INTERNAL API Used by the generated testkit
@@ -92,8 +94,9 @@ object EventSourcedResultImpl {
     effect match {
       case ei: EventSourcedEntityEffectImpl[_, _] =>
         ei.javasdkEffect.primaryEffect match {
-          case ee: EmitEvents[_]       => ee.event.toList
-          case _: NoPrimaryEffect.type => Nil
+          case ee: EmitEvents[_]             => ee.event.toList
+          case ee: EmitEventsWithMetadata[_] => ee.event.iterator.map(_.getEvent).toList
+          case _: NoPrimaryEffect.type       => Nil
         }
     }
   }
