@@ -6,7 +6,7 @@ package kalix.javasdk.eventsourcedentity;
 
 import kalix.javasdk.Metadata;
 
-public class EventWithMetadata<E> {
+public final class EventWithMetadata<E> {
   private final E event;
   private final Metadata metadata;
 
