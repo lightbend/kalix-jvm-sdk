@@ -5,14 +5,18 @@
 package kalix.scalasdk.impl.eventsourcedentity
 
 import scala.jdk.CollectionConverters._
+
 import kalix.javasdk
 import kalix.scalasdk.{ DeferredCall, Metadata, SideEffect }
 import kalix.scalasdk.eventsourcedentity.EventSourcedEntity
 import kalix.scalasdk.impl.ScalaDeferredCallAdapter
 import kalix.scalasdk.impl.ScalaSideEffectAdapter
 import io.grpc.Status
-
 import scala.jdk.FunctionConverters.enrichAsJavaFunction
+
+import kalix.scalasdk.eventsourcedentity.EventSourcedEntity.Effect
+import kalix.scalasdk.eventsourcedentity.EventWithMetadata
+import kalix.scalasdk.impl.MetadataConverters
 
 private[scalasdk] object EventSourcedEntityEffectImpl {
   def apply[R, S](): EventSourcedEntityEffectImpl[R, S] = EventSourcedEntityEffectImpl(
@@ -30,6 +34,16 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
 
   def emitEvents(event: List[_]): EventSourcedEntity.Effect.OnSuccessBuilder[S] =
     EventSourcedEntityEffectImpl(javasdkEffect.emitEvents(event.asJava))
+
+  override def emitEventWithMetadata(event: Object, metadata: Metadata): Effect.OnSuccessBuilder[S] =
+    EventSourcedEntityEffectImpl(javasdkEffect.emitEventWithMetadata(event, MetadataConverters.toJava(metadata)))
+
+  override def emitEventsWithMetadata(event: List[EventWithMetadata[_]]): Effect.OnSuccessBuilder[S] = {
+    val javasdkEventsWithMetadata = event
+      .map(e => new kalix.javasdk.eventsourcedentity.EventWithMetadata(e.event, MetadataConverters.toJava(e.metadata)))
+      .asJava
+    EventSourcedEntityEffectImpl(javasdkEffect.emitEventsWithMetadata(javasdkEventsWithMetadata))
+  }
 
   def deleteEntity(): EventSourcedEntity.Effect.OnSuccessBuilder[S] = EventSourcedEntityEffectImpl(
     javasdkEffect.deleteEntity())
@@ -73,4 +87,5 @@ private[scalasdk] final case class EventSourcedEntityEffectImpl[R, S](
 
   def thenReply[T](replyMessage: S => T): EventSourcedEntity.Effect[T] =
     EventSourcedEntityEffectImpl(javasdkEffect.thenReply { s => replyMessage(s) })
+
 }
