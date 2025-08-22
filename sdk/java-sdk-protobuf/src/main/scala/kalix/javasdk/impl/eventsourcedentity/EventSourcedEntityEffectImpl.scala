@@ -18,14 +18,18 @@ import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.DeferredCall
 import kalix.javasdk.Metadata
 import kalix.javasdk.SideEffect
-
 import java.util
 import java.util.function.{ Function => JFunction }
+
 import scala.jdk.CollectionConverters._
+
+import kalix.javasdk.eventsourcedentity.EventWithMetadata
 
 object EventSourcedEntityEffectImpl {
   sealed trait PrimaryEffectImpl
   final case class EmitEvents[E](event: Iterable[E], deleteEntity: Boolean = false) extends PrimaryEffectImpl
+  final case class EmitEventsWithMetadata[E](event: Iterable[EventWithMetadata[E]], deleteEntity: Boolean = false)
+      extends PrimaryEffectImpl
   case object NoPrimaryEffect extends PrimaryEffectImpl
 }
 
@@ -67,10 +71,27 @@ class EventSourcedEntityEffectImpl[S, E] extends Builder[S, E] with OnSuccessBui
     this
   }
 
+  override def emitEventWithMetadata(event: E, metadata: Metadata): EventSourcedEntityEffectImpl[S, E] = {
+    if (event.isInstanceOf[Iterable[_]] || event.isInstanceOf[java.lang.Iterable[_]]) {
+      throw new IllegalStateException(
+        s"You are trying to emit collection (${event.getClass}) of events. Use `emitEventsWithMetadata` method instead.")
+    } else {
+      _primaryEffect = EmitEventsWithMetadata(Vector(new EventWithMetadata(event, metadata)))
+      this
+    }
+  }
+
+  override def emitEventsWithMetadata(
+      events: util.List[EventWithMetadata[_ <: E]]): EventSourcedEntityEffectImpl[S, E] = {
+    _primaryEffect = EmitEventsWithMetadata(events.asScala.iterator.map(_.asInstanceOf[EventWithMetadata[E]]).toVector)
+    this
+  }
+
   override def deleteEntity(): EventSourcedEntityEffectImpl[S, E] = {
     _primaryEffect = _primaryEffect match {
-      case NoPrimaryEffect           => EmitEvents[E](Vector.empty, deleteEntity = true)
-      case emitEvents: EmitEvents[_] => emitEvents.copy(deleteEntity = true)
+      case NoPrimaryEffect                       => EmitEvents[E](Vector.empty, deleteEntity = true)
+      case emitEvents: EmitEvents[_]             => emitEvents.copy(deleteEntity = true)
+      case emitEvents: EmitEventsWithMetadata[_] => emitEvents.copy(deleteEntity = true)
     }
     this
   }
@@ -132,4 +153,5 @@ class EventSourcedEntityEffectImpl[S, E] extends Builder[S, E] with OnSuccessBui
     _secondaryEffect = _secondaryEffect.addSideEffects(sideEffects)
     this
   }
+
 }
