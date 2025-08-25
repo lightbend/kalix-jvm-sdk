@@ -16,8 +16,10 @@ java_managed_examples := ${src_managed}/modules/java/examples
 java_managed_partials := ${src_managed}/modules/java/partials
 
 # FIXME need image on new repo
+# https://github.com/lightbend/kalix-docs/tree/main/kalix-docbuilder
+# https://github.com/lightbend/kalix-docs/blob/main/Makefile#L5-L6
 antora_docker_image := gcr.io/kalix-public/kalix-docbuilder
-antora_docker_image_tag := 0.0.5
+antora_docker_image_tag := 0.0.7
 root_dir := $(shell git rev-parse --show-toplevel)
 base_path := $(shell git rev-parse --show-prefix)
 
