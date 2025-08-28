@@ -155,6 +155,10 @@ public abstract class EventSourcedEntity<S, E> {
 
       OnSuccessBuilder<S> emitEvents(List<? extends E> event);
 
+      OnSuccessBuilder<S> emitEventWithMetadata(E event, Metadata metadata);
+
+      OnSuccessBuilder<S> emitEventsWithMetadata(List<EventWithMetadata<? extends E>> events);
+
       /**
        * Create a message reply.
        *

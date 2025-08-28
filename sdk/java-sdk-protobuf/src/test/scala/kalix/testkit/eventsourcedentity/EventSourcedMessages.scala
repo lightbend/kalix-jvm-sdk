@@ -20,12 +20,19 @@ object EventSourcedMessages extends EntityMessages {
   case class Effects(
       events: Seq[ScalaPbAny] = Seq.empty,
       snapshot: Option[ScalaPbAny] = None,
-      sideEffects: Seq[SideEffect] = Seq.empty) {
+      sideEffects: Seq[SideEffect] = Seq.empty,
+      eventsMetadata: Seq[kalix.javasdk.Metadata] = Seq.empty) {
     def withEvents(message: JavaPbMessage, messages: JavaPbMessage*): Effects =
       copy(events = events ++ (message +: messages).map(protobufAny))
 
     def withEvents(message: ScalaPbMessage, messages: ScalaPbMessage*): Effects =
       copy(events = events ++ (message +: messages).map(protobufAny))
+
+    def withEventAndMetadata(message: JavaPbMessage, metadata: kalix.javasdk.Metadata): Effects =
+      copy(events = events :+ protobufAny(message), eventsMetadata = eventsMetadata :+ metadata)
+
+    def withEventAndMetadata(message: ScalaPbMessage, metadata: kalix.javasdk.Metadata): Effects =
+      copy(events = events :+ protobufAny(message), eventsMetadata = eventsMetadata :+ metadata)
 
     def withSnapshot(message: JavaPbMessage): Effects =
       copy(snapshot = messagePayload(message))
@@ -49,7 +56,11 @@ object EventSourcedMessages extends EntityMessages {
       copy(sideEffects = sideEffects :+ SideEffect(service, command, payload, synchronous))
 
     def ++(other: Effects): Effects =
-      Effects(events ++ other.events, snapshot.orElse(other.snapshot), sideEffects ++ other.sideEffects)
+      Effects(
+        events ++ other.events,
+        snapshot.orElse(other.snapshot),
+        sideEffects ++ other.sideEffects,
+        eventsMetadata ++ other.eventsMetadata)
   }
 
   object Effects {
@@ -81,6 +92,12 @@ object EventSourcedMessages extends EntityMessages {
 
   def event(sequence: Long, payload: ScalaPbMessage): InMessage =
     event(sequence, messagePayload(payload))
+
+  def eventWithMetadata(sequence: Long, payload: JavaPbMessage, metadata: Metadata): InMessage =
+    InMessage.Event(EventSourcedEvent(sequence, messagePayload(payload), Some(metadata)))
+
+  def eventWithMetadata(sequence: Long, payload: ScalaPbMessage, metadata: Metadata): InMessage =
+    InMessage.Event(EventSourcedEvent(sequence, messagePayload(payload), Some(metadata)))
 
   def event(sequence: Long, payload: Option[ScalaPbAny]): InMessage =
     InMessage.Event(EventSourcedEvent(sequence, payload))
@@ -154,5 +171,8 @@ object EventSourcedMessages extends EntityMessages {
     Effects.empty.withEvents(event, events: _*)
 
   def persist(event: ScalaPbMessage, events: ScalaPbMessage*): Effects =
+    Effects.empty.withEvents(event, events: _*)
+
+  def persistWithMetadata(event: JavaPbMessage, events: JavaPbMessage*): Effects =
     Effects.empty.withEvents(event, events: _*)
 }

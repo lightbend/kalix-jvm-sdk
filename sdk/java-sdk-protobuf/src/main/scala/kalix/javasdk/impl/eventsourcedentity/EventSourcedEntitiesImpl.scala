@@ -25,6 +25,7 @@ import kalix.javasdk.impl.telemetry.EventSourcedEntityCategory
 import kalix.javasdk.impl.telemetry.Instrumentation
 import kalix.javasdk.impl.telemetry.Telemetry
 import kalix.protocol.component.Failure
+import kalix.protocol.component.{ Metadata => PbMetadata }
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Command => InCommand }
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Empty => InEmpty }
 import kalix.protocol.event_sourced_entity.EventSourcedStreamIn.Message.{ Event => InEvent }
@@ -160,7 +161,8 @@ final class EventSourcedEntitiesImpl(
       .scan[(Long, Option[EventSourcedStreamOut.Message])]((startingSequenceNumber, None)) {
         case (_, InEvent(event)) =>
           // Note that these only come on replay
-          val context = new EventContextImpl(thisEntityId, event.sequence)
+          val eventMetadata = MetadataImpl.of(event.metadata.map(_.entries.toVector).getOrElse(Nil))
+          val context = new EventContextImpl(thisEntityId, event.sequence, eventMetadata)
           val ev =
             service.messageCodec
               .decodeMessage(event.payload.get)
@@ -182,6 +184,7 @@ final class EventSourcedEntitiesImpl(
 
             val CommandResult(
               events: Vector[Any],
+              eventsMetadata: Vector[Metadata],
               secondaryEffect: SecondaryEffectImpl,
               snapshot: Option[Any],
               endSequenceNumber,
@@ -192,11 +195,11 @@ final class EventSourcedEntitiesImpl(
                   cmd,
                   context,
                   service.snapshotEvery,
-                  seqNr => new EventContextImpl(thisEntityId, seqNr))
+                  (seqNr, eventMetadata) => new EventContextImpl(thisEntityId, seqNr, eventMetadata))
               } catch {
                 case BadRequestException(msg) =>
                   val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
-                  CommandResult(Vector.empty, errorReply, None, context.sequenceNumber, false)
+                  CommandResult(Vector.empty, Vector.empty, errorReply, None, context.sequenceNumber, false)
                 case e: EntityException =>
                   throw e
                 case NonFatal(error) =>
@@ -221,20 +224,21 @@ final class EventSourcedEntitiesImpl(
               case _ => // non-error
                 val serializedEvents =
                   events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
+                val protoEventsMetadata =
+                  eventsMetadata.map(m => MetadataImpl.toProtocol(m).getOrElse(PbMetadata.defaultInstance))
                 val serializedSnapshot =
                   snapshot.map(state => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(state)))
                 val delete = if (deleteEntity) pbCleanupDeletedEventSourcedEntityAfter else None
                 (
                   endSequenceNumber,
-                  Some(
-                    OutReply(
-                      EventSourcedReply(
-                        command.id,
-                        clientAction,
-                        EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
-                        serializedEvents,
-                        serializedSnapshot,
-                        delete))))
+                  Some(OutReply(EventSourcedReply(
+                    command.id,
+                    clientAction,
+                    EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
+                    serializedEvents,
+                    serializedSnapshot,
+                    delete,
+                    protoEventsMetadata))))
             }
           } finally {
             span.foreach { s =>
@@ -277,7 +281,10 @@ final class EventSourcedEntitiesImpl(
   private class EventSourcedEntityContextImpl(override final val entityId: String)
       extends AbstractContext(system)
       with EventSourcedEntityContext
-  private final class EventContextImpl(entityId: String, override val sequenceNumber: Long)
+  private final class EventContextImpl(
+      entityId: String,
+      override val sequenceNumber: Long,
+      override val metadata: Metadata)
       extends EventSourcedEntityContextImpl(entityId)
       with EventContext
 }

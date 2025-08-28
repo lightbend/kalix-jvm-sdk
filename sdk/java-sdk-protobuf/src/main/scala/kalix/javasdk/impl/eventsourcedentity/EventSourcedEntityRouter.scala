@@ -11,13 +11,16 @@ import kalix.javasdk.impl.EntityExceptions
 import kalix.javasdk.impl.effect.SecondaryEffectImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEvents
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
-
 import java.util.Optional
+
+import kalix.javasdk.Metadata
+import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEventsWithMetadata
 
 object EventSourcedEntityRouter {
 
   final case class CommandResult(
       events: Vector[Any],
+      eventsMetadata: Vector[Metadata],
       secondaryEffect: SecondaryEffectImpl,
       snapshot: Option[Any],
       endSequenceNumber: Long,
@@ -79,7 +82,7 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
       command: Any,
       context: CommandContext,
       snapshotEvery: Int,
-      eventContextFactory: Long => EventContext): CommandResult = {
+      eventContextFactory: (Long, Metadata) => EventContext): CommandResult = {
 
     val commandEffect =
       try {
@@ -97,50 +100,67 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
         entity._internalSetCommandContext(Optional.empty())
       }
     var currentSequence = context.sequenceNumber()
+
+    def emitEvents(events: Iterable[Any], eventsMetadata: Iterable[Metadata], deleteEntity: Boolean) = {
+      var shouldSnapshot = false
+      val eventsAndMetadata =
+        if (eventsMetadata.isEmpty)
+          events.map(_ -> Metadata.EMPTY)
+        else
+          events.zip(eventsMetadata)
+
+      eventsAndMetadata.foreach { case (event, metadata) =>
+        try {
+          entity._internalSetEventContext(Optional.of(eventContextFactory(currentSequence, metadata)))
+          val newState = handleEvent(_stateOrEmpty(), event.asInstanceOf[E])
+          if (newState == null)
+            throw new IllegalArgumentException("Event handler must not return null as the updated state.")
+          setState(newState)
+        } catch {
+          case EventHandlerNotFound(eventClass) =>
+            throw new IllegalArgumentException(s"Unknown event type [$eventClass] on ${entity.getClass}")
+        } finally {
+          entity._internalSetEventContext(Optional.empty())
+        }
+        currentSequence += 1
+        shouldSnapshot = shouldSnapshot || (snapshotEvery > 0 && currentSequence % snapshotEvery == 0)
+      }
+      // snapshotting final state since that is the "atomic" write
+      // emptyState can be null but null snapshot should not be stored, but that can't even
+      // happen since event handler is not allowed to return null as newState
+      val endState = _stateOrEmpty()
+      val snapshot =
+        if (shouldSnapshot) Option(endState)
+        else None
+
+      try {
+        // side effect callbacks may want to access context or components which is valid
+        entity._internalSetCommandContext(Optional.of(context))
+        CommandResult(
+          events.toVector,
+          eventsMetadata.toVector,
+          commandEffect.secondaryEffect(endState),
+          snapshot,
+          currentSequence,
+          deleteEntity)
+      } finally {
+        entity._internalSetCommandContext(Optional.empty())
+      }
+    }
+
     commandEffect.primaryEffect match {
       case EmitEvents(events, deleteEntity) =>
-        var shouldSnapshot = false
-        events.foreach { event =>
-          try {
-            entity._internalSetEventContext(Optional.of(eventContextFactory(currentSequence)))
-            val newState = handleEvent(_stateOrEmpty(), event.asInstanceOf[E])
-            if (newState == null)
-              throw new IllegalArgumentException("Event handler must not return null as the updated state.")
-            setState(newState)
-          } catch {
-            case EventHandlerNotFound(eventClass) =>
-              throw new IllegalArgumentException(s"Unknown event type [$eventClass] on ${entity.getClass}")
-          } finally {
-            entity._internalSetEventContext(Optional.empty())
-          }
-          currentSequence += 1
-          shouldSnapshot = shouldSnapshot || (snapshotEvery > 0 && currentSequence % snapshotEvery == 0)
-        }
-        // snapshotting final state since that is the "atomic" write
-        // emptyState can be null but null snapshot should not be stored, but that can't even
-        // happen since event handler is not allowed to return null as newState
-        val endState = _stateOrEmpty()
-        val snapshot =
-          if (shouldSnapshot) Option(endState)
-          else None
-
-        try {
-          // side effect callbacks may want to access context or components which is valid
-          entity._internalSetCommandContext(Optional.of(context))
-          CommandResult(
-            events.toVector,
-            commandEffect.secondaryEffect(endState),
-            snapshot,
-            currentSequence,
-            deleteEntity)
-        } finally {
-          entity._internalSetCommandContext(Optional.empty())
-        }
+        emitEvents(events, eventsMetadata = Nil, deleteEntity)
+      case EmitEventsWithMetadata(eventsWithMetadata, deleteEntity) =>
+        val events = eventsWithMetadata.map(_.getEvent)
+        val eventsMetadata = eventsWithMetadata.map(_.getMetadata)
+        emitEvents(events, eventsMetadata, deleteEntity)
       case NoPrimaryEffect =>
         try {
           // side effect callbacks may want to access context or components which is valid
           entity._internalSetCommandContext(Optional.of(context))
           CommandResult(
+            Vector.empty,
             Vector.empty,
             commandEffect.secondaryEffect(_stateOrEmpty()),
             None,

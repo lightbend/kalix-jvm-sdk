@@ -56,6 +56,10 @@ object EventSourcedEntity {
 
       def emitEvents(event: List[_]): OnSuccessBuilder[S]
 
+      def emitEventWithMetadata(event: Object, metadata: Metadata): OnSuccessBuilder[S]
+
+      def emitEventsWithMetadata(event: List[EventWithMetadata[_]]): OnSuccessBuilder[S]
+
       /**
        * Create a message reply.
        *
@@ -254,3 +258,10 @@ abstract class EventSourcedEntity[S] {
     EventSourcedEntityEffectImpl[Any, S]()
 
 }
+
+object EventWithMetadata {
+  def apply[E](event: E, metadata: Metadata) =
+    new EventWithMetadata(event, metadata)
+}
+
+final class EventWithMetadata[E](val event: E, val metadata: Metadata)

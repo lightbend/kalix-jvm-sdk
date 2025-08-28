@@ -5,6 +5,7 @@
 package kalix.javasdk.testkit.impl
 
 import akka.stream.Materializer
+import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity.EventContext
 
 /**
@@ -15,4 +16,5 @@ final class TestKitEventSourcedEntityEventContext extends EventContext {
   override def sequenceNumber = 0L
   override def materializer(): Materializer = throw new UnsupportedOperationException(
     "Accessing the materializer from testkit not supported yet")
+  override def metadata(): Metadata = Metadata.EMPTY
 }

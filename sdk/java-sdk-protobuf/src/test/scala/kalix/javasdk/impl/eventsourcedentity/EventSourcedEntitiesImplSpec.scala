@@ -5,7 +5,9 @@
 package kalix.javasdk.impl.eventsourcedentity
 
 import io.grpc.Status.Code.INVALID_ARGUMENT
+import kalix.javasdk.Metadata
 import kalix.javasdk.eventsourcedentity._
+import kalix.javasdk.impl.MetadataImpl
 import kalix.testkit.TestProtocol
 import kalix.testkit.eventsourcedentity.EventSourcedMessages
 import org.scalatest.BeforeAndAfterAll
@@ -73,6 +75,26 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
       entity.send(command(2, "cart", "GetCart", getShoppingCart("cart")))
       entity.expect(reply(2, cart(Item("abc", "apple", 1), Item("123", "banana", 4), Item("456", "pear", 2))))
       entity.passivate()
+    }
+
+    "handle event metadata" in {
+      val entity = protocol.eventSourced.connect()
+      entity.send(init(ShoppingCart.Name, "cart"))
+      entity.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
+      entity.expect(reply(1, EmptyCart))
+      entity.send(command(2, "cart", "AddItem", addItem("abc", "apple", 1)))
+      val eventMetadata = Metadata.EMPTY.set("k2", "v2")
+      entity.expect(
+        reply(2, EmptyJavaMessage, Effects.empty.withEventAndMetadata(itemAdded("abc", "apple", 1), eventMetadata)))
+      entity.send(command(4, "cart", "GetCart", getShoppingCart("cart")))
+      entity.expect(reply(4, cart(Item("abc", "apple", 1))))
+      entity.passivate()
+      val reactivated = protocol.eventSourced.connect()
+      reactivated.send(init(ShoppingCart.Name, "cart"))
+      reactivated.send(eventWithMetadata(1, itemAdded("abc", "apple", 1), MetadataImpl.toProtocol(eventMetadata).get))
+      reactivated.send(command(1, "cart", "GetCart", getShoppingCart("cart")))
+      reactivated.expect(reply(1, cart(Item("abc", "apple", 1))))
+      reactivated.passivate()
     }
 
     "fail when first message is not init" in {
