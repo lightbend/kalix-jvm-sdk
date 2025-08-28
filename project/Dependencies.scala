@@ -21,7 +21,7 @@ object Dependencies {
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
   val AkkaVersion = "2.10.9"
-  val AkkaHttpVersion = "10.7.1" // Note: should at least the Akka HTTP version required by Akka gRPC
+  val AkkaHttpVersion = "10.7.2" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
   // https://github.com/akka/akka/blob/main/project/Dependencies.scala#L31
   val JacksonVersion = "2.18.4"
