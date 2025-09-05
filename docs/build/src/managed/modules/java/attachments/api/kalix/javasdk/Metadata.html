@@ -255,13 +255,18 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <div class="block">Get the trace context associated with this request metadata.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Metadata.html" title="interface in kalix.javasdk">Metadata</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#withStatusCode(kalix.javasdk.StatusCode.Redirect)" class="member-name-link">withStatusCode</a><wbr>(<a href="StatusCode.Redirect.html" title="enum in kalix.javasdk">StatusCode.Redirect</a>&nbsp;httpStatusCode)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#withStatusCode(kalix.javasdk.StatusCode.ErrorCode)" class="member-name-link">withStatusCode</a><wbr>(<a href="StatusCode.ErrorCode.html" title="enum in kalix.javasdk">StatusCode.ErrorCode</a>&nbsp;httpStatusCode)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Add an HTTP response code to this metadata.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Metadata.html" title="interface in kalix.javasdk">Metadata</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#withStatusCode(kalix.javasdk.StatusCode.Success)" class="member-name-link">withStatusCode</a><wbr>(<a href="StatusCode.Success.html" title="enum in kalix.javasdk">StatusCode.Success</a>&nbsp;httpStatusCode)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#withStatusCode(kalix.javasdk.StatusCode.Redirect)" class="member-name-link">withStatusCode</a><wbr>(<a href="StatusCode.Redirect.html" title="enum in kalix.javasdk">StatusCode.Redirect</a>&nbsp;httpStatusCode)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Add an HTTP response code to this metadata.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="Metadata.html" title="interface in kalix.javasdk">Metadata</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#withStatusCode(kalix.javasdk.StatusCode.Success)" class="member-name-link">withStatusCode</a><wbr>(<a href="StatusCode.Success.html" title="enum in kalix.javasdk">StatusCode.Success</a>&nbsp;httpStatusCode)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Add an HTTP response code to this metadata.</div>
 </div>
 </div>
@@ -611,6 +616,20 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>httpStatusCode</code> - The redirect status code to add.</dd>
+<dt>Returns:</dt>
+<dd>a copy of this metadata with the HTTP response code set.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="withStatusCode(kalix.javasdk.StatusCode.ErrorCode)">
+<h3>withStatusCode</h3>
+<div class="member-signature"><span class="return-type"><a href="Metadata.html" title="interface in kalix.javasdk">Metadata</a></span>&nbsp;<span class="element-name">withStatusCode</span><wbr><span class="parameters">(<a href="StatusCode.ErrorCode.html" title="enum in kalix.javasdk">StatusCode.ErrorCode</a>&nbsp;httpStatusCode)</span></div>
+<div class="block">Add an HTTP response code to this metadata.
+ This will only take effect when HTTP transcoding is in use. It will be ignored for gRPC requests.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>httpStatusCode</code> - The success status code to add.</dd>
 <dt>Returns:</dt>
 <dd>a copy of this metadata with the HTTP response code set.</dd>
 </dl>

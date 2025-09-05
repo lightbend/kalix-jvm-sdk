@@ -77,9 +77,6 @@ addSbtPlugin("io.kalix" % "sbt-kalix" % "{kalix-jvm-sdk-version}")
 == Configure JSON formatted logging
 Kalix supports JSON formatted logging to provide multi-line messages formatted in JSON syntax. Always use JSON formatted logging for your Kalix projects to efficiently analyze and easily leverage logging information.
 
-[TIP]
-xref:java-protobuf:quickstart/cr-value-entity-java.adoc[Build and deploy the sample] to see JSON formatted logging in action.
-
 JSON formatted logging is enabled by default in the projects created by the xref:project-template.adoc[Kalix project template]. It includes a transitive dependency on `logback-json-classic` and a `logback.xml` file as shown here:
 
 .src/main/resources/logback.xml
