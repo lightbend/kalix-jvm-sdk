@@ -51,7 +51,7 @@ This plugin implements the following https://maven.apache.org/guides/introductio
 * `generate`; generates implementation stubs for your entity/service and corresponding tests, as well as an abstract class for your implementation to extend. If you make further updates to your Protobuf specification after the initial generation, existing implementation is left unchanged but the abstract class is updated to align. This allows you to leverage native developer tooling to guide the desired changes.
 * `deploy`; simply invokes the `kalix` command line tool to deploy the service to Kalix. This relies on an existing installation of the CLI and uses configuration and credentials from that installation.
 
-NOTE: The deploy goal requires the Kalix CLI to be installed on your system.
+NOTE: The deploy goal requires the Akka CLI to be installed on your system.
 
 [.group-java]
 === Configuration

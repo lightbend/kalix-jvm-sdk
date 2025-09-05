@@ -22,4 +22,4 @@ In the non-descriptive message to the user a correlation ID is included, for exa
 Unexpected error [2c74bdfb-3130-464c-8852-cf9c3c2180ad]
 ----
 
-That same correlation ID `2c74bdfb-3130-464c-8852-cf9c3c2180ad` is included in the error log entry for the error as an MDC value with the key `correlationID`. This makes it possible to find the specific error in the logs using `kalix logs` or by querying your configured logging backend for the service.
+That same correlation ID `2c74bdfb-3130-464c-8852-cf9c3c2180ad` is included in the error log entry for the error as an MDC value with the key `correlationID`. This makes it possible to find the specific error in the logs using `akka logs` or by querying your configured logging backend for the service.

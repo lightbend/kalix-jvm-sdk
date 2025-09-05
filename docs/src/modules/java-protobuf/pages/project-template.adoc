@@ -26,7 +26,7 @@ To deploy the Kalix service, you need:
 
 * A https://console.kalix.io[Kalix account]
 * A https://docs.kalix.io/operations/create-project.html[Kalix project]
-* The https://docs.kalix.io/kalix/install-kalix.html[Kalix CLI (kalix)]
+* The https://doc.akka.io/operations/cli/installation.html[Akka CLI]
 * A configured registry in which to publish the service container image. Refer to https://docs.kalix.io/operations/container-registries.html[Configuring registries] for more information on how to make your Docker registry available to Kalix.
 
 :sectnums:
@@ -318,7 +318,7 @@ When using the CLI, in your command window, set your Kalix project to be the cur
 
 [source, command window]
 ----
-kalix config set project <project-name>
+akka config set project <project-name>
 ----
 
 [.group-scala]
