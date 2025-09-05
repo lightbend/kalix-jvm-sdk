@@ -480,24 +480,24 @@ The View definitions are stored and validated when a new version is deployed. Th
 
 === Drop obsolete view data
 
-The data for old Views, that are no longer actively used, can be dropped using the `kalix` CLI https://docs.kalix.io/reference/kalix/kalix_services_views.html[service view commands].
+The data for old Views, that are no longer actively used, can be dropped using the `akka` CLI https://doc.akka.io/reference/cli/akka-cli/akka_services_views.html[service view commands].
 
-A summary of all views for a running service can be listed using the https://docs.kalix.io/reference/kalix/kalix_services_views_list.html[views list command]:
+A summary of all views for a running service can be listed using the https://doc.akka.io/reference/cli/akka-cli/akka_services_views_list.html[views list command]:
 
 ----
-> kalix service views list customer-registry
+> akka service views list customer-registry
 NAME               ACTIVE   LAST UPDATED
 CustomerByName     false    1d
 CustomerByNameV2   true     5m
 ----
 
-Any views that are inactive and no longer needed can be dropped using the https://docs.kalix.io/reference/kalix/kalix_services_views_drop.html[views drop command]:
+Any views that are inactive and no longer needed can be dropped using the https://doc.akka.io/reference/cli/akka-cli/akka_services_views_drop.html[views drop command]:
 
 ----
-> kalix service views drop customer-registry CustomerByName
+> akka service views drop customer-registry CustomerByName
 The data for view 'CustomerByName' of service 'customer-registry' has successfully been dropped.
 
-> kalix service views list customer-registry
+> akka service views list customer-registry
 NAME               ACTIVE   LAST UPDATED
 CustomerByNameV2   true     10m
 ----
