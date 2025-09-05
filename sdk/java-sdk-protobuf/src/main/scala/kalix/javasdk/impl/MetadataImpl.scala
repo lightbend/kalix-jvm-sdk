@@ -195,6 +195,9 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
   override def withStatusCode(code: StatusCode.Success): MetadataImpl =
     set("_kalix-http-code", code.value.toString)
 
+  override def withStatusCode(code: StatusCode.ErrorCode): MetadataImpl =
+    set("_kalix-http-code", code.value.toString)
+
   override def asMetadata(): Metadata = this
 
   // The reason we don't just implement JwtClaims ourselves is that some of the methods clash with CloudEvent
