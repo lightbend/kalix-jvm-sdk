@@ -29,7 +29,7 @@ public final class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic
       java.util.Map<String, Object> map, ch.qos.logback.classic.spi.ILoggingEvent event) {
     add("severity", true, String.valueOf(event.getLevel()), map);
 
-    if (!event.getKeyValuePairs().isEmpty()) {
+    if (event.getKeyValuePairs() != null && !event.getKeyValuePairs().isEmpty()) {
       Map<String, Object> kvp = new HashMap<>();
       event.getKeyValuePairs().forEach(keyValuePair ->
           kvp.put(keyValuePair.key, keyValuePair.value)
