@@ -4,6 +4,9 @@
 
 package kalix.javasdk.logging;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This Logback JSON layout uses the name `severity` (instead of `level`).
  *
@@ -15,6 +18,8 @@ package kalix.javasdk.logging;
  */
 public final class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic.JsonLayout {
 
+  private final static String KVP_ATTR_NAME = "kvpList";
+
   public LogbackJsonLayout() {
     setIncludeLevel(false);
   }
@@ -23,5 +28,13 @@ public final class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic
   public void addCustomDataToJsonMap(
       java.util.Map<String, Object> map, ch.qos.logback.classic.spi.ILoggingEvent event) {
     add("severity", true, String.valueOf(event.getLevel()), map);
+
+    if (!event.getKeyValuePairs().isEmpty()) {
+      Map<String, Object> kvp = new HashMap<>();
+      event.getKeyValuePairs().forEach(keyValuePair ->
+          kvp.put(keyValuePair.key, keyValuePair.value)
+      );
+      addMap(KVP_ATTR_NAME, true, kvp, map);
+    }
   }
 }
