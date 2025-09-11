@@ -190,13 +190,16 @@ private[kalix] class MetadataImpl private (val entries: Seq[MetadataEntry]) exte
   override def clearTime(): MetadataImpl = remove(MetadataImpl.CeTime)
 
   override def withStatusCode(code: StatusCode.Redirect): MetadataImpl =
-    set("_kalix-http-code", code.value.toString)
+    withHttpStatusCode(code.value)
 
   override def withStatusCode(code: StatusCode.Success): MetadataImpl =
-    set("_kalix-http-code", code.value.toString)
+    withHttpStatusCode(code.value)
 
   override def withStatusCode(code: StatusCode.ErrorCode): MetadataImpl =
-    set("_kalix-http-code", code.value.toString)
+    withHttpStatusCode(code.value)
+
+  private def withHttpStatusCode(code: Int): MetadataImpl =
+    set("_kalix-http-code", code.toString)
 
   override def asMetadata(): Metadata = this
 
