@@ -87,10 +87,16 @@ private[kalix] class MetadataImpl(val impl: kalix.javasdk.impl.MetadataImpl) ext
     override def apply: Seq[Principal] = impl.principals.get.asScala.map(Principal.toScala).toSeq
   }
   override def withStatusCode(code: StatusCode.Success): Metadata =
-    set("_kalix-http-code", code.value.toString)
+    withHttpStatusCode(code.value)
 
   override def withStatusCode(code: StatusCode.Redirect): Metadata =
-    set("_kalix-http-code", code.value.toString)
+    withHttpStatusCode(code.value)
+
+  override def withStatusCode(code: StatusCode.Error): Metadata =
+    withHttpStatusCode(code.value)
+
+  private def withHttpStatusCode(code: Int): Metadata =
+    set("_kalix-http-code", code.toString)
 
   override lazy val traceContext: TraceContext = new TraceContext {
     override def asOpenTelemetryContext = W3CTraceContextPropagator

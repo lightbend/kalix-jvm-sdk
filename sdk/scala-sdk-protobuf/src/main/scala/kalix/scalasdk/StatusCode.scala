@@ -52,4 +52,25 @@ object StatusCode {
   case object TemporaryRedirect extends Redirect(307)
 
   case object PermanentRedirect extends Redirect(308)
+
+  sealed abstract class Error(val value: Int) extends StatusCode
+
+  case object BadRequest extends Error(400)
+
+  case object Unauthorized extends Error(401)
+
+  case object Forbidden extends Error(403)
+
+  case object NotFound extends Error(404)
+
+  case object Conflict extends Error(409)
+
+  case object TooManyRequests extends Error(429)
+
+  case object InternalServerError extends Error(500)
+
+  case object ServiceUnavailable extends Error(503)
+
+  case object GatewayTimeout extends Error(504)
+
 }

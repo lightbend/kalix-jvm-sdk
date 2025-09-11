@@ -276,6 +276,17 @@ trait Metadata extends Iterable[MetadataEntry] {
   def withStatusCode(httpStatusCode: StatusCode.Redirect): Metadata
 
   /**
+   * Add an HTTP response code to this metadata. This will only take effect when HTTP transcoding is in use. It will be
+   * ignored for gRPC requests.
+   *
+   * @param httpStatusCode
+   *   The error status code to add.
+   * @return
+   *   a copy of this metadata with the HTTP response code set.
+   */
+  def withStatusCode(httpStatusCode: StatusCode.Error): Metadata
+
+  /**
    * Get the trace context associated with this request metadata.
    * @return
    *   The trace context.
