@@ -16,7 +16,7 @@ import java.util.Map;
  * "ch.qos.logback.contrib") and the Jackson layout support requires "logback-jackson" (organization
  * "ch.qos.logback.contrib") which need to be added as dependencies.
  */
-public final class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic.JsonLayout {
+public class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic.JsonLayout {
 
   private final static String KVP_ATTR_NAME = "kvpList";
 
