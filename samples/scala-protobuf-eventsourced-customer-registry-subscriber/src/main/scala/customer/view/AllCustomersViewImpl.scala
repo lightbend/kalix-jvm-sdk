@@ -33,10 +33,4 @@ class AllCustomersViewImpl(context: ViewContext) extends AbstractAllCustomersVie
         lastUpdate = now))
   }
 
-  override def processCustomerNameChanged(state: Customer, nameChanged: NameChanged): UpdateEffect[Customer] = {
-    log.info("Customer {} created: {}", updateContext().eventSubject, nameChanged)
-    effects.updateState(state
-      .copy(name = nameChanged.customerName, updates = state.updates + 1, lastUpdate = Some(Timestamp(Instant.now()))))
-  }
-
 }

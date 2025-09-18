@@ -22,6 +22,7 @@ import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
 
 message Customer {
   string customer_id = 1;
@@ -38,20 +39,26 @@ service AllCustomersView {
   };
 
   // consume events published by scala-protobuf-eventsourced-customer-registry/CustomerEventsServiceAction
-  option (kalix.service).eventing.in.direct = { // <1>
-    service: "customer-registry" // <2>
-    event_stream_id: "customer_events" // <3>
-  };
-
   rpc ProcessCustomerCreated(api.Created) returns (Customer) { // <4>
     option (kalix.method).view.update = {
       table: "all_customers"
     };
+    option (kalix.method).eventing.in.direct = { // <1>
+      service: "customer-registry" // <2>
+      event_stream_id: "customer_events" // <3>
+    };
   }
 
-  rpc ProcessCustomerNameChanged(api.NameChanged) returns (Customer) {
-    option (kalix.method).view.update = {
-      table: "all_customers"
+  rpc CatchAllIgnore(google.protobuf.Any) returns (google.protobuf.Empty) {
+    // consume events from DirectEventingOutService1
+    option (kalix.method).eventing.in = {
+      direct {
+        // Kalix deployment name (but localhost here for tests)
+        service: "customer-registry"
+        // stream id from service above
+        event_stream_id: "customer_events"
+      };
+      ignore: true;
     };
   }
 
