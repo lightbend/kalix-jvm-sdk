@@ -14,7 +14,7 @@ permissions:
 jobs:
   publish:
     name: Publish (sbt & Maven)
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     if: github.event.repository.fork == false
     steps:
       - name: Checkout
@@ -67,7 +67,7 @@ jobs:
 
   validate-tag:
     name: Validate that tag is a release and not a snapshot or a milestone
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     needs: publish
     outputs:
       release: ${{ steps.verification.outputs.release }}
@@ -86,7 +86,7 @@ jobs:
 
   create-pr:
     name: Create PR to update maven plugin and samples
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     needs: validate-tag
     if: needs.validate-tag.outputs.release == 'true'
     steps:

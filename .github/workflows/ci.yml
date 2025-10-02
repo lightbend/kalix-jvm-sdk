@@ -19,7 +19,7 @@ concurrency:
 jobs:
   checks:
     name: Basic checks
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -75,7 +75,7 @@ jobs:
 
   publish-local:
     name: Build and publish artifacts and plugins locally
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -155,7 +155,7 @@ jobs:
   sbt-test:
     name: Run sbt test
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -210,7 +210,7 @@ jobs:
   sbt-scripted:
     name: Run sbt scripted
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -265,7 +265,7 @@ jobs:
   maven-java-tests:
     name: "Maven Java (plugin and archetype tests)"
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -331,7 +331,7 @@ jobs:
   java-sdk-integration-tests:
     name: "Java SDK integration tests"
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -383,7 +383,7 @@ jobs:
   codegen-samples:
     name: Codegen Examples
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -445,7 +445,7 @@ jobs:
   check-samples-in-ci:
     name: "Check all samples are included in CI build"
     needs: [checks, publish-local] # not really, but deferring until more important stuff
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -465,7 +465,7 @@ jobs:
   tck-tests:
     name: "TCK tests"
     needs: check-samples-in-ci
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -523,7 +523,7 @@ jobs:
   maven-samples:
     name: Maven samples
     needs: check-samples-in-ci
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     strategy:
       fail-fast: false
@@ -647,7 +647,7 @@ jobs:
   sbt-samples:
     name: sbt
     needs: check-samples-in-ci
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     strategy:
       fail-fast: false
       matrix:
