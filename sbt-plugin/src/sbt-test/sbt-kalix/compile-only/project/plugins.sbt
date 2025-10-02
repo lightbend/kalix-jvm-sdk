@@ -1,4 +1,4 @@
-resolvers += "Akka library repository".at("https://repo.akka.io/maven")
+resolvers += "Akka library repository".at("https://repo.akka.io/maven/github_actions")
 sys.props.get("plugin.version") match {
   case Some(x) => addSbtPlugin("io.kalix" % "sbt-kalix" % x)
   case _ => sys.error("""|The system property 'plugin.version' is not defined.
