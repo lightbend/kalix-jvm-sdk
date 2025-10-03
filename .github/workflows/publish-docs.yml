@@ -26,8 +26,8 @@ jobs:
         with:
           jvm: temurin:1.17.0.5
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Publish docs
         run: make -C docs deploy
