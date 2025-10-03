@@ -31,6 +31,9 @@ jobs:
         with:
           jvm: temurin:1.17
 
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
+
       - name: Make docs and validate links
         run: make -C docs dev validate-links
 
