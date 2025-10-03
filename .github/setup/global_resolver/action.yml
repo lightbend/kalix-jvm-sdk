@@ -1,0 +1,37 @@
+name: Setup Akka resolver
+description: Adds Akka resolver globally for sbt and Maven
+runs:
+  using: "composite"
+  steps:
+    - name: Add Akka resolver for sbt
+      shell: bash
+      run: |
+        mkdir -p ~/.sbt/1.0
+        echo 'resolvers += "Akka library repository".at("https://repo.akka.io/maven/github_actions")' >> ~/.sbt/1.0/resolvers.sbt
+
+    - name: Add Akka resolver for Maven
+      shell: bash
+      run: |
+        mkdir -p ~/.m2
+        cat > ~/.m2/settings.xml <<'EOF'
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <profiles>
+    <profile>
+      <id>akka-repo</id>
+      <repositories>
+        <repository>
+          <id>akka</id>
+          <url>https://repo.akka.io/maven/github_actions</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>akka-repo</activeProfile>
+  </activeProfiles>
+</settings>
+EOF
