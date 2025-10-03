@@ -14,24 +14,24 @@ runs:
       run: |
         mkdir -p ~/.m2
         cat > ~/.m2/settings.xml <<'EOF'
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                               https://maven.apache.org/xsd/settings-1.0.0.xsd">
-  <profiles>
-    <profile>
-      <id>akka-repo</id>
-      <repositories>
-        <repository>
-          <id>akka</id>
-          <url>https://repo.akka.io/maven/github_actions</url>
-        </repository>
-      </repositories>
-    </profile>
-  </profiles>
+          <profiles>
+            <profile>
+              <id>akka-repo</id>
+              <repositories>
+                <repository>
+                  <id>akka</id>
+                  <url>https://repo.akka.io/maven/github_actions</url>
+                </repository>
+              </repositories>
+            </profile>
+          </profiles>
 
-  <activeProfiles>
-    <activeProfile>akka-repo</activeProfile>
-  </activeProfiles>
-</settings>
-EOF
+          <activeProfiles>
+            <activeProfile>akka-repo</activeProfile>
+          </activeProfiles>
+        </settings>
+        EOF
