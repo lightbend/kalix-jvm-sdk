@@ -1,0 +1,10 @@
+name: Setup Akka resolver
+description: Adds Akka resolver globally for sbt
+runs:
+  using: "composite"
+  steps:
+    - name: Add Akka resolver
+      shell: bash
+      run: |
+        mkdir -p ~/.sbt/1.0
+        echo 'resolvers += "Akka library repository".at("https://repo.akka.io/maven/github_actions")' >> ~/.sbt/1.0/resolvers.sbt
