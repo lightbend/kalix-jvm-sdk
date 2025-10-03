@@ -54,6 +54,9 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
+
       - name: Run javafmt checks
         run: |
           sbt javafmtCheckAll || \
@@ -109,6 +112,9 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -191,6 +197,9 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
+
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
         # v4.1.8
@@ -246,6 +255,9 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
+
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
         # v4.1.8
@@ -286,6 +298,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -367,6 +382,9 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
+
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
         # v4.1.8
@@ -418,6 +436,9 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -501,6 +522,9 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
+
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
         # v4.1.8
@@ -578,6 +602,9 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -715,6 +742,9 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Setup Go development tools
+        uses: ./.github/setup/sbt_setup
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
