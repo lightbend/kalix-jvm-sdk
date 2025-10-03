@@ -37,6 +37,9 @@ jobs:
         with:
           jvm: temurin:1.17.0.5
 
+      - name: Setup sbt global resolver
+        uses: ./.github/setup/sbt_setup
+
       - name: Determine SDK version
         id: determine_sdk_version
         run: |-
@@ -109,6 +112,9 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Setup sbt global resolver
+        uses: ./.github/setup/sbt_setup
 
       - name: Determine SDK version
         id: determine_sdk_version
