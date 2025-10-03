@@ -54,8 +54,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Run javafmt checks
         run: |
@@ -113,8 +113,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -197,8 +197,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -255,8 +255,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -299,8 +299,8 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -382,8 +382,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -437,8 +437,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -522,8 +522,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -603,8 +603,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -743,8 +743,8 @@ jobs:
         with:
           jvm: temurin:1.21
 
-      - name: Setup sbt global resolver
-        uses: ./.github/setup/sbt_setup
+      - name: Setup global resolver
+        uses: ./.github/setup/global_resolver
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
