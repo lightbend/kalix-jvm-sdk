@@ -6,8 +6,6 @@ licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")
 
 scalaVersion := "3.3.3"
 
-resolvers += "Akka library repository".at("https://repo.akka.io/maven/github_actions")
-
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/eclipse-temurin:21.0.7_6-jre-noble"
 // For Docker setup see https://docs.kalix.io/operations/container-registries.html
