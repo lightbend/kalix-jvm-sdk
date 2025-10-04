@@ -5,6 +5,53 @@ FIXME contribution guidelines like in other LB projects
 
 # Project tips
 
+## Build Token
+
+To build locally, you need to fetch a token at https://account.akka.io/token that you have to place into `~/.sbt/1.0/akka-commercial.sbt` file like this:
+```
+ThisBuild / resolvers += "lightbend-akka".at("your token resolver here")
+```
+
+and for Maven you need to add the following int `~/.m2/settings.xml`:
+
+```
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              https://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <mirrors>
+    <mirror>
+        <id>akka-repo-redirect</id>
+        <mirrorOf>akka-repository</mirrorOf> 
+        <url>your token resolver here</url>
+    </mirror>
+    <mirror>
+        <mirrorOf>external:http:*</mirrorOf>
+        <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
+        <url>http://0.0.0.0/</url>
+        <blocked>true</blocked>
+        <id>maven-default-http-blocker</id>
+    </mirror>
+    </mirrors>
+    
+    <profiles>
+    <profile>
+        <id>akka-repo</id>
+        <repositories>
+        <repository>
+            <id>akka-repository</id>
+            <url>your token resolver here</url>
+        </repository>
+        </repositories>
+    </profile>
+    </profiles>
+
+    <activeProfiles>
+    <activeProfile>akka-repo</activeProfile>
+    </activeProfiles>
+</settings>
+```
+
 ##  Trying changes to the codegen out with the Java samples
 
 1. Publish the SDK artifacts to the local maven repo 
