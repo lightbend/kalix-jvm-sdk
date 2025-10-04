@@ -23,7 +23,7 @@ runs:
               <id>akka-repo</id>
               <repositories>
                 <repository>
-                  <id>akka</id>
+                  <id>akka-repository</id>
                   <url>https://repo.akka.io/maven/github_actions</url>
                 </repository>
               </repositories>
