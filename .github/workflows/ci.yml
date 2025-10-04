@@ -302,6 +302,27 @@ jobs:
       - name: Setup global resolver
         uses: ./.github/setup/global_resolver
 
+      - name: Debug global maven settings
+        run: |
+          # This command prints the full, merged, and resolved settings, 
+          # which is often more informative than just printing the global file.
+          echo "--- Effective Maven Settings (Merged User and Global) ---"
+          mvn help:effective-settings
+          echo "--- End of Effective Maven Settings ---"
+          cat ~/.m2/settings.xml
+          GLOBAL_SETTINGS_PATH=$(dirname $(dirname $(which mvn)))/conf/settings.xml
+          echo "--- Attempting to print global settings.xml ---"
+          # Check if the file exists before trying to print it
+          if [ -f "$GLOBAL_SETTINGS_PATH" ]; then
+            echo "File found at: $GLOBAL_SETTINGS_PATH"
+            cat "$GLOBAL_SETTINGS_PATH"
+            echo "--- End of settings.xml contents ---"
+          else
+            echo "Error: Global settings.xml file not found at $GLOBAL_SETTINGS_PATH."
+            echo "If you have a custom setup, you may need to adjust the path."
+          fi
+      
+
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
         # v4.2.0
