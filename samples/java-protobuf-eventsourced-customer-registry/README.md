@@ -17,6 +17,9 @@ Use Maven to build your project:
 mvn compile
 ```
 
+### NOTE
+**In order to compile you will need to set up a Secure Repository Token [as instructed here](https://account.akka.io/token).**
+
 ## Running Locally
 
 To run the example locally, you must run the Kalix Runtime. The included `docker-compose` file contains the configuration required by the Kalix Runtime for a locally running service.

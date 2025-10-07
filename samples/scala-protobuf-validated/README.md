@@ -10,6 +10,9 @@ To compile and test the code from the command line, use
 sbt test
 ```
 
+### NOTE
+**In order to compile you will need to set up a Secure Repository Token [as instructed here](https://account.akka.io/token).**
+
 ## Running Locally
 
 When running a Kalix service locally, we need to have its companion Kalix Runtime running alongside it.

@@ -19,6 +19,9 @@ generating code based on the `.proto` definitions:
 mvn compile
 ```
 
+### NOTE
+**In order to compile you will need to set up a Secure Repository Token [as instructed here.**
+
 ## Running Locally
 
 When running this Kalix service locally, we need to have its companion Kalix Runtime, a Kafka broker and a Zookeeper running alongside it.

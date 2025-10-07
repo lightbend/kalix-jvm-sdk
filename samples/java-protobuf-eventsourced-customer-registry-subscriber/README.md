@@ -14,6 +14,9 @@ Use Maven to build your project:
 mvn compile
 ```
 
+### NOTE
+**In order to compile you will need to set up a Secure Repository Token [as instructed here](https://account.akka.io/token).**
+
 ## Running Locally
 
 First start the `java-protobuf-eventsourced-customer-registry` service and proxy. It will run with the default service and proxy ports (`8080` and `9000`).
