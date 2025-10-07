@@ -8,11 +8,11 @@ runs:
       run: |
         mkdir -p ~/.sbt/1.0
         echo 'resolvers += "Akka library repository".at("https://repo.akka.io/maven/github_actions")' >> ~/.sbt/1.0/resolvers.sbt
-        
+
     - name: Add Akka Resolver to Scripted Tests
       shell: bash
       run: |
-        TESTS_DIR="sbt-plugin/src/main/sbt-test/sbt-kalix"
+        TESTS_DIR="$GITHUB_WORKSPACE/sbt-plugin/src/main/sbt-test/sbt-kalix"
         RESOLVER_LINE='resolvers += "Akka library repository" at "https://repo.akka.io/maven/github_actions"'
     
         # Check if the main directory exists
