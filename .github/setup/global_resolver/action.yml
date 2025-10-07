@@ -12,7 +12,7 @@ runs:
     - name: Add Akka Resolver to Scripted Tests
       shell: bash
       run: |
-        TESTS_DIR="$GITHUB_WORKSPACE/../sbt-plugin/src/main/sbt-test/sbt-kalix"
+        TESTS_DIR="$GITHUB_WORKSPACE/sbt-plugin/src/sbt-test/sbt-kalix"
         RESOLVER_LINE='resolvers += "Akka library repository" at "https://repo.akka.io/maven/github_actions"'
         echo "Current Working Directory (CWD): $(pwd)"
         echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
