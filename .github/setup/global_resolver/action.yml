@@ -79,6 +79,13 @@ runs:
                   <url>https://repo.akka.io/maven/github_actions</url>
                 </repository>
               </repositories>
+        
+              <pluginRepositories>
+                <pluginRepository>
+                <id>akka-plugin-repository</id>
+                <url>https://repo.akka.io/maven/github_actions</url>
+                </pluginRepository>
+              </pluginRepositories>
             </profile>
           </profiles>
 
