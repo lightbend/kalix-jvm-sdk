@@ -19,36 +19,42 @@ and for Maven you need to add the following int `~/.m2/settings.xml`:
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                               https://maven.apache.org/xsd/settings-1.0.0.xsd">
-    <mirrors>
+  <mirrors>
     <mirror>
-        <id>akka-repo-redirect</id>
-        <mirrorOf>akka-repository</mirrorOf> 
-        <url>your token resolver here</url>
+      <id>akka-repo-redirect</id>
+      <mirrorOf>akka-repository</mirrorOf>
+      <url>your token resolver here</url>
     </mirror>
     <mirror>
-        <mirrorOf>external:http:*</mirrorOf>
-        <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
-        <url>http://0.0.0.0/</url>
-        <blocked>true</blocked>
-        <id>maven-default-http-blocker</id>
+      <mirrorOf>external:http:*</mirrorOf>
+      <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
+      <url>http://0.0.0.0/</url>
+      <blocked>true</blocked>
+      <id>maven-default-http-blocker</id>
     </mirror>
-    </mirrors>
-    
-    <profiles>
-    <profile>
-        <id>akka-repo</id>
-        <repositories>
-        <repository>
-            <id>akka-repository</id>
-            <url>your token resolver here</url>
-        </repository>
-        </repositories>
-    </profile>
-    </profiles>
+  </mirrors>
 
-    <activeProfiles>
+  <profiles>
+    <profile>
+      <id>akka-repo</id>
+      <repositories>
+        <repository>
+          <id>akka-repository</id>
+          <url>your token resolver here</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>akka-plugin-repository</id>
+          <url>your token resolver here</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+
+  <activeProfiles>
     <activeProfile>akka-repo</activeProfile>
-    </activeProfiles>
+  </activeProfiles>
 </settings>
 ```
 
