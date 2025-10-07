@@ -8,6 +8,36 @@ runs:
       run: |
         mkdir -p ~/.sbt/1.0
         echo 'resolvers += "Akka library repository".at("https://repo.akka.io/maven/github_actions")' >> ~/.sbt/1.0/resolvers.sbt
+    - name: Add Akka Resolver to Scripted Tests
+      run: |
+        TESTS_DIR="sbt-plugin/src/main/sbt-test/sbt-kalix"
+        RESOLVER_LINE='resolvers += "Akka library repository" at "https://repo.akka.io/maven/github_actions"'
+    
+        # Check if the main directory exists
+        if [ ! -d "$TESTS_DIR" ]; then
+          echo "Tests directory not found: $TESTS_DIR"
+          exit 1
+        fi
+    
+        # Iterate over all subdirectories (individual test cases)
+        for TEST_CASE in "$TESTS_DIR"/*/; do
+          if [ -d "$TEST_CASE" ]; then
+            echo "Processing test case: ${TEST_CASE}"
+    
+            # 1. Define the target directory path
+            TARGET_DIR="${TEST_CASE}global"
+    
+            # 2. Create the target directory structure if it doesn't exist
+            mkdir -p "$TARGET_DIR"
+    
+            # 3. Define the full path to the resolvers file
+            RESOLVERS_FILE="${TARGET_DIR}/resolvers.sbt"
+    
+            # 4. Write the resolver configuration to the file
+            echo "$RESOLVER_LINE" > "$RESOLVERS_FILE"
+            echo "Created ${RESOLVERS_FILE}"
+          fi
+        done
 
     - name: Add Akka resolver for Maven
       shell: bash
