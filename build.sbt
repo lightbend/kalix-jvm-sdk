@@ -507,3 +507,69 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .dependsOn(codegenScala, devToolsInternal)
 
 addCommandAlias("formatAll", "scalafmtAll; javafmtAll")
+
+val scriptedTestsBase = settingKey[File]("The base directory containing all scripted test cases.")
+scriptedTestsBase := {
+  (Keys.baseDirectory.value / "sbt-plugin" / "src" / "sbt-test" / "sbt-kalix")
+}
+
+val createScriptedGlobalResolvers = taskKey[Unit]("Creates a temporary global/resolvers.sbt inside each scripted test case.")
+createScriptedGlobalResolvers := {
+  val log = streams.value.log
+  val baseDir = scriptedTestsBase.value
+  val resolversContent = fullResolvers.value.collect ({
+    case mavenResolver: sbt.librarymanagement.MavenRepository if mavenResolver.root.contains("repo.akka.io") || mavenResolver.root.contains("dl.cloudsmith") =>
+      s"""resolvers += "${mavenResolver.name}" at "${mavenResolver.root}""""
+    case urlResolver: sbt.librarymanagement.URLRepository if urlResolver.patterns.artifactPatterns.headOption.getOrElse("").contains("repo.akka.io") || urlResolver.patterns.artifactPatterns.headOption.getOrElse("").contains("dl.cloudsmith") =>
+      val pattern = urlResolver.patterns.artifactPatterns.headOption.getOrElse("")
+      // strip off the part that starts with [organisation] or any sbt placeholders
+      val baseUrl = pattern.replaceFirst("/\\[organisation\\].*", "")
+      if (urlResolver.patterns.isMavenCompatible)
+        s"""resolvers += "${urlResolver.name}".at("$baseUrl")"""
+      else
+        s"""resolvers += Resolver.url("${urlResolver.name}", url("$baseUrl"))(Resolver.ivyStylePatterns)"""
+  }).mkString("\n")
+  // Find all immediate subdirectories (the individual test cases)
+  val testCases = (baseDir * sbt.io.DirectoryFilter).get
+  if (testCases.isEmpty) {
+    log.warn(s"No scripted test directories found in $baseDir. Skipping resolver creation.")
+  } else {
+    log.info(s"Found ${testCases.size} test cases. Injecting resolvers...")
+    testCases.foreach { testCaseDir =>
+      val globalDir = testCaseDir / "global"
+      val resolversFile = globalDir / "resolvers.sbt"
+      IO.createDirectory(globalDir)
+      IO.write(resolversFile, resolversContent)
+      log.debug(s"Created ${resolversFile.getPath}")
+    }
+    log.info(s"Successfully injected resolvers into ${testCases.size} test cases.")
+  }
+}
+
+val cleanupScriptedGlobalResolvers = taskKey[Unit]("Deletes the temporary global/resolvers.sbt file from each scripted test case.")
+cleanupScriptedGlobalResolvers := {
+  val log = streams.value.log
+  val baseDir = scriptedTestsBase.value
+  // Find all immediate subdirectories (the individual test cases)
+  val testCases = (baseDir * sbt.io.DirectoryFilter).get
+  testCases.foreach { testCaseDir =>
+    val baseDir = testCaseDir / "global"
+    val resolversFile = baseDir / "resolvers.sbt"
+    if (resolversFile.exists()) {
+      IO.delete(resolversFile)
+      log.debug(s"Cleaned up ${resolversFile.getPath}")
+      IO.deleteIfEmpty(Set(baseDir))
+    }
+  }
+  log.info("Cleanup of scripted global resolvers complete.")
+}
+
+scripted := Def.inputTaskDyn {
+  createScriptedGlobalResolvers.value
+  val args = sbt.complete.DefaultParsers.spaceDelimited("<arg>").parsed
+  val argsString = args.mkString(" ")
+  Def.task {
+  }
+}.evaluated
+
+
