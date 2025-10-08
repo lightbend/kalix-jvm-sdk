@@ -486,7 +486,8 @@ lazy val codegenScalaCompilationExampleSuite: CompositeProject =
   }
 
 val scriptedTestsBase = settingKey[File]("The base directory containing all scripted test cases.")
-val createScriptedGlobalResolvers = taskKey[Unit]("Creates a temporary global/resolvers.sbt inside each scripted test case.")
+val createScriptedGlobalResolvers =
+  taskKey[Unit]("Creates a temporary global/resolvers.sbt inside each scripted test case.")
 lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .enablePlugins(SbtPlugin)
   .enablePlugins(Publish)
@@ -512,18 +513,26 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
     createScriptedGlobalResolvers := {
       val log = streams.value.log
       val baseDir = scriptedTestsBase.value
-      val resolversContent = fullResolvers.value.collect ({
-        case mavenResolver: sbt.librarymanagement.MavenRepository if mavenResolver.root.contains("repo.akka.io") || mavenResolver.root.contains("dl.cloudsmith") =>
-          s"""resolvers += "${mavenResolver.name}" at "${mavenResolver.root}""""
-        case urlResolver: sbt.librarymanagement.URLRepository if urlResolver.patterns.artifactPatterns.headOption.getOrElse("").contains("repo.akka.io") || urlResolver.patterns.artifactPatterns.headOption.getOrElse("").contains("dl.cloudsmith") =>
-          val pattern = urlResolver.patterns.artifactPatterns.headOption.getOrElse("")
-          // strip off the part that starts with [organisation] or any sbt placeholders
-          val baseUrl = pattern.replaceFirst("/\\[organisation\\].*", "")
-          if (urlResolver.patterns.isMavenCompatible)
-            s"""resolvers += "${urlResolver.name}".at("$baseUrl")"""
-          else
-            s"""resolvers += Resolver.url("${urlResolver.name}", url("$baseUrl"))(Resolver.ivyStylePatterns)"""
-      }).mkString("\n")
+      val resolversContent = fullResolvers.value
+        .collect {
+          case mavenResolver: sbt.librarymanagement.MavenRepository
+              if mavenResolver.root.contains("repo.akka.io") || mavenResolver.root.contains("dl.cloudsmith") =>
+            s"""resolvers += "${mavenResolver.name}" at "${mavenResolver.root}""""
+          case urlResolver: sbt.librarymanagement.URLRepository
+              if urlResolver.patterns.artifactPatterns.headOption
+                .getOrElse("")
+                .contains("repo.akka.io") || urlResolver.patterns.artifactPatterns.headOption
+                .getOrElse("")
+                .contains("dl.cloudsmith") =>
+            val pattern = urlResolver.patterns.artifactPatterns.headOption.getOrElse("")
+            // strip off the part that starts with [organisation] or any sbt placeholders
+            val baseUrl = pattern.replaceFirst("/\\[organisation\\].*", "")
+            if (urlResolver.patterns.isMavenCompatible)
+              s"""resolvers += "${urlResolver.name}".at("$baseUrl")"""
+            else
+              s"""resolvers += Resolver.url("${urlResolver.name}", url("$baseUrl"))(Resolver.ivyStylePatterns)"""
+        }
+        .mkString("\n")
       // Find all immediate subdirectories (the individual test cases)
       val testCases = (baseDir * sbt.io.DirectoryFilter).get
       if (testCases.isEmpty) {
@@ -540,11 +549,7 @@ lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
         log.info(s"Successfully injected resolvers into ${testCases.size} test cases.")
       }
     },
-    scripted := (scripted dependsOn createScriptedGlobalResolvers).evaluated,
-  )
+    scripted := scripted.dependsOn(createScriptedGlobalResolvers).evaluated)
   .dependsOn(codegenScala, devToolsInternal)
 
 addCommandAlias("formatAll", "scalafmtAll; javafmtAll")
-
-
-
