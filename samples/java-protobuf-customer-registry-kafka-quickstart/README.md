@@ -20,7 +20,7 @@ mvn compile
 ```
 
 ### NOTE
-**In order to compile you will need to set up a Secure Repository Token [as instructed here.**
+**In order to compile you will need to set up a Secure Repository Token [as instructed here](https://account.akka.io/token).**
 
 ## Running Locally
 

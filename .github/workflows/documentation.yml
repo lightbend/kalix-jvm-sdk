@@ -32,7 +32,7 @@ jobs:
           jvm: temurin:1.17
 
       - name: Setup global resolver
-        uses: ./.github/setup/global_resolver
+        run: ./.github/setup_global_resolver.sh
 
       - name: Make docs and validate links
         run: make -C docs dev validate-links

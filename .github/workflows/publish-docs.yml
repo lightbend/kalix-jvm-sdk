@@ -27,7 +27,7 @@ jobs:
           jvm: temurin:1.17.0.5
 
       - name: Setup global resolver
-        uses: ./.github/setup/global_resolver
+        run: ./.github/setup_global_resolver.sh
 
       - name: Publish docs
         run: make -C docs deploy

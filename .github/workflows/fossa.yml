@@ -32,7 +32,7 @@ jobs:
           jvm: temurin:1.17
 
       - name: Setup global resolver
-        uses: ./.github/setup/global_resolver
+        run: ./.github/setup_global_resolver.sh
 
       - name: FOSSA policy check
         run: |-

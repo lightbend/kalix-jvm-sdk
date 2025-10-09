@@ -38,7 +38,7 @@ jobs:
           jvm: temurin:1.17.0.5
 
       - name: Setup global resolver
-        uses: ./.github/setup/global_resolver
+        run: ./.github/setup_global_resolver.sh
 
       - name: Determine SDK version
         id: determine_sdk_version
@@ -114,7 +114,7 @@ jobs:
           jvm: temurin:1.21
 
       - name: Setup global resolver
-        uses: ./.github/setup/global_resolver
+        run: ./.github/setup_global_resolver.sh
 
       - name: Determine SDK version
         id: determine_sdk_version
