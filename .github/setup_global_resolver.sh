@@ -7,9 +7,11 @@ set -euo pipefail
 
 # --- Configuration ---
 AKKA_RESOLVER_URL='https://repo.akka.io/maven/github_actions'
-RESOLVER_LINE="resolvers += \"Akka library repository\" at \"$AKKA_RESOLVER_URL\""
+SBT_RESOLVER_LINE="resolvers += \"Akka library repository\" at \"$AKKA_RESOLVER_URL\""
+
+SBT_PLUGIN_PROJECT_NAME="${1:-}"
 # Uses GITHUB_WORKSPACE (set by the runner) or defaults to the current directory if run locally
-TESTS_BASE_DIR="${GITHUB_WORKSPACE:-.}/sbt-plugin/src/sbt-test/sbt-kalix"
+SBT_SCRIPTED_TESTS_BASE_DIR="${GITHUB_WORKSPACE:-.}/${SBT_PLUGIN_PROJECT_NAME}/src/sbt-test"
 
 # ----------------------------------------
 
@@ -17,7 +19,7 @@ TESTS_BASE_DIR="${GITHUB_WORKSPACE:-.}/sbt-plugin/src/sbt-test/sbt-kalix"
 setup_sbt() {
     echo "--- Setting up Akka resolver for sbt global configuration (~/.sbt/1.0/resolvers.sbt)"
     mkdir -p ~/.sbt/1.0
-    echo "$RESOLVER_LINE" >> ~/.sbt/1.0/resolvers.sbt
+    echo "$SBT_RESOLVER_LINE" >> ~/.sbt/1.0/resolvers.sbt
     echo "✅ Added resolver to ~/.sbt/1.0/resolvers.sbt"
 }
 
@@ -25,26 +27,25 @@ setup_sbt() {
 setup_scripted_tests() {
     echo -e "\n--- Setting up Akka resolver for sbt scripted tests (globally per test case)"
 
-    if [ ! -d "$TESTS_BASE_DIR" ]; then
-        echo "⚠️ Warning: Tests directory not found: $TESTS_BASE_DIR. Skipping setup for scripted tests."
+    if [ ! -d "$SBT_SCRIPTED_TESTS_BASE_DIR" ]; then
+        echo "⚠️ Warning: Tests directory not found: $SBT_SCRIPTED_TESTS_BASE_DIR. Skipping setup for scripted tests."
         return 0
     fi
 
-    echo "Scanning test cases in: $TESTS_BASE_DIR"
+    echo "Scanning for sbt projects (directories with 'build.sbt') in sbt-tests: $SBT_SCRIPTED_TESTS_BASE_DIR"
 
-    # Use nullglob to handle directories with no contents gracefully
-    shopt -s nullglob
-    for TEST_CASE in "$TESTS_BASE_DIR"/*/; do
-        if [ -d "$TEST_CASE" ]; then
-            TARGET_DIR="${TEST_CASE}global"
-            RESOLVERS_FILE="${TARGET_DIR}/resolvers.sbt"
+    # Use find to recursively locate all 'build.sbt' files.
+    # We then loop through the parent directories of these files.
+    find "$SBT_SCRIPTED_TESTS_BASE_DIR" -type f -name 'build.sbt' | while IFS= read -r BUILD_FILE_PATH; do
+        # Extract the directory containing build.sbt
+        PROJECT_ROOT_DIR=$(dirname "$BUILD_FILE_PATH")
+        TARGET_DIR="${PROJECT_ROOT_DIR}/global"
+        RESOLVERS_FILE="${TARGET_DIR}/resolvers.sbt"
 
-            mkdir -p "$TARGET_DIR"
-            echo "$RESOLVER_LINE" > "$RESOLVERS_FILE"
-            echo "-> Created $RESOLVERS_FILE"
-        fi
+        mkdir -p "$TARGET_DIR"
+        echo "$SBT_RESOLVER_LINE" > "$RESOLVERS_FILE"
+        echo "-> Configured resolver for project: $PROJECT_ROOT_DIR"
     done
-    shopt -u nullglob # Turn nullglob back off
     echo "✅ Finished setting up resolvers for sbt scripted tests."
 }
 
@@ -104,7 +105,13 @@ EOF
 # --- Main Execution ---
 main() {
     setup_sbt
-    setup_scripted_tests
+    # Only run scripted test setup if the sbt plugin project name (passed as $1) is non-empty.
+    if [ -n "$SBT_PLUGIN_PROJECT_NAME" ]; then
+        echo "Using SBT plugin project name: $SBT_PLUGIN_PROJECT_NAME to locate scripted tests."
+        setup_scripted_tests
+    else
+        echo "⚠️ SBT plugin project name (argument \$1) is empty. Skipping scripted test setup."
+    fi
     setup_maven
     echo -e "\n🎉 Akka resolvers setup complete."
 }

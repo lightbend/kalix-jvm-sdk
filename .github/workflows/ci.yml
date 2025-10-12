@@ -256,7 +256,7 @@ jobs:
           jvm: temurin:1.21
 
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: ./.github/setup_global_resolver.sh sbt-plugin
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
