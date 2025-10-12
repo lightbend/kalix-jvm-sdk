@@ -54,8 +54,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Run javafmt checks
         run: |
@@ -113,8 +121,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -197,8 +213,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -255,8 +279,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh sbt-plugin
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh sbt-plugin
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -299,8 +331,16 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -382,8 +422,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -437,8 +485,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -522,8 +578,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -603,8 +667,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -743,8 +815,16 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases

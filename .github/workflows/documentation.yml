@@ -31,8 +31,16 @@ jobs:
         with:
           jvm: temurin:1.17
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
       - name: Setup global resolver
-        run: ./.github/setup_global_resolver.sh
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Make docs and validate links
         run: make -C docs dev validate-links
