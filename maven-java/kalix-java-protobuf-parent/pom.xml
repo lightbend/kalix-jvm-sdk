@@ -54,23 +54,6 @@
         <skip.docker>false</skip.docker>
     </properties>
 
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>akka-repository</id>
-            <url>https://repo.akka.io/maven</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <repositories>
-        <repository>
-            <id>akka-repository</id>
-            <name>Akka library repository</name>
-            <url>https://repo.akka.io/maven</url>
-        </repository>
-    </repositories>
-
-
     <build>
         <resources>
             <!-- Add the generated protobuf descriptor to the classpath, so that source mapping works -->

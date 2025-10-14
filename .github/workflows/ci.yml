@@ -19,7 +19,7 @@ concurrency:
 jobs:
   checks:
     name: Basic checks
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -54,6 +54,17 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
+
       - name: Run javafmt checks
         run: |
           sbt javafmtCheckAll || \
@@ -75,7 +86,7 @@ jobs:
 
   publish-local:
     name: Build and publish artifacts and plugins locally
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -109,6 +120,17 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -155,7 +177,7 @@ jobs:
   sbt-test:
     name: Run sbt test
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -190,6 +212,17 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -210,7 +243,7 @@ jobs:
   sbt-scripted:
     name: Run sbt scripted
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -246,6 +279,17 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh sbt-plugin
+
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
         # v4.1.8
@@ -265,7 +309,7 @@ jobs:
   maven-java-tests:
     name: "Maven Java (plugin and archetype tests)"
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -286,6 +330,17 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -331,7 +386,7 @@ jobs:
   java-sdk-integration-tests:
     name: "Java SDK integration tests"
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -366,6 +421,17 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -383,7 +449,7 @@ jobs:
   codegen-samples:
     name: Codegen Examples
     needs: [checks, publish-local]
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -418,6 +484,17 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -445,7 +522,7 @@ jobs:
   check-samples-in-ci:
     name: "Check all samples are included in CI build"
     needs: [checks, publish-local] # not really, but deferring until more important stuff
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -465,7 +542,7 @@ jobs:
   tck-tests:
     name: "TCK tests"
     needs: check-samples-in-ci
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     steps:
       - name: Checkout
@@ -501,6 +578,17 @@ jobs:
         with:
           jvm: temurin:1.21
 
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
+
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
         # v4.1.8
@@ -523,7 +611,7 @@ jobs:
   maven-samples:
     name: Maven samples
     needs: check-samples-in-ci
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
 
     strategy:
       fail-fast: false
@@ -578,6 +666,17 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -647,7 +746,7 @@ jobs:
   sbt-samples:
     name: sbt
     needs: check-samples-in-ci
-    runs-on: ubuntu-22.04
+    runs-on: Akka-Default
     strategy:
       fail-fast: false
       matrix:
@@ -715,6 +814,17 @@ jobs:
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
           jvm: temurin:1.21
+
+      - name: Checkout Global Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: akka/github-actions-scripts
+          path: scripts
+
+      - name: Setup global resolver
+        run: |
+          chmod +x ./scripts/setup_global_resolver.sh
+          ./scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
