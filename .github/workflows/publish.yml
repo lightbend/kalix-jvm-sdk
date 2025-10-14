@@ -66,6 +66,11 @@ jobs:
       - name: sbt publishM2
         run: sbt +publishM2
 
+      - name: Install xmlstarlet
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xmlstarlet
+
       - name: mvn deploy
         run: |-
           export SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
