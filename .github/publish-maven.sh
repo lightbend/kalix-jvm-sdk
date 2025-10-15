@@ -35,21 +35,7 @@ MVN_SETTINGS_FILE="$HOME/.m2/settings.xml"
 mkdir -p "$(dirname "$MVN_SETTINGS_FILE")"
 
 if [ -f "$MVN_SETTINGS_FILE" ]; then
-    echo "⚙️ Settings file found. Merging publishing configuration..."
-    xmlstarlet ed -L \
-        -s /settings -t elem -n servers -v "" \
-        -s /settings/servers[1] -t elem -n server \
-        -i /settings/servers[1]/server[1] -t attr -n id -v central \
-        -s /settings/servers[1]/server[1] -t elem -n username -v '${SONATYPE_USERNAME}' \
-        -s /settings/servers[1]/server[1] -t elem -n password -v '${SONATYPE_PASSWORD}' \
-        "$MVN_SETTINGS_FILE"
-    xmlstarlet ed -L \
-        -s '/settings/profiles/profile[id="akka-repo"]' -t elem -n activation -v "" \
-        -s '/settings/profiles/profile[id="akka-repo"]/activation' -t elem -n activeByDefault -v "true" \
-        -s '/settings/profiles/profile[id="akka-repo"]' -t elem -n properties -v "" \
-        -s '/settings/profiles/profile[id="akka-repo"]/properties' -t elem -n gpg.passphrase -v '${PGP_PASSPHRASE}' \
-        "$MVN_SETTINGS_FILE"
-    echo "✅ Merge complete."
+    echo "✅ Settings file already exists. It is expected to be set up with Sonatype publishing details already, so doing nothing to the file."
 else
     echo "✨ Settings file not found. Creating a new one with publishing configuration."
     cat <<EOF >"$MVN_SETTINGS_FILE"
