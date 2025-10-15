@@ -179,6 +179,13 @@ jobs:
     needs: [checks, publish-local]
     runs-on: Akka-Default
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { jdk: "temurin:1.21" }
+          - { jdk: "temurin:1.25" }
+
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
@@ -206,12 +213,12 @@ jobs:
             coursier-${{ hashFiles('project/plugins.sbt', 'project/build.properties') }}-
             coursier-
 
-      - name: Set up JDK 21
+      - name: Set up ${{ matrix.jdk }}
         # https://github.com/coursier/setup-action/releases
         # v1.3.5
         uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
         with:
-          jvm: temurin:1.21
+          jvm: ${{ matrix.jdk }}
 
       - name: Checkout Global Scripts
         uses: actions/checkout@v4
