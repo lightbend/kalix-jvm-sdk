@@ -34,7 +34,7 @@ cd maven-java
 MVN_SETTINGS_FILE="$HOME/.m2/settings.xml"
 mkdir -p "$(dirname "$MVN_SETTINGS_FILE")"
 
-if [ -f "$XML_FILE" ]; then
+if [ -f "$MVN_SETTINGS_FILE" ]; then
     echo "⚙️ Settings file found. Merging publishing configuration..."
     xmlstarlet ed -L \
         -s /settings -t elem -n servers -v "" \
