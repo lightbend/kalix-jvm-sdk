@@ -44,6 +44,10 @@ jobs:
           path: scripts
 
       - name: Setup global resolver
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
+          PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
         run: |
           chmod +x ./scripts/setup_global_resolver.sh
           ./scripts/setup_global_resolver.sh
