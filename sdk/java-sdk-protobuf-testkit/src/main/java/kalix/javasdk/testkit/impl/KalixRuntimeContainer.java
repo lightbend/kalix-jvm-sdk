@@ -37,7 +37,8 @@ public class KalixRuntimeContainer extends GenericContainer<KalixRuntimeContaine
   static {
     String customImage = System.getenv("KALIX_TESTKIT_PROXY_IMAGE");
     if (customImage == null) {
-      DEFAULT_RUNTIME_IMAGE_NAME = DockerImageName.parse(BuildInfo.runtimeImage()).withTag(BuildInfo.runtimeVersion());
+      DEFAULT_RUNTIME_IMAGE_NAME =
+          DockerImageName.parse(BuildInfo.runtimeImage()).withTag(BuildInfo.runtimeVersion());
     } else {
       Logger logger = LoggerFactory.getLogger(KalixRuntimeContainer.class);
       DEFAULT_RUNTIME_IMAGE_NAME = DockerImageName.parse(customImage);
@@ -54,10 +55,15 @@ public class KalixRuntimeContainer extends GenericContainer<KalixRuntimeContaine
   }
 
   public KalixRuntimeContainer(final int userFunctionPort) {
-    this(DEFAULT_RUNTIME_IMAGE_NAME, EventingSupport.TEST_BROKER, userFunctionPort, DEFAULT_GOOGLE_PUBSUB_PORT);
+    this(
+        DEFAULT_RUNTIME_IMAGE_NAME,
+        EventingSupport.TEST_BROKER,
+        userFunctionPort,
+        DEFAULT_GOOGLE_PUBSUB_PORT);
   }
 
-  public KalixRuntimeContainer(EventingSupport eventingSupport, final int userFunctionPort, int eventingPort) {
+  public KalixRuntimeContainer(
+      EventingSupport eventingSupport, final int userFunctionPort, int eventingPort) {
     this(DEFAULT_RUNTIME_IMAGE_NAME, eventingSupport, userFunctionPort, eventingPort);
   }
 

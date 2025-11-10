@@ -4,7 +4,6 @@
 
 package kalix.javasdk;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.io.IOException;
@@ -47,44 +46,35 @@ public class HttpResponse {
     return body;
   }
 
-  /**
-   * Creates a 200 OK response.
-   */
+  /** Creates a 200 OK response. */
   public static HttpResponse ok() {
     return new HttpResponse(StatusCode.Success.OK);
   }
 
-  /**
-   * Creates a 201 CREATED response.
-   */
+  /** Creates a 201 CREATED response. */
   public static HttpResponse created() {
     return new HttpResponse(StatusCode.Success.CREATED);
   }
 
-  /**
-   * Creates a 202 ACCEPTED response.
-   */
+  /** Creates a 202 ACCEPTED response. */
   public static HttpResponse accepted() {
     return new HttpResponse(StatusCode.Success.ACCEPTED);
   }
 
-  /**
-   * Creates a 204 NO CONTENT response.
-   */
+  /** Creates a 204 NO CONTENT response. */
   public static HttpResponse noContent() {
     return new HttpResponse(StatusCode.Success.NO_CONTENT);
   }
 
-  /**
-   * Creates a 200 OK response with a text/plain body.
-   */
+  /** Creates a 200 OK response with a text/plain body. */
   public static HttpResponse ok(String text) {
     if (text == null) throw new IllegalArgumentException("text must not be null");
     return new HttpResponse(StatusCode.Success.OK, "text/plain", text.getBytes(UTF_8));
   }
 
   /**
-   * Creates a 200 OK response with a application/json body. Object is encoded using Jackson serializer.
+   * Creates a 200 OK response with a application/json body. Object is encoded using Jackson
+   * serializer.
    */
   public static HttpResponse ok(Object object) {
     if (object == null) throw new IllegalArgumentException("object must not be null");
@@ -96,9 +86,7 @@ public class HttpResponse {
     }
   }
 
-  /**
-   * Creates a 200 OK response with a application/octet-stream body.
-   */
+  /** Creates a 200 OK response with a application/octet-stream body. */
   public static HttpResponse ok(byte[] body) {
     return new HttpResponse(StatusCode.Success.OK, "application/octet-stream", body);
   }
@@ -106,17 +94,15 @@ public class HttpResponse {
   /**
    * Creates an HTTP response with specified status code, content type and body.
    *
-   * @param statusCode  HTTP status code
+   * @param statusCode HTTP status code
    * @param contentType HTTP content type
-   * @param body        HTTP body
+   * @param body HTTP body
    */
   public static HttpResponse of(StatusCode.Success statusCode, String contentType, byte[] body) {
     return new HttpResponse(statusCode, contentType, body);
   }
 
-  /**
-   * Parses an HTTP body to a specified JSON type using Jackson deserializer.
-   */
+  /** Parses an HTTP body to a specified JSON type using Jackson deserializer. */
   public <T> T bodyAsJson(Class<T> clazz) {
     try {
       return JsonSupport.parseBytes(body, clazz);

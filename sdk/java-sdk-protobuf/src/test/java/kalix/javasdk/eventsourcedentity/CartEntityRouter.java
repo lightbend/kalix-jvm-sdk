@@ -9,7 +9,8 @@ import com.example.shoppingcart.ShoppingCartApi;
 import com.example.shoppingcart.domain.ShoppingCartDomain;
 
 /** Generated, does the routing from command name to concrete method */
-final class CartEntityRouter extends EventSourcedEntityRouter<ShoppingCartDomain.Cart, Object, CartEntity> {
+final class CartEntityRouter
+    extends EventSourcedEntityRouter<ShoppingCartDomain.Cart, Object, CartEntity> {
 
   public CartEntityRouter(CartEntity entity) {
     super(entity);

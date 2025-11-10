@@ -11,9 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Annotation to assign a @{@link JsonMigration} implementation for a given class.
- */
+/** Annotation to assign a @{@link JsonMigration} implementation for a given class. */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Migration {

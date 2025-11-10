@@ -28,7 +28,9 @@ public class DummyClass2 {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     DummyClass2 that = (DummyClass2) o;
-    return intValue == that.intValue && Objects.equals(stringValue, that.stringValue) && Objects.equals(mandatoryStringValue, that.mandatoryStringValue);
+    return intValue == that.intValue
+        && Objects.equals(stringValue, that.stringValue)
+        && Objects.equals(mandatoryStringValue, that.mandatoryStringValue);
   }
 
   @Override
@@ -38,10 +40,15 @@ public class DummyClass2 {
 
   @Override
   public String toString() {
-    return "DummyClass2{" +
-        "stringValue='" + stringValue + '\'' +
-        ", intValue=" + intValue +
-        ", mandatoryStringValue='" + mandatoryStringValue + '\'' +
-        '}';
+    return "DummyClass2{"
+        + "stringValue='"
+        + stringValue
+        + '\''
+        + ", intValue="
+        + intValue
+        + ", mandatoryStringValue='"
+        + mandatoryStringValue
+        + '\''
+        + '}';
   }
 }

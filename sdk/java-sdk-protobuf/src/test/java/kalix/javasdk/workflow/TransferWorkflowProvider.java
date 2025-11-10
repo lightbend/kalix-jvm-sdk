@@ -12,12 +12,13 @@ import kalix.javasdk.impl.workflow.WorkflowRouter;
 
 import java.util.function.Function;
 
-public class TransferWorkflowProvider implements WorkflowProvider<MoneyTransferApi.State, TransferWorkflow> {
-
+public class TransferWorkflowProvider
+    implements WorkflowProvider<MoneyTransferApi.State, TransferWorkflow> {
 
   private final Function<WorkflowContext, TransferWorkflow> workflowFactory;
 
-  public static TransferWorkflowProvider of(Function<WorkflowContext, TransferWorkflow> workflowFactory) {
+  public static TransferWorkflowProvider of(
+      Function<WorkflowContext, TransferWorkflow> workflowFactory) {
     return new TransferWorkflowProvider(workflowFactory);
   }
 
@@ -25,12 +26,10 @@ public class TransferWorkflowProvider implements WorkflowProvider<MoneyTransferA
     this.workflowFactory = workflowFactory;
   }
 
-
   @Override
   public String typeId() {
     return "transfer";
   }
-
 
   @Override
   public WorkflowOptions options() {
@@ -43,15 +42,15 @@ public class TransferWorkflowProvider implements WorkflowProvider<MoneyTransferA
   }
 
   @Override
-  public WorkflowRouter<MoneyTransferApi.State, TransferWorkflow> newRouter(WorkflowContext context) {
+  public WorkflowRouter<MoneyTransferApi.State, TransferWorkflow> newRouter(
+      WorkflowContext context) {
     return new TransferWorkflowRouter(workflowFactory.apply(context));
   }
 
   @Override
   public Descriptors.FileDescriptor[] additionalDescriptors() {
-    return new Descriptors.FileDescriptor[]{
-      MoneyTransferApi.getDescriptor(),
-      EmptyProto.getDescriptor()
+    return new Descriptors.FileDescriptor[] {
+      MoneyTransferApi.getDescriptor(), EmptyProto.getDescriptor()
     };
   }
 }

@@ -34,8 +34,8 @@ public abstract class AbstractWorkflow<S> {
   private boolean deleted = false;
 
   /**
-   * Returns the initial empty state object. This object will be passed into the
-   * command and step handlers, until a new state replaces it.
+   * Returns the initial empty state object. This object will be passed into the command and step
+   * handlers, until a new state replaces it.
    *
    * <p>Also known as "zero state" or "neutral state".
    *
@@ -54,34 +54,30 @@ public abstract class AbstractWorkflow<S> {
    * @throws IllegalStateException if accessed outside a handler method
    */
   protected final CommandContext commandContext() {
-    return commandContext.orElseThrow(() -> new IllegalStateException("CommandContext is only available when handling a command."));
+    return commandContext.orElseThrow(
+        () ->
+            new IllegalStateException("CommandContext is only available when handling a command."));
   }
 
-
-  /**
-   * INTERNAL API
-   */
+  /** INTERNAL API */
   public void _internalSetCommandContext(Optional<CommandContext> context) {
     commandContext = context;
   }
 
-  /**
-   * INTERNAL API
-   */
+  /** INTERNAL API */
   public void _internalSetTimerScheduler(Optional<TimerScheduler> timerScheduler) {
     this.timerScheduler = timerScheduler;
   }
 
-  /**
-   * Returns a {@link TimerScheduler} that can be used to schedule further in time.
-   */
+  /** Returns a {@link TimerScheduler} that can be used to schedule further in time. */
   public final TimerScheduler timers() {
-    return timerScheduler.orElseThrow(() -> new IllegalStateException("Timers can only be scheduled or cancelled when handling a command or running a step action."));
+    return timerScheduler.orElseThrow(
+        () ->
+            new IllegalStateException(
+                "Timers can only be scheduled or cancelled when handling a command or running a step action."));
   }
 
-  /**
-   * INTERNAL API
-   */
+  /** INTERNAL API */
   public void _internalSetCurrentState(S state, boolean deleted) {
     stateHasBeenSet = true;
     currentState = Optional.ofNullable(state);
@@ -104,20 +100,17 @@ public abstract class AbstractWorkflow<S> {
     // user may call this method inside a command handler and get a null because it's legal
     // to have emptyState set to null.
     if (stateHasBeenSet) return currentState.orElse(null);
-    else throw new IllegalStateException("Current state is only available when handling a command.");
+    else
+      throw new IllegalStateException("Current state is only available when handling a command.");
   }
 
-  /**
-   * Returns true if the entity has been deleted.
-   */
+  /** Returns true if the entity has been deleted. */
   @ApiMayChange
   protected boolean isDeleted() {
     return deleted;
   }
 
-  /**
-   * @return A workflow definition in a form of steps and transitions between them.
-   */
+  /** @return A workflow definition in a form of steps and transitions between them. */
   @ApiMayChange
   public abstract WorkflowDef<S> definition();
 
@@ -126,15 +119,18 @@ public abstract class AbstractWorkflow<S> {
   }
 
   /**
-   * An Effect is a description of what Kalix needs to do after the command is handled.
-   * You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
-   * behalf and ensure that any data that needs to be persisted will be persisted.
+   * An Effect is a description of what Kalix needs to do after the command is handled. You can
+   * think of it as a set of instructions you are passing to Kalix. Kalix will process the
+   * instructions on your behalf and ensure that any data that needs to be persisted will be
+   * persisted.
+   *
+   * <p>Each Kalix component defines its own effects, which are a set of predefined operations that
+   * match the capabilities of that component.
+   *
+   * <p>A Workflow Effect can either:
+   *
    * <p>
-   * Each Kalix component defines its own effects, which are a set of predefined
-   * operations that match the capabilities of that component.
-   * <p>
-   * A Workflow Effect can either:
-   * <p>
+   *
    * <ul>
    *   <li>update the state of the workflow
    *   <li>define the next step to be executed (transition)
@@ -144,17 +140,20 @@ public abstract class AbstractWorkflow<S> {
    *   <li>fail the step or reject a command by returning an error
    *   <li>reply to incoming commands
    * </ul>
+   *
    * <p>
+   *
    * <p>
-   *  @param <T> The type of the message that must be returned by this call.
+   *
+   * @param <T> The type of the message that must be returned by this call.
    */
   public interface Effect<T> {
 
     /**
      * Construct the effect that is returned by the command handler or a step transition.
-     * <p>
-     * The effect describes next processing actions, such as updating state, transition to another step
-     * and sending a reply.
+     *
+     * <p>The effect describes next processing actions, such as updating state, transition to
+     * another step and sending a reply.
      *
      * @param <S> The type of the state for this workflow.
      */
@@ -163,48 +162,46 @@ public abstract class AbstractWorkflow<S> {
       @ApiMayChange
       PersistenceEffectBuilder<S> updateState(S newState);
 
-      /**
-       * Pause the workflow execution and wait for an external input, e.g. via command handler.
-       */
+      /** Pause the workflow execution and wait for an external input, e.g. via command handler. */
       @ApiMayChange
       TransitionalEffect<Void> pause();
 
       /**
        * Defines the next step to which the workflow should transition to.
-       * <p>
-       * The step definition identified by {@code stepName} must have an input parameter of type I.
-       * In other words, the next step call (or asyncCall) must have been defined with a {@link Function} that
-       * accepts an input parameter of type I.
+       *
+       * <p>The step definition identified by {@code stepName} must have an input parameter of type
+       * I. In other words, the next step call (or asyncCall) must have been defined with a {@link
+       * Function} that accepts an input parameter of type I.
        *
        * @param stepName The step name that should be executed next.
-       * @param input    The input param for the next step.
+       * @param input The input param for the next step.
        */
       @ApiMayChange
       <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
        * Defines the next step to which the workflow should transition to.
-       * <p>
-       * The step definition identified by {@code stepName} must not have an input parameter.
-       * In other words, the next step call (or asyncCall) must have been defined with a {@link Supplier} function.
+       *
+       * <p>The step definition identified by {@code stepName} must not have an input parameter. In
+       * other words, the next step call (or asyncCall) must have been defined with a {@link
+       * Supplier} function.
        *
        * @param stepName The step name that should be executed next.
        */
       @ApiMayChange
       TransitionalEffect<Void> transitionTo(String stepName);
 
-
       /**
-       * Finish the workflow execution.
-       * After transition to {@code end}, no more transitions are allowed.
+       * Finish the workflow execution. After transition to {@code end}, no more transitions are
+       * allowed.
        */
       @ApiMayChange
       TransitionalEffect<Void> end();
 
       /**
-       * Finish and delete the workflow execution.
-       * After transition to {@code delete}, no more transitions are allowed.
-       * The actual workflow state deletion is done with a configurable delay to allow downstream consumers to observe that fact.
+       * Finish and delete the workflow execution. After transition to {@code delete}, no more
+       * transitions are allowed. The actual workflow state deletion is done with a configurable
+       * delay to allow downstream consumers to observe that fact.
        */
       @ApiMayChange
       TransitionalEffect<Void> delete();
@@ -213,18 +210,17 @@ public abstract class AbstractWorkflow<S> {
        * Create a message reply.
        *
        * @param replyMessage The payload of the reply.
-       * @param <R>          The type of the message that must be returned by this call.
+       * @param <R> The type of the message that must be returned by this call.
        * @return A message reply.
        */
       <R> Effect<R> reply(R replyMessage);
 
-
       /**
        * Reply after for example <code>updateState</code>.
        *
-       * @param message  The payload of the reply.
+       * @param message The payload of the reply.
        * @param metadata The metadata for the message.
-       * @param <R>      The type of the message that must be returned by this call.
+       * @param <R> The type of the message that must be returned by this call.
        * @return A message reply.
        */
       <R> Effect<R> reply(R message, Metadata metadata);
@@ -233,7 +229,7 @@ public abstract class AbstractWorkflow<S> {
        * Create an error reply.
        *
        * @param description The description of the error.
-       * @param <R>         The type of the message that must be returned by this call.
+       * @param <R> The type of the message that must be returned by this call.
        * @return An error reply.
        */
       <R> ErrorEffect<R> error(String description);
@@ -242,8 +238,8 @@ public abstract class AbstractWorkflow<S> {
        * Create an error reply with a gRPC status code.
        *
        * @param description The description of the error.
-       * @param statusCode  A custom gRPC status code.
-       * @param <R>         The type of the message that must be returned by this call.
+       * @param statusCode A custom gRPC status code.
+       * @param <R> The type of the message that must be returned by this call.
        * @return An error reply.
        */
       <R> ErrorEffect<R> error(String description, Status.Code statusCode);
@@ -251,20 +247,19 @@ public abstract class AbstractWorkflow<S> {
       /**
        * Create an error reply with an HTTP status code.
        *
-       * @param description   The description of the error.
+       * @param description The description of the error.
        * @param httpErrorCode A custom Kalix status code to represent the error.
-       * @param <R>           The type of the message that must be returned by this call.
+       * @param <R> The type of the message that must be returned by this call.
        * @return An error reply.
        */
       <R> ErrorEffect<R> error(String description, StatusCode.ErrorCode httpErrorCode);
     }
 
-    interface ErrorEffect<T> extends Effect<T> {
-    }
+    interface ErrorEffect<T> extends Effect<T> {}
 
     /**
-     * A workflow effect type that contains information about the transition to the next step.
-     * This could be also a special transition to pause or end the workflow.
+     * A workflow effect type that contains information about the transition to the next step. This
+     * could be also a special transition to pause or end the workflow.
      */
     interface TransitionalEffect<T> extends Effect<T> {
 
@@ -272,7 +267,7 @@ public abstract class AbstractWorkflow<S> {
        * Reply after for example <code>updateState</code>.
        *
        * @param message The payload of the reply.
-       * @param <R>     The type of the message that must be returned by this call.
+       * @param <R> The type of the message that must be returned by this call.
        * @return A message reply.
        */
       <R> Effect<R> thenReply(R message);
@@ -280,9 +275,9 @@ public abstract class AbstractWorkflow<S> {
       /**
        * Reply after for example <code>updateState</code>.
        *
-       * @param message  The payload of the reply.
+       * @param message The payload of the reply.
        * @param metadata The metadata for the message.
-       * @param <R>      The type of the message that must be returned by this call.
+       * @param <R> The type of the message that must be returned by this call.
        * @return A message reply.
        */
       <R> Effect<R> thenReply(R message, Metadata metadata);
@@ -290,30 +285,29 @@ public abstract class AbstractWorkflow<S> {
 
     interface PersistenceEffectBuilder<T> {
 
-      /**
-       * Pause the workflow execution and wait for an external input, e.g. via command handler.
-       */
+      /** Pause the workflow execution and wait for an external input, e.g. via command handler. */
       @ApiMayChange
       TransitionalEffect<Void> pause();
 
       /**
        * Defines the next step to which the workflow should transition to.
-       * <p>
-       * The step definition identified by {@code stepName} must have an input parameter of type I.
-       * In other words, the next step call (or asyncCall) must have been defined with a {@link Function} that
-       * accepts an input parameter of type I.
+       *
+       * <p>The step definition identified by {@code stepName} must have an input parameter of type
+       * I. In other words, the next step call (or asyncCall) must have been defined with a {@link
+       * Function} that accepts an input parameter of type I.
        *
        * @param stepName The step name that should be executed next.
-       * @param input    The input param for the next step.
+       * @param input The input param for the next step.
        */
       @ApiMayChange
       <I> TransitionalEffect<Void> transitionTo(String stepName, I input);
 
       /**
        * Defines the next step to which the workflow should transition to.
-       * <p>
-       * The step definition identified by {@code stepName} must not have an input parameter.
-       * In other words, the next step call (or asyncCall) must have been defined with a {@link Supplier}.
+       *
+       * <p>The step definition identified by {@code stepName} must not have an input parameter. In
+       * other words, the next step call (or asyncCall) must have been defined with a {@link
+       * Supplier}.
        *
        * @param stepName The step name that should be executed next.
        */
@@ -321,29 +315,27 @@ public abstract class AbstractWorkflow<S> {
       TransitionalEffect<Void> transitionTo(String stepName);
 
       /**
-       * Finish the workflow execution.
-       * After transition to {@code end}, no more transitions are allowed.
+       * Finish the workflow execution. After transition to {@code end}, no more transitions are
+       * allowed.
        */
       @ApiMayChange
       TransitionalEffect<Void> end();
 
       @ApiMayChange
       /**
-       * Finish and delete the workflow execution.
-       * After transition to {@code delete}, no more transitions are allowed.
-       * The actual workflow state deletion is done with a configurable delay to allow downstream consumers to observe that fact.
+       * Finish and delete the workflow execution. After transition to {@code delete}, no more
+       * transitions are allowed. The actual workflow state deletion is done with a configurable
+       * delay to allow downstream consumers to observe that fact.
        */
       TransitionalEffect<Void> delete();
     }
-
-
   }
 
   public static class WorkflowDef<S> {
 
-    final private List<Step> steps = new ArrayList<>();
-    final private List<StepConfig> stepConfigs = new ArrayList<>();
-    final private Set<String> uniqueNames = new HashSet<>();
+    private final List<Step> steps = new ArrayList<>();
+    private final List<StepConfig> stepConfigs = new ArrayList<>();
+    private final Set<String> uniqueNames = new HashSet<>();
     private Optional<Duration> workflowTimeout = Optional.empty();
     private Optional<String> failoverStepName = Optional.empty();
     private Optional<Object> failoverStepInput = Optional.empty();
@@ -351,9 +343,7 @@ public abstract class AbstractWorkflow<S> {
     private Optional<Duration> stepTimeout = Optional.empty();
     private Optional<RecoverStrategy<?>> stepRecoverStrategy = Optional.empty();
 
-
-    private WorkflowDef() {
-    }
+    private WorkflowDef() {}
 
     public Optional<Step> findByName(String name) {
       return steps.stream().filter(s -> s.name().equals(name)).findFirst();
@@ -366,14 +356,19 @@ public abstract class AbstractWorkflow<S> {
      */
     public WorkflowDef<S> addStep(Step step) {
       addStepWithValidation(step);
-      step.timeout().ifPresent(timeout -> stepConfigs.add(new StepConfig(step.name(), Optional.of(timeout), Optional.empty())));
+      step.timeout()
+          .ifPresent(
+              timeout ->
+                  stepConfigs.add(
+                      new StepConfig(step.name(), Optional.of(timeout), Optional.empty())));
       return this;
     }
 
     /**
-     * Add step to workflow definition with a dedicated {@link RecoverStrategy}. Step name must be unique.
+     * Add step to workflow definition with a dedicated {@link RecoverStrategy}. Step name must be
+     * unique.
      *
-     * @param step            A workflow step
+     * @param step A workflow step
      * @param recoverStrategy A Step recovery strategy
      */
     public WorkflowDef<S> addStep(Step step, RecoverStrategy<?> recoverStrategy) {
@@ -384,15 +379,16 @@ public abstract class AbstractWorkflow<S> {
 
     private void addStepWithValidation(Step step) {
       if (uniqueNames.contains(step.name()))
-        throw new IllegalArgumentException("Name '" + step.name() + "' is already in use by another step in this workflow");
+        throw new IllegalArgumentException(
+            "Name '" + step.name() + "' is already in use by another step in this workflow");
 
       this.steps.add(step);
       this.uniqueNames.add(step.name());
     }
 
-
     /**
-     * Define a timeout for the duration of the entire workflow. When the timeout expires, the workflow is finished and no transitions are allowed.
+     * Define a timeout for the duration of the entire workflow. When the timeout expires, the
+     * workflow is finished and no transitions are allowed.
      *
      * @param timeout Timeout duration
      */
@@ -402,9 +398,10 @@ public abstract class AbstractWorkflow<S> {
     }
 
     /**
-     * Define a failover step name after workflow timeout. Note that recover strategy for this step can set only the number of max retries.
+     * Define a failover step name after workflow timeout. Note that recover strategy for this step
+     * can set only the number of max retries.
      *
-     * @param stepName   A failover step name
+     * @param stepName A failover step name
      * @param maxRetries A recovery strategy for failover step.
      */
     public WorkflowDef<S> failoverTo(String stepName, MaxRetries maxRetries) {
@@ -414,10 +411,11 @@ public abstract class AbstractWorkflow<S> {
     }
 
     /**
-     * Define a failover step name after workflow timeout. Note that recover strategy for this step can set only the number of max retries.
+     * Define a failover step name after workflow timeout. Note that recover strategy for this step
+     * can set only the number of max retries.
      *
-     * @param stepName   A failover step name
-     * @param stepInput  A failover step input
+     * @param stepName A failover step name
+     * @param stepInput A failover step input
      * @param maxRetries A recovery strategy for failover step.
      */
     public <I> WorkflowDef<S> failoverTo(String stepName, I stepInput, MaxRetries maxRetries) {
@@ -428,17 +426,15 @@ public abstract class AbstractWorkflow<S> {
     }
 
     /**
-     * Define a default step timeout. If not set, a default value of 5 seconds is used.
-     * Can be overridden with step configuration.
+     * Define a default step timeout. If not set, a default value of 5 seconds is used. Can be
+     * overridden with step configuration.
      */
     public WorkflowDef<S> defaultStepTimeout(Duration timeout) {
       this.stepTimeout = Optional.of(timeout);
       return this;
     }
 
-    /**
-     * Define a default step recovery strategy. Can be overridden with step configuration.
-     */
+    /** Define a default step recovery strategy. Can be overridden with step configuration. */
     public WorkflowDef<S> defaultStepRecoverStrategy(RecoverStrategy recoverStrategy) {
       this.stepRecoverStrategy = Optional.of(recoverStrategy);
       return this;
@@ -477,34 +473,32 @@ public abstract class AbstractWorkflow<S> {
     }
   }
 
-
   public WorkflowDef<S> workflow() {
     return new WorkflowDef<>();
   }
-
 
   public interface Step {
     String name();
 
     Optional<Duration> timeout();
-
-
   }
 
-  public static class CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> implements Step {
+  public static class CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput>
+      implements Step {
 
-    final private String _name;
-    final public Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
-    final public Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
-    final public Class<CallInput> callInputClass;
-    final public Class<DefCallOutput> transitionInputClass;
+    private final String _name;
+    public final Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc;
+    public final Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
+    public final Class<CallInput> callInputClass;
+    public final Class<DefCallOutput> transitionInputClass;
     private Optional<Duration> _timeout = Optional.empty();
 
-    public CallStep(String name,
-                    Class<CallInput> callInputClass,
-                    Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
-                    Class<DefCallOutput> transitionInputClass,
-                    Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+    public CallStep(
+        String name,
+        Class<CallInput> callInputClass,
+        Function<CallInput, DeferredCall<DefCallInput, DefCallOutput>> callFunc,
+        Class<DefCallOutput> transitionInputClass,
+        Function<DefCallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
       this.callInputClass = callInputClass;
       this.callFunc = callFunc;
@@ -522,10 +516,9 @@ public abstract class AbstractWorkflow<S> {
       return this._timeout;
     }
 
-    /**
-     * Define a step timeout.
-     */
-    public CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> timeout(Duration timeout) {
+    /** Define a step timeout. */
+    public CallStep<CallInput, DefCallInput, DefCallOutput, FailoverInput> timeout(
+        Duration timeout) {
       this._timeout = Optional.of(timeout);
       return this;
     }
@@ -533,18 +526,19 @@ public abstract class AbstractWorkflow<S> {
 
   public static class AsyncCallStep<CallInput, CallOutput, FailoverInput> implements Step {
 
-    final private String _name;
-    final public Function<CallInput, CompletionStage<CallOutput>> callFunc;
-    final public Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
-    final public Class<CallInput> callInputClass;
-    final public Class<CallOutput> transitionInputClass;
+    private final String _name;
+    public final Function<CallInput, CompletionStage<CallOutput>> callFunc;
+    public final Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc;
+    public final Class<CallInput> callInputClass;
+    public final Class<CallOutput> transitionInputClass;
     private Optional<Duration> _timeout = Optional.empty();
 
-    public AsyncCallStep(String name,
-                         Class<CallInput> callInputClass,
-                         Function<CallInput, CompletionStage<CallOutput>> callFunc,
-                         Class<CallOutput> transitionInputClass,
-                         Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
+    public AsyncCallStep(
+        String name,
+        Class<CallInput> callInputClass,
+        Function<CallInput, CompletionStage<CallOutput>> callFunc,
+        Class<CallOutput> transitionInputClass,
+        Function<CallOutput, Effect.TransitionalEffect<Void>> transitionFunc) {
       _name = name;
       this.callInputClass = callInputClass;
       this.callFunc = callFunc;
@@ -562,9 +556,7 @@ public abstract class AbstractWorkflow<S> {
       return this._timeout;
     }
 
-    /**
-     * Define a step timeout.
-     */
+    /** Define a step timeout. */
     public AsyncCallStep<CallInput, CallOutput, FailoverInput> timeout(Duration timeout) {
       this._timeout = Optional.of(timeout);
       return this;
@@ -576,7 +568,8 @@ public abstract class AbstractWorkflow<S> {
     public final Optional<Duration> timeout;
     public final Optional<RecoverStrategy<?>> recoverStrategy;
 
-    public StepConfig(String stepName, Optional<Duration> timeout, Optional<RecoverStrategy<?>> recoverStrategy) {
+    public StepConfig(
+        String stepName, Optional<Duration> timeout, Optional<RecoverStrategy<?>> recoverStrategy) {
       this.stepName = stepName;
       this.timeout = timeout;
       this.recoverStrategy = recoverStrategy;
@@ -605,9 +598,7 @@ public abstract class AbstractWorkflow<S> {
       this.failoverStepInput = failoverStepInput;
     }
 
-    /**
-     * Retry strategy without failover configuration
-     */
+    /** Retry strategy without failover configuration */
     public static class MaxRetries {
       public final int maxRetries;
 
@@ -615,16 +606,12 @@ public abstract class AbstractWorkflow<S> {
         this.maxRetries = maxRetries;
       }
 
-      /**
-       * Once max retries is exceeded, transition to a given step name.
-       */
+      /** Once max retries is exceeded, transition to a given step name. */
       public RecoverStrategy<?> failoverTo(String stepName) {
         return new RecoverStrategy<>(maxRetries, stepName, Optional.<Void>empty());
       }
 
-      /**
-       * Once max retries is exceeded, transition to a given step name with the input parameter.
-       */
+      /** Once max retries is exceeded, transition to a given step name with the input parameter. */
       public <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
         return new RecoverStrategy<>(maxRetries, stepName, Optional.of(input));
       }
@@ -635,25 +622,24 @@ public abstract class AbstractWorkflow<S> {
     }
 
     /**
-     * Set the number of retires for a failed step, <code>maxRetries</code> equals 0 means that the step won't retry in case of failure.
+     * Set the number of retires for a failed step, <code>maxRetries</code> equals 0 means that the
+     * step won't retry in case of failure.
      */
     public static MaxRetries maxRetries(int maxRetries) {
       return new MaxRetries(maxRetries);
     }
 
-    /**
-     * In case of a step failure don't retry but transition to a given step name.
-     */
+    /** In case of a step failure don't retry but transition to a given step name. */
     public static RecoverStrategy<?> failoverTo(String stepName) {
       return new RecoverStrategy<>(0, stepName, Optional.<Void>empty());
     }
 
     /**
-     * In case of a step failure don't retry but transition to a given step name with the input parameter.
+     * In case of a step failure don't retry but transition to a given step name with the input
+     * parameter.
      */
     public static <T> RecoverStrategy<T> failoverTo(String stepName, T input) {
       return new RecoverStrategy<>(0, stepName, Optional.of(input));
     }
   }
-
 }

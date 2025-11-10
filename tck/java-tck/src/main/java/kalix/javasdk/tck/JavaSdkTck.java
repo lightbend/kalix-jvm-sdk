@@ -32,8 +32,7 @@ public final class JavaSdkTck {
           .register(ActionTwoActionProvider.of(ActionTwoImpl::new))
           .register(ValueEntityTckModelEntityProvider.of(ValueEntityTckModelEntity::new))
           .register(ValueEntityTwoEntityProvider.of(ValueEntityTwoEntity::new))
-          .register(
-              ValueEntityConfiguredEntityProvider.of(ValueEntityConfiguredEntity::new))
+          .register(ValueEntityConfiguredEntityProvider.of(ValueEntityConfiguredEntity::new))
           .register(ReplicatedEntityTckModelEntityProvider.of(ReplicatedEntityTckModelEntity::new))
           .register(ReplicatedEntityTwoEntityProvider.of(ReplicatedEntityTwoEntity::new))
           .register(
@@ -49,8 +48,7 @@ public final class JavaSdkTck {
               EventSourcedTckModelEntityProvider.of(EventSourcedTckModelEntity::new)
                   .withOptions(EventSourcedEntityOptions.defaults().withSnapshotEvery(5)))
           .register(EventSourcedTwoEntityProvider.of(EventSourcedTwoEntity::new))
-          .register(
-              EventSourcedConfiguredEntityProvider.of(EventSourcedConfiguredEntity::new))
+          .register(EventSourcedConfiguredEntityProvider.of(EventSourcedConfiguredEntity::new))
           .register(LocalPersistenceSubscriberProvider.of(LocalPersistenceSubscriber::new))
           .register(EventSourcedEntityOneProvider.of(EventSourcedEntityOne::new))
           .register(EventSourcedEntityTwoProvider.of(EventSourcedEntityTwo::new))

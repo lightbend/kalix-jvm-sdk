@@ -76,8 +76,7 @@ public final class JsonSupport {
     return objectMapper;
   }
 
-  private JsonSupport() {
-  }
+  private JsonSupport() {}
 
   /**
    * Encode the given value as JSON using Jackson and put the encoded string as bytes in a protobuf
@@ -127,8 +126,8 @@ public final class JsonSupport {
    * the JSON string as bytes as value and a type URL starting with "json.kalix.io/".
    *
    * @param valueClass The type of class to deserialize the object to, the class must have the
-   *                   proper Jackson annotations for deserialization.
-   * @param any        The protobuf Any object to deserialize.
+   *     proper Jackson annotations for deserialization.
+   * @param any The protobuf Any object to deserialize.
    * @return The decoded object
    * @throws IllegalArgumentException if the given value cannot be decoded to a T
    */
@@ -139,15 +138,15 @@ public final class JsonSupport {
               + any.getTypeUrl()
               + "] cannot be decoded as JSON, must start with ["
               + KALIX_JSON
-              + "] or [" + AnySupport.AkkaJsonTypeUrlPrefix() + "]");
+              + "] or ["
+              + AnySupport.AkkaJsonTypeUrlPrefix()
+              + "]");
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
         if (valueClass.getAnnotation(Migration.class) != null) {
-          JsonMigration migration = valueClass.getAnnotation(Migration.class)
-              .value()
-              .getConstructor()
-              .newInstance();
+          JsonMigration migration =
+              valueClass.getAnnotation(Migration.class).value().getConstructor().newInstance();
           int fromVersion = parseVersion(any.getTypeUrl());
           int currentVersion = migration.currentVersion();
           int supportedForwardVersion = migration.supportedForwardVersion();
@@ -158,16 +157,26 @@ public final class JsonSupport {
           } else if (fromVersion <= supportedForwardVersion) {
             return migrate(valueClass, decodedBytes, fromVersion, migration);
           } else {
-            throw new IllegalStateException("Migration version " + supportedForwardVersion + " is " +
-                "behind version " + fromVersion + " of deserialized type [" + valueClass.getName() + "]");
+            throw new IllegalStateException(
+                "Migration version "
+                    + supportedForwardVersion
+                    + " is "
+                    + "behind version "
+                    + fromVersion
+                    + " of deserialized type ["
+                    + valueClass.getName()
+                    + "]");
           }
         } else {
           return parseBytes(decodedBytes.toByteArray(), valueClass);
         }
       } catch (JsonProcessingException e) {
         throw jsonProcessingException(valueClass, any, e);
-      } catch (IOException | NoSuchMethodException | InstantiationException | IllegalAccessException |
-               InvocationTargetException e) {
+      } catch (IOException
+          | NoSuchMethodException
+          | InstantiationException
+          | IllegalAccessException
+          | InvocationTargetException e) {
         throw genericDecodeException(valueClass, any, e);
       }
     }
@@ -177,7 +186,8 @@ public final class JsonSupport {
     return objectMapper.readValue(bytes, valueClass);
   }
 
-  private static <T> IllegalArgumentException jsonProcessingException(Class<T> valueClass, Any any, JsonProcessingException e) {
+  private static <T> IllegalArgumentException jsonProcessingException(
+      Class<T> valueClass, Any any, JsonProcessingException e) {
     return new IllegalArgumentException(
         "JSON with type url ["
             + any.getTypeUrl()
@@ -187,7 +197,8 @@ public final class JsonSupport {
         e);
   }
 
-  private static <T> IllegalArgumentException genericDecodeException(Class<T> valueClass, Any any, Exception e) {
+  private static <T> IllegalArgumentException genericDecodeException(
+      Class<T> valueClass, Any any, Exception e) {
     return new IllegalArgumentException(
         "JSON with type url ["
             + any.getTypeUrl()
@@ -197,7 +208,9 @@ public final class JsonSupport {
         e);
   }
 
-  private static <T> T migrate(Class<T> valueClass, ByteString decodedBytes, int fromVersion, JsonMigration jsonMigration) throws IOException {
+  private static <T> T migrate(
+      Class<T> valueClass, ByteString decodedBytes, int fromVersion, JsonMigration jsonMigration)
+      throws IOException {
     JsonNode jsonNode = objectMapper.readTree(decodedBytes.toByteArray());
     JsonNode newJsonNode = jsonMigration.transform(fromVersion, jsonNode);
     return objectMapper.treeToValue(newJsonNode, valueClass);
@@ -213,7 +226,8 @@ public final class JsonSupport {
     }
   }
 
-  public static <T, C extends Collection<T>> C decodeJsonCollection(Class<T> valueClass, Class<C> collectionType, Any any) {
+  public static <T, C extends Collection<T>> C decodeJsonCollection(
+      Class<T> valueClass, Class<C> collectionType, Any any) {
     if (!(AnySupport.isJsonTypeUrl(any.getTypeUrl()))) {
       throw new IllegalArgumentException(
           "Protobuf bytes with type url ["
@@ -226,7 +240,8 @@ public final class JsonSupport {
     } else {
       try {
         ByteString decodedBytes = ByteStringEncoding.decodePrimitiveBytes(any.getValue());
-        var typeRef = objectMapper.getTypeFactory().constructCollectionType(collectionType, valueClass);
+        var typeRef =
+            objectMapper.getTypeFactory().constructCollectionType(collectionType, valueClass);
         return objectMapper.readValue(decodedBytes.toByteArray(), typeRef);
       } catch (JsonProcessingException e) {
         throw jsonProcessingException(valueClass, any, e);
@@ -256,7 +271,8 @@ public final class JsonSupport {
 class DoneSerializer extends JsonSerializer<Done> {
 
   @Override
-  public void serialize(Done value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+  public void serialize(Done value, JsonGenerator gen, SerializerProvider serializers)
+      throws IOException {
     gen.writeStartObject();
     gen.writeEndObject();
   }
@@ -269,7 +285,8 @@ class DoneDeserializer extends JsonDeserializer<Done> {
     if (p.currentToken() == JsonToken.START_OBJECT && p.nextToken() == JsonToken.END_OBJECT) {
       return Done.getInstance();
     } else {
-      throw JsonMappingException.from(ctxt, "Cannot deserialize Done class, expecting empty object '{}'");
+      throw JsonMappingException.from(
+          ctxt, "Cannot deserialize Done class, expecting empty object '{}'");
     }
   }
 }
