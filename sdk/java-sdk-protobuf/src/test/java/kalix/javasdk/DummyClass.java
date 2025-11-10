@@ -29,7 +29,9 @@ public class DummyClass {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     DummyClass that = (DummyClass) o;
-    return intValue == that.intValue && Objects.equals(stringValue, that.stringValue) && Objects.equals(optionalStringValue, that.optionalStringValue);
+    return intValue == that.intValue
+        && Objects.equals(stringValue, that.stringValue)
+        && Objects.equals(optionalStringValue, that.optionalStringValue);
   }
 
   @Override

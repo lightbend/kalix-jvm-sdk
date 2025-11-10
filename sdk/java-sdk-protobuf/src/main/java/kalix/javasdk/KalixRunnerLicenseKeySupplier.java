@@ -9,14 +9,11 @@ import com.typesafe.config.Config;
 
 import java.util.function.Supplier;
 
-/**
- * INTERNAL API: Written in Java to be package private
- */
+/** INTERNAL API: Written in Java to be package private */
 class KalixRunnerLicenseKeySupplier implements LicenseKeySupplier {
 
   @Override
-  public void implementing_this_is_a_violation_of_the_akka_license() {
-  }
+  public void implementing_this_is_a_violation_of_the_akka_license() {}
 
   @Override
   public String get(Config config) {
@@ -31,6 +28,4 @@ class KalixRunnerLicenseKeySupplier implements LicenseKeySupplier {
       LicenseKeySupplier.instance().set(null); // clear ThreadLocal
     }
   }
-
-
 }

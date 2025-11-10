@@ -17,12 +17,10 @@ import static io.grpc.Status.Code.INVALID_ARGUMENT;
 
 public class TransferWorkflow extends ProtoWorkflow<MoneyTransferApi.State> {
 
-
   @Override
   public MoneyTransferApi.State emptyState() {
     return MoneyTransferApi.State.getDefaultInstance();
   }
-
 
   private final String withdrawStepName = "withdraw";
   private final String depositStepName = "deposit";
@@ -32,56 +30,51 @@ public class TransferWorkflow extends ProtoWorkflow<MoneyTransferApi.State> {
   public WorkflowDef<MoneyTransferApi.State> definition() {
 
     var remoteCall =
-      step(remoteCallStepName)
-        // just a dummy 'remote' call to exercise the API
-        .asyncCall(Empty.class, start ->
-          CompletableFuture.completedFuture(Empty.getDefaultInstance()))
-        .andThen(Empty.class, i -> {
-          var state = currentState().toBuilder().setLog("remote-call").build();
-          var withdrawInput =
-            MoneyTransferApi.Withdraw
-              .newBuilder()
-              .setAccount(state.getFrom())
-              .setAmount(state.getAmount())
-              .build();
+        step(remoteCallStepName)
+            // just a dummy 'remote' call to exercise the API
+            .asyncCall(
+                Empty.class, start -> CompletableFuture.completedFuture(Empty.getDefaultInstance()))
+            .andThen(
+                Empty.class,
+                i -> {
+                  var state = currentState().toBuilder().setLog("remote-call").build();
+                  var withdrawInput =
+                      MoneyTransferApi.Withdraw.newBuilder()
+                          .setAccount(state.getFrom())
+                          .setAmount(state.getAmount())
+                          .build();
 
-          return effects()
-            .updateState(state)
-            .transitionTo(withdrawStepName, withdrawInput);
-        });
-
+                  return effects().updateState(state).transitionTo(withdrawStepName, withdrawInput);
+                });
 
     var withdraw =
-      step(withdrawStepName)
-        .call(MoneyTransferApi.Withdraw.class, cmd -> deferredCall(cmd, Empty.class))
-        .andThen(Empty.class, i -> {
-          var state = currentState().toBuilder().setLog("withdrawn").build();
+        step(withdrawStepName)
+            .call(MoneyTransferApi.Withdraw.class, cmd -> deferredCall(cmd, Empty.class))
+            .andThen(
+                Empty.class,
+                i -> {
+                  var state = currentState().toBuilder().setLog("withdrawn").build();
 
-          var depositInput =
-            MoneyTransferApi.Deposit
-              .newBuilder()
-              .setAccount(state.getTo())
-              .setAmount(state.getAmount())
-              .build();
+                  var depositInput =
+                      MoneyTransferApi.Deposit.newBuilder()
+                          .setAccount(state.getTo())
+                          .setAmount(state.getAmount())
+                          .build();
 
-          return effects()
-            .updateState(state)
-            .transitionTo(depositStepName, depositInput);
-        });
-
+                  return effects().updateState(state).transitionTo(depositStepName, depositInput);
+                });
 
     var deposit =
-      step(depositStepName)
-        .call(MoneyTransferApi.Deposit.class, cmd -> deferredCall(cmd, Empty.class))
-        .andThen(Empty.class, __ -> {
-          var state = currentState().toBuilder().setLog("deposited").build();
-          return effects().updateState(state).end();
-        });
+        step(depositStepName)
+            .call(MoneyTransferApi.Deposit.class, cmd -> deferredCall(cmd, Empty.class))
+            .andThen(
+                Empty.class,
+                __ -> {
+                  var state = currentState().toBuilder().setLog("deposited").build();
+                  return effects().updateState(state).end();
+                });
 
-    return workflow()
-      .addStep(remoteCall)
-      .addStep(withdraw)
-      .addStep(deposit);
+    return workflow().addStep(remoteCall).addStep(withdraw).addStep(deposit);
   }
 
   public Effect<Empty> start(MoneyTransferApi.Transfer transfer) {
@@ -91,44 +84,39 @@ public class TransferWorkflow extends ProtoWorkflow<MoneyTransferApi.State> {
     else {
 
       var newState =
-        MoneyTransferApi.State.newBuilder()
-          .setTo(transfer.getTo())
-          .setFrom(transfer.getFrom())
-          .setAmount(transfer.getAmount())
-          .setLog("started")
-          .build();
+          MoneyTransferApi.State.newBuilder()
+              .setTo(transfer.getTo())
+              .setFrom(transfer.getFrom())
+              .setAmount(transfer.getAmount())
+              .setLog("started")
+              .build();
 
-      return effects()
-        .updateState(newState)
-        .pause()
-        .thenReply(Empty.getDefaultInstance());
+      return effects().updateState(newState).pause().thenReply(Empty.getDefaultInstance());
     }
   }
 
   public Effect<Empty> singOff(MoneyTransferApi.Owner signOff) {
 
     var newState =
-      currentState().toBuilder()
-        .addSignOffs(signOff.getName())
-        .setLog("sign-off: " + signOff.getName())
-        .build();
+        currentState()
+            .toBuilder()
+            .addSignOffs(signOff.getName())
+            .setLog("sign-off: " + signOff.getName())
+            .build();
 
     var effect = effects().updateState(newState);
 
     if (newState.getSignOffsList().size() < 2)
-      return effect
-        .pause()
-        .thenReply(Empty.getDefaultInstance());
+      return effect.pause().thenReply(Empty.getDefaultInstance());
     else {
       return effect
-        .transitionTo(remoteCallStepName, Empty.getDefaultInstance())
-        .thenReply(Empty.getDefaultInstance());}
+          .transitionTo(remoteCallStepName, Empty.getDefaultInstance())
+          .thenReply(Empty.getDefaultInstance());
+    }
   }
 
   public Effect<Empty> delete(Empty empty) {
-    return effects()
-      .delete()
-      .thenReply(Empty.getDefaultInstance());
+    return effects().delete().thenReply(Empty.getDefaultInstance());
   }
 
   /* to test what happens when a command throws an exception */
@@ -139,13 +127,12 @@ public class TransferWorkflow extends ProtoWorkflow<MoneyTransferApi.State> {
   // fake a deferred call
   private <I, O> DeferredCall<I, O> deferredCall(I input, Class<O> cls) {
     return new GrpcDeferredCall<>(
-      input,
-      MetadataImpl.Empty(),
-      "fake.Service",
-      "FakeMethod",
+        input,
+        MetadataImpl.Empty(),
+        "fake.Service",
+        "FakeMethod",
         (Metadata metadata) -> {
           throw new RuntimeException("Fake DeferredCall can't be executed");
-        }
-    );
+        });
   }
 }

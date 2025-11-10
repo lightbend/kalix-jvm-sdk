@@ -8,7 +8,6 @@ import kalix.javasdk.impl.ComponentOptions;
 /** Options used for configuring an entity. */
 public interface EntityOptions extends ComponentOptions {
 
-
   /**
    * @return the headers requested to be forwarded as metadata (cannot be mutated, use
    *     withForwardHeaders)

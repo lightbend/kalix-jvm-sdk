@@ -18,18 +18,20 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Value Entities persist their state on every change. You can think of them as a Key-Value entity where
- * the key is the entity id and the value is the state of the entity.
- * <p>
- * Kalix Value Entities have nothing in common with the domain-driven design concept of Value Objects.
- * The Value in the name refers to the direct modification of the entity's state.
+ * Value Entities persist their state on every change. You can think of them as a Key-Value entity
+ * where the key is the entity id and the value is the state of the entity.
  *
- * When implementing a Value Entity, you first define what will be its internal state (your domain model),
- * and the commands it will handle (mutation requests).
+ * <p>Kalix Value Entities have nothing in common with the domain-driven design concept of Value
+ * Objects. The Value in the name refers to the direct modification of the entity's state.
+ *
+ * <p>When implementing a Value Entity, you first define what will be its internal state (your
+ * domain model), and the commands it will handle (mutation requests).
+ *
+ * <p>Each command is handled by a command handler. Command handlers are methods returning an {@link
+ * Effect}. When handling a command, you use the Effect API to:
+ *
  * <p>
- * Each command is handled by a command handler. Command handlers are methods returning an {@link Effect}.
- * When handling a command, you use the Effect API to:
- * <p>
+ *
  * <ul>
  *   <li>update the entity state and send a reply to the caller
  *   <li>directly reply to the caller if the command is not requesting any state change
@@ -37,7 +39,8 @@ import java.util.Optional;
  *   <li>instruct Kalix to delete the entity
  * </ul>
  *
- * @param <S> The type of the state for this entity. */
+ * @param <S> The type of the state for this entity.
+ */
 public abstract class ValueEntity<S> {
 
   private Optional<CommandContext> commandContext = Optional.empty();
@@ -108,15 +111,18 @@ public abstract class ValueEntity<S> {
   }
 
   /**
-   * An Effect is a description of what Kalix needs to do after the command is handled.
-   * You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
-   * behalf and ensure that any data that needs to be persisted will be persisted.
+   * An Effect is a description of what Kalix needs to do after the command is handled. You can
+   * think of it as a set of instructions you are passing to Kalix. Kalix will process the
+   * instructions on your behalf and ensure that any data that needs to be persisted will be
+   * persisted.
+   *
+   * <p>Each Kalix component defines its own effects, which are a set of predefined operations that
+   * match the capabilities of that component.
+   *
+   * <p>A ValueEntity Effect can either:
+   *
    * <p>
-   * Each Kalix component defines its own effects, which are a set of predefined
-   * operations that match the capabilities of that component.
-   * <p>
-   * A ValueEntity Effect can either:
-   * <p>
+   *
    * <ul>
    *   <li>update the entity state and send a reply to the caller
    *   <li>directly reply to the caller if the command is not requesting any state change
@@ -138,9 +144,7 @@ public abstract class ValueEntity<S> {
 
       OnSuccessBuilder<S> updateState(S newState);
 
-      /**
-       * Delete the entity. No additional updates are allowed afterwards.
-       */
+      /** Delete the entity. No additional updates are allowed afterwards. */
       OnSuccessBuilder<S> deleteEntity();
 
       /**
@@ -199,9 +203,8 @@ public abstract class ValueEntity<S> {
       <T> Effect<T> error(String description, Status.Code grpcErrorCode);
 
       /**
-       * Create an error reply with a custom status code.
-       * This status code will be translated to an HTTP or gRPC code
-       * depending on the type of service being exposed.
+       * Create an error reply with a custom status code. This status code will be translated to an
+       * HTTP or gRPC code depending on the type of service being exposed.
        *
        * @param description The description of the error.
        * @param httpErrorCode A custom Kalix status code to represent the error.

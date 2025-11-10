@@ -4,9 +4,7 @@
 
 package kalix.javasdk;
 
-/**
- * Interface used to represent HTTP status code. **NOT** for user extension.
- */
+/** Interface used to represent HTTP status code. **NOT** for user extension. */
 public interface StatusCode {
 
   // return the value of the status code
@@ -66,7 +64,6 @@ public interface StatusCode {
       return value;
     }
   }
-
 
   /** The supported HTTP error codes that can be used when replying from the Kalix user function. */
   enum ErrorCode implements StatusCode {

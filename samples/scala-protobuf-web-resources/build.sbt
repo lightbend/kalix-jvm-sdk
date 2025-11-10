@@ -1,6 +1,6 @@
 organization := "com.example"
 
-scalaVersion := "3.3.3"
+scalaVersion := "3.3.7"
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/eclipse-temurin:21.0.7_6-jre-noble"

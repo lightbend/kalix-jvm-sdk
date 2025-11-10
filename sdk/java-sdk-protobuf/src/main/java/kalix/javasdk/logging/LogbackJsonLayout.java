@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic.JsonLayout {
 
-  private final static String KVP_ATTR_NAME = "kvpList";
+  private static final String KVP_ATTR_NAME = "kvpList";
 
   public LogbackJsonLayout() {
     setIncludeLevel(false);
@@ -31,9 +31,9 @@ public class LogbackJsonLayout extends ch.qos.logback.contrib.json.classic.JsonL
 
     if (event.getKeyValuePairs() != null && !event.getKeyValuePairs().isEmpty()) {
       Map<String, Object> kvp = new HashMap<>();
-      event.getKeyValuePairs().forEach(keyValuePair ->
-          kvp.put(keyValuePair.key, keyValuePair.value)
-      );
+      event
+          .getKeyValuePairs()
+          .forEach(keyValuePair -> kvp.put(keyValuePair.key, keyValuePair.value));
       addMap(KVP_ATTR_NAME, true, kvp, map);
     }
   }

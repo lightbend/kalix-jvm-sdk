@@ -4,7 +4,7 @@ organization := "io.kalix.samples"
 organizationHomepage := Some(url("https://kalix.io"))
 licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")))
 
-scalaVersion := "3.3.3"
+scalaVersion := "3.3.7"
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
 dockerBaseImage := "docker.io/library/eclipse-temurin:21.0.7_6-jre-noble"

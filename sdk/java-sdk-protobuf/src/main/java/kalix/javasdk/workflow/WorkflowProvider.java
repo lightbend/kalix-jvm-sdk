@@ -25,5 +25,4 @@ public interface WorkflowProvider<S, W extends AbstractWorkflow<S>> {
   default Optional<MessageCodec> alternativeCodec() {
     return Optional.empty();
   }
-
 }

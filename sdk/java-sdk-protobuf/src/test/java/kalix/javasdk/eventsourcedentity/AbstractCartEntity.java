@@ -12,7 +12,8 @@ import com.google.protobuf.Empty;
  * Generated entity baseclass, extended by user entity impl, helps getting the impl in sync with
  * protobuf def
  */
-public abstract class AbstractCartEntity extends EventSourcedEntity<ShoppingCartDomain.Cart, Object> {
+public abstract class AbstractCartEntity
+    extends EventSourcedEntity<ShoppingCartDomain.Cart, Object> {
 
   public abstract Effect<Empty> addItem(
       ShoppingCartDomain.Cart currentState, ShoppingCartApi.AddLineItem command);

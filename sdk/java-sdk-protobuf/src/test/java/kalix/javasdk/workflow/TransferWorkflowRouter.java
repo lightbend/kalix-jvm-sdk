@@ -8,14 +8,16 @@ import com.example.workflow.transfer.MoneyTransferApi;
 import com.google.protobuf.Empty;
 import kalix.javasdk.impl.workflow.WorkflowRouter;
 
-public class TransferWorkflowRouter extends WorkflowRouter<MoneyTransferApi.State, TransferWorkflow> {
+public class TransferWorkflowRouter
+    extends WorkflowRouter<MoneyTransferApi.State, TransferWorkflow> {
 
   public TransferWorkflowRouter(TransferWorkflow transferWorkflow) {
     super(transferWorkflow);
   }
 
   @Override
-  public Workflow.Effect handleCommand(String commandName, MoneyTransferApi.State state, Object command, CommandContext context) {
+  public Workflow.Effect handleCommand(
+      String commandName, MoneyTransferApi.State state, Object command, CommandContext context) {
     switch (commandName) {
       case "Start":
         return workflow().start((MoneyTransferApi.Transfer) command);

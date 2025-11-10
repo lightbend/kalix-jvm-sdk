@@ -53,15 +53,18 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
   }
 
   /**
-   * An Effect is a description of what Kalix needs to do after the command is handled.
-   * You can think of it as a set of instructions you are passing to Kalix. Kalix will process the instructions on your
-   * behalf and ensure that any data that needs to be persisted will be persisted.
+   * An Effect is a description of what Kalix needs to do after the command is handled. You can
+   * think of it as a set of instructions you are passing to Kalix. Kalix will process the
+   * instructions on your behalf and ensure that any data that needs to be persisted will be
+   * persisted.
+   *
+   * <p>Each Kalix component defines its own effects, which are a set of predefined operations that
+   * match the capabilities of that component.
+   *
+   * <p>A Replicated Effect can either:
+   *
    * <p>
-   * Each Kalix component defines its own effects, which are a set of predefined
-   * operations that match the capabilities of that component.
-   * <p>
-   * A Replicated Effect can either:
-   * <p>
+   *
    * <ul>
    *   <li>update the entity state and send a reply to the caller
    *   <li>directly reply to the caller if the command is not requesting any state change
@@ -142,9 +145,8 @@ public abstract class ReplicatedEntity<D extends ReplicatedData> {
        */
       <T> Effect<T> error(String description, Status.Code grpcErrorCode);
       /**
-       * Create an error reply with a custom status code.
-       * This status code will be translated to an HTTP or gRPC code
-       * depending on the type of service being exposed.
+       * Create an error reply with a custom status code. This status code will be translated to an
+       * HTTP or gRPC code depending on the type of service being exposed.
        *
        * @param description The description of the error.
        * @param httpErrorCode A custom Kalix status code to represent the error.
