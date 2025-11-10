@@ -13,15 +13,15 @@ object Dependencies {
   }
 
   // changing the Scala version of the Java SDK affects end users
-  val ScalaVersion = "2.13.14"
+  val ScalaVersion = "2.13.17"
   val ScalaVersionForTooling = "2.12.19"
-  val Scala3Version = "3.3.3"
+  val Scala3Version = "3.3.7"
   val CrossScalaVersions = Seq(ScalaVersion, Scala3Version)
 
   val ProtobufVersion = akka.grpc.gen.BuildInfo.googleProtobufVersion
 
-  val AkkaVersion = "2.10.9"
-  val AkkaHttpVersion = "10.7.2" // Note: should at least the Akka HTTP version required by Akka gRPC
+  val AkkaVersion = "2.10.11"
+  val AkkaHttpVersion = "10.7.3" // Note: should at least the Akka HTTP version required by Akka gRPC
   val ScalaTestVersion = "3.2.14"
   // https://github.com/akka/akka/blob/main/project/Dependencies.scala#L31
   val JacksonVersion = "2.18.4"
@@ -117,7 +117,7 @@ object Dependencies {
     jacksonJsr310,
     jacksonParameterNames)
 
-  val devTools = deps ++= Seq(scalaCollectionCompat, "com.typesafe" % "config" % "1.4.2", scalaTest % Test)
+  val devTools = deps ++= Seq(scalaCollectionCompat, "com.typesafe" % "config" % "1.4.5", scalaTest % Test)
 
   val javaSdk = deps ++= sdkDeps
 
