@@ -1,6 +1,7 @@
 # This script will publish the current snapshot of all artifacts. 
 # Including the maven plugin and archetypes.
 
+set -e
 export SDK_VERSION=$(sbt "print coreSdk/version" | tail -1)
 
 echo
