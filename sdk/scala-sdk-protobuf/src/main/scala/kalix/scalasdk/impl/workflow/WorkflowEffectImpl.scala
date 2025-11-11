@@ -85,7 +85,7 @@ private[scalasdk] final case class WorkflowEffectImpl[S, T](
     override def delete: TransitionalEffect[Void] =
       TransitionalEffectImpl(javasdkEffect.delete())
   }
-
-  case class ErrorEffectImpl[R](javasdkEffect: workflow.AbstractWorkflow.Effect.ErrorEffect[T]) extends ErrorEffect[R]
-
 }
+
+private[scalasdk] final case class ErrorEffectImpl[R](javasdkEffect: workflow.AbstractWorkflow.Effect.ErrorEffect[R])
+    extends ErrorEffect[R]
