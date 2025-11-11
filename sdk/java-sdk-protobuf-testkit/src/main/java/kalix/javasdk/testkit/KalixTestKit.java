@@ -636,8 +636,8 @@ public class KalixTestKit {
     testSystem =
         ActorSystem.create(
             "KalixTestkit",
-          ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true")
-            .withFallback(config));
+            ConfigFactory.parseString("akka.http.server.preview.enable-http2 = true")
+                .withFallback(config));
 
     int eventingBackendPort = startEventingTestkit(useTestContainers);
     runProxy(useTestContainers, port, eventingBackendPort);
