@@ -52,6 +52,12 @@ class TransferWorkflowIntegrationSpec
       }
     }
 
+    "not start transfer with negative amount" in {
+      val ex = transferClient.start(Transfer("1", "a", "b", -10)).failed.futureValue
+
+      ex.getMessage should include("transfer amount should be greater than zero")
+    }
+
   }
 
   override def afterAll(): Unit = {
