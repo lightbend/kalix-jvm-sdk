@@ -41,15 +41,10 @@ case class DockerComposeUtils(file: String) {
   // we will need to iterate over it more than once
   private lazy val lines: Seq[String] =
     if (Files.exists(Paths.get(file))) {
-      val collectedLines = Vector.newBuilder[String]
-      val processLogger = ProcessLogger(out =>
-        collectedLines.synchronized {
-          collectedLines += out
-        })
-      val exitCode = Process(s"docker compose -f $file config", None).!(processLogger)
-      val lines = collectedLines.synchronized {
-        collectedLines.result()
-      }
+      val buffer = new StringBuffer
+      val io = new ProcessIO(BasicIO.input(connect = false), BasicIO.processFully(buffer), BasicIO.processFully(buffer))
+      val exitCode = Process(s"docker compose -f $file config", None).run(io).exitValue()
+      val lines = buffer.toString.split("\n")
       if (exitCode != 0) {
         println("Docker compose call returned non-zero exit code. Command output:  + " + lines.mkString("\n"))
       }
