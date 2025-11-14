@@ -4,6 +4,7 @@
 
 package kalix.javasdk.impl.action
 
+import akka.Done
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{ Sink, Source }
@@ -24,6 +25,7 @@ import kalix.protocol.component
 import kalix.protocol.component.{ Failure, MetadataEntry }
 import org.slf4j.{ Logger, LoggerFactory, MDC }
 
+import java.time.Instant
 import java.util.Optional
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -113,6 +115,8 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
 
   private val actionTimeout = system.settings.config.getDuration("kalix.action.timeout").toScala
 
+  @volatile private var previousTimeout: Option[(Instant, Future[Done])] = None
+
   private def effectToResponse(
       service: ActionService,
       command: ActionCommand,
@@ -143,12 +147,7 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
         Future
-          .firstCompletedOf(
-            Seq(
-              futureEffect,
-              akka.pattern.after(actionTimeout) {
-                throw timeoutErrorFor(service, command)
-              }))
+          .firstCompletedOf(Seq(futureEffect, timeout(service, command)))
           .flatMap { effect =>
             val withSurroundingSideEffects =
               if (sideEffects.isEmpty) effect
@@ -179,6 +178,29 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
   private def toProtocol(messageCodec: MessageCodec, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
     sideEffects.map(asProtocol(messageCodec, _))
 
+  // re-use a single scheduled task for frequent events so that we don't fill up
+  // the timer with tasks only created as a guard to fail buggy services
+  private val reuseTimerForSeconds = 180 // a new timer every three minutes is good enough
+  private def timeout(service: ActionService, command: ActionCommand): Future[Action.Effect[Any]] = {
+    def setUpNewTimeout(): Future[Done] = {
+      val timeout = akka.pattern.after(actionTimeout) { Future.successful(Done.done()) }
+      val now = Instant.now()
+      // Note: separate volatile read/update might mean multiple timers, but unlikely enough that it doesn't matter
+      previousTimeout = Some((now, timeout))
+      timeout
+    }
+
+    val timeout = previousTimeout match {
+      case None => setUpNewTimeout()
+      case Some((timeoutCreation, timeout))
+          if timeoutCreation.plusSeconds(reuseTimerForSeconds).isAfter(Instant.now()) =>
+        timeout
+      case Some(_) => setUpNewTimeout()
+    }
+
+    timeout.map(_ => throw timeoutErrorFor(service, command))
+  }
+
   private def timeoutErrorFor(service: ActionService, command: ActionCommand) = {
     val additionalDetails =
       command.metadata match {
@@ -189,8 +211,8 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
             cloudEvent.getScala("ce-sequence").map(s => s"sequence: [$s]")).flatten.mkString(", ")
         case None => Map.empty
       }
-    new TimeoutException(s"Command to action [${service.actionClass.getOrElse(
-      service.serviceName)}] method [${command.name}]${additionalDetails} did not complete within $actionTimeout")
+    new TimeoutException(
+      s"Command to action [${service.actionClass.getOrElse(service.serviceName)}] method [${command.name}]${additionalDetails} did not complete within ${actionTimeout.toCoarsest}")
   }
 
   /**
