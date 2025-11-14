@@ -27,7 +27,9 @@ import org.slf4j.{ Logger, LoggerFactory, MDC }
 import java.util.Optional
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.DurationConverters.JavaDurationOps
 import scala.jdk.OptionConverters._
 import scala.util.control.NonFatal
 
@@ -109,6 +111,8 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
 
+  private val actionTimeout = system.settings.config.getDuration("kalix.action.timeout").toScala
+
   private def effectToResponse(
       service: ActionService,
       command: ActionCommand,
@@ -138,7 +142,13 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
-        futureEffect
+        Future
+          .firstCompletedOf(
+            Seq(
+              futureEffect,
+              akka.pattern.after(actionTimeout) {
+                throw timeoutErrorFor(service, command)
+              }))
           .flatMap { effect =>
             val withSurroundingSideEffects =
               if (sideEffects.isEmpty) effect
@@ -168,6 +178,20 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
 
   private def toProtocol(messageCodec: MessageCodec, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
     sideEffects.map(asProtocol(messageCodec, _))
+
+  private def timeoutErrorFor(service: ActionService, command: ActionCommand) = {
+    val additionalDetails =
+      command.metadata match {
+        case Some(metadata) =>
+          val cloudEvent = MetadataImpl.of(metadata.entries).asCloudEvent()
+          ", " + Seq(
+            cloudEvent.subjectScala.map(s => s"subject: [$s]"),
+            cloudEvent.getScala("ce-sequence").map(s => s"sequence: [$s]")).flatten.mkString(", ")
+        case None => Map.empty
+      }
+    new TimeoutException(s"Command to action [${service.actionClass.getOrElse(
+      service.serviceName)}] method [${command.name}]${additionalDetails} did not complete within $actionTimeout")
+  }
 
   /**
    * Handle a unary command. The input command will contain the service name, command name, request metadata and the
