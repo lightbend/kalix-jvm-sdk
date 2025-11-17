@@ -4,9 +4,9 @@
 
 package kalix.javasdk.impl.action
 
-import akka.Done
 import akka.NotUsed
 import akka.actor.ActorSystem
+import akka.actor.Cancellable
 import akka.stream.scaladsl.{ Sink, Source }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.Any
@@ -25,10 +25,10 @@ import kalix.protocol.component
 import kalix.protocol.component.{ Failure, MetadataEntry }
 import org.slf4j.{ Logger, LoggerFactory, MDC }
 
-import java.time.Instant
 import java.util.Optional
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.DurationConverters.JavaDurationOps
@@ -115,8 +115,6 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
 
   private val actionTimeout = system.settings.config.getDuration("kalix.action.timeout").toScala
 
-  @volatile private var previousTimeout: Option[(Instant, Future[Done])] = None
-
   private def effectToResponse(
       service: ActionService,
       command: ActionCommand,
@@ -146,9 +144,11 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
+        val (timeoutCancellable, timeoutFuture) = timeout(service, command)
         Future
-          .firstCompletedOf(Seq(futureEffect, timeout(service, command)))
+          .firstCompletedOf(Seq(futureEffect, timeoutFuture))
           .flatMap { effect =>
+            timeoutCancellable.cancel()
             val withSurroundingSideEffects =
               if (sideEffects.isEmpty) effect
               else if (!effect.canHaveSideEffects) {
@@ -160,6 +160,7 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
             effectToResponse(service, command, withSurroundingSideEffects, messageCodec)
           }
           .recover { case NonFatal(ex) =>
+            timeoutCancellable.cancel()
             handleUnexpectedException(service, command, ex)
           }
       case ErrorEffect(description, status, sideEffects) =>
@@ -178,42 +179,22 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
   private def toProtocol(messageCodec: MessageCodec, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
     sideEffects.map(asProtocol(messageCodec, _))
 
-  // re-use a single scheduled task for frequent events so that we don't fill up
-  // the timer with tasks only created as a guard to fail buggy services
-  private val reuseTimerForSeconds = 180 // a new timer every three minutes is good enough
-  private val futureDone = Future.successful(Done.done())
-  private def timeout(service: ActionService, command: ActionCommand): Future[Action.Effect[Any]] = {
-    def setUpNewTimeout(): Future[Done] = {
-      val timeout = akka.pattern.after(actionTimeout) { futureDone }
-      val now = Instant.now()
-      // Note: separate volatile read/update might mean multiple timers, but unlikely enough that it doesn't matter
-      previousTimeout = Some((now, timeout))
-      timeout
+  private def timeout(service: ActionService, command: ActionCommand): (Cancellable, Future[Action.Effect[Any]]) = {
+    val p = Promise[Action.Effect[Any]]()
+    val cancellable = system.scheduler.scheduleOnce(actionTimeout) {
+      val additionalDetails =
+        command.metadata match {
+          case Some(metadata) =>
+            val cloudEvent = MetadataImpl.of(metadata.entries).asCloudEvent()
+            ", " + Seq(
+              cloudEvent.subjectScala.map(s => s"subject: [$s]"),
+              cloudEvent.getScala("ce-sequence").map(s => s"sequence: [$s]")).flatten.mkString(", ")
+          case None => Map.empty
+        }
+      p.failure(new TimeoutException(
+        s"Command to action [${service.actionClass.getOrElse(service.serviceName)}] method [${command.name}]$additionalDetails did not complete within ${actionTimeout.toCoarsest}"))
     }
-
-    val timeout = previousTimeout match {
-      case None => setUpNewTimeout()
-      case Some((timeoutCreation, timeout))
-          if timeoutCreation.plusSeconds(reuseTimerForSeconds).isAfter(Instant.now()) =>
-        timeout
-      case Some(_) => setUpNewTimeout()
-    }
-
-    timeout.map(_ => throw timeoutErrorFor(service, command))
-  }
-
-  private def timeoutErrorFor(service: ActionService, command: ActionCommand) = {
-    val additionalDetails =
-      command.metadata match {
-        case Some(metadata) =>
-          val cloudEvent = MetadataImpl.of(metadata.entries).asCloudEvent()
-          ", " + Seq(
-            cloudEvent.subjectScala.map(s => s"subject: [$s]"),
-            cloudEvent.getScala("ce-sequence").map(s => s"sequence: [$s]")).flatten.mkString(", ")
-        case None => Map.empty
-      }
-    new TimeoutException(
-      s"Command to action [${service.actionClass.getOrElse(service.serviceName)}] method [${command.name}]${additionalDetails} did not complete within ${actionTimeout.toCoarsest}")
+    (cancellable, p.future)
   }
 
   /**
