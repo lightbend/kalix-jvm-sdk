@@ -181,9 +181,10 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
   // re-use a single scheduled task for frequent events so that we don't fill up
   // the timer with tasks only created as a guard to fail buggy services
   private val reuseTimerForSeconds = 180 // a new timer every three minutes is good enough
+  private val futureDone = Future.successful(Done.done())
   private def timeout(service: ActionService, command: ActionCommand): Future[Action.Effect[Any]] = {
     def setUpNewTimeout(): Future[Done] = {
-      val timeout = akka.pattern.after(actionTimeout) { Future.successful(Done.done()) }
+      val timeout = akka.pattern.after(actionTimeout) { futureDone }
       val now = Instant.now()
       // Note: separate volatile read/update might mean multiple timers, but unlikely enough that it doesn't matter
       previousTimeout = Some((now, timeout))
