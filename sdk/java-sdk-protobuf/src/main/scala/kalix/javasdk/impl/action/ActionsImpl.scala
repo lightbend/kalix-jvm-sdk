@@ -6,6 +6,7 @@ package kalix.javasdk.impl.action
 
 import akka.NotUsed
 import akka.actor.ActorSystem
+import akka.actor.Cancellable
 import akka.stream.scaladsl.{ Sink, Source }
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.Any
@@ -27,7 +28,10 @@ import org.slf4j.{ Logger, LoggerFactory, MDC }
 import java.util.Optional
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.Promise
+import scala.concurrent.TimeoutException
 import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.jdk.DurationConverters.JavaDurationOps
 import scala.jdk.OptionConverters._
 import scala.util.control.NonFatal
 
@@ -109,6 +113,8 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
     (s.serviceName, telemetry.traceInstrumentation(s.serviceName, ActionCategory))
   }.toMap
 
+  private val actionTimeout = system.settings.config.getDuration("kalix.action.timeout").toScala
+
   private def effectToResponse(
       service: ActionService,
       command: ActionCommand,
@@ -138,8 +144,11 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
         Future.successful(
           ActionResponse(ActionResponse.Response.Forward(response), toProtocol(messageCodec, sideEffects)))
       case AsyncEffect(futureEffect, sideEffects) =>
-        futureEffect
+        val (timeoutCancellable, timeoutFuture) = timeout(service, command)
+        Future
+          .firstCompletedOf(Seq(futureEffect, timeoutFuture))
           .flatMap { effect =>
+            timeoutCancellable.cancel()
             val withSurroundingSideEffects =
               if (sideEffects.isEmpty) effect
               else if (!effect.canHaveSideEffects) {
@@ -151,6 +160,7 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
             effectToResponse(service, command, withSurroundingSideEffects, messageCodec)
           }
           .recover { case NonFatal(ex) =>
+            timeoutCancellable.cancel()
             handleUnexpectedException(service, command, ex)
           }
       case ErrorEffect(description, status, sideEffects) =>
@@ -168,6 +178,24 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
 
   private def toProtocol(messageCodec: MessageCodec, sideEffects: Seq[SideEffect]): Seq[component.SideEffect] =
     sideEffects.map(asProtocol(messageCodec, _))
+
+  private def timeout(service: ActionService, command: ActionCommand): (Cancellable, Future[Action.Effect[Any]]) = {
+    val p = Promise[Action.Effect[Any]]()
+    val cancellable = system.scheduler.scheduleOnce(actionTimeout) {
+      val additionalDetails =
+        command.metadata match {
+          case Some(metadata) =>
+            val cloudEvent = MetadataImpl.of(metadata.entries).asCloudEvent()
+            ", " + Seq(
+              cloudEvent.subjectScala.map(s => s"subject: [$s]"),
+              cloudEvent.getScala("ce-sequence").map(s => s"sequence: [$s]")).flatten.mkString(", ")
+          case None => Map.empty
+        }
+      p.failure(new TimeoutException(
+        s"Command to action [${service.actionClass.getOrElse(service.serviceName)}] method [${command.name}]$additionalDetails did not complete within ${actionTimeout.toCoarsest}"))
+    }
+    (cancellable, p.future)
+  }
 
   /**
    * Handle a unary command. The input command will contain the service name, command name, request metadata and the
