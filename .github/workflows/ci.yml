@@ -125,12 +125,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: akka/github-actions-scripts
-          path: scripts
+          path: github-actions-scripts
 
       - name: Setup global resolver
         run: |
-          chmod +x ./scripts/setup_global_resolver.sh
-          ./scripts/setup_global_resolver.sh
+          ./github-actions-scripts/setup_global_resolver.sh
+          cp -r ./github-actions-scripts ~/
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
@@ -145,11 +145,16 @@ jobs:
       - name: Build and publish artifacts and plugins
         id: build_sdk
         run: |-
-          sbt -Ddisable.apidocs=true publishM2 +publishLocal
+          sbt -Ddisable.apidocs=true publishM2 +publishLocal makePom
           # the SDK_VERSION is later used to run the maven tests (see below)
           .github/determine-sdk-version.sh
           SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
           echo "SDK version: '${SDK_VERSION}'"
+
+      - name: Verify checked in pom.xml files
+        run: |
+          ~/github-actions-scripts/pom-organize.sh
+          ~/github-actions-scripts/pom-no-diff.sh
 
       - name: Build maven-java
         run: |-
