@@ -154,6 +154,7 @@ jobs:
       - name: Verify checked in pom.xml files
         run: |
           ~/github-actions-scripts/pom-organize.sh
+          git add ./generated-poms
           ~/github-actions-scripts/pom-no-diff.sh
 
       - name: Build maven-java

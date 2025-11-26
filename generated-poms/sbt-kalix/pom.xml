@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.kalix</groupId>
+    <artifactId>sbt-kalix</artifactId>
+    <packaging>jar</packaging>
+    <description>Java and Scala SDKs for Kalix</description>
+    <url>https://kalix.io</url>
+    <version>1.5.20-6-6e7cefdd</version>
+    <licenses>
+        <license>
+            <name>BUSL-1.1</name>
+            <url>https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>sbt-kalix</name>
+    <inceptionYear>2021</inceptionYear>
+    <organization>
+        <name>Lightbend Inc.</name>
+        <url>https://lightbend.com</url>
+    </organization>
+    <scm>
+        <url>https://github.com/lightbend/kalix-jvm-sdk</url>
+        <connection>scm:git:https://github.com/lightbend/kalix-jvm-sdk.git</connection>
+        <developerConnection>scm:git:git@github.com:lightbend/kalix-jvm-sdk.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>kalix-team</id>
+            <name>Kalix Team</name>
+            <url>https://lightbend.com</url>
+            <email>info@lightbend.com</email>
+        </developer>
+    </developers>
+    <properties>
+        <scalaVersion>2.12</scalaVersion>
+        <sbtVersion>1.0</sbtVersion>
+        <extraDependencyAttributes xml:space="preserve">+organisation:#@#:+com.thesamet:#@#:+branch:#@#:+@#:NULL:#@:#@#:+e:sbtVersion:#@#:+1.0:#@#:+module:#@#:+sbt-protoc:#@#:+revision:#@#:+1.0.3:#@#:+e:scalaVersion:#@#:+2.12:#@#:
++organisation:#@#:+com.lightbend.akka.grpc:#@#:+branch:#@#:+@#:NULL:#@:#@#:+e:sbtVersion:#@#:+1.0:#@#:+module:#@#:+sbt-akka-grpc:#@#:+revision:#@#:+2.5.8:#@#:+e:scalaVersion:#@#:+2.12:#@#:</extraDependencyAttributes>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.12.19</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-sbt</groupId>
+            <artifactId>sbt</artifactId>
+            <version>1.9.9</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-codegen-scala_2.12</artifactId>
+            <version>1.5.20-6-6e7cefdd</version>
+        </dependency>
+        <dependency>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-devtools-internal_2.12</artifactId>
+            <version>1.5.20-6-6e7cefdd</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thesamet</groupId>
+            <artifactId>sbt-protoc</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lightbend.akka.grpc</groupId>
+            <artifactId>sbt-akka-grpc</artifactId>
+            <version>2.5.8</version>
+        </dependency>
+    </dependencies>
+</project>
