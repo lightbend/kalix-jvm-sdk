@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <description>Java and Scala SDKs for Kalix</description>
     <url>https://kalix.io</url>
-    <version>1.4.1-54-5206e862-dev</version>
+    <version>1.5.20-7-d1cc1e6a</version>
     <licenses>
         <license>
             <name>BUSL-1.1</name>
@@ -37,17 +37,17 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.13.13</version>
+            <version>2.13.17</version>
         </dependency>
         <dependency>
             <groupId>io.kalix</groupId>
             <artifactId>kalix-java-sdk-protobuf</artifactId>
-            <version>1.4.1-54-5206e862-dev</version>
+            <version>1.5.20-7-d1cc1e6a</version>
         </dependency>
         <dependency>
             <groupId>io.kalix</groupId>
             <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-            <version>1.4.1-54-5206e862-dev</version>
+            <version>1.5.20-7-d1cc1e6a</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -57,17 +57,17 @@
         <dependency>
             <groupId>com.lightbend.akka.grpc</groupId>
             <artifactId>akka-grpc-runtime_2.13</artifactId>
-            <version>2.4.1</version>
+            <version>2.5.8</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
-            <version>1.60.2</version>
+            <version>1.76.0</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.4.14</version>
+            <version>1.5.17</version>
         </dependency>
     </dependencies>
 </project>

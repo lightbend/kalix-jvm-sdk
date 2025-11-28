@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <description>Java and Scala SDKs for Kalix</description>
     <url>https://kalix.io</url>
-    <version>1.4.1-55-a1654d1a</version>
+    <version>1.5.20-7-d1cc1e6a</version>
     <licenses>
         <license>
             <name>BUSL-1.1</name>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
-            <version>1.4.2</version>
+            <version>1.4.5</version>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>

@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <description>Java and Scala SDKs for Kalix</description>
     <url>https://kalix.io</url>
-    <version>1.5.20-6-6e7cefdd</version>
+    <version>1.5.20-7-d1cc1e6a</version>
     <licenses>
         <license>
             <name>BUSL-1.1</name>
@@ -42,12 +42,12 @@
         <dependency>
             <groupId>io.kalix</groupId>
             <artifactId>kalix-scala-sdk-protobuf_2.13</artifactId>
-            <version>1.5.20-6-6e7cefdd</version>
+            <version>1.5.20-7-d1cc1e6a</version>
         </dependency>
         <dependency>
             <groupId>io.kalix</groupId>
             <artifactId>kalix-scala-sdk-protobuf-testkit_2.13</artifactId>
-            <version>1.5.20-6-6e7cefdd</version>
+            <version>1.5.20-7-d1cc1e6a</version>
         </dependency>
         <dependency>
             <groupId>com.thesamet.scalapb</groupId>
