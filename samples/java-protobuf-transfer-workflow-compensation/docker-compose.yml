@@ -1,7 +1,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/kalix-runtime:1.2.32
+    image: registry.akka.io/kalix-runtime:1.2.35
     container_name: java-protobuf-transfer-workflow-compensation
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"
