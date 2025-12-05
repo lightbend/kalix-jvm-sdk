@@ -4,7 +4,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/kalix-runtime:1.2.32
+    image: registry.akka.io/kalix-runtime:1.2.37
     container_name: scala-protobuf-valueentity-shopping-cart
     ports:
       - "${ADVERTISED_HTTP_PORT}:9000"

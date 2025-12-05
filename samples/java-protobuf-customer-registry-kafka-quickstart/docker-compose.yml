@@ -1,7 +1,7 @@
 version: "3"
 services:
   kalix-runtime:
-    image: registry.akka.io/kalix-runtime:1.2.32
+    image: registry.akka.io/kalix-runtime:1.2.37
     container_name: java-protobuf-customer-registry-kafka-quickstart
     # uncomment volumes when persistence is enabled
 #    volumes:
