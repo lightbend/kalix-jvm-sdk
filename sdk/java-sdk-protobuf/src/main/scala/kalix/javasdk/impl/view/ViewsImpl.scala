@@ -66,6 +66,22 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) 
 
   private final val services = _services.iterator.toMap
 
+  private val maxResponseSize =
+    system.settings.config.getBytes("kalix.max-response-size").toInt
+
+  private def validateResponseSize(
+      response: pv.ViewStreamOut,
+      metadata: MetadataImpl,
+      viewId: String,
+      eventName: String): Unit = {
+    val responseSize = response.serializedSize
+    if (responseSize > maxResponseSize) {
+      throw new IllegalStateException(
+        s"Response size ($responseSize) exceeds maximum allowed size ($maxResponseSize) for view '$viewId', " +
+        s"event '$eventName'${metadata.subject().toScala.fold("")(subject => s", subject-id: $subject")}")
+    }
+  }
+
   /**
    * Handle a full duplex streamed session. One stream will be established per incoming message to the view service.
    *
@@ -127,15 +143,18 @@ final class ViewsImpl(system: ActorSystem, _services: Map[String, ViewService]) 
                   val serializedState = ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(newState))
                   val upsert = pv.Upsert(Some(pv.Row(value = Some(serializedState))))
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
+                  validateResponseSize(out, metadata, service.viewId, commandName)
                   Source.single(out)
                 case ViewUpdateEffectImpl.Delete =>
                   val delete = pv.Delete()
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Delete(delete))
+                  validateResponseSize(out, metadata, service.viewId, commandName)
                   Source.single(out)
                 case ViewUpdateEffectImpl.Ignore =>
                   // ignore incoming event
                   val upsert = pv.Upsert(None)
                   val out = pv.ViewStreamOut(pv.ViewStreamOut.Message.Upsert(upsert))
+                  validateResponseSize(out, metadata, service.viewId, commandName)
                   Source.single(out)
                 case ViewUpdateEffectImpl.Error(e) =>
                   Source.failed(new RuntimeException(e))

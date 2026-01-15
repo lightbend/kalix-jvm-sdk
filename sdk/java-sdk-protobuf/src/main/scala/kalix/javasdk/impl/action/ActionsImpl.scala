@@ -115,13 +115,24 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
 
   private val actionTimeout = system.settings.config.getDuration("kalix.action.timeout").toScala
 
+  private val maxResponseSize =
+    system.settings.config.getBytes("kalix.max-response-size").toInt
+
+  private def validateResponseSize(response: ActionResponse, serviceName: String, commandName: String): Unit = {
+    val responseSize = response.serializedSize
+    if (responseSize > maxResponseSize) {
+      throw new IllegalStateException(
+        s"Response size ($responseSize bytes) exceeds maximum allowed size ($maxResponseSize bytes) for service '$serviceName', command '$commandName'")
+    }
+  }
+
   private def effectToResponse(
       service: ActionService,
       command: ActionCommand,
       effect: Action.Effect[_],
       messageCodec: MessageCodec): Future[ActionResponse] = {
     import ActionEffectImpl._
-    effect match {
+    val responseFuture = effect match {
       case ReplyEffect(message, metadata, sideEffects) =>
         val response =
           component.Reply(Some(messageCodec.encodeScala(message)), metadata.flatMap(MetadataImpl.toProtocol))
@@ -173,6 +184,10 @@ private[javasdk] final class ActionsImpl(_system: ActorSystem, services: Map[Str
         Future.successful(ActionResponse(ActionResponse.Response.Empty, toProtocol(messageCodec, Nil)))
       case unknown =>
         throw new IllegalArgumentException(s"Unknown Action.Effect type ${unknown.getClass}")
+    }
+    responseFuture.map { response =>
+      validateResponseSize(response, command.serviceName, command.name)
+      response
     }
   }
 

@@ -105,6 +105,24 @@ final class EventSourcedEntitiesImpl(
   private val pbCleanupDeletedEventSourcedEntityAfter =
     Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedEventSourcedEntityAfter))
 
+  private val maxResponseSize =
+    system.settings.config.getBytes("kalix.max-response-size").toInt
+
+  private def validateResponseSize(reply: EventSourcedReply, entityId: String, commandName: String): Unit = {
+    val replySize = reply.serializedSize
+    if (replySize > maxResponseSize) {
+      val sizeSummary =
+        Seq(
+          (if (reply.events.isEmpty) None
+           else Some(s"events: ${reply.events.map(_.serializedSize).sum}")),
+          reply.snapshot.map(s => s"snapshot: ${s.serializedSize}"),
+          reply.clientAction.map(res => s"response: ${res.serializedSize}")).flatten.mkString(", ")
+      throw EntityException(
+        s"Total response size (${replySize}) exceeds maximum allowed size ($maxResponseSize) for entity '$entityId', command '$commandName'." +
+        (if (sizeSummary.nonEmpty) " " + sizeSummary.capitalize else ""))
+    }
+  }
+
   /**
    * The stream. One stream will be established per active entity. Once established, the first message sent will be
    * Init, which contains the entity ID, and, if the entity has previously persisted a snapshot, it will contain that
@@ -218,9 +236,9 @@ final class EventSourcedEntitiesImpl(
 
             serializedSecondaryEffect match {
               case _: ErrorReplyImpl[_] => // error
-                (
-                  endSequenceNumber,
-                  Some(OutReply(EventSourcedReply(commandId = command.id, clientAction = clientAction))))
+                val reply = EventSourcedReply(commandId = command.id, clientAction = clientAction)
+                validateResponseSize(reply, thisEntityId, command.name)
+                (endSequenceNumber, Some(OutReply(reply)))
               case _ => // non-error
                 val serializedEvents =
                   events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
@@ -229,16 +247,16 @@ final class EventSourcedEntitiesImpl(
                 val serializedSnapshot =
                   snapshot.map(state => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(state)))
                 val delete = if (deleteEntity) pbCleanupDeletedEventSourcedEntityAfter else None
-                (
-                  endSequenceNumber,
-                  Some(OutReply(EventSourcedReply(
-                    command.id,
-                    clientAction,
-                    EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
-                    serializedEvents,
-                    serializedSnapshot,
-                    delete,
-                    protoEventsMetadata))))
+                val reply = EventSourcedReply(
+                  command.id,
+                  clientAction,
+                  EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
+                  serializedEvents,
+                  serializedSnapshot,
+                  delete,
+                  protoEventsMetadata)
+                validateResponseSize(reply, thisEntityId, command.name)
+                (endSequenceNumber, Some(OutReply(reply)))
             }
           } finally {
             span.foreach { s =>

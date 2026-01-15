@@ -80,6 +80,25 @@ final class ValueEntitiesImpl(
   private val pbCleanupDeletedValueEntityAfter =
     Some(com.google.protobuf.duration.Duration(configuration.cleanupDeletedValueEntityAfter))
 
+  private val maxResponseSize =
+    system.settings.config.getBytes("kalix.max-response-size").toInt
+
+  private def validateResponseSize(reply: ValueEntityReply, entityId: String, commandName: String): Unit = {
+    val replySize = reply.toByteArray.length
+    if (replySize > maxResponseSize) {
+      val sizeSummary =
+        Seq(
+          reply.stateAction.map(sa => s"updated state ${sa.serializedSize}"),
+          reply.clientAction.map(res => s"response: ${res.serializedSize}")).flatten.mkString(", ")
+      throw EntityException(
+        s"Response size ($replySize) exceeds maximum allowed size ($maxResponseSize) for entity '$entityId', command '$commandName'." +
+        (if (sizeSummary.nonEmpty)
+           " " + sizeSummary.capitalize
+         else
+           ""))
+    }
+  }
+
   /**
    * One stream will be established per active entity. Once established, the first message sent will be Init, which
    * contains the entity ID, and, a state if the entity has previously persisted one. Once the Init message is sent, one
@@ -174,7 +193,9 @@ final class ValueEntitiesImpl(
 
             serializedSecondaryEffect match {
               case _: ErrorReplyImpl[_] =>
-                ValueEntityStreamOut(OutReply(ValueEntityReply(commandId = command.id, clientAction = clientAction)))
+                val reply = ValueEntityReply(commandId = command.id, clientAction = clientAction)
+                validateResponseSize(reply, thisEntityId, command.name)
+                ValueEntityStreamOut(OutReply(reply))
 
               case _ => // non-error
                 val action: Option[ValueEntityAction] = effect.primaryEffect match {
@@ -187,13 +208,13 @@ final class ValueEntitiesImpl(
                     None
                 }
 
-                ValueEntityStreamOut(
-                  OutReply(
-                    ValueEntityReply(
-                      command.id,
-                      clientAction,
-                      EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
-                      action)))
+                val reply = ValueEntityReply(
+                  command.id,
+                  clientAction,
+                  EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
+                  action)
+                validateResponseSize(reply, thisEntityId, command.name)
+                ValueEntityStreamOut(OutReply(reply))
             }
           } finally {
             span.foreach { s =>
