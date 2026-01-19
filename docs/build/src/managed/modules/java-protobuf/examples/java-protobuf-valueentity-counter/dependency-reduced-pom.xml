@@ -3,7 +3,7 @@
   <parent>
     <artifactId>kalix-java-sdk-protobuf-parent</artifactId>
     <groupId>io.kalix</groupId>
-    <version>1.5.0</version>
+    <version>1.5.10</version>
     <relativePath>../pom.xml/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>io.kalix</groupId>
       <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-      <version>1.5.0</version>
+      <version>1.5.10</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -66,8 +66,9 @@
     </dependency>
   </dependencies>
   <properties>
-    <dockerImage>docker.io/aludwiko/${project.artifactId}</dockerImage>
+    <kalixOrganization>acme</kalixOrganization>
     <mainClass>com.example.Main</mainClass>
+    <kalixContainerRegistry>kcr.us-east-1.kalix.io</kalixContainerRegistry>
   </properties>
 </project>
 
