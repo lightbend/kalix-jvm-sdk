@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.kalix</groupId>
+    <artifactId>kalix-codegen-scala_2.12</artifactId>
+    <packaging>jar</packaging>
+    <description>Java and Scala SDKs for Kalix</description>
+    <url>https://kalix.io</url>
+    <version>1.5.20-5-2dea1011-dev</version>
+    <licenses>
+        <license>
+            <name>BUSL-1.1</name>
+            <url>https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>kalix-codegen-scala</name>
+    <inceptionYear>2021</inceptionYear>
+    <organization>
+        <name>Lightbend Inc.</name>
+        <url>https://lightbend.com</url>
+    </organization>
+    <scm>
+        <url>https://github.com/lightbend/kalix-jvm-sdk</url>
+        <connection>scm:git:https://github.com/lightbend/kalix-jvm-sdk.git</connection>
+        <developerConnection>scm:git:git@github.com:lightbend/kalix-jvm-sdk.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>kalix-team</id>
+            <name>Kalix Team</name>
+            <url>https://lightbend.com</url>
+            <email>info@lightbend.com</email>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.12.19</version>
+        </dependency>
+        <dependency>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-codegen-core_2.12</artifactId>
+            <version>1.5.20-5-2dea1011-dev</version>
+        </dependency>
+        <dependency>
+            <groupId>com.thesamet.scalapb</groupId>
+            <artifactId>compilerplugin_2.12</artifactId>
+            <version>0.11.18</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalameta</groupId>
+            <artifactId>munit_2.12</artifactId>
+            <version>0.7.29</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
