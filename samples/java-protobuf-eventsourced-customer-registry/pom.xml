@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.kalix</groupId>
     <artifactId>kalix-java-sdk-protobuf-parent</artifactId>
-    <version>1.5.21</version>
+    <version>1.5.21-4-53b2fd32-dev</version>
   </parent>
 
   <groupId>io.kalix.samples</groupId>

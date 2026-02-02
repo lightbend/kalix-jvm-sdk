@@ -58,6 +58,11 @@ object ActionServiceSourceGenerator {
           c"""|override def ${lowerFirst(methodName)}(): $Action.Effect[$outputType] = {
               |  ${jsonTopicHint}throw new RuntimeException("The delete handler for `$methodName` is not implemented, yet")
               |}"""
+        } else if (cmd.startFromSnapshots) {
+          c"""|override def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType] = {
+              |  // Snapshot handler processes entity state before any events
+              |  ${jsonTopicHint}throw new RuntimeException("The snapshot handler for `$methodName` is not implemented, yet")
+              |}"""
         } else {
           c"""|override def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType] = {
               |  ${jsonTopicHint}throw new RuntimeException("The command handler for `$methodName` is not implemented, yet")
@@ -107,6 +112,9 @@ object ActionServiceSourceGenerator {
       if (cmd.isUnary) {
         if (cmd.handleDeletes) {
           c"""|def ${lowerFirst(methodName)}(): $Action.Effect[$outputType]"""
+        } else if (cmd.startFromSnapshots) {
+          c"""|/** Snapshot handler for processing entity snapshots. */
+              |def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType]"""
         } else {
           c"""|def ${lowerFirst(methodName)}($input: $inputType): $Action.Effect[$outputType]"""
         }
@@ -154,6 +162,10 @@ object ActionServiceSourceGenerator {
       if (cmd.handleDeletes) {
         c"""|case "$methodName" =>
             |  action.${lowerFirst(methodName)}()
+            |"""
+      } else if (cmd.startFromSnapshots) {
+        c"""|case "$methodName" =>
+            |  action.${lowerFirst(methodName)}(message.payload.asInstanceOf[$inputType])
             |"""
       } else {
         c"""|case "$methodName" =>
