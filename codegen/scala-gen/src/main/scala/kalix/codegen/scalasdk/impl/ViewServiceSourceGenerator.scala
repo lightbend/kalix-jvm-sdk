@@ -72,7 +72,7 @@ object ViewServiceSourceGenerator {
             |  view.${lowerFirst(methodName)}(
             |      state)
             |""".stripMargin
-      } else if (cmd.startFromSnapshots) {
+      } else if (cmd.handleSnapshots) {
         s"""|case "$methodName" =>
             |  view.${lowerFirst(methodName)}(
             |      state,
@@ -267,7 +267,7 @@ object ViewServiceSourceGenerator {
             |    state: $stateType): UpdateEffect[$stateType] =
             |  throw new UnsupportedOperationException("Delete handler for '${update.name}' not implemented yet")
             |""".stripMargin
-      } else if (update.startFromSnapshots) {
+      } else if (update.handleSnapshots) {
         s"""|override def ${lowerFirst(update.name)}(
             |    state: $stateType,
             |    ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): UpdateEffect[$stateType] =
@@ -352,7 +352,7 @@ object ViewServiceSourceGenerator {
             s"""|def ${lowerFirst(update.name)}(
                 |    state: $stateType): View.UpdateEffect[$stateType]
                 |""".stripMargin
-          } else if (update.startFromSnapshots) {
+          } else if (update.handleSnapshots) {
             s"""|/** Snapshot handler for initializing view state from entity snapshots. */
                 |def ${lowerFirst(update.name)}(
                 |    state: $stateType,

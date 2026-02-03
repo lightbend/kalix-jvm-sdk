@@ -326,7 +326,7 @@ object ModelBuilder {
       outToTopic: Boolean,
       ignore: Boolean,
       handleDeletes: Boolean,
-      startFromSnapshots: Boolean,
+      handleSnapshots: Boolean,
       viewTable: String) {
 
     def isUnary: Boolean = !streamedInput && !streamedOutput
@@ -351,7 +351,7 @@ object ModelBuilder {
         outToTopic = eventing.hasOut && eventing.getOut.hasTopic,
         ignore = eventing.hasIn && eventing.getIn.getIgnore,
         handleDeletes = eventing.hasIn && eventing.getIn.getHandleDeletes,
-        startFromSnapshots = eventing.hasIn && eventing.getIn.getStartFromSnapshots,
+        handleSnapshots = eventing.hasIn && eventing.getIn.getHandleSnapshots,
         viewUpdate.getTable)
     }
   }

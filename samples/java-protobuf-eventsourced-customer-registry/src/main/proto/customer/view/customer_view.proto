@@ -77,7 +77,7 @@ service CustomerByName {
   rpc ProcessSnapshot(domain.CustomerState) returns (api.Customer) {
     option (kalix.method).eventing.in = {
       event_sourced_entity: "customers"
-      start_from_snapshots: true
+      handle_snapshots: true
     };
     option (kalix.method).view.update = {
       table: "customers"
