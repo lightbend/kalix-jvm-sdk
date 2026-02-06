@@ -300,6 +300,31 @@ The View state corresponding to an Entity is not automatically deleted when the 
 
 To delete from the View you can use the `deleteState()` effect from an event transformation method.
 
+=== Starting from Snapshot
+
+A View that processes events from an Event Sourced Entity can optionally define a method to receive entity snapshots. This can provide significant performance improvements when a new view needs to catch up on a long event history.
+
+When a snapshot handler is defined, the view will start processing from the most recent snapshot instead of replaying historical events. After processing the snapshot, subsequent events are processed normally.
+
+[.tabset]
+Java::
++
+[source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
+----
+include::example$java-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=snapshot-handler]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/customer/customer_view.proto
+----
+include::example$scala-protobuf-eventsourced-customer-registry/src/main/proto/customer/view/customer_view.proto[tag=snapshot-handler]
+----
+
+The `handle_snapshots: true` annotation marks the method that will receive entity snapshots. The parameter type must match the state type of the Event Sourced Entity.
+
 [#es_register]
 === Register the View
 

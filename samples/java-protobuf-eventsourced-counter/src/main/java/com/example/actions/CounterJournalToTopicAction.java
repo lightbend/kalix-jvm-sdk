@@ -29,12 +29,12 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
     */
     // tag::counter-topic[]
     CounterTopicApi.Increased increased = // <1>
-      CounterTopicApi.Increased.newBuilder()
-        .setValue(valueIncreased.getValue())
-        .build();
+        CounterTopicApi.Increased.newBuilder()
+            .setValue(valueIncreased.getValue())
+            .build();
 
     return effects().reply(increased); // <2>
-  // tag::counter-topic-event-subject[]
+    // tag::counter-topic-event-subject[]
   }
   // end::counter-topic-event-subject[]
   // end::counter-topic[]
@@ -42,13 +42,24 @@ public class CounterJournalToTopicAction extends AbstractCounterJournalToTopicAc
   @Override
   public Effect<CounterTopicApi.Decreased> onDecreased(CounterDomain.ValueDecreased valueDecreased) {
     CounterTopicApi.Decreased decreased =
-      CounterTopicApi.Decreased.newBuilder()
-        .setValue(valueDecreased.getValue())
-        .build();
+        CounterTopicApi.Decreased.newBuilder()
+            .setValue(valueDecreased.getValue())
+            .build();
 
     return effects().reply(decreased);
   }
 
+  // tag::counter-snapshot[]
+  @Override
+  public Effect<CounterTopicApi.CurrentValue> onSnapshot(CounterDomain.CounterState counterState) {
+    // Snapshot handler processes entity state before any events
+    CounterTopicApi.CurrentValue currentValue =
+        CounterTopicApi.CurrentValue.newBuilder()
+            .setValue(counterState.getValue())
+            .build();
+    return effects().reply(currentValue);
+  }
+  // end::counter-snapshot[]
   // tag::counter-topic[]
 }
 // end::counter-topic[]
