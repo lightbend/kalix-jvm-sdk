@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.kalix</groupId>
+    <artifactId>kalix-tck-java-sdk_2.13</artifactId>
+    <packaging>jar</packaging>
+    <description>Java and Scala SDKs for Kalix</description>
+    <url>https://kalix.io</url>
+    <version>1.5.20-7-d1cc1e6a</version>
+    <licenses>
+        <license>
+            <name>BUSL-1.1</name>
+            <url>https://raw.githubusercontent.com/lightbend/kalix-jvm-sdk/main/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>kalix-tck-java-sdk</name>
+    <inceptionYear>2021</inceptionYear>
+    <organization>
+        <name>Lightbend Inc.</name>
+        <url>https://lightbend.com</url>
+    </organization>
+    <scm>
+        <url>https://github.com/lightbend/kalix-jvm-sdk</url>
+        <connection>scm:git:https://github.com/lightbend/kalix-jvm-sdk.git</connection>
+        <developerConnection>scm:git:git@github.com:lightbend/kalix-jvm-sdk.git</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>kalix-team</id>
+            <name>Kalix Team</name>
+            <url>https://lightbend.com</url>
+            <email>info@lightbend.com</email>
+        </developer>
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.13.17</version>
+        </dependency>
+        <dependency>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-java-sdk-protobuf</artifactId>
+            <version>1.5.20-7-d1cc1e6a</version>
+        </dependency>
+        <dependency>
+            <groupId>io.kalix</groupId>
+            <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
+            <version>1.5.20-7-d1cc1e6a</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.24.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lightbend.akka.grpc</groupId>
+            <artifactId>akka-grpc-runtime_2.13</artifactId>
+            <version>2.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>1.76.0</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.17</version>
+        </dependency>
+    </dependencies>
+</project>

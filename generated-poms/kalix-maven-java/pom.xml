@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.kalix</groupId>
+  <artifactId>kalix-maven-java</artifactId>
+  <version>1.4.1-20-0650d36a-dev</version>
+  <packaging>pom</packaging>
+
+  <name>Kalix Java Maven parent pom</name>
+  <description>This is the parent pom for the Kalix Maven plugin and archetypes</description>
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://opensource.org/licenses/Apache-2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <url>https://www.lightbend.com/kalix</url>
+  <scm>
+    <url>https://github.com/lightbend/kalix-jvm-sdk</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>lightbend-engineering</id>
+      <name>Lightbend Engineering</name>
+      <email>info@lightbend.com</email>
+      <organization>Lightbend Inc.</organization>
+      <organizationUrl>https://www.lightbend.com</organizationUrl>
+    </developer>
+  </developers>
+
+  <prerequisites>
+    <maven>${maven.version}</maven>
+  </prerequisites>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.release>11</maven.compiler.release>
+    <!-- keep in sync with
+     maven-java/kalix-maven-plugin/pom.xml#L176 and
+     docs/build/src/managed/modules/java/partials/attributes.adoc#L4
+    -->
+    <maven.version>3.9.0</maven.version>
+  </properties>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.13</version>
+          <extensions>true</extensions>
+          <configuration>
+            <serverId>ossrh</serverId>
+            <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <!-- 
+            this plugin allow us to change the version of this projects and submodules
+            we use it in CI to align the project with the current SDK version
+          -->
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.8.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <!--
+                      Needed on gpg 2.2 to avoid using the TTY
+                      to ask for the password.
+                    -->
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <modules>
+    <module>kalix-maven-plugin</module>
+    <module>kalix-maven-archetype-value-entity</module>
+    <module>kalix-spring-boot-archetype</module>
+    <module>kalix-spring-boot-kotlin-archetype</module>
+    <module>kalix-maven-archetype-event-sourced-entity</module>
+  </modules>
+</project>
