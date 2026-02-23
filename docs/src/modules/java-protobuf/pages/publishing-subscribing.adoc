@@ -40,7 +40,7 @@ include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/a
 Scala::
 +
 [source,proto,indent=0]
-.src/main/proto/customer/domain/customer_domain.proto
+.src/main/proto/com/example/actions/counter_topic.proto
 ----
 include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-topic]
 ----
@@ -73,6 +73,31 @@ include::example$scala-protobuf-eventsourced-counter/src/main/scala/com/example/
 <1> We convert the incoming domain event `ValueIncreased` to the outgoing topic API `Increased` and return that as a reply.
 
 In this example we have published Protobuf messages to the topic which is convenient if the consuming end is also a Kalix service. For an external consumer Protobuf may not be a supported format, for details on publishing other formats see xref:java-protobuf:serialization.adoc[Handling Serialization].
+
+=== Starting from Snapshot
+
+A Consumer that processes events from an Event Sourced Entity can optionally define a snapshot handler method to receive entity snapshots. This can provide significant performance improvements when a new consumer needs to catch up on a long event history.
+
+When a snapshot handler is defined, the consumer will start processing from the most recent snapshot instead of replaying historical events. After processing the snapshot, subsequent events are processed normally.
+
+[.tabset]
+Java::
++
+[source,protobuf,indent=0]
+.src/main/proto/com/example/actions/counter_topic.proto
+----
+include::example$java-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-snapshot]
+----
+
+Scala::
++
+[source,proto,indent=0]
+.src/main/proto/com/example/actions/counter_topic.proto
+----
+include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/actions/counter_topic.proto[tag=counter-snapshot]
+----
+
+The `handle_snapshots: true` annotation marks the method that will receive entity snapshots. The parameter type must match the state type of the Event Sourced Entity.
 
 == Subscribing to state changes from a Value Entity
 
@@ -169,6 +194,8 @@ Scala::
 ----
 include::example$scala-protobuf-eventsourced-customer-registry/src/main/scala/customer/api/CustomerEventsServiceAction.scala[tag=transform]
 ----
+
+xref:publishing-subscribing.adoc#_starting_from_snapshot[] can be used for service-to-service eventing. The snapshot handling is defined on the producer side, where the snapshot is transformed to an event that consumers receive like any other event.
 
 === Event Consumer
 

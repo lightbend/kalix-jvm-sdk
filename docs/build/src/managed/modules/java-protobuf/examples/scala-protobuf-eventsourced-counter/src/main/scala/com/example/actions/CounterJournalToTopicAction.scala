@@ -2,6 +2,7 @@ package com.example.actions
 
 import kalix.scalasdk.action.Action
 import kalix.scalasdk.action.ActionCreationContext
+import com.example.domain.CounterState
 import com.example.domain.ValueDecreased
 import com.example.domain.ValueIncreased
 
@@ -28,6 +29,13 @@ class CounterJournalToTopicAction(creationContext: ActionCreationContext) extend
   override def onDecreased(valueDecreased: ValueDecreased): Action.Effect[Decreased] = {
     effects.reply(Decreased(valueDecreased.value))
   }
+
+  // tag::counter-snapshot[]
+  override def onSnapshot(counterState: CounterState): Action.Effect[CurrentValue] = {
+    // Snapshot handler processes entity state before any events
+    effects.reply(CurrentValue(counterState.value))
+  }
+  // end::counter-snapshot[]
   // tag::counter-topic[]
 }
 // end::counter-topic[]

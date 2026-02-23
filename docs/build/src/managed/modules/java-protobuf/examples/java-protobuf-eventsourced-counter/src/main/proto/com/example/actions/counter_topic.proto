@@ -33,6 +33,12 @@ message Decreased {
   int32 value = 1;
 }
 
+// end::counter-topic[]
+message CurrentValue {
+  int32 value = 1;
+}
+// tag::counter-topic[]
+
 service CounterJournalToTopic {
   option (kalix.codegen) = {
     action: {}  // <2>
@@ -65,6 +71,20 @@ service CounterJournalToTopic {
     };
   }
   // end::counter-ignore[]
+  // tag::counter-topic[]
+
+  // end::counter-topic[]
+  // tag::counter-snapshot[]
+  rpc OnSnapshot (com.example.domain.CounterState) returns (CurrentValue) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+      handle_snapshots: true
+    };
+    option (kalix.method).eventing.out = {
+      topic: "counter-events"
+    };
+  }
+  // end::counter-snapshot[]
   // tag::counter-topic[]
 }
 // end::counter-topic[]

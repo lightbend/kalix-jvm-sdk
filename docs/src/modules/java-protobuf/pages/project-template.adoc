@@ -166,7 +166,7 @@ For more details see xref:java-protobuf:value-entity.adoc[].
 
 === Unit [.source-java]#and integration# tests
 
-The Kalix plugin creates a unit test stub for the Entity. Use this stub as a starting point to test the logic in your implementation. [.group-java]#The Kalix Java/Protobuf SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/junit5/[JUnit 5].#
+The Kalix plugin creates a unit test stub for the Entity. Use this stub as a starting point to test the logic in your implementation. [.group-java]#The Kalix Java/Protobuf SDK test kit supports both link:https://junit.org/junit4/[JUnit 4] and link:https://junit.org/[JUnit 5].#
 
 [.tabset]
 Java::

@@ -73,6 +73,20 @@ service CustomerByName {
   };
   // end::ignore-other-events[]
 
+  // end::service-event-sourced[]
+  // tag::snapshot-handler[]
+  rpc ProcessSnapshot(domain.CustomerState) returns (api.Customer) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "customers"
+      handle_snapshots: true
+    };
+    option (kalix.method).view.update = {
+      table: "customers"
+    };
+  }
+  // end::snapshot-handler[]
+  // tag::service-event-sourced[]
+
   rpc GetCustomers(ByNameRequest) returns (stream api.Customer) {
     option (kalix.method).view.query = {
       query: "SELECT * FROM customers WHERE name = :customer_name"
