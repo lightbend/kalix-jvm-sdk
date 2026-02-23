@@ -33,8 +33,8 @@ public class CustomerByNameView extends AbstractCustomerByNameView { // <1>
 
   @Override // <3>
   public UpdateEffect<CustomerApi.Customer> processCustomerCreated(
-    CustomerApi.Customer state,
-    CustomerDomain.CustomerCreated customerCreated) {
+      CustomerApi.Customer state,
+      CustomerDomain.CustomerCreated customerCreated) {
     if (state != null) {
       return effects().ignore(); // already created
     } else {
@@ -44,18 +44,26 @@ public class CustomerByNameView extends AbstractCustomerByNameView { // <1>
 
   @Override // <3>
   public UpdateEffect<CustomerApi.Customer> processCustomerNameChanged(
-    CustomerApi.Customer state,
-    CustomerDomain.CustomerNameChanged customerNameChanged) {
+      CustomerApi.Customer state,
+      CustomerDomain.CustomerNameChanged customerNameChanged) {
     return effects().updateState(
         state.toBuilder().setName(customerNameChanged.getNewName()).build());
   }
 
   @Override // <3>
   public UpdateEffect<CustomerApi.Customer> processCustomerAddressChanged(
-    CustomerApi.Customer state,
-    CustomerDomain.CustomerAddressChanged customerAddressChanged) {
+      CustomerApi.Customer state,
+      CustomerDomain.CustomerAddressChanged customerAddressChanged) {
     return effects().updateState(
         state.toBuilder().setAddress(convertToApi(customerAddressChanged.getNewAddress())).build());
+  }
+
+  @Override
+  public UpdateEffect<CustomerApi.Customer> processSnapshot(
+      CustomerApi.Customer state,
+      CustomerDomain.CustomerState customerState) {
+    // Initialize view from entity snapshot
+    return effects().updateState(convertToApi(customerState));
   }
 
   private CustomerApi.Customer convertToApi(CustomerDomain.CustomerState s) {

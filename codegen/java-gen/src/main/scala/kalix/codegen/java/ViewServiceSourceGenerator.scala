@@ -55,6 +55,12 @@ object ViewServiceSourceGenerator {
           c"""|case "$methodName":
               |  return view().${lowerFirst(methodName)}(state);
               |"""
+        } else if (cmd.handleSnapshots) {
+          c"""|case "$methodName":
+              |  return view().${lowerFirst(methodName)}(
+              |      state,
+              |      ($inputType) event);
+              |"""
         } else {
           c"""|case "$methodName":
               |  return view().${lowerFirst(methodName)}(
@@ -261,6 +267,15 @@ object ViewServiceSourceGenerator {
                 |  throw new UnsupportedOperationException("Delete handler for '${update.name}' not implemented yet");
                 |}
                 |"""
+          } else if (update.handleSnapshots) {
+            c"""|@Override
+                |public $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+                |    $stateType state,
+                |    ${update.inputType} ${lowerFirst(update.inputType.name)}) {
+                |  // Snapshot handler processes entity state on view startup before any events
+                |  throw new UnsupportedOperationException("Snapshot handler for '${update.name}' not implemented yet");
+                |}
+                |"""
           } else {
             c"""|@Override
                 |public $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
@@ -341,6 +356,12 @@ object ViewServiceSourceGenerator {
       if (update.handleDeletes) {
         c"""|public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
             |    $stateType state);
+            |"""
+      } else if (update.handleSnapshots) {
+        c"""|/** Snapshot handler for initializing view state from entity snapshots. */
+            |public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(
+            |    $stateType state,
+            |    ${update.inputType} ${lowerFirst(update.inputType.name)});
             |"""
       } else {
         c"""|public abstract $View.UpdateEffect<$stateType> ${lowerFirst(update.name)}(

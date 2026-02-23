@@ -72,6 +72,12 @@ object ViewServiceSourceGenerator {
             |  view.${lowerFirst(methodName)}(
             |      state)
             |""".stripMargin
+      } else if (cmd.handleSnapshots) {
+        s"""|case "$methodName" =>
+            |  view.${lowerFirst(methodName)}(
+            |      state,
+            |      event.asInstanceOf[${typeName(cmd.inputType)}])
+            |""".stripMargin
       } else {
         s"""|case "$methodName" =>
             |  view.${lowerFirst(methodName)}(
@@ -261,6 +267,13 @@ object ViewServiceSourceGenerator {
             |    state: $stateType): UpdateEffect[$stateType] =
             |  throw new UnsupportedOperationException("Delete handler for '${update.name}' not implemented yet")
             |""".stripMargin
+      } else if (update.handleSnapshots) {
+        s"""|override def ${lowerFirst(update.name)}(
+            |    state: $stateType,
+            |    ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): UpdateEffect[$stateType] =
+            |  // Snapshot handler processes entity state on view startup before any events
+            |  throw new UnsupportedOperationException("Snapshot handler for '${update.name}' not implemented yet")
+            |""".stripMargin
       } else {
         s"""|override def ${lowerFirst(update.name)}(
             |    state: $stateType,
@@ -338,6 +351,12 @@ object ViewServiceSourceGenerator {
           if (update.handleDeletes) {
             s"""|def ${lowerFirst(update.name)}(
                 |    state: $stateType): View.UpdateEffect[$stateType]
+                |""".stripMargin
+          } else if (update.handleSnapshots) {
+            s"""|/** Snapshot handler for initializing view state from entity snapshots. */
+                |def ${lowerFirst(update.name)}(
+                |    state: $stateType,
+                |    ${lowerFirst(update.inputType.name)}: ${typeName(update.inputType)}): View.UpdateEffect[$stateType]
                 |""".stripMargin
           } else {
             s"""|def ${lowerFirst(update.name)}(
