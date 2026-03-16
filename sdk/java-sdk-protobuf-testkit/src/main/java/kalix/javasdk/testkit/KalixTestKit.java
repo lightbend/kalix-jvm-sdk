@@ -35,6 +35,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static kalix.javasdk.testkit.impl.KalixRuntimeContainer.DEFAULT_GOOGLE_PUBSUB_PORT;
@@ -557,6 +558,8 @@ public class KalixTestKit {
   private final EventingTestKit.MessageBuilder messageBuilder;
   private final Settings settings;
 
+  private final Supplier<Integer> portAllocator;
+
   private boolean started = false;
   private String proxyHost;
   private int proxyPort;
@@ -571,7 +574,7 @@ public class KalixTestKit {
    * @param kalix Kalix service descriptor
    */
   public KalixTestKit(final Kalix kalix) {
-    this(kalix, kalix.getMessageCodec(), Settings.DEFAULT);
+    this(kalix, kalix.getMessageCodec(), Settings.DEFAULT, KalixTestKit::availableLocalPort);
   }
 
   /**
@@ -581,7 +584,7 @@ public class KalixTestKit {
    * @param settings custom testkit settings
    */
   public KalixTestKit(final Kalix kalix, final Settings settings) {
-    this(kalix, kalix.getMessageCodec(), settings);
+    this(kalix, kalix.getMessageCodec(), settings, KalixTestKit::availableLocalPort);
   }
 
   /**
@@ -592,10 +595,29 @@ public class KalixTestKit {
    * @param settings custom testkit settings
    */
   public KalixTestKit(final Kalix kalix, final MessageCodec messageCodec, final Settings settings) {
+    this(kalix, messageCodec, settings, KalixTestKit::availableLocalPort);
+  }
+
+  /**
+   * Create a new testkit for a Kalix service descriptor with custom settings and a custom port
+   * allocator.
+   *
+   * @param kalix Kalix service descriptor
+   * @param messageCodec message codec
+   * @param settings custom testkit settings
+   * @param portAllocator supplies the candidate port number used when binding the user-function
+   *     server; called again on each retry attempt
+   */
+  public KalixTestKit(
+      final Kalix kalix,
+      final MessageCodec messageCodec,
+      final Settings settings,
+      final Supplier<Integer> portAllocator) {
     this.kalix = kalix;
     this.messageCodec = messageCodec;
     this.messageBuilder = new EventingTestKit.MessageBuilder(messageCodec);
     this.settings = settings;
+    this.portAllocator = portAllocator;
   }
 
   /**
@@ -620,7 +642,7 @@ public class KalixTestKit {
         Optional.ofNullable(System.getenv("KALIX_TESTKIT_USE_TEST_CONTAINERS"))
             .map(Boolean::valueOf)
             .orElse(true);
-    int port = userServicePort(useTestContainers);
+    int port = selectServicePort(useTestContainers);
     Map<String, Object> conf = new HashMap<>();
     conf.put("kalix.user-function-port", port);
     // don't kill the test JVM when terminating the KalixRunner
@@ -777,12 +799,29 @@ public class KalixTestKit {
     holder.overrideTracingCollectorEndpoint(""); // emulating ProxyInfo with disabled tracing.
   }
 
-  private int userServicePort(Boolean useTestContainers) {
-    if (useTestContainers) {
-      return availableLocalPort();
-    } else {
-      return KalixRuntimeContainer.DEFAULT_USER_SERVICE_PORT;
+  // package-private to allow direct testing of retry behaviour
+  int selectServicePort(boolean useTestContainers) {
+    if (!useTestContainers) return KalixRuntimeContainer.DEFAULT_USER_SERVICE_PORT;
+
+    int maxRetries = 3;
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        return portAllocator.get();
+      } catch (RuntimeException e) {
+        if (attempt == maxRetries - 1) {
+          throw new RuntimeException(
+              "Could not acquire an available port after " + maxRetries + " attempts", e);
+        }
+        log.warn("Port unavailable, retrying ({}/{})...", attempt + 1, maxRetries);
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          throw new RuntimeException("Interrupted while waiting to retry port acquisition", ie);
+        }
+      }
     }
+    throw new IllegalStateException("unreachable");
   }
 
   /**
