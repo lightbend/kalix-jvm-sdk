@@ -20,6 +20,7 @@ import com.google.protobuf.DescriptorProtos
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto
 import com.google.protobuf.empty.Empty
 import kalix.javasdk.BuildInfo
+import kalix.javasdk.impl.backoffice.BackofficeSettingsLoader
 import kalix.javasdk.replicatedentity.ReplicatedEntityOptions
 import kalix.javasdk.replicatedentity.WriteConsistency
 import kalix.protocol.action.Actions
@@ -36,6 +37,7 @@ class DiscoveryImpl(
     extends Discovery {
   import DiscoveryImpl._
 
+  import system.dispatcher
   private val log = LoggerFactory.getLogger(getClass)
 
   private val serviceIncarnationUuid = UUID.randomUUID().toString
@@ -164,7 +166,14 @@ class DiscoveryImpl(
       aclDescriptor.foreach(file => fileDescriptorsBuilder.addFile(file))
 
       val fileDescriptors = fileDescriptorsBuilder.build()
-      Future.successful(Spec(fileDescriptors.toByteString, components, Some(serviceInfo)))
+
+      if (in.devMode) {
+        BackofficeSettingsLoader.loadBackofficeSettings(system).map { backofficeSettings =>
+          Spec(fileDescriptors.toByteString, components, Some(serviceInfo.copy(backoffice = backofficeSettings)))
+        }
+      } else {
+        Future.successful(Spec(fileDescriptors.toByteString, components, Some(serviceInfo)))
+      }
     }
   }
 

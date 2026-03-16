@@ -1,0 +1,49 @@
+// Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
+
+syntax = "proto3";
+
+package kalix.auth.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_outer_classname = "AuthProto";
+option java_package = "kalix.api.auth.v1alpha";
+
+service Auth {
+  // Create an access token
+  rpc CreateAccessToken (CreateAccessTokenRequest) returns (AccessToken);
+}
+
+message CreateAccessTokenRequest {
+}
+
+message AccessToken {
+  // The subject of the access token
+  // This will be the name of the refresh, service or session token that was used to create this token
+  string subject = 1;
+  string token = 2;
+  google.protobuf.Timestamp created_time = 3;
+  google.protobuf.Timestamp expire_time = 4;
+  repeated TokenScope scopes = 5;
+}
+
+enum TokenScope {
+  // Can do everything
+  ALL = 0;
+
+  // Can read/write projects
+  PROJECTS = 1;
+
+  // Can read/write the user, including create new tokens
+  USER = 2;
+
+  // Can access the execution servers (ie, kubernetes). Only works with session tokens.
+  EXECUTION = 3;
+
+  // Can access organizations
+  ORGANIZATIONS = 4;
+
+  // Can access container registry
+  CONTAINER_REGISTRY = 5;
+}
