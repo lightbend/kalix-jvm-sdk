@@ -550,12 +550,20 @@ public class KalixTestKit {
     }
   }
 
+  /** Internal hook for replacing the startup logic, used in tests. */
+  @FunctionalInterface
+  interface StartFunction {
+    void run(Config config) throws Exception;
+  }
+
   private static final Logger log = LoggerFactory.getLogger(KalixTestKit.class);
 
   private final Kalix kalix;
   private final MessageCodec messageCodec;
   private final EventingTestKit.MessageBuilder messageBuilder;
   private final Settings settings;
+  private final StartFunction startFunction;
+  private final long retryDelayMs;
 
   private boolean started = false;
   private String proxyHost;
@@ -596,6 +604,18 @@ public class KalixTestKit {
     this.messageCodec = messageCodec;
     this.messageBuilder = new EventingTestKit.MessageBuilder(messageCodec);
     this.settings = settings;
+    this.startFunction = this::startInternal;
+    this.retryDelayMs = 1000;
+  }
+
+  /** Package-private constructor for testing the retry logic without real infrastructure. */
+  KalixTestKit(StartFunction startFunction, Settings settings) {
+    this.kalix = null;
+    this.messageCodec = null;
+    this.messageBuilder = null;
+    this.settings = settings;
+    this.startFunction = startFunction;
+    this.retryDelayMs = 0;
   }
 
   /**
@@ -616,6 +636,31 @@ public class KalixTestKit {
   public KalixTestKit start(final Config config) {
     if (started) throw new IllegalStateException("KalixTestkit already started");
 
+    int maxRetries = 3;
+    Exception lastException = null;
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        startFunction.run(config);
+        return this;
+      } catch (Exception e) {
+        lastException = e;
+        log.warn("KalixTestKit start attempt {}/{} failed: {}", attempt, maxRetries, e.getMessage());
+        stopPartial();
+        if (attempt < maxRetries) {
+          try {
+            Thread.sleep(retryDelayMs);
+          } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted while waiting to retry KalixTestKit start", ie);
+          }
+        }
+      }
+    }
+    throw new RuntimeException(
+        "KalixTestKit failed to start after " + maxRetries + " attempts", lastException);
+  }
+
+  private void startInternal(final Config config) {
     Boolean useTestContainers =
         Optional.ofNullable(System.getenv("KALIX_TESTKIT_USE_TEST_CONTAINERS"))
             .map(Boolean::valueOf)
@@ -646,8 +691,38 @@ public class KalixTestKit {
 
     if (log.isDebugEnabled())
       log.debug("TestKit using [{}:{}] for calls to proxy from service", proxyHost, proxyPort);
+  }
 
-    return this;
+  private void stopPartial() {
+    try {
+      runtimeContainer.ifPresent(KalixRuntimeContainer::stop);
+    } catch (Exception e) {
+      log.warn("Failed to stop runtime container during retry cleanup", e);
+    } finally {
+      runtimeContainer = Optional.empty();
+    }
+    try {
+      if (testSystem != null) {
+        testSystem.terminate();
+        testSystem.getWhenTerminated().toCompletableFuture()
+            .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to terminate ActorSystem during retry cleanup", e);
+    } finally {
+      testSystem = null;
+    }
+    try {
+      if (runner != null) {
+        runner.terminate().toCompletableFuture()
+            .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to terminate KalixRunner during retry cleanup", e);
+    } finally {
+      runner = null;
+      eventingTestKit = null;
+    }
   }
 
   private int startEventingTestkit(Boolean useTestContainers) {
