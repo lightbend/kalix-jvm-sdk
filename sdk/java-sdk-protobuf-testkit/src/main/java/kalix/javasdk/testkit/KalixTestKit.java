@@ -644,7 +644,8 @@ public class KalixTestKit {
         return this;
       } catch (Exception e) {
         lastException = e;
-        log.warn("KalixTestKit start attempt {}/{} failed: {}", attempt, maxRetries, e.getMessage());
+        log.warn(
+            "KalixTestKit start attempt {}/{} failed: {}", attempt, maxRetries, e.getMessage());
         stopPartial();
         if (attempt < maxRetries) {
           try {
@@ -704,7 +705,9 @@ public class KalixTestKit {
     try {
       if (testSystem != null) {
         testSystem.terminate();
-        testSystem.getWhenTerminated().toCompletableFuture()
+        testSystem
+            .getWhenTerminated()
+            .toCompletableFuture()
             .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
       }
     } catch (Exception e) {
@@ -714,7 +717,9 @@ public class KalixTestKit {
     }
     try {
       if (runner != null) {
-        runner.terminate().toCompletableFuture()
+        runner
+            .terminate()
+            .toCompletableFuture()
             .get(settings.stopTimeout.toMillis(), TimeUnit.MILLISECONDS);
       }
     } catch (Exception e) {
