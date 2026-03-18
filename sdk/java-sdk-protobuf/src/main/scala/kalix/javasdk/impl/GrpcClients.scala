@@ -6,12 +6,10 @@ package kalix.javasdk.impl
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
-
 import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.ClassicActorSystemProvider
@@ -25,6 +23,8 @@ import akka.grpc.javadsl.{ AkkaGrpcClient => AkkaGrpcJavaClient }
 import akka.grpc.scaladsl.{ AkkaGrpcClient => AkkaGrpcScalaClient }
 import io.grpc.CallCredentials
 import io.grpc.Metadata
+import kalix.javasdk.impl.backoffice.BackofficeServiceSupport
+import kalix.protocol.discovery.{ BackofficeService, BackofficeSettings }
 import org.slf4j.LoggerFactory
 
 /**
@@ -55,6 +55,9 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   private val MaxCrossServiceResponseContentLength =
     system.settings.config.getBytes("kalix.cross-service.max-content-length").toInt
 
+  @volatile
+  private var _backofficeServiceConfig: Option[Map[String, BackofficeService]] = None
+
   CoordinatedShutdown(system).addTask(CoordinatedShutdown.PhaseServiceStop, "stop-grpc-clients")(() =>
     Future
       .traverse(clients.values().asScala) {
@@ -80,6 +83,11 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   def getGrpcClient[T](serviceClass: Class[T], service: String): T = {
     val remoteAddHeader = proxyInfoHolder.remoteIdentificationHeader
     getGrpcClient(serviceClass, service, port = 80, remoteAddHeader)
+  }
+
+  /** Called by the backoffice settings loader if it loads backoffice settings successfully */
+  def provideBackofficeSettings(backofficeSettings: BackofficeSettings): Unit = {
+    _backofficeServiceConfig = Some(backofficeSettings.services.map(s => s.name -> s).toMap)
   }
 
   /** gRPC clients point to services (user components or Kalix services) in the same deployable */
@@ -121,36 +129,48 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
   }
 
   private def createClient(key: Key): AnyRef = {
-    val settings =
-      if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
-        // "service" is not present in the config, treat it as an Akka gRPC inter-service call
-        log.debug("Creating gRPC client for Kalix service [{}:{}]", key.service, key.port)
-        GrpcClientSettings
-          .connectToServiceAt(key.service, key.port)(system)
-          // (TLS is handled for us by Kalix infra)
-          .withTls(false)
+    val settings = _backofficeServiceConfig.flatMap(_.get(key.service)) match {
+      case Some(service) =>
+        log.debug(
+          "Creating gRPC client for Kalix service [{}] through backoffice [{}] for service [{}] in project [{}]",
+          key.service,
+          service.backofficeProxyHost,
+          service.serviceName,
+          service.projectId)
+        BackofficeServiceSupport
+          .grpcClientFor(key.service, service, system)
           .withChannelBuilderOverrides(channelBuilder =>
             channelBuilder.maxInboundMessageSize(MaxCrossServiceResponseContentLength))
-      } else {
-        log.debug("Creating gRPC client for external service [{}]", key.service)
-        // external service, defined in config
-        GrpcClientSettings.fromConfig(key.service)(system)
-      }
-
-    val settingsWithCallCredentials = key.addHeader match {
-      case Some((key, value)) =>
-        val headers = new Metadata()
-        headers.put(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER), value)
-        settings.withCallCredentials(new CallCredentials {
-          override def applyRequestMetadata(
-              requestInfo: CallCredentials.RequestInfo,
-              appExecutor: Executor,
-              applier: CallCredentials.MetadataApplier): Unit = {
-            applier.apply(headers)
-          }
-          override def thisUsesUnstableApi(): Unit = ()
-        })
-      case None => settings
+      case None =>
+        val settings = if (!system.settings.config.hasPath(s"""akka.grpc.client."${key.service}"""")) {
+          // "service" is not present in the config, treat it as an Akka gRPC inter-service call
+          log.debug("Creating gRPC client for Kalix service [{}:{}]", key.service, key.port)
+          GrpcClientSettings
+            .connectToServiceAt(key.service, key.port)(system)
+            // (TLS is handled for us by Kalix infra)
+            .withTls(false)
+            .withChannelBuilderOverrides(channelBuilder =>
+              channelBuilder.maxInboundMessageSize(MaxCrossServiceResponseContentLength))
+        } else {
+          log.debug("Creating gRPC client for external service [{}]", key.service)
+          // external service, defined in config
+          GrpcClientSettings.fromConfig(key.service)(system)
+        }
+        key.addHeader match {
+          case Some((key, value)) =>
+            val headers = new Metadata()
+            headers.put(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER), value)
+            settings.withCallCredentials(new CallCredentials {
+              override def applyRequestMetadata(
+                  requestInfo: CallCredentials.RequestInfo,
+                  appExecutor: Executor,
+                  applier: CallCredentials.MetadataApplier): Unit = {
+                applier.apply(headers)
+              }
+              override def thisUsesUnstableApi(): Unit = ()
+            })
+          case None => settings
+        }
     }
 
     // expected to have a ServiceNameClient generated in the same package, so look that up through reflection
@@ -159,13 +179,13 @@ final class GrpcClients(system: ExtendedActorSystem) extends Extension {
       if (classOf[AkkaGrpcJavaClient].isAssignableFrom(clientClass)) {
         // Java API - static create
         val create = clientClass.getMethod("create", classOf[GrpcClientSettings], classOf[ClassicActorSystemProvider])
-        create.invoke(null, settingsWithCallCredentials, system)
+        create.invoke(null, settings, system)
       } else if (classOf[AkkaGrpcScalaClient].isAssignableFrom(clientClass)) {
         // Scala API - companion object apply
         val companion = system.dynamicAccess.getObjectFor[AnyRef](key.serviceClass.getName + "Client").get
         val create =
           companion.getClass.getMethod("apply", classOf[GrpcClientSettings], classOf[ClassicActorSystemProvider])
-        create.invoke(companion, settingsWithCallCredentials, system)
+        create.invoke(companion, settings, system)
       } else {
         throw new IllegalArgumentException(s"Expected an AkkaGrpcClient but was [${clientClass.getName}]")
       }

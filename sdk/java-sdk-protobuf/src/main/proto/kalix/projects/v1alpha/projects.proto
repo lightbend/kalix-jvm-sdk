@@ -1,0 +1,78 @@
+// Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
+
+syntax = "proto3";
+
+package kalix.projects.v1alpha;
+
+option java_multiple_files = true;
+option java_outer_classname = "ProjectsProto";
+option java_package = "kalix.api.projects.v1alpha";
+
+service Projects {
+
+  // List projects that a user is part of.
+  //
+  // Authentication required: yes
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
+
+  // Get a list of regions available to the project.
+  //
+  // Authentication required: yes
+  rpc ListRegions(ListRegionsRequest) returns (ListRegionsResponse);
+}
+
+message ListProjectsRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+  bool include_deleted = 3;
+  bool include_system_deleted = 4;
+  string organization_filter = 5; // blank for no filter
+}
+
+message ListProjectsResponse {
+  repeated Project projects = 1;
+  string next_page_token = 2;
+}
+
+message Project {
+  string name = 1;
+  string friendly_name = 2;
+  oneof owner {
+    UserOwner user_owner = 4;
+    OrganizationOwner organization_owner = 5;
+  };
+  repeated string execution_cluster_names = 11;
+}
+
+message UserOwner {
+  // The user ID, e.g. "1a3fefd0-79e2-468b-b776-16ca1a16ffde" (UUID)
+  string id = 1;
+  string friendly_name = 2;
+}
+
+message OrganizationOwner {
+  // The organization ID, e.g. "1a3fefd0-79e2-468b-b776-16ca1a16ffde" (UUID)
+  string id = 1;
+  string friendly_name = 2;
+}
+
+message ListRegionsRequest {
+  string parent = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListRegionsResponse {
+  repeated Region regions = 1;
+  string next_page_token = 2;
+}
+
+message Region {
+  string name = 1;
+
+  // This is the hostname for the backoffice proxy
+  string backoffice_proxy_hostname = 10;
+
+  // Whether this is the primary region
+  bool primary = 15;
+}
