@@ -886,3 +886,16 @@ jobs:
           sbt  -Dkalix-sdk.version=$SDK_VERSION '++2.13.17! Test/compile'
           echo "==== Verifying that generated unmanaged sources compile with Scala 3 ===="
           sbt  -Dkalix-sdk.version=$SDK_VERSION 'clean; ++3.3.7! Test/compile'
+
+  all-checks:
+    name: All checks passed
+    runs-on: Akka-Default
+    if: always()
+    needs: [tck-tests, sbt-test, maven-samples, sbt-samples]
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "One or more required jobs failed or were cancelled"
+            exit 1
+          fi
