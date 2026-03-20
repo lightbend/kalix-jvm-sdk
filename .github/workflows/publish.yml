@@ -2,9 +2,6 @@ name: Publish
 
 on:
   push:
-    branches:
-      - main
-      - release-*
     tags: ["v*"]
 
 permissions:
