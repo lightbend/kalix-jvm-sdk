@@ -1,10 +1,10 @@
 # Releasing Kalix Java SDK
 
-Create a release issue (using the [GitHub CLI](https://cli.github.com/))
+Create a release issue (using the [GitHub CLI](https://cli.github.com/)):
 
 ```shell
-gh issue create --title 'Release Kalix Java/Scala SDKs' --label kalix-runtime --body-file docs/release-issue-template.md -w
-````
+sh ./scripts/create-release-issue.sh 1.x.y
+```
 
 and follow the instructions.
 
