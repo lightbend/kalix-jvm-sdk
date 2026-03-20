@@ -11,11 +11,13 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 ### Cutting the release 
 
 - [ ] Update the "Change date" on [the license](../blob/main/LICENSE#L9) to release date plus three years and the version of the SDK in "Licensed Work".
-- [ ] Use the "Generate release notes" button to create [a new release](https://github.com/lightbend/kalix-jvm-sdk/releases/new) with the appropriate tag.
+- [ ] Use the "Generate release notes" button to create [a new release](https://github.com/lightbend/kalix-jvm-sdk/releases/new?tag=v$VERSION$) with the appropriate tag.
     - Review the generated notes and "Publish release"
     - CI will automatically publish to the repository based on the tag
 
 ### Check availability
+
+- [ ] Wait for the [Publish action](https://github.com/lightbend/kalix-jvm-sdk/actions/workflows/publish.yml) to complete for the release tag
 
 - [ ] Manually update [`docs/kalix-current`](https://github.com/lightbend/kalix-jvm-sdk/commits/docs/kalix-current) (There is a workflow but that has been failing, possibly for expired secrets)
   - To update that branch, run this locally
@@ -26,8 +28,8 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
     ```
 
 - [ ] Check the released artifacts
-    - [ ] Check the parent pom version is available at maven central https://repo1.maven.org/maven2/io/kalix/kalix-java-sdk-protobuf-parent/
-    - [ ] Check the version is listed in our own https://repo.akka.io/maven/io/kalix/kalix-jvm-core-sdk/.
+    - [ ] Check the parent pom is available at Maven Central: `mvn dependency:get -Dartifact=io.kalix:kalix-java-sdk-protobuf-parent:$VERSION$:pom`
+    - [ ] Check the core SDK is available in our own repo: `mvn dependency:get -Dartifact=io.kalix:kalix-jvm-core-sdk:$VERSION$ -Dmaven.repo.remote=https://repo.akka.io/maven`
 
 ### Fix and publish docs
 
