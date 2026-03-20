@@ -8,7 +8,7 @@ licenses := Seq(("CC0", url("https://creativecommons.org/publicdomain/zero/1.0")
 scalaVersion := "3.3.7"
 
 enablePlugins(KalixPlugin, JavaAppPackaging, DockerPlugin)
-dockerBaseImage := "docker.io/library/eclipse-temurin:21.0.7_6-jre-noble"
+dockerBaseImage := "docker.io/library/eclipse-temurin:21.0.10_7-jre-ubi9-minimal"
 // For Docker setup see https://docs.kalix.io/operations/container-registries.html
 dockerRepository := sys.props.get("docker.registry").orElse(Some("kcr.us-east-1.kalix.io"))
 dockerUsername := sys.props.get("docker.username") // use your Kalix organization name
