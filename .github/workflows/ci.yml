@@ -23,8 +23,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -34,8 +33,7 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: |
             ~/.cache/coursier
@@ -49,13 +47,12 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.21
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -90,8 +87,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -101,8 +97,7 @@ jobs:
 
       - name: Cache Coursier cache
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/coursier
@@ -116,26 +111,24 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.21
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
-          path: scripts
+          path: github-actions-scripts
 
       - name: Setup global resolver
         run: |
-          chmod +x ./scripts/setup_global_resolver.sh
-          ./scripts/setup_global_resolver.sh
+          ./github-actions-scripts/setup_global_resolver.sh
+          cp -r ./github-actions-scripts ~/
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
@@ -145,11 +138,16 @@ jobs:
       - name: Build and publish artifacts and plugins
         id: build_sdk
         run: |-
-          sbt -Ddisable.apidocs=true publishM2 +publishLocal
+          sbt -Ddisable.apidocs=true publishM2 +publishLocal makePom
           # the SDK_VERSION is later used to run the maven tests (see below)
           .github/determine-sdk-version.sh
           SDK_VERSION="$(cat ~/kalix-sdk-version.txt)"
           echo "SDK version: '${SDK_VERSION}'"
+
+      - name: Verify checked in pom.xml files
+        run: |
+          ~/github-actions-scripts/pom-organize.sh
+          ~/github-actions-scripts/pom-no-diff.sh
 
       - name: Build maven-java
         run: |-
@@ -166,8 +164,7 @@ jobs:
 
       - name: Upload io.kalix dependencies
         # https://github.com/actions/upload-artifact/releases
-        # v4.6.0
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        uses: actions/upload-artifact@v7
         with:
           name: m2-cache
           path: ~/dependencies.tar.gz
@@ -189,8 +186,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -200,8 +196,7 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: |
             ~/.cache/coursier
@@ -215,13 +210,12 @@ jobs:
 
       - name: Set up ${{ matrix.jdk }}
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: ${{ matrix.jdk }}
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -233,8 +227,7 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v4.1.8
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@v8
         with:
           name: m2-cache
           path: ~/
@@ -255,8 +248,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -266,8 +258,7 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: |
             ~/.cache/coursier
@@ -281,13 +272,12 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.21
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -299,8 +289,7 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v4.1.8
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@v8
         with:
           name: m2-cache
           path: ~/
@@ -321,8 +310,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -332,14 +320,13 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/actions/setup-java/releases/
-        # v4.2.1
-        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -351,8 +338,7 @@ jobs:
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
@@ -361,8 +347,7 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v4.1.8
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@v8
         with:
           name: m2-cache
           path: ~/
@@ -398,8 +383,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -409,8 +393,7 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: |
             ~/.cache/coursier
@@ -424,13 +407,12 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.21
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -442,8 +424,7 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v4.1.8
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@v8
         with:
           name: m2-cache
           path: ~/
@@ -461,8 +442,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -472,8 +452,7 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: |
             ~/.cache/coursier
@@ -487,13 +466,12 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.21
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -505,8 +483,7 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v4.1.8
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@v8
         with:
           name: m2-cache
           path: ~/
@@ -533,8 +510,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -554,8 +530,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -565,8 +540,7 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: |
             ~/.cache/coursier
@@ -580,13 +554,12 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.21
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -598,8 +571,7 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v4.1.8
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@v8
         with:
           name: m2-cache
           path: ~/
@@ -658,8 +630,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -669,13 +640,12 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.21
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -687,8 +657,7 @@ jobs:
 
       - name: Cache Maven repository
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('maven-java/pom.xml') }}
@@ -697,8 +666,7 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v4.1.8
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@v8
         with:
           name: m2-cache
           path: ~/
@@ -791,8 +759,7 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Checkout GitHub merge
         if: github.event.pull_request
@@ -802,8 +769,7 @@ jobs:
 
       - name: Restore Coursier cache
         # https://github.com/actions/cache/releases
-        # v4.2.0
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+        uses: actions/cache/restore@v5
         with:
           path: |
             ~/.cache/coursier
@@ -817,13 +783,12 @@ jobs:
 
       - name: Set up JDK 21
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.21
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
           path: scripts
@@ -835,8 +800,7 @@ jobs:
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
-        # v4.1.8
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@v8
         with:
           name: m2-cache
           path: ~/
