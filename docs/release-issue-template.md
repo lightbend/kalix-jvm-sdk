@@ -29,7 +29,7 @@ You can see the Kalix Runtime version on prod [on grafana](https://grafana.sre.k
 
 - [ ] Check the released artifacts
     - [ ] Check the parent pom is available at Maven Central: `mvn dependency:get -Dartifact=io.kalix:kalix-java-sdk-protobuf-parent:$VERSION$:pom`
-    - [ ] Check the core SDK is available in our own repo: `mvn dependency:get -Dartifact=io.kalix:kalix-jvm-core-sdk:$VERSION$ -Dmaven.repo.remote=https://repo.akka.io/maven`
+    - [ ] Check the core SDK is available in our own repo: `mvn dependency:get -Dartifact=io.kalix:kalix-jvm-core-sdk:$VERSION$`
 
 ### Fix and publish docs
 
