@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-    tags-ignore: [ v.* ]
+    tags-ignore: [v.*]
 
 permissions:
   contents: read
@@ -16,31 +16,26 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
 
       - name: Cache Coursier cache
         # https://github.com/coursier/cache-action/releases
-        # v6.4.3
-        uses: coursier/cache-action@566e01fea33492e5a89706b43fb0d3fc884154f9
+        uses: coursier/cache-action@v8.1.0
 
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases
-        # v1.3.5
-        uses: coursier/setup-action@7bde40eee928896f074dbb76d22dd772eed5c65f
+        uses: coursier/setup-action@v3.0.0
         with:
           jvm: temurin:1.17
 
       - name: Checkout Global Scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: akka/github-actions-scripts
-          path: scripts
+          path: github-actions-scripts
 
       - name: Setup global resolver
-        run: |
-          chmod +x ./scripts/setup_global_resolver.sh
-          ./scripts/setup_global_resolver.sh
+        run: ./github-actions-scripts/setup_global_resolver.sh
 
       - name: Make docs and validate links
         run: make -C docs dev validate-links
@@ -50,14 +45,15 @@ jobs:
     steps:
       - name: Checkout
         # https://github.com/actions/checkout/releases
-        # v4.1.1
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v6
+
+      - name: Install Asciidoctor
+        run: sudo apt-get install -y asciidoctor
 
       # https://vale.sh
       - name: Vale
         # https://github.com/errata-ai/vale-action/releases
-        # v2.0.1
-        uses: errata-ai/vale-action@c4213d4de3d5f718b8497bd86161531c78992084
+        uses: errata-ai/vale-action@v2.1.1
         with:
           version: 3.0.5
           files: docs
