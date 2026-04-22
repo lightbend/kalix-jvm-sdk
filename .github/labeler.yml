@@ -1,20 +1,27 @@
 # https://github.com/marketplace/actions/labeler
 
 kalix-runtime:
-  - '**/*'
+  - changed-files:
+      - any-glob-to-any-file: "**"
 
 java-sdk-protobuf:
-  - sdk/java-sdk-protobuf/**/*
-  - sdk/java-sdk-protobuf-testkit/**/*
-  - maven-java/**/*
-  - codegen/java-gen/**/*
+  - changed-files:
+      - any-glob-to-any-file:
+          - sdk/java-sdk-protobuf/**/*
+          - sdk/java-sdk-protobuf-testkit/**/*
+          - maven-java/**/*
+          - codegen/java-gen/**/*
 
 scala-sdk-protobuf:
-  - sdk/scala-sdk-protobuf/**/*
-  - sdk/scala-sdk-protobuf-testkit/**/*
-  - sbt-plugin/**/*
-  - codegen/scala-gen/**/*
+  - changed-files:
+      - any-glob-to-any-file:
+          - sdk/scala-sdk-protobuf/**/*
+          - sdk/scala-sdk-protobuf-testkit/**/*
+          - sbt-plugin/**/*
+          - codegen/scala-gen/**/*
 
 Documentation:
-  - docs/**/*
-  - samples/**/*
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**/*
+          - samples/**/*
