@@ -212,7 +212,7 @@ jobs:
           path: github-actions-scripts
 
       - name: Setup global resolver
-        run: ./scripts/setup_global_resolver.sh
+        run: ./github-actions-scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases
@@ -545,7 +545,7 @@ jobs:
           path: github-actions-scripts
 
       - name: Setup global resolver
-        run: ./scripts/setup_global_resolver.sh
+        run: ./github-actions-scripts/setup_global_resolver.sh
 
       - name: Download io.kalix dependencies
         # https://github.com/actions/download-artifact/releases

@@ -35,7 +35,7 @@ jobs:
           path: github-actions-scripts
 
       - name: Setup global resolver
-        run: ./scripts/setup_global_resolver.sh
+        run: ./github-actions-scripts/setup_global_resolver.sh
 
       - name: Make docs and validate links
         run: make -C docs dev validate-links
@@ -46,6 +46,9 @@ jobs:
       - name: Checkout
         # https://github.com/actions/checkout/releases
         uses: actions/checkout@v6
+
+      - name: Install Asciidoctor
+        run: sudo apt-get install -y asciidoctor
 
       # https://vale.sh
       - name: Vale
