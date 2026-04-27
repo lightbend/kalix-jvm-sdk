@@ -64,7 +64,7 @@ def disciplinedScalacSettings: Seq[Setting[_]] = {
 
 lazy val coreSdk = project
   .in(file("sdk/core"))
-  .enablePlugins(Publish)
+  .enablePlugins(Publish, ArtifactBomPlugin)
   .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .dependsOn(devTools)
   .settings(commonCompilerSettings)
@@ -86,7 +86,7 @@ lazy val coreSdk = project
 lazy val javaSdkProtobuf = project
   .in(file("sdk/java-sdk-protobuf"))
   .dependsOn(coreSdk)
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish, ArtifactBomPlugin)
   .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
@@ -139,7 +139,7 @@ lazy val javaSdkProtobuf = project
 lazy val javaSdkProtobufTestKit = project
   .in(file("sdk/java-sdk-protobuf-testkit"))
   .dependsOn(javaSdkProtobuf)
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish, ArtifactBomPlugin)
   .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(
@@ -179,7 +179,7 @@ lazy val javaSdkProtobufTestKit = project
 lazy val scalaSdkProtobuf = project
   .in(file("sdk/scala-sdk-protobuf"))
   .dependsOn(javaSdkProtobuf)
-  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish)
+  .enablePlugins(AkkaGrpcPlugin, BuildInfoPlugin, Publish, ArtifactBomPlugin)
   .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
@@ -212,7 +212,7 @@ lazy val scalaSdkProtobufTestKit = project
   .in(file("sdk/scala-sdk-protobuf-testkit"))
   .dependsOn(scalaSdkProtobuf)
   .dependsOn(javaSdkProtobufTestKit)
-  .enablePlugins(BuildInfoPlugin, Publish)
+  .enablePlugins(BuildInfoPlugin, Publish, ArtifactBomPlugin)
   .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(commonCompilerSettings)
   .settings(disciplinedScalacSettings)
@@ -286,7 +286,7 @@ lazy val devToolsInternal =
  */
 def devToolsCommon(project: Project): Project =
   project
-    .enablePlugins(BuildInfoPlugin, Publish)
+    .enablePlugins(BuildInfoPlugin, Publish, ArtifactBomPlugin)
     .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(commonCompilerSettings)
     // TODO: need fix in KalixPlugin
@@ -355,7 +355,7 @@ lazy val scalaTck = project
 lazy val codegenCore =
   project
     .in(file("codegen/core"))
-    .enablePlugins(sbtprotoc.ProtocPlugin, Publish)
+    .enablePlugins(sbtprotoc.ProtocPlugin, Publish, ArtifactBomPlugin)
     .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(commonCompilerSettings)
     .settings(disciplinedScalacSettings)
@@ -376,7 +376,7 @@ lazy val codegenJava =
     .in(file("codegen/java-gen"))
     .configs(IntegrationTest)
     .dependsOn(codegenCore % "compile->compile;test->test")
-    .enablePlugins(Publish)
+    .enablePlugins(Publish, ArtifactBomPlugin)
     .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(
       Test / fork := false, // needed to pass -D properties to ExampleSuite
@@ -423,7 +423,7 @@ lazy val codegenScala =
   project
     .in(file("codegen/scala-gen"))
     .enablePlugins(BuildInfoPlugin)
-    .enablePlugins(Publish)
+    .enablePlugins(Publish, ArtifactBomPlugin)
     .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
     .settings(Dependencies.codegenScala)
     .settings(commonCompilerSettings)
@@ -490,7 +490,7 @@ val createScriptedGlobalResolvers =
   taskKey[Unit]("Creates a temporary global/resolvers.sbt inside each scripted test case.")
 lazy val sbtPlugin = Project(id = "sbt-kalix", base = file("sbt-plugin"))
   .enablePlugins(SbtPlugin)
-  .enablePlugins(Publish)
+  .enablePlugins(Publish, ArtifactBomPlugin)
   .disablePlugins(CiReleasePlugin) // we use publishSigned, but use a pgp utility from CiReleasePlugin
   .settings(Dependencies.sbtPlugin)
   .settings(commonCompilerSettings)
