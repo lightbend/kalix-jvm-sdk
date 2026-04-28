@@ -13,3 +13,5 @@ addSbtPlugin("com.thoughtworks.sbt-api-mappings" % "sbt-api-mappings" % "3.0.2")
 
 // force bumped because of CI not finding 1.0.0 which was the transitive version
 addSbtPlugin("org.portable-scala" % "sbt-platform-deps" % "1.0.2")
+
+addSbtPlugin("io.akka.sbt" % "sbt-artifact-bom" % "0.0.3")
