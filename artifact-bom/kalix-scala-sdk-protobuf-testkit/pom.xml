@@ -331,31 +331,6 @@
         </dependency>
         <dependency>
             <groupId>io.kalix</groupId>
-            <artifactId>kalix-devtools_2.13</artifactId>
-            <version>1.5.24-7-020005f1-dev</version>
-        </dependency>
-        <dependency>
-            <groupId>io.kalix</groupId>
-            <artifactId>kalix-java-sdk-protobuf</artifactId>
-            <version>1.5.24-7-020005f1-dev</version>
-        </dependency>
-        <dependency>
-            <groupId>io.kalix</groupId>
-            <artifactId>kalix-java-sdk-protobuf-testkit</artifactId>
-            <version>1.5.24-7-020005f1-dev</version>
-        </dependency>
-        <dependency>
-            <groupId>io.kalix</groupId>
-            <artifactId>kalix-jvm-core-sdk</artifactId>
-            <version>1.5.24-7-020005f1-dev</version>
-        </dependency>
-        <dependency>
-            <groupId>io.kalix</groupId>
-            <artifactId>kalix-scala-sdk-protobuf_2.13</artifactId>
-            <version>1.5.24-7-020005f1-dev</version>
-        </dependency>
-        <dependency>
-            <groupId>io.kalix</groupId>
             <artifactId>kalix-sdk-protocol</artifactId>
             <version>1.2.43</version>
         </dependency>
