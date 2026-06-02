@@ -57,10 +57,10 @@ jobs:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           PUBLISH_USER: ${{ secrets.PUBLISH_USER }}
           PUBLISH_PASSWORD: ${{ secrets.PUBLISH_PASSWORD }}
-        run: sbt +publishSigned
+        run: sbt -Dkalix.release=true +publishSigned
 
       - name: sbt publishM2
-        run: sbt +publishM2
+        run: sbt -Dkalix.release=true +publishM2
 
       - name: mvn deploy
         run: |-

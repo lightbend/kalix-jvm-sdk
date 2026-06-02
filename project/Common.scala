@@ -3,12 +3,17 @@ import sbt.Keys._
 import akka.grpc.sbt.AkkaGrpcPlugin
 import com.lightbend.sbt.JavaFormatterPlugin.autoImport.javafmtOnCompile
 import de.heikoseeberger.sbtheader.{ AutomateHeaderPlugin, HeaderPlugin }
+import _root_.io.akka.sbt.ArtifactBomPlugin.autoImport.makeBomOnCompile
 import org.scalafmt.sbt.ScalafmtPlugin
 import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtOnCompile
 import sbtprotoc.ProtocPlugin
 import scala.collection.breakOut
 
 object CommonSettings extends AutoPlugin {
+
+  // set via `-Dkalix.release=true` when publishing, so artifact BOMs are not regenerated on compile
+  // and don't dirty the working tree (which would taint the dynver version with a `-dev` snapshot suffix)
+  val isRelease = sys.props.contains("kalix.release")
 
   override def requires = plugins.JvmPlugin && ScalafmtPlugin
   override def trigger = allRequirements
@@ -51,6 +56,14 @@ object CommonSettings extends AutoPlugin {
     )
 
   override def projectSettings = Seq(run / fork := true, Test / fork := true, Test / javaOptions ++= Seq("-Xms1G"))
+}
+
+object CommonArtifactBomSettings extends AutoPlugin {
+
+  override def requires = _root_.io.akka.sbt.ArtifactBomPlugin
+  override def trigger = allRequirements
+
+  override def projectSettings = Seq(makeBomOnCompile := !CommonSettings.isRelease)
 }
 
 object CommonHeaderSettings extends AutoPlugin {
