@@ -6,7 +6,7 @@ package kalix.javasdk.impl.valueentity
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.{ Flow, Source }
+import akka.stream.scaladsl.{ Flow, Sink, Source }
 import io.grpc.Status
 import kalix.javasdk.KalixRunner.Configuration
 import kalix.javasdk.impl.ErrorHandling.BadRequestException
@@ -135,106 +135,126 @@ final class ValueEntitiesImpl(
       service.factory.create(new ValueEntityContextImpl(init.entityId, system))
     val thisEntityId = init.entityId
 
-    init.state match {
-      case Some(ValueEntityInitState(stateOpt, _)) =>
-        stateOpt match {
-          case Some(state) =>
-            val decoded = service.messageCodec.decodeMessage(state)
-            router._internalSetInitState(decoded)
-          case None => // no initial state
-        }
-      case None =>
-        throw new IllegalStateException("ValueEntityInitState is mandatory")
-    }
+    // only "unexpected" exceptions should end up here
+    def failureOutWithEntityLogger(error: Throwable): ValueEntityStreamOut =
+      ErrorHandling.withCorrelationId { correlationId =>
+        LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
+        ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+      }
 
-    Flow[ValueEntityStreamIn]
-      .map(_.message)
-      .map {
-        case InCommand(command) if thisEntityId != command.entityId =>
-          throw ProtocolException(command, "Receiving Value entity is not the intended recipient of command")
-
-        case InCommand(command) if command.payload.isEmpty =>
-          throw ProtocolException(command, "No command payload for Value entity")
-
-        case InCommand(command) =>
-          val metadata = MetadataImpl.of(command.metadata.map(_.entries.toVector).getOrElse(Nil))
-
-          if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
-          val span = instrumentations(service.serviceName).buildSpan(service, command)
-          span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
-          try {
-            val cmd =
-              service.messageCodec.decodeMessage(
-                command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
-            val context =
-              new CommandContextImpl(thisEntityId, command.name, command.id, metadata, system)
-
-            val CommandResult(effect: ValueEntityEffectImpl[_]) =
+    try {
+      init.state match {
+        case Some(ValueEntityInitState(stateOpt, _)) =>
+          stateOpt match {
+            case Some(state) =>
               try {
-                router._internalHandleCommand(command.name, cmd, context)
+                val decoded = service.messageCodec.decodeMessage(state)
+                router._internalSetInitState(decoded)
               } catch {
-                case BadRequestException(msg) =>
-                  CommandResult(new ValueEntityEffectImpl[Any].error(msg, Status.Code.INVALID_ARGUMENT))
-                case e: EntityException => throw e
                 case NonFatal(error) =>
-                  throw EntityException(command, s"Unexpected failure: $error", Some(error))
-              } finally {
-                context.deactivate() // Very important!
+                  // service.serviceName is the entity type id
+                  throw EntityException(
+                    entityId = thisEntityId,
+                    commandId = 0,
+                    commandName = "",
+                    message = s"Unexpected failure while restoring state [${state.typeUrl}] " +
+                      s"for entity type [${service.serviceName}] id [$thisEntityId]: $error",
+                    cause = Some(error))
               }
+            case None => // no initial state
+          }
+        case None =>
+          throw new IllegalStateException("ValueEntityInitState is mandatory")
+      }
 
-            val serializedSecondaryEffect = effect.secondaryEffect match {
-              case MessageReplyImpl(message, metadata, sideEffects) =>
-                MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
-              case other => other
-            }
+      Flow[ValueEntityStreamIn]
+        .map(_.message)
+        .map {
+          case InCommand(command) if thisEntityId != command.entityId =>
+            throw ProtocolException(command, "Receiving Value entity is not the intended recipient of command")
 
-            val clientAction =
-              serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
+          case InCommand(command) if command.payload.isEmpty =>
+            throw ProtocolException(command, "No command payload for Value entity")
 
-            serializedSecondaryEffect match {
-              case _: ErrorReplyImpl[_] =>
-                val reply = ValueEntityReply(commandId = command.id, clientAction = clientAction)
-                validateResponseSize(reply, thisEntityId, command.name)
-                ValueEntityStreamOut(OutReply(reply))
+          case InCommand(command) =>
+            val metadata = MetadataImpl.of(command.metadata.map(_.entries.toVector).getOrElse(Nil))
 
-              case _ => // non-error
-                val action: Option[ValueEntityAction] = effect.primaryEffect match {
-                  case DeleteEntity =>
-                    Some(ValueEntityAction(Delete(ValueEntityDelete(pbCleanupDeletedValueEntityAfter))))
-                  case UpdateState(newState) =>
-                    val newStateScalaPbAny = service.messageCodec.encodeScala(newState)
-                    Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))
-                  case _ =>
-                    None
+            if (log.isTraceEnabled) log.trace("Metadata entries [{}].", metadata.entries)
+            val span = instrumentations(service.serviceName).buildSpan(service, command)
+            span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
+            try {
+              val cmd =
+                service.messageCodec.decodeMessage(
+                  command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
+              val context =
+                new CommandContextImpl(thisEntityId, command.name, command.id, metadata, system)
+
+              val CommandResult(effect: ValueEntityEffectImpl[_]) =
+                try {
+                  router._internalHandleCommand(command.name, cmd, context)
+                } catch {
+                  case BadRequestException(msg) =>
+                    CommandResult(new ValueEntityEffectImpl[Any].error(msg, Status.Code.INVALID_ARGUMENT))
+                  case e: EntityException => throw e
+                  case NonFatal(error) =>
+                    throw EntityException(command, s"Unexpected failure: $error", Some(error))
+                } finally {
+                  context.deactivate() // Very important!
                 }
 
-                val reply = ValueEntityReply(
-                  command.id,
-                  clientAction,
-                  EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
-                  action)
-                validateResponseSize(reply, thisEntityId, command.name)
-                ValueEntityStreamOut(OutReply(reply))
-            }
-          } finally {
-            span.foreach { s =>
-              MDC.remove(Telemetry.TRACE_ID)
-              s.end()
-            }
-          }
+              val serializedSecondaryEffect = effect.secondaryEffect match {
+                case MessageReplyImpl(message, metadata, sideEffects) =>
+                  MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
+                case other => other
+              }
 
-        case InInit(_) =>
-          throw ProtocolException(init, "Value entity already initiated")
+              val clientAction =
+                serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
 
-        case InEmpty =>
-          throw ProtocolException(init, "Value entity received empty/unknown message")
-      }
-      .recover { case error =>
-        ErrorHandling.withCorrelationId { correlationId =>
-          LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
-          ValueEntityStreamOut(OutFailure(Failure(description = s"Unexpected error [$correlationId]")))
+              serializedSecondaryEffect match {
+                case _: ErrorReplyImpl[_] =>
+                  val reply = ValueEntityReply(commandId = command.id, clientAction = clientAction)
+                  validateResponseSize(reply, thisEntityId, command.name)
+                  ValueEntityStreamOut(OutReply(reply))
+
+                case _ => // non-error
+                  val action: Option[ValueEntityAction] = effect.primaryEffect match {
+                    case DeleteEntity =>
+                      Some(ValueEntityAction(Delete(ValueEntityDelete(pbCleanupDeletedValueEntityAfter))))
+                    case UpdateState(newState) =>
+                      val newStateScalaPbAny = service.messageCodec.encodeScala(newState)
+                      Some(ValueEntityAction(Update(ValueEntityUpdate(Some(newStateScalaPbAny)))))
+                    case _ =>
+                      None
+                  }
+
+                  val reply = ValueEntityReply(
+                    command.id,
+                    clientAction,
+                    EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
+                    action)
+                  validateResponseSize(reply, thisEntityId, command.name)
+                  ValueEntityStreamOut(OutReply(reply))
+              }
+            } finally {
+              span.foreach { s =>
+                MDC.remove(Telemetry.TRACE_ID)
+                s.end()
+              }
+            }
+
+          case InInit(_) =>
+            throw ProtocolException(init, "Value entity already initiated")
+
+          case InEmpty =>
+            throw ProtocolException(init, "Value entity received empty/unknown message")
         }
-      }
+        .recover { case error => failureOutWithEntityLogger(error) }
+    } catch {
+      case NonFatal(error) =>
+        // init state restore failed before the stream was built, fail in the same way as a stream failure
+        Flow.fromSinkAndSource(Sink.ignore, Source.single(failureOutWithEntityLogger(error)))
+    }
   }
 
 }

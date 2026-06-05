@@ -51,6 +51,19 @@ class TestEventSourcedService(entityProvider: EventSourcedEntityProvider[_, _, _
   def expectLogError[T](message: String)(block: => T): T =
     LoggingTestKit.error(message).expect(block)(runner.system.toTyped)
 
+  def expectLogError[T](message: String, causeMessagePart: String)(block: => T): T =
+    LoggingTestKit
+      .error(message)
+      .withCustom(event => event.throwable.exists(_.getMessage.contains(causeMessagePart)))
+      .expect(block)(runner.system.toTyped)
+
+  def expectLogError[T](message: String, causeMessagePart: String, loggerClass: Class[_])(block: => T): T =
+    LoggingTestKit
+      .error(message)
+      .withLoggerName(loggerClass.getName)
+      .withCustom(event => event.throwable.exists(_.getMessage.contains(causeMessagePart)))
+      .expect(block)(runner.system.toTyped)
+
   def expectLogMdc[T](mdc: Map[String, String])(block: => T): T =
     LoggingTestKit.empty.withMdc(mdc).expect(block)(runner.system.toTyped)
 

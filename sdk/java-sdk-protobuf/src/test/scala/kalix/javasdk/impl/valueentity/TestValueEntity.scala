@@ -52,6 +52,19 @@ class TestValueService(entityProvider: ValueEntityProvider[_, _], extraConfig: O
     LoggingTestKit.error(message).expect(block)(runner.system.toTyped)
   }
 
+  def expectLogError[T](message: String, causeMessagePart: String)(block: => T): T =
+    LoggingTestKit
+      .error(message)
+      .withCustom(event => event.throwable.exists(_.getMessage.contains(causeMessagePart)))
+      .expect(block)(runner.system.toTyped)
+
+  def expectLogError[T](message: String, causeMessagePart: String, loggerClass: Class[_])(block: => T): T =
+    LoggingTestKit
+      .error(message)
+      .withLoggerName(loggerClass.getName)
+      .withCustom(event => event.throwable.exists(_.getMessage.contains(causeMessagePart)))
+      .expect(block)(runner.system.toTyped)
+
   def expectLogInfoRegEx[T](regEx: String)(block: => T): T = {
     LoggingTestKit.empty.withLogLevel(Level.INFO).withMessageRegex(regEx).expect(block)(runner.system.toTyped)
   }

@@ -158,7 +158,10 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
     }
 
     "fail when event handler does not exist" in {
-      service.expectLogError("Terminating entity due to unexpected failure") {
+      service.expectLogError(
+        "Terminating entity [cart] due to unexpected failure",
+        "Unexpected failure while replaying event [type.googleapis.com/com.example.shoppingcart.domain.LineItem] " +
+        "with sequence number [1] for entity type [shopping-cart] id [cart]") {
         val entity = protocol.eventSourced.connect()
         val notEvent = domainLineItem("?", "not an event", 1)
         entity.send(init(ShoppingCart.Name, "cart"))
@@ -169,10 +172,30 @@ class EventSourcedEntitiesImplSpec extends AnyWordSpec with Matchers with Before
     }
 
     "fail when event handler throws exception" in {
-      service.expectLogError("Terminating entity due to unexpected failure") {
+      service.expectLogError(
+        "Terminating entity [cart] due to unexpected failure",
+        "Unexpected failure while replaying event [type.googleapis.com/com.example.shoppingcart.domain.ItemAdded] " +
+        "with sequence number [1] for entity type [shopping-cart] id [cart]") {
         val entity = protocol.eventSourced.connect()
         entity.send(init(ShoppingCart.Name, "cart"))
         entity.send(event(1, itemAdded("123", "FAIL", 42)))
+        entity.expectFailure("Unexpected failure")
+        entity.expectClosed()
+      }
+    }
+
+    "fail with entity type and id when snapshot cannot be restored" in {
+      // a snapshot type that is not registered with this entity, as if the state class had been refactored away
+      val unknownSnapshot =
+        com.example.valueentity.shoppingcart.domain.ShoppingCartDomain.Cart.getDefaultInstance
+      service.expectLogError(
+        "Terminating entity [cart] due to unexpected failure",
+        "Unexpected failure while restoring snapshot " +
+        "[type.googleapis.com/com.example.valueentity.shoppingcart.domain.Cart] at sequence number [3] " +
+        "for entity type [shopping-cart] id [cart]",
+        classOf[CartEntity]) {
+        val entity = protocol.eventSourced.connect()
+        entity.send(init(ShoppingCart.Name, "cart", snapshot(3, unknownSnapshot)))
         entity.expectFailure("Unexpected failure")
         entity.expectClosed()
       }

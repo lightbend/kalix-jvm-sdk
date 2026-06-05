@@ -7,6 +7,7 @@ package kalix.javasdk.impl.eventsourcedentity
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -166,124 +167,158 @@ final class EventSourcedEntitiesImpl(
       .asInstanceOf[EventSourcedEntityRouter[Any, Any, EventSourcedEntity[Any, Any]]]
     val thisEntityId = init.entityId
 
-    val startingSequenceNumber = (for {
-      snapshot <- init.snapshot
-      any <- snapshot.snapshot
-    } yield {
-      val snapshotSequence = snapshot.snapshotSequence
-      router._internalHandleSnapshot(service.messageCodec.decodeMessage(any))
-      snapshotSequence
-    }).getOrElse(0L)
-    Flow[EventSourcedStreamIn]
-      .map(_.message)
-      .scan[(Long, Option[EventSourcedStreamOut.Message])]((startingSequenceNumber, None)) {
-        case (_, InEvent(event)) =>
-          // Note that these only come on replay
-          val eventMetadata = MetadataImpl.of(event.metadata.map(_.entries.toVector).getOrElse(Nil))
-          val context = new EventContextImpl(thisEntityId, event.sequence, eventMetadata)
-          val ev =
-            service.messageCodec
-              .decodeMessage(event.payload.get)
-              .asInstanceOf[AnyRef] // FIXME empty?
-          router._internalHandleEvent(ev, context)
-          (event.sequence, None)
-        case ((sequence, _), InCommand(command)) =>
-          if (thisEntityId != command.entityId)
-            throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
-          val span = instrumentations(service.serviceName).buildSpan(service, command)
-          span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
-          try {
-            val cmd =
-              service.messageCodec.decodeMessage(
-                command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
-            val metadata = MetadataImpl.of(command.metadata.map(_.entries.toVector).getOrElse(Nil))
-            val context =
-              new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
+    // only "unexpected" exceptions should end up here
+    def failureOutWithEntityLogger(error: Throwable): EventSourcedStreamOut =
+      ErrorHandling.withCorrelationId { correlationId =>
+        LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
+        EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
+      }
 
-            val CommandResult(
-              events: Vector[Any],
-              eventsMetadata: Vector[Metadata],
-              secondaryEffect: SecondaryEffectImpl,
-              snapshot: Option[Any],
-              endSequenceNumber,
-              deleteEntity) =
-              try {
-                router._internalHandleCommand(
-                  command.name,
-                  cmd,
-                  context,
-                  service.snapshotEvery,
-                  (seqNr, eventMetadata) => new EventContextImpl(thisEntityId, seqNr, eventMetadata))
-              } catch {
-                case BadRequestException(msg) =>
-                  val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
-                  CommandResult(Vector.empty, Vector.empty, errorReply, None, context.sequenceNumber, false)
-                case e: EntityException =>
-                  throw e
-                case NonFatal(error) =>
-                  throw EntityException(command, s"Unexpected failure: $error", Some(error))
-              } finally {
-                context.deactivate() // Very important!
+    try {
+      val startingSequenceNumber = (for {
+        snapshot <- init.snapshot
+        any <- snapshot.snapshot
+      } yield {
+        val snapshotSequence = snapshot.snapshotSequence
+        try {
+          router._internalHandleSnapshot(service.messageCodec.decodeMessage(any))
+        } catch {
+          case NonFatal(error) =>
+            // service.serviceName is the entity type id
+            throw EntityException(
+              entityId = thisEntityId,
+              commandId = 0,
+              commandName = "",
+              message = s"Unexpected failure while restoring snapshot [${any.typeUrl}] " +
+                s"at sequence number [$snapshotSequence] for entity type [${service.serviceName}] id [$thisEntityId]: $error",
+              cause = Some(error))
+        }
+        snapshotSequence
+      }).getOrElse(0L)
+      Flow[EventSourcedStreamIn]
+        .map(_.message)
+        .scan[(Long, Option[EventSourcedStreamOut.Message])]((startingSequenceNumber, None)) {
+          case (_, InEvent(event)) =>
+            // Note that these only come on replay
+            try {
+              val eventMetadata = MetadataImpl.of(event.metadata.map(_.entries.toVector).getOrElse(Nil))
+              val context = new EventContextImpl(thisEntityId, event.sequence, eventMetadata)
+              val ev =
+                service.messageCodec
+                  .decodeMessage(event.payload.get)
+                  .asInstanceOf[AnyRef] // FIXME empty?
+              router._internalHandleEvent(ev, context)
+              (event.sequence, None)
+            } catch {
+              case NonFatal(error) =>
+                // service.serviceName is the entity type id
+                throw EntityException(
+                  entityId = thisEntityId,
+                  commandId = 0,
+                  commandName = "",
+                  message = s"Unexpected failure while replaying event " +
+                    s"[${event.payload.fold("unknown")(_.typeUrl)}] with sequence number [${event.sequence}] " +
+                    s"for entity type [${service.serviceName}] id [$thisEntityId]: $error",
+                  cause = Some(error))
+            }
+          case ((sequence, _), InCommand(command)) =>
+            if (thisEntityId != command.entityId)
+              throw ProtocolException(command, "Receiving entity is not the intended recipient of command")
+            val span = instrumentations(service.serviceName).buildSpan(service, command)
+            span.foreach(s => MDC.put(Telemetry.TRACE_ID, s.getSpanContext.getTraceId))
+            try {
+              val cmd =
+                service.messageCodec.decodeMessage(
+                  command.payload.getOrElse(throw ProtocolException(command, "No command payload")))
+              val metadata = MetadataImpl.of(command.metadata.map(_.entries.toVector).getOrElse(Nil))
+              val context =
+                new CommandContextImpl(thisEntityId, sequence, command.name, command.id, metadata)
+
+              val CommandResult(
+                events: Vector[Any],
+                eventsMetadata: Vector[Metadata],
+                secondaryEffect: SecondaryEffectImpl,
+                snapshot: Option[Any],
+                endSequenceNumber,
+                deleteEntity) =
+                try {
+                  router._internalHandleCommand(
+                    command.name,
+                    cmd,
+                    context,
+                    service.snapshotEvery,
+                    (seqNr, eventMetadata) => new EventContextImpl(thisEntityId, seqNr, eventMetadata))
+                } catch {
+                  case BadRequestException(msg) =>
+                    val errorReply = ErrorReplyImpl(msg, Some(Status.Code.INVALID_ARGUMENT), Vector.empty)
+                    CommandResult(Vector.empty, Vector.empty, errorReply, None, context.sequenceNumber, false)
+                  case e: EntityException =>
+                    throw e
+                  case NonFatal(error) =>
+                    throw EntityException(command, s"Unexpected failure: $error", Some(error))
+                } finally {
+                  context.deactivate() // Very important!
+                }
+
+              val serializedSecondaryEffect = secondaryEffect match {
+                case MessageReplyImpl(message, metadata, sideEffects) =>
+                  MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
+                case other => other
               }
 
-            val serializedSecondaryEffect = secondaryEffect match {
-              case MessageReplyImpl(message, metadata, sideEffects) =>
-                MessageReplyImpl(service.messageCodec.encodeJava(message), metadata, sideEffects)
-              case other => other
-            }
+              val clientAction = serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
 
-            val clientAction = serializedSecondaryEffect.replyToClientAction(service.messageCodec, command.id)
-
-            serializedSecondaryEffect match {
-              case _: ErrorReplyImpl[_] => // error
-                val reply = EventSourcedReply(commandId = command.id, clientAction = clientAction)
-                validateResponseSize(reply, thisEntityId, command.name)
-                (endSequenceNumber, Some(OutReply(reply)))
-              case _ => // non-error
-                val serializedEvents =
-                  events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
-                val protoEventsMetadata =
-                  eventsMetadata.map(m => MetadataImpl.toProtocol(m).getOrElse(PbMetadata.defaultInstance))
-                val serializedSnapshot =
-                  snapshot.map(state => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(state)))
-                val delete = if (deleteEntity) pbCleanupDeletedEventSourcedEntityAfter else None
-                val reply = EventSourcedReply(
-                  command.id,
-                  clientAction,
-                  EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
-                  serializedEvents,
-                  serializedSnapshot,
-                  delete,
-                  protoEventsMetadata)
-                validateResponseSize(reply, thisEntityId, command.name)
-                (endSequenceNumber, Some(OutReply(reply)))
+              serializedSecondaryEffect match {
+                case _: ErrorReplyImpl[_] => // error
+                  val reply = EventSourcedReply(commandId = command.id, clientAction = clientAction)
+                  validateResponseSize(reply, thisEntityId, command.name)
+                  (endSequenceNumber, Some(OutReply(reply)))
+                case _ => // non-error
+                  val serializedEvents =
+                    events.map(event => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(event)))
+                  val protoEventsMetadata =
+                    eventsMetadata.map(m => MetadataImpl.toProtocol(m).getOrElse(PbMetadata.defaultInstance))
+                  val serializedSnapshot =
+                    snapshot.map(state => ScalaPbAny.fromJavaProto(service.messageCodec.encodeJava(state)))
+                  val delete = if (deleteEntity) pbCleanupDeletedEventSourcedEntityAfter else None
+                  val reply = EventSourcedReply(
+                    command.id,
+                    clientAction,
+                    EffectSupport.sideEffectsFrom(service.messageCodec, serializedSecondaryEffect),
+                    serializedEvents,
+                    serializedSnapshot,
+                    delete,
+                    protoEventsMetadata)
+                  validateResponseSize(reply, thisEntityId, command.name)
+                  (endSequenceNumber, Some(OutReply(reply)))
+              }
+            } finally {
+              span.foreach { s =>
+                MDC.remove(Telemetry.TRACE_ID)
+                s.end()
+              }
             }
-          } finally {
-            span.foreach { s =>
-              MDC.remove(Telemetry.TRACE_ID)
-              s.end()
-            }
-          }
-        case ((sequence, _), InSnapshotRequest(request)) =>
-          val reply =
-            EventSourcedSnapshotReply(request.requestId, Some(service.messageCodec.encodeScala(router._stateOrEmpty())))
-          (sequence, Some(OutSnapshotReply(reply)))
-        case (_, InInit(_)) =>
-          throw ProtocolException(init, "Entity already initiated")
-        case (_, InEmpty) =>
-          throw ProtocolException(init, "Received empty/unknown message")
-      }
-      .collect { case (_, Some(message)) =>
-        EventSourcedStreamOut(message)
-      }
-      .recover { case error =>
-        // only "unexpected" exceptions should end up here
-        ErrorHandling.withCorrelationId { correlationId =>
-          LoggerFactory.getLogger(router.entityClass).error(failureMessageForLog(error), error)
-          EventSourcedStreamOut(OutFailure(Failure(description = s"Unexpected failure [$correlationId]")))
+          case ((sequence, _), InSnapshotRequest(request)) =>
+            val reply =
+              EventSourcedSnapshotReply(
+                request.requestId,
+                Some(service.messageCodec.encodeScala(router._stateOrEmpty())))
+            (sequence, Some(OutSnapshotReply(reply)))
+          case (_, InInit(_)) =>
+            throw ProtocolException(init, "Entity already initiated")
+          case (_, InEmpty) =>
+            throw ProtocolException(init, "Received empty/unknown message")
         }
-      }
-      .addAttributes(SdkExecutionContext.streamDispatcher)
+        .collect { case (_, Some(message)) =>
+          EventSourcedStreamOut(message)
+        }
+        .recover { case error => failureOutWithEntityLogger(error) }
+        .addAttributes(SdkExecutionContext.streamDispatcher)
+    } catch {
+      case NonFatal(error) =>
+        // snapshot restore failed before the stream was built, fail in the same way as a stream failure
+        Flow.fromSinkAndSource(Sink.ignore, Source.single(failureOutWithEntityLogger(error)))
+    }
   }
 
   private class CommandContextImpl(
