@@ -34,6 +34,7 @@ object Dependencies {
   val JUnitJupiterVersion = "5.10.1"
   val OpenTelemetryVersion = "1.39.0"
   val OpenTelemetrySemConv = "1.25.0-alpha"
+  val PrometheusClientVersion = "0.9.0"
 
   val CommonsIoVersion = "2.18.0"
   val MunitVersion = "0.7.29"
@@ -59,6 +60,11 @@ object Dependencies {
   val jacksonParameterNames = "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % JacksonVersion
   val jacksonScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % JacksonVersion
   val jacksonDataFormatProto = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-protobuf" % JacksonVersion
+
+  val prometheusDeps = Seq(
+    "io.prometheus" % "simpleclient" % PrometheusClientVersion,
+    "io.prometheus" % "simpleclient_common" % PrometheusClientVersion,
+    "io.prometheus" % "simpleclient_hotspot" % PrometheusClientVersion)
 
   val scalaTest = "org.scalatest" %% "scalatest" % ScalaTestVersion
   val munit = "org.scalameta" %% "munit" % MunitVersion
@@ -115,7 +121,7 @@ object Dependencies {
     jacksonDatabind,
     jacksonJdk8,
     jacksonJsr310,
-    jacksonParameterNames)
+    jacksonParameterNames) ++ prometheusDeps
 
   val devTools = deps ++= Seq(scalaCollectionCompat, "com.typesafe" % "config" % "1.4.5", scalaTest % Test)
 

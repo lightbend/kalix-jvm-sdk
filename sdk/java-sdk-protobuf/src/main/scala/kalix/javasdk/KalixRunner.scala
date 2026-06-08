@@ -27,6 +27,7 @@ import kalix.devtools.impl.DevModeSettings
 import kalix.devtools.impl.DockerComposeUtils
 import kalix.javasdk.impl.DiscoveryImpl
 import kalix.javasdk.impl.Service
+import kalix.javasdk.impl.telemetry.PrometheusExporter
 import kalix.javasdk.impl.action.ActionService
 import kalix.javasdk.impl.action.ActionsImpl
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntitiesImpl
@@ -220,6 +221,8 @@ final class KalixRunner private[javasdk] (
     import system.dispatcher
 
     logJvmInfo()
+
+    PrometheusExporter.start(system)
 
     // start containers if application (only possible when running locally)
     dockerComposeUtils.foreach { dcu =>
