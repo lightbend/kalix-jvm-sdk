@@ -1,4 +1,4 @@
-:kalix-jvm-sdk-version: 1.5.25
+:kalix-jvm-sdk-version: 1.5.28
 :java-pb-version: 11
 :java-version: 17
 :minimum_maven_version: 3.6
