@@ -49,6 +49,21 @@ class ValueEntitiesImplSpec extends AnyWordSpec with Matchers with BeforeAndAfte
       }
     }
 
+    "fail with entity type and id when init state cannot be restored" in {
+      // a state type that is not registered with this entity, as if the state class had been refactored away
+      val unknownState = com.example.shoppingcart.domain.ShoppingCartDomain.ItemAdded.getDefaultInstance
+      service.expectLogError(
+        "Terminating entity [cart] due to unexpected failure",
+        "Unexpected failure while restoring state [type.googleapis.com/com.example.shoppingcart.domain.ItemAdded] " +
+        "for entity type [shopping-cart] id [cart]",
+        classOf[CartEntity]) {
+        val entity = protocol.valueEntity.connect()
+        entity.send(init(ShoppingCart.Name, "cart", state(unknownState)))
+        entity.expectFailure("Unexpected error")
+        entity.expectClosed()
+      }
+    }
+
     "fail when service doesn't exist" in {
       service.expectLogError("Terminating entity [foo] due to unexpected failure") {
         val entity = protocol.valueEntity.connect()
