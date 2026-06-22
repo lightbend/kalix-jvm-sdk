@@ -13,6 +13,8 @@ import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEv
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.NoPrimaryEffect
 import java.util.Optional
 
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
 import kalix.javasdk.Metadata
 import kalix.javasdk.impl.eventsourcedentity.EventSourcedEntityEffectImpl.EmitEventsWithMetadata
 
@@ -29,6 +31,18 @@ object EventSourcedEntityRouter {
   final case class CommandHandlerNotFound(commandName: String) extends RuntimeException
 
   final case class EventHandlerNotFound(eventClass: Class[_]) extends RuntimeException
+
+  /**
+   * The event class alone is often not enough to identify the problem (e.g. when the message codec couldn't resolve a
+   * concrete type and passed through a raw protobuf `Any`). Include the `type_url` in such cases so users can see which
+   * event type the SDK failed to handle.
+   */
+  private[kalix] def describeEventType(event: Any): String = event match {
+    case any: ScalaPbAny        => s"${any.getClass.getName} with type_url [${any.typeUrl}]"
+    case any: JavaPbAny         => s"${any.getClass.getName} with type_url [${any.getTypeUrl}]"
+    case other if other != null => other.getClass.getName
+    case _                      => "null"
+  }
 }
 
 /**
@@ -68,8 +82,8 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
       val newState = handleEvent(_stateOrEmpty(), event)
       setState(newState)
     } catch {
-      case EventHandlerNotFound(eventClass) =>
-        throw new IllegalArgumentException(s"Unknown event type [$eventClass] on ${entity.getClass}")
+      case EventHandlerNotFound(_) =>
+        throw new IllegalArgumentException(s"Unknown event type [${describeEventType(event)}] on ${entity.getClass}")
     } finally {
       entity._internalSetEventContext(Optional.empty())
     }
@@ -117,8 +131,9 @@ abstract class EventSourcedEntityRouter[S, E, ES <: EventSourcedEntity[S, E]](pr
             throw new IllegalArgumentException("Event handler must not return null as the updated state.")
           setState(newState)
         } catch {
-          case EventHandlerNotFound(eventClass) =>
-            throw new IllegalArgumentException(s"Unknown event type [$eventClass] on ${entity.getClass}")
+          case EventHandlerNotFound(_) =>
+            throw new IllegalArgumentException(
+              s"Unknown event type [${describeEventType(event)}] on ${entity.getClass}")
         } finally {
           entity._internalSetEventContext(Optional.empty())
         }
