@@ -8,6 +8,9 @@ import kalix.javasdk.view.{ UpdateContext, View }
 
 import java.util.Optional
 
+import com.google.protobuf.any.{ Any => ScalaPbAny }
+import com.google.protobuf.{ Any => JavaPbAny }
+
 abstract class ViewUpdateRouter {
   def _internalHandleUpdate(state: Option[Any], event: Any, context: UpdateContext): View.UpdateEffect[_]
 }
@@ -28,10 +31,15 @@ abstract class ViewRouter[S, V <: View[S]](protected val view: V) extends ViewUp
       handleUpdate(context.eventName(), stateOrEmpty, event)
     } catch {
       case missing: UpdateHandlerNotFound =>
+        val eventDescription = event match {
+          case any: ScalaPbAny => s" (event type_url [${any.typeUrl}])"
+          case any: JavaPbAny  => s" (event type_url [${any.getTypeUrl}])"
+          case _               => ""
+        }
         throw new ViewException(
           context.viewId,
           missing.eventName,
-          "No update handler found for event [" + missing.eventName + "] on " + view.getClass.toString,
+          "No update handler found for event [" + missing.eventName + "]" + eventDescription + " on " + view.getClass.toString,
           Option.empty)
     } finally {
       view._internalSetUpdateContext(Optional.empty())
