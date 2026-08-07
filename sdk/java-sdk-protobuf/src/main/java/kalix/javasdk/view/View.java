@@ -63,6 +63,12 @@ public abstract class View<S> {
     viewState = Optional.ofNullable(state);
   }
 
+  /** INTERNAL API */
+  public void _internalClearViewState() {
+    handlingUpdates = false;
+    viewState = Optional.empty();
+  }
+
   /**
    * Returns the view state (row) for this invocation as currently stored in Kalix.
    *

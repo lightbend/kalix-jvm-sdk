@@ -28,6 +28,7 @@ abstract class ViewRouter[S, V <: View[S]](protected val view: V) extends ViewUp
     }
     try {
       view._internalSetUpdateContext(Optional.of(context))
+      view._internalSetViewState(stateOrEmpty)
       handleUpdate(context.eventName(), stateOrEmpty, event)
     } catch {
       case missing: UpdateHandlerNotFound =>
@@ -43,6 +44,7 @@ abstract class ViewRouter[S, V <: View[S]](protected val view: V) extends ViewUp
           Option.empty)
     } finally {
       view._internalSetUpdateContext(Optional.empty())
+      view._internalClearViewState()
     }
   }
 
