@@ -104,7 +104,7 @@
             <dependency>
                 <groupId>io.kalix</groupId>
                 <artifactId>kalix-sdk-protocol</artifactId>
-                <version>1.2.50</version>
+                <version>1.2.51</version>
             </dependency>
             <dependency>
                 <groupId>org.jspecify</groupId>
