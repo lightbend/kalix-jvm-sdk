@@ -185,10 +185,8 @@ object WorkflowSourceGenerator {
     val relevantTypes = allRelevantMessageTypes(service, workflowComponent) ++ potentialTypesThatWorkflowCanUse
     val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
 
-    // The outer classes referenced in additionalDescriptors(). This one list is used both for the imports and for
-    // the references, so a referenced outer class always is imported (or fully qualified if its name clashes).
-    // In the workflow definition we can potentially call any gRPC service, so the service definition files
-    // (which might live in another package and define no message types) are included for all services.
+    // The outer classes referenced in additionalDescriptors(), also used for the imports so they can't get out of sync.
+    // The workflow can call any gRPC service, so the definition file of every service is included.
     val descriptorObjects: Seq[ProtoMessageType] =
       (collectRelevantTypes(relevantProtoTypes, service.messageType).flatMap(_.descriptorObject) ++
         allServices.flatMap(AdditionalDescriptors.collectServiceDescriptorObjects)).distinct
@@ -219,7 +217,7 @@ object WorkflowSourceGenerator {
        | *
        | * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
        | */
-       |public class ${className}Provider implements WorkflowProvider<${workflowComponent.state.messageType.fullName}, $className> {
+       |public class ${className}Provider implements WorkflowProvider<${typeName(workflowComponent.state.messageType)}, $className> {
        |
        |  private final Function<WorkflowContext, $className> workflowFactory;
        |  private final WorkflowOptions options;

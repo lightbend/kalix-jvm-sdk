@@ -416,6 +416,8 @@ lazy val codegenJavaCompilationTest = project
     akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Java),
     (publish / skip) := true,
     name := "kalix-codegen-java-compilation-tests",
+    // shares the protos of the scripted compile-only test, protos only needed for the Java codegen are in this
+    // project's own src/main/protobuf
     Compile / PB.protoSources += baseDirectory.value / ".." / ".." / "sbt-plugin" / "src" / "sbt-test" / "sbt-kalix" / "compile-only" / "src" / "main" / "protobuf",
     ReflectiveCodeGen.copyUnmanagedSources := false)
 
