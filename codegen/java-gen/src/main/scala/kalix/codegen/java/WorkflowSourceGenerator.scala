@@ -185,12 +185,16 @@ object WorkflowSourceGenerator {
     val relevantTypes = allRelevantMessageTypes(service, workflowComponent) ++ potentialTypesThatWorkflowCanUse
     val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
 
-    // additionalDescriptors() also references the outer class of each service's own definition file,
-    // which might live in another package and have no message types among the relevant types
-    val serviceDescriptorObjects = allServices.flatMap(_.messageType.descriptorObject)
+    // The outer classes referenced in additionalDescriptors(). This one list is used both for the imports and for
+    // the references, so a referenced outer class always is imported (or fully qualified if its name clashes).
+    // In the workflow definition we can potentially call any gRPC service, so the service definition files
+    // (which might live in another package and define no message types) are included for all services.
+    val descriptorObjects: Seq[ProtoMessageType] =
+      (collectRelevantTypes(relevantProtoTypes, service.messageType).flatMap(_.descriptorObject) ++
+        allServices.flatMap(AdditionalDescriptors.collectServiceDescriptorObjects)).distinct
 
     implicit val imports = generateImports(
-      relevantTypes ++ relevantProtoTypes.flatMap(_.descriptorObject) ++ serviceDescriptorObjects,
+      relevantTypes ++ descriptorObjects,
       packageName,
       otherImports = Seq(
         "kalix.javasdk.workflow.WorkflowContext",
@@ -200,20 +204,8 @@ object WorkflowSourceGenerator {
         "java.util.function.Function"))
 
     // rendered via typeName so that outer classes with clashing simple names are fully qualified
-    def descriptorReference(descriptorObject: ProtoMessageType): String =
-      s"${typeName(descriptorObject)}.getDescriptor()"
-
-    val relevantTypeDescriptors =
-      collectRelevantTypes(relevantProtoTypes, service.messageType)
-        .flatMap(_.descriptorObject)
-        .map(descriptorReference)
-
-    //in the workflow definition we can potentially call any GRPC service, so we need to collect all service descriptors
-    val allServicesDescriptors =
-      allServices.flatMap(AdditionalDescriptors.collectServiceDescriptorObjects).map(descriptorReference)
-
     val descriptors =
-      (relevantTypeDescriptors ++ allServicesDescriptors).distinct.sorted
+      descriptorObjects.map(outerClass => s"${typeName(outerClass)}.getDescriptor()").distinct.sorted
 
     s"""package $packageName;
        |
