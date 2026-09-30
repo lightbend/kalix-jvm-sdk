@@ -138,4 +138,54 @@ class WorkflowSourceGeneratorSuite extends munit.FunSuite {
     assert(!source.contains("import example.first.UserApi;"), s"clashing outer class must not be imported:\n$source")
     assert(!source.contains("import example.second.UserApi;"), s"clashing outer class must not be imported:\n$source")
   }
+
+  test("workflow provider keeps an outer class in its own package apart from a same-named one in another package") {
+    val workflowFile = PackageNaming("example/workflow/workflow.proto", "WorkflowApi", "example.workflow")
+    // same outer class name, one in the workflow's own package and one in another package
+    val localFile = PackageNaming("example/workflow/user_api.proto", "UserApi", "example.workflow")
+    val otherFile = PackageNaming("example/other/user_api.proto", "UserApi", "example.other")
+    val emptyFile = PackageNaming(
+      "google/protobuf/empty.proto",
+      "EmptyProto",
+      "google.protobuf",
+      Some("com.google.protobuf"),
+      Some("EmptyProto"),
+      javaMultipleFiles = true)
+
+    val start = protoType("Start", workflowFile)
+    val workflowState = protoType("WorkflowState", workflowFile)
+    val empty = protoType("Empty", emptyFile)
+
+    // the files only declare a service, the rpc message types come from the workflow's file
+    def actionService(name: String, file: PackageNaming) =
+      ModelBuilder.ActionService(protoType(name, file), Seq(command("Handle", start, empty)), None)
+
+    val workflowService = ModelBuilder.EntityService(
+      protoType("ExampleWorkflowService", workflowFile),
+      Seq(command("Start", start, empty)),
+      "example.workflow.ExampleWorkflow")
+
+    val workflowComponent = ModelBuilder.WorkflowComponent(
+      protoType("ExampleWorkflow", workflowFile),
+      "example-workflow",
+      ModelBuilder.State(workflowState))
+
+    val source = WorkflowSourceGenerator.workflowProvider(
+      workflowService,
+      workflowComponent,
+      "example.workflow",
+      "ExampleWorkflow",
+      Seq(workflowService, actionService("LocalHandler", localFile), actionService("OtherHandler", otherFile)))
+
+    // importing example.other.UserApi would shadow the UserApi in the same package, dropping its descriptor
+    assert(
+      !source.contains("import example.other.UserApi;"),
+      s"example.other.UserApi must not be imported, it shadows the UserApi in the same package:\n$source")
+    assert(
+      source.contains("example.other.UserApi.getDescriptor()"),
+      s"expected a fully qualified reference to example.other.UserApi:\n$source")
+    assert(
+      source.contains("      UserApi.getDescriptor()"),
+      s"expected the descriptor of the UserApi in the same package:\n$source")
+  }
 }

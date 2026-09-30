@@ -114,6 +114,9 @@ object SourceGeneratorUtils {
     }
   }
 
+  private def simpleName(fullyQualifiedName: String): String =
+    fullyQualifiedName.substring(fullyQualifiedName.lastIndexOf('.') + 1)
+
   def typeImport(messageType: MessageType): String = {
     val name =
       messageType match {
@@ -183,11 +186,17 @@ object SourceGeneratorUtils {
       otherImports: Seq[String],
       packageImports: Seq[String] = Seq.empty): Imports = {
 
+    // an import would shadow a class of the same name in the current package, such types are referred to by their
+    // fully qualified name instead
+    val simpleNamesInCurrentPackage =
+      types.filter(_.packageName == packageName).map(typ => simpleName(typeImport(typ))).toSet
+
     val messageTypeImports = types
       .filterNot(_.packageName == packageName)
       .filterNot(_.packageName.isEmpty)
       .filterNot(typ => packageImports.contains(typ.packageName))
       .map(typeImport)
+      .filterNot(imported => simpleNamesInCurrentPackage.contains(simpleName(imported)))
 
     new Imports(packageName, (messageTypeImports ++ otherImports ++ packageImports).toSeq.distinct.sorted)
   }
