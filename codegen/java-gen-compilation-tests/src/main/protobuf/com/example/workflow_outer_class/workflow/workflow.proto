@@ -1,6 +1,6 @@
 // Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
 
-// Reproducer for support case #16497
+// Reproducer for workflow provider codegen referencing other services' outer classes
 syntax = "proto3";
 
 package com.example.workflow_outer_class.workflow;

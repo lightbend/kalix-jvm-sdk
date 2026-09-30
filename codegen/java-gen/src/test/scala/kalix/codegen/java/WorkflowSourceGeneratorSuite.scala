@@ -7,21 +7,12 @@ package kalix.codegen.java
 import kalix.codegen.ModelBuilder
 import kalix.codegen.PackageNaming
 import kalix.codegen.ProtoMessageType
+import kalix.codegen.TestData.protoMessageType
 
 class WorkflowSourceGeneratorSuite extends munit.FunSuite {
 
-  // mirrors ProtoMessageTypeExtractor: the descriptor object is the file's outer class
-  private def protoType(name: String, parent: PackageNaming): ProtoMessageType =
-    ProtoMessageType(
-      name,
-      name,
-      parent,
-      Some(
-        ProtoMessageType(
-          parent.javaOuterClassname,
-          parent.javaOuterClassname,
-          parent.copy(javaOuterClassnameOption = None, javaMultipleFiles = true),
-          None)))
+  private def packaging(protoFile: String, outerClass: String, protoPackage: String): PackageNaming =
+    PackageNaming(protoFile, outerClass, protoPackage, None, Some(outerClass))
 
   private def command(name: String, in: ProtoMessageType, out: ProtoMessageType) =
     ModelBuilder.Command(
@@ -39,9 +30,9 @@ class WorkflowSourceGeneratorSuite extends munit.FunSuite {
 
   // https://support.akka.io case #16497
   test("workflow provider imports the outer class of other services defined in a different package and file") {
-    val workflowFile = PackageNaming("example/workflow/workflow.proto", "WorkflowApi", "example.workflow")
-    val handlerFile = PackageNaming("example/handler/handler.proto", "HandlerApi", "example.handler")
-    val eventFile = PackageNaming("example/event/event_msgs.proto", "EventMsgs", "example.event")
+    val workflowFile = packaging("example/workflow/workflow.proto", "WorkflowApi", "example.workflow")
+    val handlerFile = packaging("example/handler/handler.proto", "HandlerApi", "example.handler")
+    val eventFile = packaging("example/event/event_msgs.proto", "EventMsgs", "example.event")
     val emptyFile = PackageNaming(
       "google/protobuf/empty.proto",
       "EmptyProto",
@@ -50,24 +41,24 @@ class WorkflowSourceGeneratorSuite extends munit.FunSuite {
       Some("EmptyProto"),
       javaMultipleFiles = true)
 
-    val start = protoType("Start", workflowFile)
-    val workflowState = protoType("WorkflowState", workflowFile)
-    val somethingHappened = protoType("SomethingHappened", eventFile)
-    val empty = protoType("Empty", emptyFile)
+    val start = protoMessageType(workflowFile, "Start")
+    val workflowState = protoMessageType(workflowFile, "WorkflowState")
+    val somethingHappened = protoMessageType(eventFile, "SomethingHappened")
+    val empty = protoMessageType(emptyFile, "Empty")
 
     // handler.proto only declares the service, all its rpc message types come from other files
     val handlerService = ModelBuilder.ActionService(
-      protoType("EventHandler", handlerFile),
+      protoMessageType(handlerFile, "EventHandler"),
       Seq(command("Handle", somethingHappened, empty)),
       None)
 
     val workflowService = ModelBuilder.EntityService(
-      protoType("ExampleWorkflowService", workflowFile),
+      protoMessageType(workflowFile, "ExampleWorkflowService"),
       Seq(command("Start", start, empty)),
       "example.workflow.ExampleWorkflow")
 
     val workflowComponent = ModelBuilder.WorkflowComponent(
-      protoType("ExampleWorkflow", workflowFile),
+      protoMessageType(workflowFile, "ExampleWorkflow"),
       "example-workflow",
       ModelBuilder.State(workflowState))
 
@@ -88,9 +79,9 @@ class WorkflowSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("workflow provider fully qualifies service outer classes with clashing simple names") {
-    val workflowFile = PackageNaming("example/workflow/workflow.proto", "WorkflowApi", "example.workflow")
-    val firstFile = PackageNaming("example/first/user_api.proto", "UserApi", "example.first")
-    val secondFile = PackageNaming("example/second/user_api.proto", "UserApi", "example.second")
+    val workflowFile = packaging("example/workflow/workflow.proto", "WorkflowApi", "example.workflow")
+    val firstFile = packaging("example/first/user_api.proto", "UserApi", "example.first")
+    val secondFile = packaging("example/second/user_api.proto", "UserApi", "example.second")
     val emptyFile = PackageNaming(
       "google/protobuf/empty.proto",
       "EmptyProto",
@@ -99,24 +90,24 @@ class WorkflowSourceGeneratorSuite extends munit.FunSuite {
       Some("EmptyProto"),
       javaMultipleFiles = true)
 
-    val start = protoType("Start", workflowFile)
-    val workflowState = protoType("WorkflowState", workflowFile)
-    val empty = protoType("Empty", emptyFile)
+    val start = protoMessageType(workflowFile, "Start")
+    val workflowState = protoMessageType(workflowFile, "WorkflowState")
+    val empty = protoMessageType(emptyFile, "Empty")
 
     // two services in different packages whose files have the same outer class name and define no messages
     def actionService(name: String, file: PackageNaming) =
       ModelBuilder.ActionService(
-        protoType(name, file),
-        Seq(command("Handle", protoType("Request", workflowFile), empty)),
+        protoMessageType(file, name),
+        Seq(command("Handle", protoMessageType(workflowFile, "Request"), empty)),
         None)
 
     val workflowService = ModelBuilder.EntityService(
-      protoType("ExampleWorkflowService", workflowFile),
+      protoMessageType(workflowFile, "ExampleWorkflowService"),
       Seq(command("Start", start, empty)),
       "example.workflow.ExampleWorkflow")
 
     val workflowComponent = ModelBuilder.WorkflowComponent(
-      protoType("ExampleWorkflow", workflowFile),
+      protoMessageType(workflowFile, "ExampleWorkflow"),
       "example-workflow",
       ModelBuilder.State(workflowState))
 
@@ -140,10 +131,10 @@ class WorkflowSourceGeneratorSuite extends munit.FunSuite {
   }
 
   test("workflow provider keeps an outer class in its own package apart from a same-named one in another package") {
-    val workflowFile = PackageNaming("example/workflow/workflow.proto", "WorkflowApi", "example.workflow")
+    val workflowFile = packaging("example/workflow/workflow.proto", "WorkflowApi", "example.workflow")
     // same outer class name, one in the workflow's own package and one in another package
-    val localFile = PackageNaming("example/workflow/user_api.proto", "UserApi", "example.workflow")
-    val otherFile = PackageNaming("example/other/user_api.proto", "UserApi", "example.other")
+    val localFile = packaging("example/workflow/user_api.proto", "UserApi", "example.workflow")
+    val otherFile = packaging("example/other/user_api.proto", "UserApi", "example.other")
     val emptyFile = PackageNaming(
       "google/protobuf/empty.proto",
       "EmptyProto",
@@ -152,21 +143,21 @@ class WorkflowSourceGeneratorSuite extends munit.FunSuite {
       Some("EmptyProto"),
       javaMultipleFiles = true)
 
-    val start = protoType("Start", workflowFile)
-    val workflowState = protoType("WorkflowState", workflowFile)
-    val empty = protoType("Empty", emptyFile)
+    val start = protoMessageType(workflowFile, "Start")
+    val workflowState = protoMessageType(workflowFile, "WorkflowState")
+    val empty = protoMessageType(emptyFile, "Empty")
 
     // the files only declare a service, the rpc message types come from the workflow's file
     def actionService(name: String, file: PackageNaming) =
-      ModelBuilder.ActionService(protoType(name, file), Seq(command("Handle", start, empty)), None)
+      ModelBuilder.ActionService(protoMessageType(file, name), Seq(command("Handle", start, empty)), None)
 
     val workflowService = ModelBuilder.EntityService(
-      protoType("ExampleWorkflowService", workflowFile),
+      protoMessageType(workflowFile, "ExampleWorkflowService"),
       Seq(command("Start", start, empty)),
       "example.workflow.ExampleWorkflow")
 
     val workflowComponent = ModelBuilder.WorkflowComponent(
-      protoType("ExampleWorkflow", workflowFile),
+      protoMessageType(workflowFile, "ExampleWorkflow"),
       "example-workflow",
       ModelBuilder.State(workflowState))
 

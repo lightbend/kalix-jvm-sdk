@@ -1,7 +1,7 @@
 // Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
 
-// Reproducer for support case #16497: this file declares only the service, all its rpc message types
-// are imported from another file, and its package differs from the workflow's package
+// Reproducer: this file declares only the service, all its rpc message types are imported from
+// another file, and its package differs from the workflow's package
 syntax = "proto3";
 
 package com.example.workflow_outer_class.handler;

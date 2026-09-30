@@ -17,7 +17,7 @@ object AdditionalDescriptors {
    * The file descriptor objects (outer classes) of the service's own definition file and of the files of its command
    * types, for callers that render them with imports taken into account.
    */
-  def collectServiceDescriptorObjects(service: ModelBuilder.Service): Seq[ProtoMessageType] =
+  private[codegen] def collectServiceDescriptorObjects(service: ModelBuilder.Service): Seq[ProtoMessageType] =
     (collectRelevantTypes(service.commandTypes, service.messageType).flatMap(_.descriptorObject) ++
       service.messageType.descriptorObject).distinct
 }
