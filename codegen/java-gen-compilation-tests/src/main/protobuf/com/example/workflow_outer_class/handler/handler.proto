@@ -1,0 +1,21 @@
+// Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
+
+// Reproducer: this file declares only the service, all its rpc message types are imported from
+// another file, and its package differs from the workflow's package
+syntax = "proto3";
+
+package com.example.workflow_outer_class.handler;
+
+import "kalix/annotations.proto";
+import "google/protobuf/empty.proto";
+import "com/example/workflow_outer_class/event/event_msgs.proto";
+
+option java_outer_classname = "HandlerApi";
+
+service EventHandler {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc Handle(event.SomethingHappened) returns (google.protobuf.Empty) {}
+}

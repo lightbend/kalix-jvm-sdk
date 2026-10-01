@@ -183,8 +183,8 @@ object SourceGeneratorUtils {
       otherImports: Seq[String],
       packageImports: Seq[String] = Seq.empty): Imports = {
 
+    // types in the current package are kept as candidates so that Imports detects clashes with them
     val messageTypeImports = types
-      .filterNot(_.packageName == packageName)
       .filterNot(_.packageName.isEmpty)
       .filterNot(typ => packageImports.contains(typ.packageName))
       .map(typeImport)

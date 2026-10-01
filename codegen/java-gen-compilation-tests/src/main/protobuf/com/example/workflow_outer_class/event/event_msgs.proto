@@ -1,0 +1,12 @@
+// Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
+
+// Reproducer: message types are defined in a file of their own
+syntax = "proto3";
+
+package com.example.workflow_outer_class.event;
+
+option java_outer_classname = "EventMsgs";
+
+message SomethingHappened {
+  string id = 1;
+}

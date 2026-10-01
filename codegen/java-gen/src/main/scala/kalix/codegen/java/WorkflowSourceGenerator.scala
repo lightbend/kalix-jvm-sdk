@@ -185,8 +185,14 @@ object WorkflowSourceGenerator {
     val relevantTypes = allRelevantMessageTypes(service, workflowComponent) ++ potentialTypesThatWorkflowCanUse
     val relevantProtoTypes = relevantTypes.collect { case proto: ProtoMessageType => proto }
 
+    // The outer classes referenced in additionalDescriptors(), also used for the imports so they can't get out of sync.
+    // The workflow can call any gRPC service, so the definition file of every service is included.
+    val descriptorObjects: Seq[ProtoMessageType] =
+      (collectRelevantTypes(relevantProtoTypes, service.messageType).flatMap(_.descriptorObject) ++
+        allServices.flatMap(AdditionalDescriptors.collectServiceDescriptorObjects)).distinct
+
     implicit val imports = generateImports(
-      relevantTypes ++ relevantProtoTypes.flatMap(_.descriptorObject),
+      relevantTypes ++ descriptorObjects,
       packageName,
       otherImports = Seq(
         "kalix.javasdk.workflow.WorkflowContext",
@@ -195,16 +201,9 @@ object WorkflowSourceGenerator {
         "com.google.protobuf.Descriptors",
         "java.util.function.Function"))
 
-    val relevantTypeDescriptors =
-      collectRelevantTypes(relevantProtoTypes, service.messageType)
-        .flatMap(_.descriptorObject)
-        .map { messageType => s"${messageType.name}.getDescriptor()" }
-
-    //in the workflow definition we can potentially call any GRPC service, so we need to collect all service descriptors
-    val allServicesDescriptors = allServices.flatMap(AdditionalDescriptors.collectServiceDescriptors)
-
+    // rendered via typeName so that outer classes with clashing simple names are fully qualified
     val descriptors =
-      (relevantTypeDescriptors ++ allServicesDescriptors).distinct.sorted
+      descriptorObjects.map(outerClass => s"${typeName(outerClass)}.getDescriptor()").distinct.sorted
 
     s"""package $packageName;
        |
@@ -218,7 +217,7 @@ object WorkflowSourceGenerator {
        | *
        | * Should be used with the <code>register</code> method in {@link kalix.javasdk.Kalix}.
        | */
-       |public class ${className}Provider implements WorkflowProvider<${workflowComponent.state.messageType.fullName}, $className> {
+       |public class ${className}Provider implements WorkflowProvider<${typeName(workflowComponent.state.messageType)}, $className> {
        |
        |  private final Function<WorkflowContext, $className> workflowFactory;
        |  private final WorkflowOptions options;

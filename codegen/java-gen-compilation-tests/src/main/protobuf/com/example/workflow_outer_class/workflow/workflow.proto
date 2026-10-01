@@ -1,0 +1,31 @@
+// Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
+
+// Reproducer for workflow provider codegen referencing other services' outer classes
+syntax = "proto3";
+
+package com.example.workflow_outer_class.workflow;
+
+import "kalix/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option java_outer_classname = "WorkflowApi";
+
+message Start {
+  string workflow_id = 1 [(kalix.field).id = true];
+}
+
+message WorkflowState {
+  string status = 1;
+}
+
+service ExampleWorkflowService {
+  option (kalix.codegen) = {
+    workflow: {
+      name: "com.example.workflow_outer_class.workflow.ExampleWorkflow"
+      type_id: "example-workflow"
+      state: "com.example.workflow_outer_class.workflow.WorkflowState"
+    }
+  };
+
+  rpc StartWorkflow(Start) returns (google.protobuf.Empty) {}
+}
