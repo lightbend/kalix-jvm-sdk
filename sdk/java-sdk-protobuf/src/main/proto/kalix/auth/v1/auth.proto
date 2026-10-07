@@ -2,29 +2,40 @@
 
 syntax = "proto3";
 
-package kalix.auth.v1alpha;
+package kalix.auth.v1;
 
 import "google/protobuf/timestamp.proto";
 
 option java_multiple_files = true;
 option java_outer_classname = "AuthProto";
-option java_package = "kalix.api.auth.v1alpha";
+option java_package = "kalix.api.auth.v1";
 
 service Auth {
-  // Create an access token
+  // Create a short-lived access token.
+  //
+  // Derives a short-lived access token from the current refresh, session, or
+  // service token. Access tokens are used to authenticate individual API requests.
+  //
+  // Authentication required: yes (refresh, session, or service token)
   rpc CreateAccessToken (CreateAccessTokenRequest) returns (AccessToken);
 }
 
+// Create a short-lived access token request.
 message CreateAccessTokenRequest {
 }
 
+// A short-lived access token for making Kalix API requests.
 message AccessToken {
-  // The subject of the access token
-  // This will be the name of the refresh, service or session token that was used to create this token
+  // The subject of this access token — the name of the refresh, session, or
+  // service token that was used to create it.
   string subject = 1;
+  // The token value. Pass this as a Bearer token in the Authorization header.
   string token = 2;
+  // When the token was created.
   google.protobuf.Timestamp created_time = 3;
+  // When the token expires.
   google.protobuf.Timestamp expire_time = 4;
+  // The scopes this token grants access to.
   repeated TokenScope scopes = 5;
 }
 

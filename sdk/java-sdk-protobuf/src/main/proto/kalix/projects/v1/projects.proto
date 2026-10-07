@@ -1,0 +1,95 @@
+// Copyright (C) 2021-2024 Lightbend Inc. <https://www.lightbend.com>
+
+syntax = "proto3";
+
+package kalix.projects.v1;
+
+option java_multiple_files = true;
+option java_outer_classname = "ProjectsProto";
+option java_package = "kalix.api.projects.v1";
+
+service Projects {
+
+  // List projects that a user is part of.
+  //
+  // Authentication required: yes
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
+
+  // Get a list of regions available to the project.
+  //
+  // Authentication required: yes
+  rpc ListRegions(ListRegionsRequest) returns (ListRegionsResponse);
+}
+
+// List projects request message.
+message ListProjectsRequest {
+  // Maximum number of projects to return per page.
+  int32 page_size = 1;
+  // Page token from a previous response to retrieve the next page.
+  string page_token = 2;
+  // Whether deleted projects should be included
+  bool include_deleted = 3;
+  // Whether projects deleted by the system should be included
+  bool include_system_deleted = 4;
+  // Only include projects in this organization
+  string organization_filter = 5;
+}
+
+// List projects response message.
+message ListProjectsResponse {
+  // The list of projects.
+  repeated Project projects = 1;
+  // Token to retrieve the next page of results; empty if there are no more results.
+  string next_page_token = 2;
+}
+
+// A project
+message Project {
+  // The project resource name, in format projects/<project-id>.
+  string name = 1;
+  // The project friendly name.
+  string friendly_name = 2;
+  // The owner of the project
+  OrganizationOwner owner = 4;
+  // Full region details for the project's regions.
+  // Populated in GetProject responses to avoid a separate ListRegions call.
+  repeated Region regions = 11;
+}
+
+// An organization own of a project.
+message OrganizationOwner {
+  // The resource name of the organization, in format organizations/<org-id>
+  string name = 1;
+  // The friendly name of the organization
+  string friendly_name = 2;
+}
+
+// List regions request message.
+message ListRegionsRequest {
+  // The resource name of the project in format projects/<project-id>.
+  string parent = 1;
+  // Maximum number of regions to return per page.
+  int32 page_size = 2;
+  // Page token from a previous response to retrieve the next page.
+  string page_token = 3;
+}
+
+// List regions response message.
+message ListRegionsResponse {
+  // The list of regions.
+  repeated Region regions = 1;
+  // Token to retrieve the next page of results; empty if there are no more results.
+  string next_page_token = 2;
+}
+
+// A region.
+message Region {
+  // The resource name of the region, in the format projects/<project-id>/regions/<region-name>
+  string name = 1;
+
+  // This is the hostname for the backoffice proxy
+  string backoffice_proxy_hostname = 10;
+
+  // Whether this is the primary region
+  bool primary = 15;
+}
