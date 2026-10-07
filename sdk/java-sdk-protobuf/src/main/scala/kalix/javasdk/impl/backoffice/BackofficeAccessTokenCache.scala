@@ -9,7 +9,7 @@ import akka.annotation.InternalApi
 import akka.grpc.GrpcClientSettings
 import akka.pattern.{ ask, StatusReply }
 import akka.util.Timeout
-import kalix.api.auth.v1alpha.auth.{ AuthClient, CreateAccessTokenRequest }
+import kalix.api.auth.v1.auth.{ AuthClient, CreateAccessTokenRequest }
 import org.slf4j.LoggerFactory
 
 import java.time.Instant

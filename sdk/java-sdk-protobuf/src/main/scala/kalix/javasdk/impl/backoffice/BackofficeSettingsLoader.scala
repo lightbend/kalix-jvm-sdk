@@ -8,7 +8,7 @@ import akka.actor.ActorSystem
 import akka.annotation.InternalApi
 import akka.grpc.GrpcClientSettings
 import com.typesafe.config.Config
-import kalix.api.projects.v1alpha.projects._
+import kalix.api.projects.v1.projects._
 import kalix.javasdk.impl.GrpcClients
 import kalix.protocol.discovery.{ BackofficeService, BackofficeSettings }
 import org.slf4j.LoggerFactory
@@ -87,36 +87,44 @@ private[impl] object BackofficeSettingsLoader {
             val projectIdOrFriendlyName = serviceConfig.getString("project")
             for {
               settings <- future
-              projectName <-
+              (projectName, regionsFromListProjects) <-
                 if (isUuid(projectIdOrFriendlyName)) {
-                  Future.successful(s"projects/$projectIdOrFriendlyName")
+                  Future.successful((s"projects/$projectIdOrFriendlyName", Nil))
                 } else {
                   projectsFuture.map(_.filter(_.friendlyName == projectIdOrFriendlyName) match {
                     case Nil =>
                       sys.error(s"Could not find project with friendly name $projectIdOrFriendlyName")
                     case Seq(single) =>
-                      single.name
+                      (single.name, single.regions)
                     case multiple =>
                       val orgIdOrFriendlyName = getOpt(serviceConfig, "organization")
                         .getOrElse(sys.error(
                           s"organization is needed for backoffice service $service because there are multiple projects with a friendly name of $projectIdOrFriendlyName"))
-                      multiple.find(_.owner.organizationOwner.exists(org =>
-                        org.id == orgIdOrFriendlyName || org.friendlyName == orgIdOrFriendlyName)) match {
-                        case Some(project) => project.name
+                      val orgMatcher: OrganizationOwner => Boolean = if (isUuid(orgIdOrFriendlyName)) {
+                        val orgName = s"organizations/$orgIdOrFriendlyName"
+                        org => org.name == orgName
+                      } else { org =>
+                        org.friendlyName == orgIdOrFriendlyName
+                      }
+                      multiple.find(_.owner.exists(orgMatcher)) match {
+                        case Some(project) => (project.name, project.regions)
                         case None =>
                           sys.error(
                             s"Could not find project with friendly name $projectIdOrFriendlyName owned by organization $orgIdOrFriendlyName")
                       }
                   })
                 }
-              regions <- projectRegions.get(projectName) match {
-                case Some(regions) =>
+              regions <- (projectRegions.get(projectName), regionsFromListProjects) match {
+                case (Some(regions), _) =>
                   Future.successful(regions)
-                case None =>
+                case (None, Nil) =>
                   loadRegions(projectsClient, accessToken, requestTimeout, projectName).map { regions =>
                     projectRegions.update(projectName, regions)
                     regions
                   }
+                case (None, someRegions) =>
+                  projectRegions.update(projectName, someRegions)
+                  Future.successful(someRegions)
               }
               region = regions match {
                 case Nil =>
