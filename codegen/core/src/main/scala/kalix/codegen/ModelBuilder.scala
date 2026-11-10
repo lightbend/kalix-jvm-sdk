@@ -10,9 +10,11 @@ import com.google.common.base.CaseFormat
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.ServiceDescriptor
 import kalix.CodegenOptions
+import kalix.EventSource
 import kalix.EventSourcedEntityDef
 import kalix.ReplicatedEntityDef
 import kalix.ServiceOptions.ServiceType
+import kalix.StartFrom
 import kalix.ValueEntityDef
 import kalix.View
 import kalix.WorkflowDef
@@ -539,10 +541,8 @@ object ModelBuilder {
     (resolvedPackage, resolvedName)
   }
 
-  private def isDeleteHandler(method: Descriptors.MethodDescriptor): Boolean = {
-    val eventing = method.getOptions.getExtension(kalix.Annotations.method).getEventing
-    eventing.hasIn && eventing.getIn.hasHandleDeletes
-  }
+  private def isDeleteHandler(method: Descriptors.MethodDescriptor): Boolean =
+    methodEventingIn(method).exists(_.hasHandleDeletes)
 
   private def transformationRequired(method: Descriptors.MethodDescriptor, viewOptions: View): Boolean = {
     if (viewOptions.hasUpdate) {
@@ -556,6 +556,47 @@ object ModelBuilder {
     }
   }
 
+  private def methodEventingIn(method: Descriptors.MethodDescriptor): Option[EventSource] = {
+    val eventing = method.getOptions.getExtension(kalix.Annotations.method).getEventing
+    if (eventing.hasIn) Some(eventing.getIn) else None
+  }
+
+  private def hasStartFrom(in: EventSource): Boolean =
+    in.hasStartFrom && in.getStartFrom.getStartCase != StartFrom.StartCase.START_NOT_SET
+
+  /** Refuses `start_from` where the runtime refuses it, a consumer of a topic or a view, or conflicting options. */
+  private def validateStartFrom(serviceDescriptor: ServiceDescriptor, isView: Boolean): Unit = {
+    val serviceName = serviceDescriptor.getFullName
+    val serviceEventing = serviceDescriptor.getOptions.getExtension(kalix.Annotations.service).getEventing
+    val serviceIn = if (serviceEventing.hasIn) Some(serviceEventing.getIn) else None
+    val methodIns = serviceDescriptor.getMethods.asScala.toSeq.flatMap(m => methodEventingIn(m).map(m.getFullName -> _))
+
+    val serviceStartFrom = serviceIn.filter(hasStartFrom).map(serviceName -> _).toSeq
+    val methodStartFrom = methodIns.filter { case (_, in) => hasStartFrom(in) }
+
+    def refuse(where: String, reason: String) =
+      throw new IllegalArgumentException(s"[$where] sets 'start_from', but $reason")
+
+    (serviceStartFrom ++ methodStartFrom).foreach { case (where, in) =>
+      if (isView)
+        refuse(where, s"[$serviceName] is a view. Remove 'start_from', views always start from the beginning.")
+      val inheritsTopic = in.getSourceCase == EventSource.SourceCase.SOURCE_NOT_SET && serviceIn.exists(_.hasTopic)
+      if (in.hasTopic || inheritsTopic)
+        refuse(where, "it consumes a topic. Remove 'start_from', it is only available for entities and other services.")
+    }
+    if (serviceStartFrom.nonEmpty && methodStartFrom.nonEmpty)
+      refuse(methodStartFrom.head._1, s"[$serviceName] also sets it on service level. Set it on one level only.")
+    if (serviceStartFrom.nonEmpty && serviceEventing.hasOut && serviceEventing.getOut.hasDirect)
+      refuse(serviceName, "it publishes to a service stream. Remove 'start_from' or the stream.")
+
+    def source(in: EventSource) =
+      (in.getSourceCase, in.getTopic, in.getEventSourcedEntity, in.getValueEntity, in.getDirect)
+    methodStartFrom.groupBy { case (_, in) => source(in) }.values.foreach { sameSource =>
+      if (sameSource.map(_._2.getStartFrom).distinct.size > 1)
+        refuse(sameSource.head._1, "another method consuming the same source sets a different 'start_from'.")
+    }
+  }
+
   private def modelFromCodegenOptions(
       serviceDescriptor: ServiceDescriptor,
       additionalDescriptors: Seq[Descriptors.FileDescriptor])(implicit
@@ -566,6 +607,7 @@ object ModelBuilder {
     val serviceName = messageExtractor(serviceDescriptor)
     val methods = serviceDescriptor.getMethods.asScala
     val commands = methods.map(Command.from)
+    validateStartFrom(serviceDescriptor, isView = codegenOptions.getCodegenCase == CodegenOptions.CodegenCase.VIEW)
 
     codegenOptions.getCodegenCase match {
       case CodegenOptions.CodegenCase.ACTION =>
@@ -809,6 +851,7 @@ object ModelBuilder {
 
     val methods = serviceDescriptor.getMethods.asScala
     val commands = methods.map(Command.from)
+    validateStartFrom(serviceDescriptor, isView = serviceType == ServiceType.SERVICE_TYPE_VIEW)
 
     serviceType match {
       case ServiceType.SERVICE_TYPE_ENTITY =>
