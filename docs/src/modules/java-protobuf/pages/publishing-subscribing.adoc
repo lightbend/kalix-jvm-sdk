@@ -99,6 +99,47 @@ include::example$scala-protobuf-eventsourced-counter/src/main/proto/com/example/
 
 The `handle_snapshots: true` annotation marks the method that will receive entity snapshots. The parameter type must match the state type of the Event Sourced Entity.
 
+=== Starting from the latest event or a timestamp
+
+A new Consumer receives all events that its source ever produced. A Consumer that only needs new events, for example one that sends notifications, can set where it starts with `start_from`. Set it in the same `eventing.in` option that names the source. The option is the same for Java and Scala.
+
+[source,proto,indent=0]
+.src/main/proto/com/example/actions/counter_notifications.proto
+----
+service CounterNotifications {
+  option (kalix.codegen) = {
+    action: {}
+  };
+
+  rpc OnIncreased (com.example.domain.ValueIncreased) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "counter"
+      start_from: { latest: true } // <1>
+    };
+  }
+}
+----
+<1> The Consumer starts from the time it first starts. Use `start_from: { timestamp: { seconds: 1767225600 } }` to start from a fixed point in time instead, here midnight UTC on January 1, 2026.
+
+The Consumer never receives events from before its start point. This also holds after the stored offsets of the Consumer are cleared.
+
+`start_from` is available for Consumers of Event Sourced Entities, Value Entities and other Kalix services. The build fails if you:
+
+* set it on a View or on a Consumer of a topic.
+* set it on both service level and method level.
+* use different values on methods that consume the same source.
+* set it on a Consumer that publishes to a service stream with `eventing.out.direct`.
+
+Kalix records the start point when the Consumer first starts, and the start point is permanent:
+
+* With `latest`, the recorded time is reused on later starts.
+* Changing a timestamp to another timestamp, or removing `start_from`, makes the service fail to start.
+* Changing a timestamp to `latest` keeps the recorded time.
+* A Consumer with a new `consumer_group`, or in a service with a new name, gets a new start point.
+* A Consumer that already exists and gets `latest` skips the events it has not processed yet.
+* A timestamp in the future means that the Consumer receives no events until then.
+* `latest` uses the clock of the Kalix runtime. Events written around that time by a system with a different clock can be skipped.
+
 == Subscribing to state changes from a Value Entity
 
 Similar to subscribing to events from an Event Sourced Entity, you can also subscribe to state changes from a Value Entity.
