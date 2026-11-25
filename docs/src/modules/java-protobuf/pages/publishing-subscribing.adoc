@@ -119,7 +119,7 @@ service CounterNotifications {
   }
 }
 ----
-<1> The Consumer starts from the time it first starts. Use `start_from: { timestamp: { seconds: 1767225600 } }` to start from a fixed point in time instead, here midnight UTC on January 1, 2026.
+<1> The Consumer starts from the time it first starts. Use `start_from: { timestamp: { seconds: 1767225600 } }` to start from a fixed point in time instead, here midnight UTC on January 1, 2026. The option takes seconds since the Unix epoch, not a date string. To compute them on Linux, run `date -u -d 2026-01-01T00:00:00Z +%s`. On macOS, run `date -u -j -f %Y-%m-%dT%H:%M:%SZ 2026-01-01T00:00:00Z +%s`.
 
 The Consumer never receives events from before its start point. This also holds after the stored offsets of the Consumer are cleared.
 
