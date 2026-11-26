@@ -19,8 +19,8 @@ You can see the Kalix Runtime version on prod [in groundcover](https://app.groun
 
 - [ ] Wait for the [Publish action](https://github.com/lightbend/kalix-jvm-sdk/actions/workflows/publish.yml) to complete for the release tag
 
-- [ ] Manually update [`docs/kalix-current`](https://github.com/lightbend/kalix-jvm-sdk/commits/docs/kalix-current) (There is a workflow but that has been failing, possibly for expired secrets)
-  - To update that branch, run this locally
+- [ ] Check that the [Publish docs action](https://github.com/lightbend/kalix-jvm-sdk/actions/workflows/publish-docs.yml) updated [`docs/kalix-current`](https://github.com/lightbend/kalix-jvm-sdk/commits/docs/kalix-current)
+  - If it failed, run this locally to update that branch
     ```shell
     git fetch --tags
     cd docs
