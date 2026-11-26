@@ -20,6 +20,8 @@ make deploy
 
 If only some doc changes are needed, branch from the last release tag, cherry-pick the needed doc changes, and then run `make deploy`.
 
+Instead of running `make deploy` locally, you can run the [Publish docs workflow](https://github.com/lightbend/kalix-jvm-sdk/actions/workflows/publish-docs.yml) manually on `main` or on the hotfix branch.
+
 This will publish the doc sources to the `docs/kalix-current` branch. They will be included automatically in the next build for the main docs. 
 A build for the main docs can also be triggered by re-running the last docs `build-and-publish-[x]` in Circle CI on the `main` branch: 
 - `build-and-publish-dev` for dev
