@@ -3,6 +3,7 @@ name: Publish docs
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   # pushing to docs/kalix-current branch (see docs/bin/deploy.sh)
@@ -17,6 +18,9 @@ jobs:
       - name: Checkout
         # https://github.com/actions/checkout/releases
         uses: actions/checkout@v6
+        with:
+          # version.sh needs tags to find the nearest release
+          fetch-depth: 0
 
       - name: Set up JDK 17
         # https://github.com/coursier/setup-action/releases

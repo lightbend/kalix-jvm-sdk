@@ -5,7 +5,7 @@ set -e
 #
 # Deploy doc sources to another branch.
 #
-# Note: this script assumes a GitHub workflow is pushing with a deploy key.
+# Note: pushes over https using GH_TOKEN when set (GitHub workflow), otherwise over ssh.
 #
 # Usage:
 #   deploy.sh <option>... <dir>...
@@ -61,7 +61,11 @@ function fail {
 
 function __deploy_repo_url {
   local repo="$1"
-  echo "git@github.com:${repo}.git"
+  if [ -n "$GH_TOKEN" ]; then
+    echo "https://x-access-token:${GH_TOKEN}@github.com/${repo}.git"
+  else
+    echo "git@github.com:${repo}.git"
+  fi
 }
 
 function __deploy_repo_dir {
