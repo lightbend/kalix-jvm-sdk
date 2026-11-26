@@ -74,11 +74,12 @@ class StartFromValidationSuite extends munit.FunSuite {
       methodIns: Seq[Option[EventSource]],
       directOut: Boolean = false): ModelBuilder.Model = {
     val serviceOptions = ServiceOptions.newBuilder
+    val eventing = ServiceEventing.newBuilder
+    serviceIn.foreach(eventing.setIn)
+    if (directOut)
+      eventing.setOut(ServiceEventingOut.newBuilder.setDirect(DirectDestination.newBuilder.setEventStreamId("s")))
+    val hasEventing = serviceIn.isDefined || directOut
     if (legacy) {
-      val eventing = ServiceEventing.newBuilder
-      serviceIn.foreach(eventing.setIn)
-      if (directOut)
-        eventing.setOut(ServiceEventingOut.newBuilder.setDirect(DirectDestination.newBuilder.setEventStreamId("s")))
       val kind =
         if (view) kalix.ServiceOptions.ServiceType.SERVICE_TYPE_VIEW
         else kalix.ServiceOptions.ServiceType.SERVICE_TYPE_ACTION
@@ -90,15 +91,10 @@ class StartFromValidationSuite extends munit.FunSuite {
         if (view) CodegenOptions.newBuilder.setView(ViewDef.newBuilder).build()
         else CodegenOptions.newBuilder.setAction(ActionDef.newBuilder).build()
       serviceOptions.setExtension(kalix.Annotations.codegen, codegen)
-      if (serviceIn.isDefined || directOut) {
-        val eventing = ServiceEventing.newBuilder
-        serviceIn.foreach(eventing.setIn)
-        if (directOut)
-          eventing.setOut(ServiceEventingOut.newBuilder.setDirect(DirectDestination.newBuilder.setEventStreamId("s")))
+      if (hasEventing)
         serviceOptions.setExtension(
           kalix.Annotations.service,
           kalix.ServiceOptions.newBuilder.setEventing(eventing).build())
-      }
     }
     val service = ServiceDescriptorProto.newBuilder.setName("Svc").setOptions(serviceOptions)
     methodIns.zipWithIndex.foreach { case (in, i) =>
@@ -167,8 +163,22 @@ class StartFromValidationSuite extends munit.FunSuite {
     }
 
     test(s"refuse start_from on service level and method level ($path)") {
-      refused("also sets it on service level")(
+      refused("sets 'eventing.in' on service level")(
         build(view = false, legacy, Some(entity(Some(latest))), Seq(Some(inheriting(latest)))))
+    }
+
+    test(s"refuse start_from on a method when the service has eventing.in without start_from ($path)") {
+      refused("sets 'eventing.in' on service level")(
+        build(view = false, legacy, Some(entity(None)), Seq(Some(inheriting(latest)))))
+    }
+
+    test(s"refuse start_from on a method without a source in a service without eventing.in ($path)") {
+      refused("names no source")(build(view = false, legacy, None, Seq(Some(inheriting(latest)))))
+    }
+
+    test(s"refuse an empty start_from next to latest on the same source ($path)") {
+      val methods = Seq(Some(entity(Some(latest))), Some(entity(Some(empty))))
+      refused("different 'start_from'")(build(view = false, legacy, None, methods))
     }
 
     test(s"refuse different start_from for methods consuming the same source ($path)") {

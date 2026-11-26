@@ -584,16 +584,24 @@ object ModelBuilder {
       if (in.hasTopic || inheritsTopic)
         refuse(where, "it consumes a topic. Remove 'start_from', it is only available for entities and other services.")
     }
-    if (serviceStartFrom.nonEmpty && methodStartFrom.nonEmpty)
-      refuse(methodStartFrom.head._1, s"[$serviceName] also sets it on service level. Set it on one level only.")
+    if (serviceIn.isDefined && methodStartFrom.nonEmpty)
+      refuse(
+        methodStartFrom.head._1,
+        s"[$serviceName] sets 'eventing.in' on service level. Set 'start_from' in the service level 'eventing.in' instead.")
+    if (serviceIn.isEmpty)
+      methodStartFrom.find { case (_, in) => in.getSourceCase == EventSource.SourceCase.SOURCE_NOT_SET }.foreach {
+        case (where, _) => refuse(where, "it names no source and the service has no 'eventing.in'.")
+      }
     if (serviceStartFrom.nonEmpty && serviceEventing.hasOut && serviceEventing.getOut.hasDirect)
       refuse(serviceName, "it publishes to a service stream. Remove 'start_from' or the stream.")
 
+    // The runtime compares by presence, so an empty `start_from` differs from `latest` on the same source
     def source(in: EventSource) =
-      (in.getSourceCase, in.getTopic, in.getEventSourcedEntity, in.getValueEntity, in.getDirect)
-    methodStartFrom.groupBy { case (_, in) => source(in) }.values.foreach { sameSource =>
-      if (sameSource.map(_._2.getStartFrom).distinct.size > 1)
-        refuse(sameSource.head._1, "another method consuming the same source sets a different 'start_from'.")
+      (in.getSourceCase, in.getEventSourcedEntity, in.getValueEntity, in.getDirect)
+    methodIns.filter { case (_, in) => in.hasStartFrom }.groupBy { case (_, in) => source(in) }.values.foreach {
+      sameSource =>
+        if (sameSource.map(_._2.getStartFrom).distinct.size > 1)
+          refuse(sameSource.head._1, "another method consuming the same source sets a different 'start_from'.")
     }
   }
 
