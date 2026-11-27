@@ -67,6 +67,39 @@ fi
 # import the artefact signing key
 echo "${PGP_SECRET}" | base64 -d | gpg --import --batch
 
-# Maven deploy with profile `release`
-# mvn --quiet --batch-mode --activate-profiles release deploy
-mvn --batch-mode --activate-profiles release -Dskip.docker=true deploy
+# Maven deploy with profile `release`. Only builds the bundle, uploading is done below
+# since newer Maven versions add files to the bundle that Central rejects.
+mvn --batch-mode --activate-profiles release -Dskip.docker=true -DskipPublishing=true deploy
+
+BUNDLE="target/central-publishing/central-bundle.zip"
+if [ ! -f "$BUNDLE" ]; then
+  echo "expected bundle $BUNDLE to exist"
+  exit 1
+fi
+
+# Local repository bookkeeping files, they have no .pom next to them
+zip -d "$BUNDLE" '*maven-metadata-local.xml*' '*_remote.repositories*' || [ $? -eq 12 ]
+
+AUTH="$(printf '%s:%s' "${SONATYPE_USERNAME}" "${SONATYPE_PASSWORD}" | base64 -w0)"
+CENTRAL_API="https://central.sonatype.com/api/v1/publisher"
+
+DEPLOYMENT_ID="$(curl --fail --silent --show-error \
+  --header "Authorization: Bearer ${AUTH}" \
+  --form "bundle=@${BUNDLE}" \
+  "${CENTRAL_API}/upload?name=kalix-maven-${SDK_VERSION}&publishingType=AUTOMATIC")"
+echo "Uploaded bundle, deployment id: ${DEPLOYMENT_ID}"
+
+# Wait for validation and publishing
+for _ in $(seq 1 60); do
+  STATE="$(curl --fail --silent --show-error --request POST \
+    --header "Authorization: Bearer ${AUTH}" \
+    "${CENTRAL_API}/status?id=${DEPLOYMENT_ID}" | sed -n 's/.*"deploymentState":"\([A-Z]*\)".*/\1/p')"
+  echo "Deployment state: ${STATE}"
+  case "$STATE" in
+    PUBLISHING|PUBLISHED) exit 0 ;;
+    FAILED) echo "Deployment ${DEPLOYMENT_ID} failed"; exit 1 ;;
+  esac
+  sleep 10
+done
+echo "Timed out waiting for deployment ${DEPLOYMENT_ID}"
+exit 1
